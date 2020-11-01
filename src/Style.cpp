@@ -16,42 +16,17 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <StdXX.hpp>
-using namespace StdXX;
+//Class header
+#include <libkorg/Style.hpp>
 
-namespace KorgFormat
+//Public methods
+void Style::WriteData(DataWriter &dataWriter) const
 {
-	enum class ChunkId : uint32
-	{
-		Container = 0x01000114,
-		KorgFile = 0x02000018,
-		ObjectTOC = 0x05000018,
-		ObjectTOC_Extended = 0x05010018,
-		StyleData = 0x06000030,
-		PerformanceData = 0x09010030,
-		PerformanceData_Extended = 0x09020030,
-		PerformanceData_Extended2 = 0x09020130
-	};
+	dataWriter.WriteBytes(this->data.Data(), this->data.Size());
+}
 
-	struct ChunkHeader
-	{
-		uint32 id;
-		uint32 size;
-	};
-
-	enum class ObjectType
-	{
-		Style = 2,
-		Performance = 7
-	};
-
-	struct HeaderEntry
-	{
-		String name;
-		ObjectType type;
-		uint8 pos;
-	};
-
-	const uint32 OBJECTTOC_LINESIZE = 24;
-	const uint32 HEADERENTRY_NAME_SIZE = 18;
+//Private methods
+void Style::ReadData(DataReader &dataReader, uint32 dataSize)
+{
+	dataReader.ReadBytes(this->data.Data(), dataSize);
 }

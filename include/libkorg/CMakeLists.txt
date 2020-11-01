@@ -1,0 +1,12 @@
+set(SOURCE_FILES
+	${SOURCE_FILES}
+
+	${CMAKE_CURRENT_SOURCE_DIR}/KorgFormatReader.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/KorgFormatWriter.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Performance.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Style.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/StyleBank.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/StyleBankFormat.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/StyleBankObject.hpp
+
+	PARENT_SCOPE)

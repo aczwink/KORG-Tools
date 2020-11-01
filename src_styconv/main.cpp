@@ -16,12 +16,21 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "KorgFormatReader.hpp"
-#include "KorgFormatWriter.hpp"
-#include "Style.hpp"
+#include <libkorg.hpp>
+#include "libkorg/Style.hpp"
 
 int32 Main(const String &programName, const FixedArray<String> &args)
 {
+	//600qt
+	FileInputStream fileInputStream(FileSystem::Path(u8"/home/amir/Desktop/pa600qt.SET/PERFORM/BANK04.PRF"));
+	//FileInputStream fileInputStream(FileSystem::Path(u8"/home/amir/Desktop/pa600qt.SET/STYLE/BANK15.STY"));
+	//FileInputStream fileInputStream(FileSystem::Path(u8"/home/amir/Desktop/pa600qt.SET/STYLE/USER01.STY"));
+
+	//FileInputStream fileInputStream(FileSystem::Path(u8"/home/amir/Desktop/pa700or.SET/STYLE/LOCAL02.STY")); //700or
+
+	//4xor
+	//FileInputStream fileInputStream(FileSystem::Path(u8"/home/amir/Desktop/pa4xor.SET/STYLE/FAVORITE01.STY"));
+	
 	KorgFormatReader styleBankReader(fileInputStream);
 	StyleBank styleBank = styleBankReader.Read();
 

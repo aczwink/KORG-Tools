@@ -16,6 +16,31 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-class OC31Decompressor
+#include "StyleBankObject.hpp"
+
+namespace libKORG
 {
-};
+	class Performance : public StyleBankObject
+	{
+	public:
+		//Constructor
+		inline Performance(StdXX::InputStream& inputStream)
+		{
+			this->ReadData(inputStream);
+		}
+
+		void WriteData(DataWriter &dataWriter) const override
+		{
+			NOT_IMPLEMENTED_ERROR; //TODO: implement me
+			//dataWriter.WriteBytes(this->data.Data(), this->data.Size());
+		}
+
+	private:
+		//Inline
+		inline void ReadData(StdXX::InputStream& inputStream)
+		{
+			FileOutputStream fileOutputStream(FileSystem::Path(u8"/home/amir/Desktop/_OUT/perf"), true);
+			inputStream.FlushTo(fileOutputStream);
+		}
+	};
+}

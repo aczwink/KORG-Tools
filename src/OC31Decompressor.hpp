@@ -16,29 +16,34 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "StyleBankObject.hpp"
+#include <StdXX.hpp>
 
-class Performance : public StyleBankObject
+namespace libKORG
 {
-public:
-	//Constructor
-	inline Performance(DataReader& dataReader, uint32 dataSize) : data(dataSize)
+	class OC31Decompressor : public StdXX::Decompressor
 	{
-		this->ReadData(dataReader, dataSize);
-	}
+	public:
+		//Constructor
+		OC31Decompressor(StdXX::InputStream& inputStream);
 
-	void WriteData(DataWriter &dataWriter) const override
-	{
-		dataWriter.WriteBytes(this->data.Data(), this->data.Size());
-	}
+		//Methods
+		uint32 GetBytesAvailable() const override;
+		bool IsAtEnd() const override;
+		uint32 ReadBytes(void *destination, uint32 count) override;
+		uint32 Skip(uint32 nBytes) override;
 
-private:
-	//Members
-	FixedSizeBuffer data;
+	private:
+		//Members
+		uint32 uncompressedSize;
+		StdXX::FixedSizeBuffer buffer;
+		StdXX::SlidingDictionary dictionary;
+		uint16 nBytesInBuffer;
+		StdXX::DataReader dataReader;
 
-	//Inline
-	inline void ReadData(DataReader& dataReader, uint32 dataSize)
-	{
-		dataReader.ReadBytes(this->data.Data(), dataSize);
-	}
-};
+		//Methods
+		void Backreference(uint16 offset, uint8 length, uint8 lastByte);
+		void DecompressBackreference(uint8 flagByte);
+		void DecompressDirect(uint8 flagByte);
+		void DecompressNextBlock();
+	};
+}

@@ -41,4 +41,10 @@ private:
 	DynamicArray<KorgFormat::HeaderEntry> ReadTOC();
 	DynamicArray<KorgFormat::HeaderEntry> ReadTOC_Extended(uint32 tocSize);
 	void ReadHeader();
+
+	//Inline
+	inline DataReader CreateFourCCReader()
+	{
+		return DataReader(false, this->inputStream);
+	}
 };

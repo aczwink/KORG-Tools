@@ -17,10 +17,10 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 //Class header
-#include "KorgFormatWriter.hpp"
+#include "../include/libkorg/KorgFormatWriter.hpp"
 //Local
-#include "KorgFormatReader.hpp"
-#include "Style.hpp"
+#include "../include/libkorg/KorgFormatReader.hpp"
+#include "../include/libkorg/Style.hpp"
 
 //Methods
 void KorgFormatWriter::Write(StyleBank& styleBank)
