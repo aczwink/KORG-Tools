@@ -16,45 +16,32 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <StdXX.hpp>
+//Class header
+#include <libkorg/Set.hpp>
+//Local
+#include <libkorg/KorgFormatReader.hpp>
+//Namespaces
+using namespace libKORG;
 using namespace StdXX;
+using namespace StdXX::FileSystem;
 
-namespace KorgFormat
+//Constructor
+Set::Set(const Path &setPath)
 {
-	enum class ChunkId : uint32
-	{
-		Container = 0x01000114,
-		KorgFile = 0x02000018,
-		ObjectTOC = 0x05000018,
-		ObjectTOC_Extended = 0x05010018,
-		ObjectTOC_Extended2 = 0x05010118,
-		StyleData = 0x06000030,
-		PerformanceData = 0x09010030,
-		PerformanceData_Extended = 0x09020030,
-		PerformanceData_Extended2 = 0x09020130
-	};
+	//this->ReadDirectory(setPath, u8"PCM");
+	this->ReadDirectory(setPath, u8"STYLE");
+}
 
-	struct ChunkHeader
+//Private methods
+void Set::ReadDirectory(const Path &setPath, const String &dirName)
+{
+	Path dirPath = setPath / dirName;
+	AutoPointer<Directory> directory = OSFileSystem::GetInstance().GetDirectory(dirPath);
+	for (const String& childName : *directory)
 	{
-		uint32 id;
-		uint32 size;
-	};
+		FileInputStream fileInputStream(dirPath / childName);
 
-	enum class ObjectType
-	{
-		Performance = 1,
-		Style = 2,
-		PCM = 6,
-		StylePerformances = 7
-	};
-
-	struct HeaderEntry
-	{
-		String name;
-		ObjectType type;
-		uint8 pos;
-	};
-
-	const uint32 OBJECTTOC_LINESIZE = 24;
-	const uint32 HEADERENTRY_NAME_SIZE = 18;
+		KorgFormatReader korgFormatReader(fileInputStream);
+		StyleBank styleBank = korgFormatReader.Read();
+	}
 }

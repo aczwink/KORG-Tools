@@ -22,11 +22,13 @@
 //Public methods
 void Style::WriteData(DataWriter &dataWriter) const
 {
-	dataWriter.WriteBytes(this->data.Data(), this->data.Size());
+	NOT_IMPLEMENTED_ERROR;
+	//dataWriter.WriteBytes(this->data.Data(), this->data.Size());
 }
 
 //Private methods
-void Style::ReadData(DataReader &dataReader, uint32 dataSize)
+void Style::ReadData(InputStream& inputStream)
 {
-	dataReader.ReadBytes(this->data.Data(), dataSize);
+	FileOutputStream fileOutputStream(FileSystem::Path(u8"/home/amir/Desktop/korg/_OUT/style"), true);
+	inputStream.FlushTo(fileOutputStream);
 }

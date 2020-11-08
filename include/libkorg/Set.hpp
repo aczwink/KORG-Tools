@@ -17,44 +17,17 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <StdXX.hpp>
-using namespace StdXX;
 
-namespace KorgFormat
+namespace libKORG
 {
-	enum class ChunkId : uint32
+	class Set
 	{
-		Container = 0x01000114,
-		KorgFile = 0x02000018,
-		ObjectTOC = 0x05000018,
-		ObjectTOC_Extended = 0x05010018,
-		ObjectTOC_Extended2 = 0x05010118,
-		StyleData = 0x06000030,
-		PerformanceData = 0x09010030,
-		PerformanceData_Extended = 0x09020030,
-		PerformanceData_Extended2 = 0x09020130
-	};
+	public:
+		//Constructor
+		Set(const StdXX::FileSystem::Path& setPath);
 
-	struct ChunkHeader
-	{
-		uint32 id;
-		uint32 size;
+	private:
+		//Methods
+		void ReadDirectory(const StdXX::FileSystem::Path& setPath, const StdXX::String& dirName);
 	};
-
-	enum class ObjectType
-	{
-		Performance = 1,
-		Style = 2,
-		PCM = 6,
-		StylePerformances = 7
-	};
-
-	struct HeaderEntry
-	{
-		String name;
-		ObjectType type;
-		uint8 pos;
-	};
-
-	const uint32 OBJECTTOC_LINESIZE = 24;
-	const uint32 HEADERENTRY_NAME_SIZE = 18;
 }

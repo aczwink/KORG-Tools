@@ -41,7 +41,7 @@ namespace libKORG
 		StdXX::DataReader dataReader;
 
 		//Methods
-		void Backreference(uint16 offset, uint8 length, uint8 lastByte);
+		void Backreference(uint16 offset, uint16 length, uint8 lastByte);
 		void DecompressBackreference(uint8 flagByte);
 		void DecompressDirect(uint8 flagByte);
 		void DecompressNextBlock();

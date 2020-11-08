@@ -19,3 +19,4 @@
 
 #include "libkorg/KorgFormatReader.hpp"
 #include "libkorg/KorgFormatWriter.hpp"
+#include <libkorg/Set.hpp>

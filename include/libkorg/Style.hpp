@@ -24,9 +24,9 @@ class Style : public StyleBankObject
 {
 public:
 	//Constructor
-	inline Style(const String& name, DataReader& dataReader, uint32 dataSize) : name(name), data(dataSize)
+	inline Style(const String& name, StdXX::InputStream& inputStream) : name(name)
 	{
-		this->ReadData(dataReader, dataSize);
+		this->ReadData(inputStream);
 	}
 
 	//Properties
@@ -41,8 +41,7 @@ public:
 private:
 	//Members
 	String name;
-	FixedSizeBuffer data;
 
 	//Methods
-	void ReadData(DataReader& dataReader, uint32 dataSize);
+	void ReadData(StdXX::InputStream& inputStream);
 };

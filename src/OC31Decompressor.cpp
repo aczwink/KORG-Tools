@@ -43,7 +43,7 @@ uint32 OC31Decompressor::GetBytesAvailable() const
 
 bool OC31Decompressor::IsAtEnd() const
 {
-	return this->inputStream.IsAtEnd() && (this->nBytesInBuffer == 0);
+	return (this->nBytesInBuffer == 0) && this->inputStream.IsAtEnd();
 }
 
 uint32 OC31Decompressor::ReadBytes(void *destination, uint32 count)
@@ -74,7 +74,7 @@ uint32 OC31Decompressor::Skip(uint32 nBytes)
 }
 
 //Private methods
-void OC31Decompressor::Backreference(uint16 offset, uint8 length, uint8 nExtraBytes)
+void OC31Decompressor::Backreference(uint16 offset, uint16 length, uint8 nExtraBytes)
 {
 	BufferOutputStream bufferOutputStream(this->buffer.Data(), this->buffer.Size());
 	this->dictionary.Copy(offset + 1, length, bufferOutputStream);
@@ -91,57 +91,70 @@ void OC31Decompressor::Backreference(uint16 offset, uint8 length, uint8 nExtraBy
 
 void OC31Decompressor::DecompressBackreference(uint8 flagByte)
 {
+	uint8 nExtraBytes;
+	uint16 offset, length;
+
 	if(flagByte & 0xC0u)
 	{
 		uint8 packed = this->dataReader.ReadByte();
 
-		uint8 length = (flagByte >> 5u) + 1;
-		uint16 offset = (uint16(flagByte & 0x1F) << 6) | (packed >> 2);
-		uint8 nExtraBytes = packed & 3;
-
-		this->Backreference(offset, length, nExtraBytes);
+		length = (flagByte >> 5u) + 1;
+		offset = (uint16(flagByte & 0x1F) << 6) | (packed >> 2);
+		nExtraBytes = packed & 3;
 	}
 	else if(flagByte & 0x20u)
 	{
 		uint8 indicator = flagByte & 0x1Fu;
 		if(indicator == 0)
-		{
-			uint8 length = this->dataReader.ReadByte() + 0x22;
-			uint16 tmp = this->dataReader.ReadUInt16();
-			uint16 offset = tmp >> 2;
-			uint8 nExtraBytes = tmp & 3;
-
-			this->Backreference(offset, length, nExtraBytes);
-		}
+			length = this->dataReader.ReadByte() + 0x22_u16;
 		else if(indicator == 1)
-		{
-			NOT_IMPLEMENTED_ERROR;
-		}
+			length = this->dataReader.ReadUInt16();
 		else
-		{
-			uint8 length = flagByte + 2;
-			uint16 tmp = this->dataReader.ReadUInt16();
-			uint16 offset = tmp >> 2;
-			uint8 nExtraBytes = tmp & 3;
+			length = indicator + 2_u16;
 
-			this->Backreference(offset, length, nExtraBytes);
-		}
+		uint16 tmp = this->dataReader.ReadUInt16();
+		offset = tmp >> 2;
+		nExtraBytes = tmp & 3;
 	}
 	else
 	{
-		NOT_IMPLEMENTED_ERROR;
+		uint8 indicator = flagByte & 7;
+		if(indicator == 0)
+			length = this->dataReader.ReadByte() + 0xA_u16;
+		else if(indicator == 1)
+			length = this->dataReader.ReadUInt16();
+		else
+			length = indicator + 2_u16;
+
+		uint16 tmp = this->dataReader.ReadUInt16();
+		offset = tmp >> 2;
+		offset += 0x4000;
+		nExtraBytes = tmp & 3;
+
+		if(flagByte & 8)
+			offset += 0x4000;
 	}
+
+	this->Backreference(offset, length, nExtraBytes);
 }
 
 void OC31Decompressor::DecompressDirect(uint8 flagByte)
 {
 	uint16 length;
 	if(flagByte == 0)
-	{
-		NOT_IMPLEMENTED_ERROR;
-	}
+		length = this->dataReader.ReadByte() + 0x12_u16;
 	else if(flagByte == 1)
+	{
 		length = this->dataReader.ReadUInt16() >> 2u;
+
+		if(length == 0)
+		{
+			if(this->uncompressedSize == 0)
+				return;
+		}
+
+		NOT_IMPLEMENTED_ERROR; //TODO: this was not tested
+	}
 	else
 		length = flagByte + 2_u16;
 
@@ -159,4 +172,15 @@ void OC31Decompressor::DecompressNextBlock()
 		this->DecompressBackreference(flagByte);
 	else
 		this->DecompressDirect(flagByte);
+
+	ASSERT(this->uncompressedSize >= this->nBytesInBuffer, u8"TODO: HANDLE THIS CORRECTLY");
+	this->uncompressedSize -= this->nBytesInBuffer;
+
+	if((this->nBytesInBuffer == 0) && (this->uncompressedSize == 0))
+	{
+		uint8 end[2];
+		uint32 nBytesRead = this->inputStream.ReadBytes(end, 2);
+		ASSERT_EQUALS(1, nBytesRead);
+		ASSERT_EQUALS(0xFE, end[0]);
+	}
 }

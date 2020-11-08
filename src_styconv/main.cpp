@@ -17,23 +17,14 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <libkorg.hpp>
-#include "libkorg/Style.hpp"
+using namespace libKORG;
 
 int32 Main(const String &programName, const FixedArray<String> &args)
 {
-	//600qt
-	FileInputStream fileInputStream(FileSystem::Path(u8"/home/amir/Desktop/pa600qt.SET/PERFORM/BANK04.PRF"));
-	//FileInputStream fileInputStream(FileSystem::Path(u8"/home/amir/Desktop/pa600qt.SET/STYLE/BANK15.STY"));
-	//FileInputStream fileInputStream(FileSystem::Path(u8"/home/amir/Desktop/pa600qt.SET/STYLE/USER01.STY"));
+	FileSystem::Path setPath = FileSystem::OSFileSystem::GetInstance().FromNativePath(args[0]);
+	Set set(setPath);
 
-	//FileInputStream fileInputStream(FileSystem::Path(u8"/home/amir/Desktop/pa700or.SET/STYLE/LOCAL02.STY")); //700or
-
-	//4xor
-	//FileInputStream fileInputStream(FileSystem::Path(u8"/home/amir/Desktop/pa4xor.SET/STYLE/FAVORITE01.STY"));
-	
-	KorgFormatReader styleBankReader(fileInputStream);
-	StyleBank styleBank = styleBankReader.Read();
-
+	/*
 	uint32 nPerformances = 0;
 	uint32 nStyles = 0;
 	stdOut << u8"Styles:" << endl;
@@ -68,7 +59,7 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 
 	FileOutputStream fileOutputStream(FileSystem::Path(u8"/home/amir/Desktop/_OUT/_OUT.STY"), true);
 	KorgFormatWriter styleBankWriter(fileOutputStream);
-	styleBankWriter.Write(filtered);
+	styleBankWriter.Write(filtered);*/
 
 	return EXIT_SUCCESS;
 }

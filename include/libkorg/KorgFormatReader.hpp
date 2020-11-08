@@ -40,6 +40,7 @@ private:
 	void ReadEntries(const DynamicArray<KorgFormat::HeaderEntry>& headerEntries, StyleBank& styleBank);
 	DynamicArray<KorgFormat::HeaderEntry> ReadTOC();
 	DynamicArray<KorgFormat::HeaderEntry> ReadTOC_Extended(uint32 tocSize);
+	DynamicArray<KorgFormat::HeaderEntry> ReadTOC_Extended2(uint32 tocSize);
 	void ReadHeader();
 
 	//Inline

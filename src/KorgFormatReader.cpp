@@ -61,7 +61,7 @@ void KorgFormatReader::ReadEntries(const DynamicArray<KorgFormat::HeaderEntry>& 
 	for(const KorgFormat::HeaderEntry& headerEntry : headerEntries)
 	{
 		ChunkHeader chunkHeader = this->ReadChunkHeader();
-		stdOut << String::HexNumber(chunkHeader.id) << " " << headerEntry.name << " " << (uint32)headerEntry.type << endl;
+		stdOut << String::HexNumber(chunkHeader.id) << " " << headerEntry.name << " " << (uint32)headerEntry.type << " " << this->inputStream.GetCurrentOffset() << endl;
 
 		ASSERT((chunkHeader.id == (uint32)ChunkId::StyleData)
 		|| (chunkHeader.id == (uint32)ChunkId::PerformanceData)
@@ -76,12 +76,9 @@ void KorgFormatReader::ReadEntries(const DynamicArray<KorgFormat::HeaderEntry>& 
 		OC31Decompressor decompressor(bufferedInputStream);
 
 		if(headerEntry.type == ObjectType::Style)
-			styleBank.AddObject(headerEntry.pos, new Style(headerEntry.name, dataReader, chunkHeader.size));
+			styleBank.AddObject(headerEntry.pos, new Style(headerEntry.name, decompressor));
 		else
-		{
-			//ASSERT_EQUALS(0_u32, headerEntry.name.GetLength());
 			styleBank.AddObject(headerEntry.pos, new Performance(decompressor));
-		}
 	}
 }
 
@@ -91,6 +88,8 @@ DynamicArray<KorgFormat::HeaderEntry> KorgFormatReader::ReadTOC()
 
 	if(tocHeader.id == (uint32)ChunkId::ObjectTOC_Extended)
 		return this->ReadTOC_Extended(tocHeader.size);
+	if(tocHeader.id == (uint32)ChunkId::ObjectTOC_Extended2)
+		return this->ReadTOC_Extended2(tocHeader.size);
 
 	ASSERT_EQUALS((uint32)ChunkId::ObjectTOC, tocHeader.id);
 
@@ -188,6 +187,55 @@ DynamicArray<KorgFormat::HeaderEntry> KorgFormatReader::ReadTOC_Extended(uint32 
 		this->dataReader.ReadUInt32(); //??? maybe a checksum?
 
 		tocSize -= 53;
+		headerEntries.Push(headerEntry);
+	}
+
+	return headerEntries;
+}
+
+DynamicArray<KorgFormat::HeaderEntry> KorgFormatReader::ReadTOC_Extended2(uint32 tocSize)
+{
+	DynamicArray<KorgFormat::HeaderEntry> headerEntries;
+
+	TextReader textReader(this->inputStream, TextCodecType::ASCII);
+	while(tocSize)
+	{
+		KorgFormat::HeaderEntry headerEntry;
+
+		uint16 headerEntrySize = this->dataReader.ReadUInt16();
+		ASSERT_EQUALS(0x0005_u16, this->dataReader.ReadUInt16());
+		ASSERT_EQUALS(0_u8, this->dataReader.ReadByte());
+		ASSERT_EQUALS(0x0200_u16, this->dataReader.ReadUInt16());
+
+		uint8 nameLength = this->dataReader.ReadByte();
+		headerEntry.name = textReader.ReadString(nameLength);
+
+		ASSERT_EQUALS(3_u32, this->dataReader.ReadUInt32());
+
+		uint8 type = dataReader.ReadByte();
+		ASSERT(type == (uint8)ObjectType::PCM, "???");
+		headerEntry.type = static_cast<ObjectType>(type);
+
+		uint8 bankNumber = dataReader.ReadByte();
+		headerEntry.pos = this->dataReader.ReadByte();
+
+		ASSERT_EQUALS(1_u16, this->dataReader.ReadUInt16());
+		ASSERT_EQUALS(131072_u32, this->dataReader.ReadUInt32());
+		ASSERT_EQUALS(196614_u32, this->dataReader.ReadUInt32());
+		ASSERT_EQUALS(16973826_u32, this->dataReader.ReadUInt32());
+		ASSERT_EQUALS(2097156_u32, this->dataReader.ReadUInt32());
+
+		ASSERT_EQUALS(0x0008, this->dataReader.ReadUInt16());
+		ASSERT_EQUALS(1, this->dataReader.ReadByte());
+
+		uint8 unknown = this->dataReader.ReadByte();
+		ASSERT((unknown == 0xC1) || (unknown == 0xF1)|| (unknown == 0x72), "???");
+
+		this->dataReader.ReadUInt32(); //???
+		this->dataReader.ReadUInt32(); //???
+		this->dataReader.ReadUInt16(); //???
+
+		tocSize -= headerEntrySize;
 		headerEntries.Push(headerEntry);
 	}
 
