@@ -16,34 +16,41 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "StyleBank.hpp"
-#include "StyleBankFormat.hpp"
+#include <libkorg/StyleBankFormat.hpp>
 
-class KorgFormatReader
+class KorgFormatTOCReader
 {
 public:
 	//Constructor
-	inline KorgFormatReader(SeekableInputStream& inputStream) : inputStream(inputStream), dataReader(true, inputStream)
+	inline KorgFormatTOCReader(uint32 tocId, uint32 tocSize, InputStream& inputStream, DataReader& dataReader)
+		: inputStream(inputStream), dataReader(dataReader), textReader(inputStream, TextCodecType::ASCII)
 	{
+		this->tocId = tocId;
+		this->leftTocSize = tocSize;
+	}
+
+	//Properties
+	inline const DynamicArray<KorgFormat::HeaderEntry>& Entries() const
+	{
+		return this->entries;
 	}
 
 	//Methods
-	StyleBank Read();
+	void Read();
 
 private:
 	//Members
-	SeekableInputStream& inputStream;
-	DataReader dataReader;
+	uint32 tocId;
+	uint32 leftTocSize;
+	InputStream& inputStream;
+	DataReader& dataReader;
+	TextReader textReader;
+	DynamicArray<KorgFormat::HeaderEntry> entries;
 
 	//Methods
-	KorgFormat::ChunkHeader ReadChunkHeader();
-	void ReadEntries(const DynamicArray<KorgFormat::HeaderEntry>& headerEntries, StyleBank& styleBank);
-	DynamicArray<KorgFormat::HeaderEntry> ReadTOC();
-	void ReadHeader();
-
-	//Inline
-	inline DataReader CreateFourCCReader()
-	{
-		return DataReader(false, this->inputStream);
-	}
+	KorgFormat::HeaderEntry ReadEntryVersion3();
+	KorgFormat::HeaderEntry ReadEntryVersion5();
+	void ReadExtended();
+	void ReadExtended2();
+	void ReadStandard();
 };

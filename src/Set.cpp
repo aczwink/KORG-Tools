@@ -28,7 +28,7 @@ using namespace StdXX::FileSystem;
 //Constructor
 Set::Set(const Path &setPath)
 {
-	//this->ReadDirectory(setPath, u8"PCM");
+	this->ReadDirectory(setPath, u8"PCM");
 	this->ReadDirectory(setPath, u8"STYLE");
 }
 

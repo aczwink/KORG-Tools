@@ -28,6 +28,7 @@ const bool c_oc31endianness = true;
 OC31Decompressor::OC31Decompressor(InputStream &inputStream) : Decompressor(inputStream),
 	buffer(Unsigned<uint16>::Max()), dictionary(Unsigned<uint16>::Max()), dataReader(c_oc31endianness, inputStream)
 {
+	this->computedCheck = 0;
 	this->nBytesInBuffer = 0;
 
 	DataReader dataReader(false, inputStream);
@@ -144,17 +145,7 @@ void OC31Decompressor::DecompressDirect(uint8 flagByte)
 	if(flagByte == 0)
 		length = this->dataReader.ReadByte() + 0x12_u16;
 	else if(flagByte == 1)
-	{
-		length = this->dataReader.ReadUInt16() >> 2u;
-
-		if(length == 0)
-		{
-			if(this->uncompressedSize == 0)
-				return;
-		}
-
-		NOT_IMPLEMENTED_ERROR; //TODO: this was not tested
-	}
+		length = this->dataReader.ReadUInt16();
 	else
 		length = flagByte + 2_u16;
 
@@ -176,11 +167,14 @@ void OC31Decompressor::DecompressNextBlock()
 	ASSERT(this->uncompressedSize >= this->nBytesInBuffer, u8"TODO: HANDLE THIS CORRECTLY");
 	this->uncompressedSize -= this->nBytesInBuffer;
 
+	for(uint16 i = 0; i < this->nBytesInBuffer; i++)
+		this->computedCheck ^= this->buffer.Data()[i];
+
 	if((this->nBytesInBuffer == 0) && (this->uncompressedSize == 0))
 	{
 		uint8 end[2];
 		uint32 nBytesRead = this->inputStream.ReadBytes(end, 2);
 		ASSERT_EQUALS(1, nBytesRead);
-		ASSERT_EQUALS(0xFE, end[0]);
+		ASSERT_EQUALS(end[0], this->computedCheck);
 	}
 }

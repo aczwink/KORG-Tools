@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
+#pragma once
 #include <StdXX.hpp>
 using namespace StdXX;
 
@@ -31,7 +32,9 @@ namespace KorgFormat
 		StyleData = 0x06000030,
 		PerformanceData = 0x09010030,
 		PerformanceData_Extended = 0x09020030,
-		PerformanceData_Extended2 = 0x09020130
+		PerformanceData_Extended2 = 0x09020130,
+		PCMData1 = 0x12000018,
+		PCMData2 = 0x12000058
 	};
 
 	struct ChunkHeader

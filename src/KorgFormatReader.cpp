@@ -19,9 +19,11 @@
 //Class header
 #include "../include/libkorg/KorgFormatReader.hpp"
 //Local
+#include <libkorg/Sample.hpp>
 #include "../include/libkorg/Style.hpp"
 #include "../include/libkorg/Performance.hpp"
 #include "OC31Decompressor.hpp"
+#include "KorgFormatTOCReader.hpp"
 //Namespaces
 using namespace KorgFormat;
 using namespace libKORG;
@@ -66,7 +68,9 @@ void KorgFormatReader::ReadEntries(const DynamicArray<KorgFormat::HeaderEntry>& 
 		ASSERT((chunkHeader.id == (uint32)ChunkId::StyleData)
 		|| (chunkHeader.id == (uint32)ChunkId::PerformanceData)
 		|| (chunkHeader.id == (uint32)ChunkId::PerformanceData_Extended)
-		|| (chunkHeader.id == (uint32)ChunkId::PerformanceData_Extended2), "???");
+		|| (chunkHeader.id == (uint32)ChunkId::PerformanceData_Extended2)
+		|| (chunkHeader.id == (uint32)ChunkId::PCMData1)
+		|| (chunkHeader.id == (uint32)ChunkId::PCMData2), "???");
 
 		uint32 oc31Header = this->CreateFourCCReader().ReadUInt32();
 		ASSERT_EQUALS(oc31Header, FOURCC(u8"OC31"));
@@ -75,171 +79,34 @@ void KorgFormatReader::ReadEntries(const DynamicArray<KorgFormat::HeaderEntry>& 
 		BufferedInputStream bufferedInputStream(limitedInputStream);
 		OC31Decompressor decompressor(bufferedInputStream);
 
-		if(headerEntry.type == ObjectType::Style)
-			styleBank.AddObject(headerEntry.pos, new Style(headerEntry.name, decompressor));
-		else
-			styleBank.AddObject(headerEntry.pos, new Performance(decompressor));
+		StyleBankObject* object;
+		switch(headerEntry.type)
+		{
+			case ObjectType::Performance:
+				object = new Performance(decompressor);
+				break;
+			case ObjectType::Style:
+				object = new Style(headerEntry.name, decompressor);
+				break;
+			case ObjectType::PCM:
+				object = new Sample(decompressor);
+				break;
+			case ObjectType::StylePerformances:
+				object = new Performance(decompressor);
+				break;
+		}
+
+		styleBank.AddObject(headerEntry.pos, object);
 	}
 }
 
 DynamicArray<KorgFormat::HeaderEntry> KorgFormatReader::ReadTOC()
 {
 	ChunkHeader tocHeader = this->ReadChunkHeader();
+	KorgFormatTOCReader tocReader(tocHeader.id, tocHeader.size, this->inputStream, this->dataReader);
 
-	if(tocHeader.id == (uint32)ChunkId::ObjectTOC_Extended)
-		return this->ReadTOC_Extended(tocHeader.size);
-	if(tocHeader.id == (uint32)ChunkId::ObjectTOC_Extended2)
-		return this->ReadTOC_Extended2(tocHeader.size);
-
-	ASSERT_EQUALS((uint32)ChunkId::ObjectTOC, tocHeader.id);
-
-	uint32 nEntries = tocHeader.size / KorgFormat::OBJECTTOC_LINESIZE;
-	DynamicArray<KorgFormat::HeaderEntry> headerEntries;
-	headerEntries.Resize(nEntries);
-
-	TextReader textReader(this->inputStream, TextCodecType::ASCII);
-	for(uint32 i = 0; i < nEntries; i++)
-	{
-		KorgFormat::HeaderEntry& headerEntry = headerEntries[i];
-
-		headerEntry.name = textReader.ReadZeroTerminatedString(KorgFormat::HEADERENTRY_NAME_SIZE);
-
-		uint8 type = dataReader.ReadByte();
-		ASSERT(type == (uint8)ObjectType::Performance || type == (uint8)ObjectType::Style || type == (uint8)ObjectType::StylePerformances, "???");
-		headerEntry.type = static_cast<ObjectType>(type);
-
-		/*
-		 * Standard banks: 0-
-		 * User banks: 17, 18, 19
-		 * Favorite Banks: 20-
-		 */
-		uint8 bankNumber = dataReader.ReadByte();
-
-		headerEntry.pos = dataReader.ReadByte();
-
-		uint8 unknown = dataReader.ReadByte();
-		if(headerEntry.type == ObjectType::Style)
-			ASSERT_EQUALS(0_u8, unknown)
-		else
-		{
-			//600qt: 1,
-			//4xor: 2
-			ASSERT((unknown == 2) || (unknown == 1), "???")
-		}
-
-		ASSERT_EQUALS(0_u16, dataReader.ReadUInt16());
-	}
-
-	return headerEntries;
-}
-
-DynamicArray<KorgFormat::HeaderEntry> KorgFormatReader::ReadTOC_Extended(uint32 tocSize)
-{
-	DynamicArray<KorgFormat::HeaderEntry> headerEntries;
-
-	TextReader textReader(this->inputStream, TextCodecType::ASCII);
-	while(tocSize)
-	{
-		KorgFormat::HeaderEntry headerEntry;
-
-		uint64 unknown = this->dataReader.ReadUInt64();
-		ASSERT((unknown == 0x003300030002001C) || (unknown == 0x005200050002001C), "???");
-
-		headerEntry.name = textReader.ReadZeroTerminatedString(31);
-
-		ASSERT_EQUALS(3_u8, this->dataReader.ReadByte());
-
-		uint8 type = dataReader.ReadByte();
-		ASSERT(type == (uint8)ObjectType::Style || type == (uint8)ObjectType::StylePerformances, "???");
-		headerEntry.type = static_cast<ObjectType>(type);
-
-		ASSERT_EQUALS(101_u8, this->dataReader.ReadByte());
-		headerEntry.pos = this->dataReader.ReadByte();
-		ASSERT_EQUALS(0_u8, this->dataReader.ReadByte());
-		ASSERT_EQUALS(0x0100_u16, this->dataReader.ReadUInt16());
-		ASSERT_EQUALS(2_u8, this->dataReader.ReadByte());
-
-		uint8 unknown2 = dataReader.ReadByte();
-		if(headerEntry.type == ObjectType::Style)
-		{
-			ASSERT_EQUALS(0_u8, unknown2)
-			ASSERT_EQUALS(0_u8, this->dataReader.ReadByte());
-		}
-		else
-		{
-			ASSERT_EQUALS(2_u8, unknown2)
-			uint8 additionalIndicator = this->dataReader.ReadByte();
-
-			ASSERT((additionalIndicator == 0) || (additionalIndicator == 1), "???");
-			if(additionalIndicator)
-			{
-				ASSERT_EQUALS(0x000500071411071C, this->dataReader.ReadUInt64());
-				ASSERT_EQUALS(0x09_u8, this->dataReader.ReadByte());
-				this->dataReader.ReadUInt16();
-
-				ASSERT_EQUALS(0x00060010_u32, this->dataReader.ReadUInt32());
-				textReader.ReadZeroTerminatedString(16);
-
-				tocSize -= 31;
-			}
-		}
-
-		this->dataReader.ReadUInt32(); //??? maybe a checksum?
-
-		tocSize -= 53;
-		headerEntries.Push(headerEntry);
-	}
-
-	return headerEntries;
-}
-
-DynamicArray<KorgFormat::HeaderEntry> KorgFormatReader::ReadTOC_Extended2(uint32 tocSize)
-{
-	DynamicArray<KorgFormat::HeaderEntry> headerEntries;
-
-	TextReader textReader(this->inputStream, TextCodecType::ASCII);
-	while(tocSize)
-	{
-		KorgFormat::HeaderEntry headerEntry;
-
-		uint16 headerEntrySize = this->dataReader.ReadUInt16();
-		ASSERT_EQUALS(0x0005_u16, this->dataReader.ReadUInt16());
-		ASSERT_EQUALS(0_u8, this->dataReader.ReadByte());
-		ASSERT_EQUALS(0x0200_u16, this->dataReader.ReadUInt16());
-
-		uint8 nameLength = this->dataReader.ReadByte();
-		headerEntry.name = textReader.ReadString(nameLength);
-
-		ASSERT_EQUALS(3_u32, this->dataReader.ReadUInt32());
-
-		uint8 type = dataReader.ReadByte();
-		ASSERT(type == (uint8)ObjectType::PCM, "???");
-		headerEntry.type = static_cast<ObjectType>(type);
-
-		uint8 bankNumber = dataReader.ReadByte();
-		headerEntry.pos = this->dataReader.ReadByte();
-
-		ASSERT_EQUALS(1_u16, this->dataReader.ReadUInt16());
-		ASSERT_EQUALS(131072_u32, this->dataReader.ReadUInt32());
-		ASSERT_EQUALS(196614_u32, this->dataReader.ReadUInt32());
-		ASSERT_EQUALS(16973826_u32, this->dataReader.ReadUInt32());
-		ASSERT_EQUALS(2097156_u32, this->dataReader.ReadUInt32());
-
-		ASSERT_EQUALS(0x0008, this->dataReader.ReadUInt16());
-		ASSERT_EQUALS(1, this->dataReader.ReadByte());
-
-		uint8 unknown = this->dataReader.ReadByte();
-		ASSERT((unknown == 0xC1) || (unknown == 0xF1)|| (unknown == 0x72), "???");
-
-		this->dataReader.ReadUInt32(); //???
-		this->dataReader.ReadUInt32(); //???
-		this->dataReader.ReadUInt16(); //???
-
-		tocSize -= headerEntrySize;
-		headerEntries.Push(headerEntry);
-	}
-
-	return headerEntries;
+	tocReader.Read();
+	return tocReader.Entries();
 }
 
 void KorgFormatReader::ReadHeader()

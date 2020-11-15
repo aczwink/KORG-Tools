@@ -5,18 +5,12 @@
 
 FILE* file;
 
-void crash()
-{
-	fprintf(stderr, "NOT IMPLEMENTED\n");
-	exit(2);
-}
-
-int endianswap(int num)
+static int endianswap(int num)
 {
     return ((num>>24)&0xff) | ((num<<8)&0xff0000) | ((num>>8)&0xff00) | ((num<<24)&0xff000000);
 }
 
-int readbe()
+static int readbe()
 {
     int num;
     fread(&num, sizeof(num), 1, file);
@@ -24,7 +18,7 @@ int readbe()
     return endianswap(num);
 }
 
-int readint()
+static int readint()
 {
     int num;
     fread(&num, sizeof(num), 1, file);
@@ -48,7 +42,7 @@ static void oc31_backref(const uint8_t** compressed, uint8_t** uncompressed, int
     }
 }
 
-void oc31_uncompress(const uint8_t* compressed, const int compressedSize, uint8_t* uncompressed, const int uncompressedSize)
+static void oc31_uncompress(const uint8_t* compressed, const int compressedSize, uint8_t* uncompressed, const int uncompressedSize)
 {
     const uint8_t* const origCompressed = compressed;
     uint8_t* const origUncompressed = uncompressed;
@@ -214,7 +208,6 @@ void oc31_uncompress(const uint8_t* compressed, const int compressedSize, uint8_
                 int unknown2 = *compressed++;
                 int unknown3 = *compressed++;
                 int len = (unknown2 << 8) | unknown3;
-                len >>= 2;
 
                 if(len == 0)
 				{
@@ -224,7 +217,6 @@ void oc31_uncompress(const uint8_t* compressed, const int compressedSize, uint8_
 
 				printf("copy bytes from compressed with two bytes length - length: %d\n", len);
 
-				crash(); //TODO: NOT TESTED
 				memmove(uncompressed, compressed, len);
 				
 				compressed += len;
@@ -238,10 +230,43 @@ void oc31_uncompress(const uint8_t* compressed, const int compressedSize, uint8_
 		fprintf(stderr, "Decompression went wrong\n");
 }
 
+static int oc31_errorcorrectioncode(const uint8_t* uncompressed, int uncompressedSize)
+{
+	int nInts = uncompressedSize >> 4;
+	int nBytes = uncompressedSize - (nInts << 4);
+
+	unsigned accu = 0;
+	do
+	{
+		for(int i = 0; i < 4; i++)
+		{
+			accu = accu ^ *(int *)uncompressed;
+			uncompressed += 4;
+		}
+	}
+	while(--nInts);
+
+	unsigned result = accu & 0xFF;
+	accu >>= 8;
+	result = result ^ (accu & 0xFF);
+	accu >>= 8;
+	result = result ^ (accu & 0xFF);
+	accu >>= 8;
+	result = result ^ accu;
+
+	do
+	{
+		result = result ^ *uncompressed++;
+	}
+	while(--nBytes);
+
+	return result;
+}
+
 int main()
 {
-    const char* filename = "BANK14.STY";
-    int startOffset = 0xbc44;
+    const char* filename = "BANK15.STY";
+    int startOffset = 300035;
 
     file = fopen(filename, "rb");
     fseek(file, startOffset, SEEK_SET);
@@ -258,8 +283,9 @@ int main()
 
     oc31_uncompress(compressed, compressedSize - 1, uncompressed, uncompressedSize);
 
-	if(compressed[compressedSize-1] != 0xFE) //??? this is still unknown
-		crash(); //fprintf(stderr, "End byte: %#x\n", compressed[compressedSize-1]);
+    int computedErrorCode = oc31_errorcorrectioncode(uncompressed, uncompressedSize);
+	if(compressed[compressedSize-1] != computedErrorCode)
+		fprintf(stderr, "data is corrupted. Expected:%#x Computed:%#x\n", compressed[compressedSize-1], computedErrorCode);
 
     FILE* fout = fopen("__OUT", "wb");
     fwrite(uncompressed, 1, uncompressedSize, fout);

@@ -34,6 +34,7 @@ namespace libKORG
 
 	private:
 		//Members
+		uint8 computedCheck;
 		uint32 uncompressedSize;
 		StdXX::FixedSizeBuffer buffer;
 		StdXX::SlidingDictionary dictionary;
