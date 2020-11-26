@@ -16,32 +16,16 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <StdXX.hpp>
-using namespace StdXX;
-#include "BankObject.hpp"
+#pragma once
 
-class Style : public BankObject
+class BankObject
 {
 public:
-	//Constructor
-	inline Style(const String& name, StdXX::InputStream& inputStream) : name(name)
-	{
-		this->ReadData(inputStream);
-	}
+	virtual ~BankObject() = default;
 
-	//Properties
-	inline const String& Name() const
-	{
-		return this->name;
-	}
+	virtual void WriteData(StdXX::DataWriter& dataWriter) const = 0;
+};
 
-	//Methods
-	void WriteData(DataWriter &dataWriter) const override;
-
-private:
-	//Members
-	String name;
-
-	//Methods
-	void ReadData(StdXX::InputStream& inputStream);
+class AbstractSample : public BankObject
+{
 };

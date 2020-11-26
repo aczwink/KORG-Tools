@@ -17,11 +17,28 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
+#include <StdXX.hpp>
+using namespace StdXX;
+//Local
+#include "BankObject.hpp"
 
-class StyleBankObject
+template <typename ObjectType>
+class ObjectBank
 {
 public:
-	virtual ~StyleBankObject() = default;
+	//Properties
+	inline const Map<uint8, Tuple<String, SharedPointer<ObjectType>>>& Objects() const
+	{
+		return this->objects;
+	}
 
-	virtual void WriteData(DataWriter& dataWriter) const = 0;
+	//Inline
+	inline void AddObject(const String& name, uint8 pos, const SharedPointer<ObjectType>& object)
+	{
+		this->objects[pos] = { name, object };
+	}
+
+private:
+	//Members
+	Map<uint8, Tuple<String, SharedPointer<ObjectType>>> objects;
 };

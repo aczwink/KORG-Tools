@@ -17,34 +17,42 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <StdXX.hpp>
-using namespace StdXX;
-//Local
-#include "StyleBankObject.hpp"
+#include "BankFormat.hpp"
+#include "BankObject.hpp"
 
-class StyleBank
+struct BankObjectEntry
+{
+	String name;
+	uint8 pos;
+	BankObject* object;
+};
+
+class BankFormatReader
 {
 public:
-	//Properties
-	inline const LinkedList<SharedPointer<StyleBankObject>>& Objects() const
+	//Constructor
+	inline BankFormatReader(SeekableInputStream& inputStream) : inputStream(inputStream), dataReader(true, inputStream)
 	{
-		return this->objects;
 	}
 
-	//Inline
-	inline void AddObject(uint8 pos, const SharedPointer<StyleBankObject>& object)
-	{
-		this->positions.Insert(object.operator->(), pos);
-		this->objects.InsertTail(object);
-	}
-
-	inline uint8 GetPositionOf(const StyleBankObject& styleBankObject) const
-	{
-		return this->positions.Get(&styleBankObject);
-	}
+	//Methods
+	DynamicArray<BankObjectEntry> Read();
 
 private:
 	//Members
-	LinkedList<SharedPointer<StyleBankObject>> objects;
-	Map<const StyleBankObject*, uint8> positions;
+	SeekableInputStream& inputStream;
+	DataReader dataReader;
+	DynamicArray<BankObjectEntry> objectEntries;
+
+	//Methods
+	KorgFormat::ChunkHeader ReadChunkHeader();
+	void ReadEntries(const DynamicArray<KorgFormat::HeaderEntry>& headerEntries);
+	DynamicArray<KorgFormat::HeaderEntry> ReadTOC();
+	void ReadHeader();
+
+	//Inline
+	inline DataReader CreateFourCCReader(StdXX::InputStream& inputStream)
+	{
+		return DataReader(false, inputStream);
+	}
 };

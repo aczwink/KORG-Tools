@@ -45,6 +45,8 @@ KorgFormat::HeaderEntry KorgFormatTOCReader::ReadEntryVersion3()
 {
 	KorgFormat::HeaderEntry headerEntry;
 
+	headerEntry.encryptedPCM = false;
+
 	ASSERT_EQUALS(2, this->dataReader.ReadUInt16());
 
 	uint16 nameLength = this->dataReader.ReadUInt16();
@@ -53,15 +55,18 @@ KorgFormat::HeaderEntry KorgFormatTOCReader::ReadEntryVersion3()
 	ASSERT_EQUALS(3_u32, this->dataReader.ReadUInt32());
 
 	uint8 type = dataReader.ReadByte();
-	ASSERT(type == (uint8)ObjectType::PCM, "???");
+	ASSERT((type == (uint8)ObjectType::PCM)
+		|| (type == (uint8)ObjectType::SongBookEntry)
+		|| (type == (uint8)ObjectType::StylePerformances), "???");
 	headerEntry.type = static_cast<ObjectType>(type);
 
-	ASSERT_EQUALS(0x4A, this->dataReader.ReadByte());
+	uint8 bankNumber = this->dataReader.ReadByte();
 	headerEntry.pos = this->dataReader.ReadByte();
 
 	ASSERT_EQUALS(1, this->dataReader.ReadUInt16());
 	ASSERT_EQUALS(2, this->dataReader.ReadUInt16());
-	ASSERT_EQUALS(0, this->dataReader.ReadUInt16());
+	uint16 unknown1 = this->dataReader.ReadUInt16();
+	ASSERT((unknown1 == 0) || (unknown1 == 1) || (unknown1 == 0x100), "???" + String::Number(unknown1));
 	this->dataReader.ReadUInt32();
 
 	return headerEntry;
@@ -70,6 +75,8 @@ KorgFormat::HeaderEntry KorgFormatTOCReader::ReadEntryVersion3()
 KorgFormat::HeaderEntry KorgFormatTOCReader::ReadEntryVersion5()
 {
 	KorgFormat::HeaderEntry headerEntry;
+
+	headerEntry.encryptedPCM = true; //TODO: this is not verified, but apparently all version 5 entries of pcm are the encrypted ones
 
 	ASSERT_EQUALS(0_u8, this->dataReader.ReadByte());
 	ASSERT_EQUALS(0x0200_u16, this->dataReader.ReadUInt16());
@@ -197,10 +204,20 @@ void KorgFormatTOCReader::ReadStandard()
 	{
 		KorgFormat::HeaderEntry& headerEntry = this->entries[i];
 
+		headerEntry.encryptedPCM = false;
+
 		headerEntry.name = textReader.ReadZeroTerminatedString(KorgFormat::HEADERENTRY_NAME_SIZE);
 
 		uint8 type = dataReader.ReadByte();
-		ASSERT(type == (uint8)ObjectType::Performance || type == (uint8)ObjectType::Style || type == (uint8)ObjectType::StylePerformances, "???");
+		ASSERT(type == (uint8)ObjectType::MultiSample
+			|| type == (uint8)ObjectType::PAD
+			|| type == (uint8)ObjectType::PCM
+			|| type == (uint8)ObjectType::Performance
+			|| type == (uint8)ObjectType::SongBookEntry
+			|| type == (uint8)ObjectType::SongBook
+			|| type == (uint8)ObjectType::Sound
+			|| type == (uint8)ObjectType::Style
+			|| type == (uint8)ObjectType::StylePerformances, "???");
 		headerEntry.type = static_cast<ObjectType>(type);
 
 		/*
@@ -213,13 +230,14 @@ void KorgFormatTOCReader::ReadStandard()
 		headerEntry.pos = dataReader.ReadByte();
 
 		uint8 unknown = dataReader.ReadByte();
-		if(headerEntry.type == ObjectType::Style)
-		ASSERT_EQUALS(0_u8, unknown)
-		else
-		{
-			ASSERT((unknown == 2) || (unknown == 1), "???")
-		}
+		ASSERT((unknown == 3)
+		|| (unknown == 2)
+		|| (unknown == 1)
+		|| (unknown == 0), "???");
 
-		ASSERT_EQUALS(0_u16, dataReader.ReadUInt16());
+		uint16 unknown1 = dataReader.ReadUInt16();
+		ASSERT((unknown1 == 0)
+		|| (unknown1 == 0x200)
+		|| (unknown1 == 0x300), "???");
 	}
 }

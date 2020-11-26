@@ -16,34 +16,30 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "StyleBank.hpp"
-#include "StyleBankFormat.hpp"
+//Class header
+#include <libkorg/SongBook.hpp>
+//Namespaces
+using namespace StdXX;
+using namespace libKORG;
 
-class KorgFormatReader
+//Private methods
+void SongBook::ReadData(InputStream &inputStream)
 {
-public:
-	//Constructor
-	inline KorgFormatReader(SeekableInputStream& inputStream) : inputStream(inputStream), dataReader(true, inputStream)
+	DataReader dataReader(true, inputStream);
+	TextReader asciiReader(inputStream, TextCodecType::ASCII);
+	TextReader utf16Reader(inputStream, TextCodecType::UTF16_BE);
+
+	while (!inputStream.IsAtEnd())
 	{
+		uint32 unknown = dataReader.ReadUInt32();
+		ASSERT_EQUALS(0x0108, unknown);
+		uint32 nameSize = dataReader.ReadUInt32();
+
+		String asciiName = asciiReader.ReadZeroTerminatedString();
+		nameSize -= asciiName.GetSize();
+		nameSize--; //zero byte
+
+		String utf16name = utf16Reader.ReadZeroTerminatedString(nameSize / 2);
+		stdOut << asciiName << " " << utf16name << endl;
 	}
-
-	//Methods
-	StyleBank Read();
-
-private:
-	//Members
-	SeekableInputStream& inputStream;
-	DataReader dataReader;
-
-	//Methods
-	KorgFormat::ChunkHeader ReadChunkHeader();
-	void ReadEntries(const DynamicArray<KorgFormat::HeaderEntry>& headerEntries, StyleBank& styleBank);
-	DynamicArray<KorgFormat::HeaderEntry> ReadTOC();
-	void ReadHeader();
-
-	//Inline
-	inline DataReader CreateFourCCReader()
-	{
-		return DataReader(false, this->inputStream);
-	}
-};
+}

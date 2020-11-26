@@ -16,11 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "StyleBankObject.hpp"
+#include "BankObject.hpp"
 
 namespace libKORG
 {
-	class Performance : public StyleBankObject
+	class Performance : public BankObject
 	{
 	public:
 		//Constructor

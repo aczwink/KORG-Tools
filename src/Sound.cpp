@@ -16,32 +16,15 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <StdXX.hpp>
+//Class header
+#include <libkorg/Sound.hpp>
+//Namespaces
 using namespace StdXX;
-#include "BankObject.hpp"
+using namespace libKORG;
 
-class Style : public BankObject
+//Public methods
+void Sound::ReadData(InputStream &inputStream)
 {
-public:
-	//Constructor
-	inline Style(const String& name, StdXX::InputStream& inputStream) : name(name)
-	{
-		this->ReadData(inputStream);
-	}
-
-	//Properties
-	inline const String& Name() const
-	{
-		return this->name;
-	}
-
-	//Methods
-	void WriteData(DataWriter &dataWriter) const override;
-
-private:
-	//Members
-	String name;
-
-	//Methods
-	void ReadData(StdXX::InputStream& inputStream);
-};
+	FileOutputStream fileOutputStream(FileSystem::Path(u8"/home/amir/Desktop/korg/_OUT/sound"), true);
+	inputStream.FlushTo(fileOutputStream);
+}

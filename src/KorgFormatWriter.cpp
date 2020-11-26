@@ -19,11 +19,11 @@
 //Class header
 #include "../include/libkorg/KorgFormatWriter.hpp"
 //Local
-#include "../include/libkorg/KorgFormatReader.hpp"
+#include "../include/libkorg/BankFormatReader.hpp"
 #include "../include/libkorg/Style.hpp"
 
 //Methods
-void KorgFormatWriter::Write(StyleBank& styleBank)
+/*void KorgFormatWriter::Write(ObjectBank& styleBank)
 {
 	this->WriteHeader(styleBank.Objects().GetNumberOfElements());
 	this->WriteHeaderEntries(styleBank);
@@ -34,7 +34,7 @@ void KorgFormatWriter::Write(StyleBank& styleBank)
 	uint32 size = this->outputStream.GetCurrentOffset();
 	this->outputStream.SeekTo(4);
 	this->dataWriter.WriteUInt32(size - 8);
-}
+}*/
 
 //Private methods
 void KorgFormatWriter::WriteHeader(uint32 numberOfEntries)
@@ -55,10 +55,10 @@ void KorgFormatWriter::WriteHeader(uint32 numberOfEntries)
 	dataWriter.WriteUInt32(numberOfEntries * KorgFormat::OBJECTTOC_LINESIZE);
 }
 
-void KorgFormatWriter::WriteHeaderEntries(const StyleBank& styleBank)
+/*void KorgFormatWriter::WriteHeaderEntries(const ObjectBank& styleBank)
 {
 	TextWriter textWriter(this->outputStream, TextCodecType::ASCII);
-	for(const SharedPointer<StyleBankObject>& styleBankObject : styleBank.Objects())
+	for(const SharedPointer<BankObject>& styleBankObject : styleBank.Objects())
 	{
 		const Style* style = dynamic_cast<const Style *>(styleBankObject.operator->());
 
@@ -73,11 +73,11 @@ void KorgFormatWriter::WriteHeaderEntries(const StyleBank& styleBank)
 		dataWriter.WriteByte(style ? 0 : 1);
 		dataWriter.WriteUInt16(0);
 	}
-}
+}*/
 
-void KorgFormatWriter::WriteObjects(const StyleBank& styleBank)
+/*void KorgFormatWriter::WriteObjects(const ObjectBank& styleBank)
 {
-	for(const SharedPointer<StyleBankObject>& styleBankObject : styleBank.Objects())
+	for(const SharedPointer<BankObject>& styleBankObject : styleBank.Objects())
 	{
 		const Style* style = dynamic_cast<const Style *>(styleBankObject.operator->());
 
@@ -95,14 +95,14 @@ void KorgFormatWriter::WriteObjects(const StyleBank& styleBank)
 		/*FileOutputStream fileOutputStream(FileSystem::Path(u8"/home/amir/Desktop/_OUT/pa600qt_user01/" + String::Number(styleBank.GetPositionOf(*styleBankObject)) + (style ? style->Name() : u8"")));
 		DataWriter dw = DataWriter(true, fileOutputStream);
 		styleBankObject->WriteData(dw);*/
-
+/*
 		uint32 endOffset = this->outputStream.GetCurrentOffset();
 
 		this->outputStream.SeekTo(sizeOffset);
 		dataWriter.WriteUInt32(endOffset - sizeOffset - 4);
 		this->outputStream.SeekTo(endOffset);
 	}
-}
+}*/
 
 void KorgFormatWriter::WriteTOC()
 {

@@ -17,6 +17,7 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "libkorg/KorgFormatReader.hpp"
+#include "libkorg/BankFormatReader.hpp"
 #include "libkorg/KorgFormatWriter.hpp"
+#include <libkorg/Sample.hpp>
 #include <libkorg/Set.hpp>

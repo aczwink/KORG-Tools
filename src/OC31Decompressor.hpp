@@ -30,21 +30,26 @@ namespace libKORG
 		uint32 GetBytesAvailable() const override;
 		bool IsAtEnd() const override;
 		uint32 ReadBytes(void *destination, uint32 count) override;
-		uint32 Skip(uint32 nBytes) override;
 
 	private:
 		//Members
 		uint8 computedCheck;
 		uint32 uncompressedSize;
-		StdXX::FixedSizeBuffer buffer;
 		StdXX::SlidingDictionary dictionary;
 		uint16 nBytesInBuffer;
 		StdXX::DataReader dataReader;
 
 		//Methods
 		void Backreference(uint16 offset, uint16 length, uint8 lastByte);
-		void DecompressBackreference(uint8 flagByte);
-		void DecompressDirect(uint8 flagByte);
+		uint16 DecompressBackreference(uint8 flagByte);
+		uint16 DecompressDirect(uint8 flagByte);
 		void DecompressNextBlock();
+
+		//Inline
+		inline void FillDictionaryIfEmpty()
+		{
+			if ((this->nBytesInBuffer == 0) && !this->inputStream.IsAtEnd())
+				this->DecompressNextBlock();
+		}
 	};
 }

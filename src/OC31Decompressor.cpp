@@ -26,7 +26,7 @@ const bool c_oc31endianness = true;
 
 //Constructor
 OC31Decompressor::OC31Decompressor(InputStream &inputStream) : Decompressor(inputStream),
-	buffer(Unsigned<uint16>::Max()), dictionary(Unsigned<uint16>::Max()), dataReader(c_oc31endianness, inputStream)
+	dictionary(Unsigned<uint16>::Max()), dataReader(c_oc31endianness, inputStream)
 {
 	this->computedCheck = 0;
 	this->nBytesInBuffer = 0;
@@ -54,43 +54,34 @@ uint32 OC31Decompressor::ReadBytes(void *destination, uint32 count)
 	{
 		if(this->IsAtEnd())
 			break;
-		if ((this->nBytesInBuffer == 0) && !this->inputStream.IsAtEnd())
-			this->DecompressNextBlock();
+		this->FillDictionaryIfEmpty();
 
 		uint32 nBytesToCopy = Math::Min(count, (uint32)this->nBytesInBuffer);
-		MemCopy(dest, this->buffer.Data(), nBytesToCopy);
+		this->dictionary.Read(dest, this->nBytesInBuffer, nBytesToCopy);
 
 		count -= nBytesToCopy;
 		this->nBytesInBuffer -= nBytesToCopy;
 		dest += nBytesToCopy;
 	}
+	this->FillDictionaryIfEmpty(); //make sure the end is read because of the check value
 
 	return dest - static_cast<uint8 *>(destination);
-}
-
-uint32 OC31Decompressor::Skip(uint32 nBytes)
-{
-	NOT_IMPLEMENTED_ERROR; //TODO: implement me
-	return 0;
 }
 
 //Private methods
 void OC31Decompressor::Backreference(uint16 offset, uint16 length, uint8 nExtraBytes)
 {
-	BufferOutputStream bufferOutputStream(this->buffer.Data(), this->buffer.Size());
-	this->dictionary.Copy(offset + 1, length, bufferOutputStream);
-	this->nBytesInBuffer = length;
+	this->dictionary.CopyToTail(offset + 1, length);
 
 	while(nExtraBytes)
 	{
 		uint8 b = this->dataReader.ReadByte();
-		this->buffer.Data()[this->nBytesInBuffer++] = b;
 		this->dictionary.Append(b);
 		nExtraBytes--;
 	}
 }
 
-void OC31Decompressor::DecompressBackreference(uint8 flagByte)
+uint16 OC31Decompressor::DecompressBackreference(uint8 flagByte)
 {
 	uint8 nExtraBytes;
 	uint16 offset, length;
@@ -137,9 +128,10 @@ void OC31Decompressor::DecompressBackreference(uint8 flagByte)
 	}
 
 	this->Backreference(offset, length, nExtraBytes);
+	return length + nExtraBytes;
 }
 
-void OC31Decompressor::DecompressDirect(uint8 flagByte)
+uint16 OC31Decompressor::DecompressDirect(uint8 flagByte)
 {
 	uint16 length;
 	if(flagByte == 0)
@@ -149,26 +141,38 @@ void OC31Decompressor::DecompressDirect(uint8 flagByte)
 	else
 		length = flagByte + 2_u16;
 
-	uint32 nBytesRead = this->inputStream.ReadBytes(this->buffer.Data(), length);
-	ASSERT_EQUALS((uint32)length, nBytesRead);
+	uint16 leftLength = length;
+	while(leftLength)
+	{
+		byte buffer[4096];
+		uint32 nBytesRead = this->inputStream.ReadBytes(buffer, leftLength);
+		this->dictionary.Append(buffer, nBytesRead);
 
-	this->dictionary.Append(this->buffer.Data(), nBytesRead);
-	this->nBytesInBuffer = length;
+		leftLength -= nBytesRead;
+	}
+
+	return length;
 }
 
 void OC31Decompressor::DecompressNextBlock()
 {
 	uint8 flagByte = this->dataReader.ReadByte();
+	uint16 length;
 	if(flagByte & 0xF0)
-		this->DecompressBackreference(flagByte);
+		length = this->DecompressBackreference(flagByte);
 	else
-		this->DecompressDirect(flagByte);
+		length = this->DecompressDirect(flagByte);
 
-	ASSERT(this->uncompressedSize >= this->nBytesInBuffer, u8"TODO: HANDLE THIS CORRECTLY");
-	this->uncompressedSize -= this->nBytesInBuffer;
+	ASSERT(this->uncompressedSize >= length, u8"TODO: HANDLE THIS CORRECTLY");
+	this->uncompressedSize -= length;
 
-	for(uint16 i = 0; i < this->nBytesInBuffer; i++)
-		this->computedCheck ^= this->buffer.Data()[i];
+	for(uint16 i = 0; i < length; i++)
+	{
+		byte b;
+		this->dictionary.Read(&b, i+1, 1);
+		this->computedCheck ^= b;
+	}
+	this->nBytesInBuffer += length;
 
 	if((this->nBytesInBuffer == 0) && (this->uncompressedSize == 0))
 	{

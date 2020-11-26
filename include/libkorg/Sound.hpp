@@ -17,31 +17,26 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <StdXX.hpp>
-using namespace StdXX;
 #include "BankObject.hpp"
 
-class Style : public BankObject
+namespace libKORG
 {
-public:
-	//Constructor
-	inline Style(const String& name, StdXX::InputStream& inputStream) : name(name)
+	class Sound : public BankObject
 	{
-		this->ReadData(inputStream);
-	}
+	public:
+		//Constructor
+		inline Sound(StdXX::InputStream& inputStream)
+		{
+			this->ReadData(inputStream);
+		}
 
-	//Properties
-	inline const String& Name() const
-	{
-		return this->name;
-	}
+		void WriteData(StdXX::DataWriter &dataWriter) const override
+		{
+			NOT_IMPLEMENTED_ERROR;
+		}
 
-	//Methods
-	void WriteData(DataWriter &dataWriter) const override;
-
-private:
-	//Members
-	String name;
-
-	//Methods
-	void ReadData(StdXX::InputStream& inputStream);
-};
+	private:
+		//Methods
+		void ReadData(StdXX::InputStream& inputStream);
+	};
+}

@@ -24,11 +24,26 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 	FileSystem::Path setPath = FileSystem::OSFileSystem::GetInstance().FromNativePath(args[0]);
 	Set set(setPath);
 
+	FileSystem::Path outPath = String(u8"/home/amir/Desktop/korg/_OUT/");
+	for(const auto& kv : set.SampleBanks())
+	{
+		for(const auto& kv2 : kv.value.Objects())
+		{
+			if(kv2.value.Get<1>().IsInstanceOf<Sample>())
+			{
+				const Sample& sample = dynamic_cast<const Sample &>(*kv2.value.Get<1>());
+
+				FileOutputStream fileOutputStream(outPath / String(u8"PCM") / kv2.value.Get<0>(), true);
+				sample.WriteUnknownData(fileOutputStream);
+			}
+		}
+	}
+
 	/*
 	uint32 nPerformances = 0;
 	uint32 nStyles = 0;
 	stdOut << u8"Styles:" << endl;
-	for(const SharedPointer<StyleBankObject>& object : styleBank.Objects())
+	for(const SharedPointer<BankObject>& object : styleBank.Objects())
 	{
 		if(object.IsInstanceOf<Style>())
 		{
@@ -48,8 +63,8 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 	stdOut << u8"Total style count: " << nStyles << endl;
 	stdOut << u8"Performances: " << nPerformances << endl;
 
-	StyleBank filtered;
-	for(const SharedPointer<StyleBankObject>& object : styleBank.Objects())
+	ObjectBank filtered;
+	for(const SharedPointer<BankObject>& object : styleBank.Objects())
 	{
 		if(styleBank.GetPositionOf(*object) == 0)
 		{

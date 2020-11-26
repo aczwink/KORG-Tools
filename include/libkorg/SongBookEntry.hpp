@@ -21,11 +21,59 @@
 
 namespace libKORG
 {
-	class Sample : public AbstractSample
+	enum class KeySignature
+	{
+		Unspecified = 0,
+
+		A_Major = 17,
+		Bb_Major = 18,
+		B_Major = 19,
+		C_Major = 20,
+		CSharp_Major = 21,
+		D_Major = 22,
+		Eb_Major = 23,
+		E_Major = 24,
+		F_Major = 25,
+		FSharp_Major = 26,
+		G_Major = 27,
+		GSharp_Major = 28,
+
+		A_Minor = 33,
+		Bb_Minor = 34,
+		B_Minor = 35,
+		C_Minor = 36,
+		CSharp_Minor = 37,
+		D_Minor = 38,
+		Eb_Minor = 39,
+		E_Minor = 40,
+		F_Minor = 41,
+		FSharp_Minor = 42,
+		G_Minor = 43,
+		GSharp_Minor = 44,
+	};
+
+	enum class Meter
+	{
+		//TODO: rest
+		ThreeOnFour = 34,
+		FourOnFour = 35,
+		//TODO: rest
+		FifteenOnSixteen = 78,
+		//TODO: rest
+	};
+
+	enum class ThreeState
+	{
+		Unchanged = 0,
+		Off = 1,
+		On = 2
+	};
+
+	class SongBookEntry : public BankObject
 	{
 	public:
 		//Constructor
-		inline Sample(StdXX::InputStream& inputStream)
+		inline SongBookEntry(StdXX::InputStream& inputStream)
 		{
 			this->ReadData(inputStream);
 		}
@@ -35,16 +83,7 @@ namespace libKORG
 			NOT_IMPLEMENTED_ERROR;
 		}
 
-		//Methods
-		void WriteUnknownData(StdXX::OutputStream& outputStream) const;
-
 	private:
-		//Members
-		uint64 unknown;
-		uint32 sampleRate;
-		byte unknown2[48];
-		StdXX::DynamicArray<uint16> samples;
-
 		//Methods
 		void ReadData(StdXX::InputStream& inputStream);
 	};

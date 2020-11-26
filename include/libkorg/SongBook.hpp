@@ -16,48 +16,27 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#pragma once
 #include <StdXX.hpp>
-using namespace StdXX;
+#include "BankObject.hpp"
 
-namespace KorgFormat
+namespace libKORG
 {
-	enum class ChunkId : uint32
+	class SongBook : public BankObject
 	{
-		Container = 0x01000114,
-		KorgFile = 0x02000018,
-		ObjectTOC = 0x05000018,
-		ObjectTOC_Extended = 0x05010018,
-		ObjectTOC_Extended2 = 0x05010118,
-		StyleData = 0x06000030,
-		PerformanceData = 0x09010030,
-		PerformanceData_Extended = 0x09020030,
-		PerformanceData_Extended2 = 0x09020130,
-		PCMData1 = 0x12000018,
-		PCMData2 = 0x12000058
-	};
+	public:
+		//Constructor
+		inline SongBook(StdXX::InputStream& inputStream)
+		{
+			this->ReadData(inputStream);
+		}
 
-	struct ChunkHeader
-	{
-		uint32 id;
-		uint32 size;
-	};
+		void WriteData(StdXX::DataWriter &dataWriter) const override
+		{
+			NOT_IMPLEMENTED_ERROR;
+		}
 
-	enum class ObjectType
-	{
-		Performance = 1,
-		Style = 2,
-		PCM = 6,
-		StylePerformances = 7
+	private:
+		//Methods
+		void ReadData(StdXX::InputStream& inputStream);
 	};
-
-	struct HeaderEntry
-	{
-		String name;
-		ObjectType type;
-		uint8 pos;
-	};
-
-	const uint32 OBJECTTOC_LINESIZE = 24;
-	const uint32 HEADERENTRY_NAME_SIZE = 18;
 }

@@ -19,7 +19,7 @@
 #include <StdXX.hpp>
 using namespace StdXX;
 //Local
-#include "StyleBank.hpp"
+#include "ObjectBank.hpp"
 
 class KorgFormatWriter
 {
@@ -31,7 +31,7 @@ public:
 	}
 
 	//Methods
-	void Write(StyleBank& styleBank);
+	//void Write(ObjectBank& styleBank);
 
 private:
 	//Members
@@ -42,7 +42,7 @@ private:
 
 	//Methods
 	void WriteHeader(uint32 numberOfEntries);
-	void WriteHeaderEntries(const StyleBank& styleBank);
-	void WriteObjects(const StyleBank& styleBank);
+	//void WriteHeaderEntries(const ObjectBank& styleBank);
+	//void WriteObjects(const ObjectBank& styleBank);
 	void WriteTOC();
 };
