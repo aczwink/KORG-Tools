@@ -17,24 +17,17 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 //Class header
-#include <libkorg/Style.hpp>
+#include <libkorg/Pad.hpp>
 //Namespaces
 using namespace libKORG;
 using namespace StdXX;
 
-//Public methods
-void Style::WriteData(DataWriter &dataWriter) const
-{
-	NOT_IMPLEMENTED_ERROR;
-	//dataWriter.WriteBytes(this->data.Data(), this->data.Size());
-}
-
 //Protected methods
-String Style::GetDebugDirName() const
+String Pad::GetDebugDirName() const
 {
-	return u8"/home/amir/Desktop/korg/_OUT/STYLE/";
+	return u8"/home/amir/Desktop/korg/_OUT/PAD/";
 }
 
-void Style::ReadDataChunk(uint32 chunkId, DataReader &dataReader)
+void Pad::ReadDataChunk(uint32 chunkId, DataReader &dataReader)
 {
 }

@@ -45,8 +45,6 @@ KorgFormat::HeaderEntry KorgFormatTOCReader::ReadEntryVersion3()
 {
 	KorgFormat::HeaderEntry headerEntry;
 
-	headerEntry.encryptedPCM = false;
-
 	ASSERT_EQUALS(2, this->dataReader.ReadUInt16());
 
 	uint16 nameLength = this->dataReader.ReadUInt16();
@@ -75,8 +73,6 @@ KorgFormat::HeaderEntry KorgFormatTOCReader::ReadEntryVersion3()
 KorgFormat::HeaderEntry KorgFormatTOCReader::ReadEntryVersion5()
 {
 	KorgFormat::HeaderEntry headerEntry;
-
-	headerEntry.encryptedPCM = true; //TODO: this is not verified, but apparently all version 5 entries of pcm are the encrypted ones
 
 	ASSERT_EQUALS(0_u8, this->dataReader.ReadByte());
 	ASSERT_EQUALS(0x0200_u16, this->dataReader.ReadUInt16());
@@ -203,8 +199,6 @@ void KorgFormatTOCReader::ReadStandard()
 	for(uint32 i = 0; i < nEntries; i++)
 	{
 		KorgFormat::HeaderEntry& headerEntry = this->entries[i];
-
-		headerEntry.encryptedPCM = false;
 
 		headerEntry.name = textReader.ReadZeroTerminatedString(KorgFormat::HEADERENTRY_NAME_SIZE);
 

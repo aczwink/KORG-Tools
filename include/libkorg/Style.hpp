@@ -16,32 +16,20 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <StdXX.hpp>
-using namespace StdXX;
+#include "../../src/Reading/ChunkReader.hpp"
 #include "BankObject.hpp"
 
-class Style : public BankObject
+namespace libKORG
 {
-public:
-	//Constructor
-	inline Style(const String& name, StdXX::InputStream& inputStream) : name(name)
+	class Style : public BankObject, public ChunkReader
 	{
-		this->ReadData(inputStream);
-	}
+	public:
+		//Methods
+		void WriteData(StdXX::DataWriter &dataWriter) const override;
 
-	//Properties
-	inline const String& Name() const
-	{
-		return this->name;
-	}
-
-	//Methods
-	void WriteData(DataWriter &dataWriter) const override;
-
-private:
-	//Members
-	String name;
-
-	//Methods
-	void ReadData(StdXX::InputStream& inputStream);
-};
+	protected:
+		//Methods
+		StdXX::String GetDebugDirName() const override;
+		void ReadDataChunk(uint32 chunkId, StdXX::DataReader &dataReader) override;
+	};
+}

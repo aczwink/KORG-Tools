@@ -8,7 +8,9 @@ set(SOURCE_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/KorgFormatWriter.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/MultiSample.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ObjectBank.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Pad.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Performance.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/ProgramChangeSequence.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Sample.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Set.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/SongBookEntry.hpp

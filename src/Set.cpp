@@ -29,13 +29,13 @@ using namespace StdXX::FileSystem;
 Set::Set(const Path &setPath)
 {
 	//TODO: GLOBAL
-	//this->ReadDirectory(setPath, u8"MULTISMP", &Set::LoadMultiSamples); //TODO:
-	//this->ReadDirectory(setPath, u8"PAD", &Set::LoadPads); //TODO:
-	this->ReadDirectory(setPath, u8"PCM", &Set::LoadSamples);
-	//this->ReadDirectory(setPath, u8"PERFORM", &Set::LoadPerformances); //TODO:
-	//this->LoadSongBook(setPath); //TODO:
-	//this->ReadDirectory(setPath, u8"SOUND", &Set::LoadSounds); //TODO:
-	//this->ReadDirectory(setPath, u8"STYLE", &Set::LoadStyles); //TODO:
+	//this->ReadDirectory(setPath, u8"MULTISMP", &Set::LoadMultiSamples);
+	//this->ReadDirectory(setPath, u8"PAD", &Set::LoadPads);
+	//this->ReadDirectory(setPath, u8"PCM", &Set::LoadSamples);
+	this->ReadDirectory(setPath, u8"PERFORM", &Set::LoadPerformances);
+	//this->LoadSongBook(setPath);
+	//this->ReadDirectory(setPath, u8"SOUND", &Set::LoadSounds);
+	//this->ReadDirectory(setPath, u8"STYLE", &Set::LoadStyles);
 }
 
 //Private methods
@@ -47,10 +47,39 @@ void Set::LoadMultiSamples(const String &bankFileName, const DynamicArray<BankOb
 
 void Set::LoadPads(const String &bankFileName, const DynamicArray<BankObjectEntry> &bankEntries)
 {
+	bool isUser = bankFileName.StartsWith(u8"USER");
+	ASSERT(bankFileName.StartsWith(u8"BANK") || isUser, u8"???");
+	ASSERT(bankFileName.EndsWith(u8".PAD"), u8"???");
+	String bankPart = bankFileName.SubString(4, 2);
+
+	uint32 bankNumber = bankPart.ToUInt32() - 1;
+	if(isUser)
+		bankNumber += 20;
+
+	PadBank bank;
+	for(const BankObjectEntry& bankObjectEntry : bankEntries)
+	{
+		Pad& pad = dynamic_cast<Pad&>(*bankObjectEntry.object);
+		bank.AddObject(bankObjectEntry.name, bankObjectEntry.pos, &pad);
+	}
+
+	this->padBanks[bankNumber] = Move(bank);
 }
 
 void Set::LoadPerformances(const String &bankFileName, const DynamicArray<BankObjectEntry> &bankEntries)
 {
+	ASSERT(bankFileName.StartsWith(u8"BANK"), u8"???");
+	ASSERT(bankFileName.EndsWith(u8".PRF"), u8"???");
+	uint8 bankNumber = bankFileName.SubString(4, 2).ToUInt32() - 1;
+
+	ObjectBank<Performance> bank;
+	for(const BankObjectEntry& bankObjectEntry : bankEntries)
+	{
+		Performance& performance = dynamic_cast<Performance&>(*bankObjectEntry.object);
+		bank.AddObject(bankObjectEntry.name, bankObjectEntry.pos, &performance);
+	}
+
+	this->performanceBanks[bankNumber] = Move(bank);
 }
 
 void Set::LoadSamples(const String& bankFileName, const DynamicArray<BankObjectEntry>& bankEntries)
@@ -77,9 +106,16 @@ void Set::LoadSongs(const String& bankFileName, const DynamicArray<BankObjectEnt
 
 void Set::LoadSongBook(const Path& setPath)
 {
-	FileInputStream fileInputStream(setPath / String(u8"SONGBOOK/LISTDB.SBL"));
-	BankFormatReader bankFormatReader(fileInputStream);
-	bankFormatReader.Read();
+	Path listsPath = setPath / String(u8"SONGBOOK/LISTDB.SBL");
+	if(OSFileSystem::GetInstance().Exists(listsPath))
+	{
+		FileInputStream fileInputStream(listsPath);
+		BankFormatReader bankFormatReader(fileInputStream);
+		auto bankEntries = bankFormatReader.Read();
+
+		for(const BankObjectEntry& bankObjectEntry : bankEntries)
+			delete bankObjectEntry.object;
+	}
 
 	this->ReadDirectory(setPath, u8"SONGBOOK/SONGDB.SBD", &Set::LoadSongs);
 }
@@ -108,6 +144,35 @@ void Set::LoadSounds(const String &bankFileName, const DynamicArray<BankObjectEn
 
 void Set::LoadStyles(const String &bankFileName, const DynamicArray<BankObjectEntry> &bankEntries)
 {
+	bool isUser = bankFileName.StartsWith(u8"USER");
+	bool isFavorite = bankFileName.StartsWith(u8"FAVORITE");
+	ASSERT(bankFileName.StartsWith(u8"BANK") || isUser || isFavorite, u8"???");
+	ASSERT(bankFileName.EndsWith(u8".STY"), u8"???");
+	String bankPart = bankFileName.SubString(isFavorite ? 8 : 4, 2);
+
+	uint32 bankNumber = bankPart.ToUInt32() - 1;
+	if(isFavorite)
+		bankNumber += 20;
+	else if(isUser)
+		bankNumber += 17;
+
+	Map<uint8, const BankObjectEntry*> styleEntries;
+	Map<uint8, const BankObjectEntry*> performanceEntries;
+	for(const BankObjectEntry& bankObjectEntry : bankEntries)
+	{
+		if(IS_INSTANCE_OF(bankObjectEntry.object, Style))
+			styleEntries[bankObjectEntry.pos] = &bankObjectEntry;
+		else
+			performanceEntries[bankObjectEntry.pos] = &bankObjectEntry;
+	}
+
+	StyleBank bank;
+	for(const auto& kv : styleEntries)
+	{
+		bank.AddObject(kv.value->name, kv.value->pos, new CompleteStyle(dynamic_cast<Style*>(kv.value->object), dynamic_cast<Performance*>(performanceEntries[kv.key]->object)));
+	}
+
+	this->styleBanks[bankNumber] = Move(bank);
 }
 
 void Set::ReadDirectory(const Path &setPath, const String &dirName, void (Set::* loader)(const String& bankFileName, const DynamicArray<BankObjectEntry>&))

@@ -16,31 +16,28 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <StdXX.hpp>
 #include "BankObject.hpp"
+#include "../../src/Reading/ChunkReader.hpp"
 
 namespace libKORG
 {
+	enum class TrackNumber
+	{
+		Low = 0,
+		Upper1 = 1,
+		Upper2 = 2,
+		Upper3 = 3
+	};
+
 	class Performance : public BankObject
 	{
 	public:
-		//Constructor
-		inline Performance(StdXX::InputStream& inputStream)
-		{
-			this->ReadData(inputStream);
-		}
-
-		void WriteData(DataWriter &dataWriter) const override
+		//Inline
+		void WriteData(StdXX::DataWriter &dataWriter) const override
 		{
 			NOT_IMPLEMENTED_ERROR; //TODO: implement me
 			//dataWriter.WriteBytes(this->data.Data(), this->data.Size());
-		}
-
-	private:
-		//Inline
-		inline void ReadData(StdXX::InputStream& inputStream)
-		{
-			FileOutputStream fileOutputStream(FileSystem::Path(u8"/home/amir/Desktop/korg/_OUT/perf"), true);
-			inputStream.FlushTo(fileOutputStream);
 		}
 	};
 }

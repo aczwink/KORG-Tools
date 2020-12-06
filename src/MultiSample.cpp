@@ -31,10 +31,15 @@ void MultiSample::WriteData(DataWriter &dataWriter) const
 //Private methods
 void MultiSample::ReadData(InputStream &inputStream)
 {
+	/*FileOutputStream fileOutputStream(FileSystem::Path(u8"/home/amir/Desktop/korg/_OUT/multisample"), true);
+	inputStream.FlushTo(fileOutputStream);*/
+
 	TextReader textReader(inputStream, TextCodecType::ASCII);
 	DataReader dataReader(true, inputStream);
 
-	ASSERT_EQUALS(3, dataReader.ReadUInt16());
+	uint16 version = dataReader.ReadUInt16();
+	ASSERT((version == 2) || (version == 3), "???");
+
 	uint16 nSampleEntries = dataReader.ReadUInt16();
 	uint16 nOtherEntries = dataReader.ReadUInt16();
 	uint16 nOtherOtherEntries = dataReader.ReadUInt16();
@@ -79,7 +84,8 @@ void MultiSample::ReadData(InputStream &inputStream)
 	for(uint32 i = 0; i < nOtherEntries; i++)
 	{
 		uint8 unknown11 = dataReader.ReadByte();
-		ASSERT((unknown11 == 1)
+		ASSERT( (unknown11 == 0)
+			|| (unknown11 == 1)
 			|| (unknown11 == 2)
 			|| (unknown11 == 3)
 			|| (unknown11 == 4)
@@ -92,15 +98,23 @@ void MultiSample::ReadData(InputStream &inputStream)
 		uint8 unknown2 = dataReader.ReadByte();
 		uint8 unknown21 = dataReader.ReadByte();
 		ASSERT((unknown21 == 1)
+			|| (unknown21 == 2)
+			|| (unknown21 == 3)
 			|| (unknown21 == 4)
+			|| (unknown21 == 5)
+			|| (unknown21 == 6)
 			|| (unknown21 == 0xff), "???" + String::Number(unknown21));
 		uint8 unknown3 = dataReader.ReadByte();
 
 		ASSERT_EQUALS(Unsigned<uint32>::Max(), dataReader.ReadUInt32());
 		uint16 unknown31 = dataReader.ReadUInt16();
-		ASSERT((unknown31 == 0x8106)
-			   || (unknown31 == 0x8107)
-			   || (unknown31 == 0x81FF), "???");
+		ASSERT((unknown31 == 0x8100)
+			|| (unknown31 == 0x8101)
+			|| (unknown31 == 0x8102)
+			|| (unknown31 == 0x8104)
+			|| (unknown31 == 0x8106)
+			|| (unknown31 == 0x8107)
+			|| (unknown31 == 0x81FF), "???" + String::HexNumber(unknown31));
 		uint16 unknown32 = dataReader.ReadUInt16();
 
 		String name = textReader.ReadZeroTerminatedString(16);
@@ -157,6 +171,7 @@ void MultiSample::ReadData(InputStream &inputStream)
 		uint8 unknown3 = dataReader.ReadByte();
 		ASSERT((unknown3 == 0)
 			|| (unknown3 == 1)
+			|| (unknown3 == 2)
 			|| (unknown3 == 3)
 			|| (unknown3 == 4)
 			|| (unknown3 == 5)

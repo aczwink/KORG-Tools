@@ -1,0 +1,9 @@
+set(SOURCE_FILES
+	${SOURCE_FILES}
+
+	${CMAKE_CURRENT_SOURCE_DIR}/ChunkReader.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/ChunkReader.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/PerformanceReader.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/PerformanceReader.hpp
+
+	PARENT_SCOPE)

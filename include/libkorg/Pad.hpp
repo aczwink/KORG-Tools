@@ -16,25 +16,22 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-//Class header
-#include <libkorg/Style.hpp>
-//Namespaces
-using namespace libKORG;
-using namespace StdXX;
+#include <StdXX.hpp>
+#include "BankObject.hpp"
+#include "../../src/Reading/ChunkReader.hpp"
 
-//Public methods
-void Style::WriteData(DataWriter &dataWriter) const
+namespace libKORG
 {
-	NOT_IMPLEMENTED_ERROR;
-	//dataWriter.WriteBytes(this->data.Data(), this->data.Size());
-}
+	class Pad : public AbstractSample, public ChunkReader
+	{
+	public:
+		void WriteData(StdXX::DataWriter &dataWriter) const override
+		{
+			NOT_IMPLEMENTED_ERROR;
+		}
 
-//Protected methods
-String Style::GetDebugDirName() const
-{
-	return u8"/home/amir/Desktop/korg/_OUT/STYLE/";
-}
-
-void Style::ReadDataChunk(uint32 chunkId, DataReader &dataReader)
-{
+	protected:
+		StdXX::String GetDebugDirName() const override;
+		void ReadDataChunk(uint32 chunkId, StdXX::DataReader &dataReader) override;
+	};
 }

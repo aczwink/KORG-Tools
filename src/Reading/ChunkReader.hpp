@@ -16,25 +16,27 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-//Class header
-#include <libkorg/Style.hpp>
-//Namespaces
-using namespace libKORG;
-using namespace StdXX;
+#pragma once
+#include <StdXX.hpp>
 
-//Public methods
-void Style::WriteData(DataWriter &dataWriter) const
+class ChunkReader
 {
-	NOT_IMPLEMENTED_ERROR;
-	//dataWriter.WriteBytes(this->data.Data(), this->data.Size());
-}
+public:
+	//Methods
+	void ReadData(StdXX::InputStream& inputStream);
 
-//Protected methods
-String Style::GetDebugDirName() const
-{
-	return u8"/home/amir/Desktop/korg/_OUT/STYLE/";
-}
+protected:
+	virtual StdXX::String GetDebugDirName() const = 0;
+	virtual void ReadDataChunk(uint32 chunkId, StdXX::DataReader& dataReader) = 0;
 
-void Style::ReadDataChunk(uint32 chunkId, DataReader &dataReader)
-{
-}
+private:
+	//Methods
+	void ReadChunks(StdXX::InputStream& inputStream, uint8 depth);
+
+	//Inline
+	inline void PrintDashes(uint8 depth)
+	{
+		for(uint8 i = 0; i < depth; i++)
+			StdXX::stdOut << "-";
+	}
+};

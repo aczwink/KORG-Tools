@@ -36,6 +36,26 @@ void SongBookEntry::ReadData(InputStream &inputStream)
 
 		switch(chunkId)
 		{
+			case 8:
+			{
+				ASSERT_EQUALS(3, dataReader.ReadByte());
+				String genre = asciiReader.ReadZeroTerminatedString();
+
+				stdOut << genre << endl;
+
+				dataReader.Skip(chunkSize - 1 - genre.GetLength() - 1);
+			}
+			break;
+			case 0x108:
+			{
+				ASSERT_EQUALS(3, dataReader.ReadByte());
+				String genre = asciiReader.ReadZeroTerminatedString();
+
+				stdOut << genre << endl;
+
+				dataReader.Skip(chunkSize - 1 - genre.GetLength() - 1);
+			}
+			break;
 			case 0x208:
 			{
 				ASSERT_EQUALS(3, dataReader.ReadByte());

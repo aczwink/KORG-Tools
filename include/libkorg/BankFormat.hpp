@@ -30,6 +30,7 @@ namespace KorgFormat
 		ObjectTOC_Extended = 0x050100,
 		ObjectTOC_Extended2 = 0x050101,
 		StyleData = 0x060000,
+		OldSoundDataMaybe = 0x70003,
 		SongBookListData = 0x080000,
 		SongBookListData1 = 0x080001,
 		PerformanceData02 = 0x090002,
@@ -38,6 +39,8 @@ namespace KorgFormat
 		PerformanceData20 = 0x090200,
 		PerformanceData21 = 0x090201,
 		PadData = 0x0C0000,
+		SoundData00 = 0x100000,
+		SoundData0 = 0x100100,
 		SoundData1 = 0x100200,
 		SoundData2 = 0x100300,
 		MultiSampleData = 0x110300,
@@ -53,7 +56,11 @@ namespace KorgFormat
 
 	enum class ChunkHeaderFlags
 	{
+		Unknown2 = 0x4,
+		Unknown3 = 0x8,
+		AlwaysSet = 0x10,
 		OC31Compressed = 0x20,
+		Encrypted = 0x40,
 	};
 
 	enum class ObjectType
@@ -74,7 +81,6 @@ namespace KorgFormat
 		String name;
 		ObjectType type;
 		uint8 pos;
-		bool encryptedPCM;
 	};
 
 	const uint32 OBJECTTOC_LINESIZE = 24;

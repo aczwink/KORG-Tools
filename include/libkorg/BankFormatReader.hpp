@@ -27,32 +27,38 @@ struct BankObjectEntry
 	BankObject* object;
 };
 
-class BankFormatReader
-{
-public:
-	//Constructor
-	inline BankFormatReader(SeekableInputStream& inputStream) : inputStream(inputStream), dataReader(true, inputStream)
+namespace libKORG {
+	class BankFormatReader
 	{
-	}
+	public:
+		//Constructor
+		inline BankFormatReader(SeekableInputStream &inputStream) : inputStream(inputStream),
+																	dataReader(true, inputStream)
+		{
+		}
 
-	//Methods
-	DynamicArray<BankObjectEntry> Read();
+		//Methods
+		DynamicArray<BankObjectEntry> Read();
 
-private:
-	//Members
-	SeekableInputStream& inputStream;
-	DataReader dataReader;
-	DynamicArray<BankObjectEntry> objectEntries;
+	private:
+		//Members
+		SeekableInputStream &inputStream;
+		DataReader dataReader;
+		DynamicArray<BankObjectEntry> objectEntries;
 
-	//Methods
-	KorgFormat::ChunkHeader ReadChunkHeader();
-	void ReadEntries(const DynamicArray<KorgFormat::HeaderEntry>& headerEntries);
-	DynamicArray<KorgFormat::HeaderEntry> ReadTOC();
-	void ReadHeader();
+		//Methods
+		KorgFormat::ChunkHeader ReadChunkHeader();
 
-	//Inline
-	inline DataReader CreateFourCCReader(StdXX::InputStream& inputStream)
-	{
-		return DataReader(false, inputStream);
-	}
-};
+		void ReadEntries(const DynamicArray<KorgFormat::HeaderEntry> &headerEntries);
+
+		DynamicArray<KorgFormat::HeaderEntry> ReadTOC();
+
+		void ReadHeader();
+
+		//Inline
+		inline DataReader CreateFourCCReader(StdXX::InputStream &inputStream)
+		{
+			return DataReader(false, inputStream);
+		}
+	};
+}

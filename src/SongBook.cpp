@@ -31,15 +31,13 @@ void SongBook::ReadData(InputStream &inputStream)
 
 	while (!inputStream.IsAtEnd())
 	{
-		uint32 unknown = dataReader.ReadUInt32();
-		ASSERT_EQUALS(0x0108, unknown);
-		uint32 nameSize = dataReader.ReadUInt32();
+		uint32 chunkId = dataReader.ReadUInt32();
+		uint32 chunkSize = dataReader.ReadUInt32();
+
+		ASSERT_EQUALS(0x0108, chunkId);
 
 		String asciiName = asciiReader.ReadZeroTerminatedString();
-		nameSize -= asciiName.GetSize();
-		nameSize--; //zero byte
-
-		String utf16name = utf16Reader.ReadZeroTerminatedString(nameSize / 2);
+		String utf16name = utf16Reader.ReadZeroTerminatedString();
 		stdOut << asciiName << " " << utf16name << endl;
 	}
 }

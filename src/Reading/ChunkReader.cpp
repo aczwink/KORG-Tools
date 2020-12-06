@@ -1,0 +1,73 @@
+/*
+ * Copyright (c) 2020 Amir Czwink (amir130@hotmail.de)
+ *
+ * This file is part of KORG-Tools.
+ *
+ * KORG-Tools is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * KORG-Tools is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
+ */
+//Class header
+#include "ChunkReader.hpp"
+//Namespaces
+using namespace StdXX;
+
+//Public methods
+void ChunkReader::ReadData(InputStream &inputStream)
+{
+	String call = "rm -rf \"" + this->GetDebugDirName() + "\"";
+	system(reinterpret_cast<const char *>(call.ToUTF8().GetRawZeroTerminatedData()));
+	FileSystem::OSFileSystem::GetInstance().CreateDirectoryTree(this->GetDebugDirName());
+
+	this->ReadChunks(inputStream, 0);
+}
+
+//Private methods
+void ChunkReader::ReadChunks(InputStream &inputStream, uint8 depth)
+{
+	DataReader dataReader(true, inputStream);
+
+	while(!inputStream.IsAtEnd())
+	{
+		uint32 chunkId = dataReader.ReadUInt32();
+		uint32 chunkSize = dataReader.ReadUInt32();
+
+		LimitedInputStream chunkInputStream(inputStream, chunkSize);
+		if(chunkId & 8)
+		{
+			this->PrintDashes(depth + 1);
+			stdOut << "Reading Data chunk " << String::HexNumber(chunkId) << endl;
+
+			DataReader chunkDataReader(true, chunkInputStream);
+			this->ReadDataChunk(chunkId, chunkDataReader);
+
+			if(!chunkInputStream.IsAtEnd())
+			{
+				static int __iteration = 0;
+				FileOutputStream fileOutputStream(
+						FileSystem::Path(this->GetDebugDirName() + String::HexNumber(chunkId) + "_" + String::Number(__iteration++)),
+						true);
+				chunkInputStream.FlushTo(fileOutputStream);
+			}
+		}
+		else
+		{
+			this->PrintDashes(depth + 1);
+			stdOut << "Entering chunk " << String::HexNumber(chunkId) << endl;
+
+			this->ReadChunks(chunkInputStream, depth + 1);
+
+			this->PrintDashes(depth + 1);
+			stdOut << "Leaving chunk " << String::HexNumber(chunkId) << endl;
+		}
+	}
+}

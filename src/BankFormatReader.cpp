@@ -25,10 +25,12 @@
 #include <libkorg/SongBook.hpp>
 #include <libkorg/SongBookEntry.hpp>
 #include <libkorg/Sound.hpp>
+#include <libkorg/Pad.hpp>
 #include "../include/libkorg/Style.hpp"
 #include "../include/libkorg/Performance.hpp"
 #include "OC31Decompressor.hpp"
 #include "KorgFormatTOCReader.hpp"
+#include "Reading/PerformanceReader.hpp"
 //Namespaces
 using namespace KorgFormat;
 using namespace libKORG;
@@ -61,13 +63,16 @@ ChunkHeader BankFormatReader::ReadChunkHeader()
 	chunkHeader.flags = tmp & 0xFFu;
 	chunkHeader.size = this->dataReader.ReadUInt32();
 
-	ASSERT((chunkHeader.flags == 0x10)
-		|| (chunkHeader.flags == 0x14)
-		|| (chunkHeader.flags == 0x18)
-		|| (chunkHeader.flags == 0x30)
-		|| (chunkHeader.flags == 0x38)
-		|| (chunkHeader.flags == 0x58)
-		|| (chunkHeader.flags == 0x78), "???" + String::Number(chunkHeader.flags));
+	ASSERT(chunkHeader.flags & (uint8)ChunkHeaderFlags::AlwaysSet, u8"AlwaysSet is always set");
+
+	uint8 flagsCopy = chunkHeader.flags;
+	flagsCopy &= ~(uint8)ChunkHeaderFlags::AlwaysSet;
+	flagsCopy &= ~(uint8)ChunkHeaderFlags::Unknown2;
+	flagsCopy &= ~(uint8)ChunkHeaderFlags::Unknown3;
+	flagsCopy &= ~(uint8)ChunkHeaderFlags::OC31Compressed;
+	flagsCopy &= ~(uint8)ChunkHeaderFlags::Encrypted;
+
+	ASSERT_EQUALS(0, flagsCopy);
 
 	return chunkHeader;
 }
@@ -77,9 +82,11 @@ void BankFormatReader::ReadEntries(const DynamicArray<KorgFormat::HeaderEntry>& 
 	for(const KorgFormat::HeaderEntry& headerEntry : headerEntries)
 	{
 		ChunkHeader chunkHeader = this->ReadChunkHeader();
-		stdOut << String::HexNumber(chunkHeader.id) << " " << headerEntry.name << " " << (uint32)headerEntry.type << " " << this->inputStream.GetCurrentOffset() << endl;
+		stdOut << String::HexNumber(chunkHeader.id) << " " << headerEntry.name << " " << (uint32)headerEntry.type
+			<< " " << headerEntry.pos << " " << this->inputStream.GetCurrentOffset() << endl;
 
 		ASSERT((chunkHeader.id == (uint32)ChunkId::MultiSampleData)
+			|| (chunkHeader.id == (uint32)ChunkId::OldSoundDataMaybe)
 			|| (chunkHeader.id == (uint32)ChunkId::PadData)
 			|| (chunkHeader.id == (uint32)ChunkId::PCMData)
 			|| (chunkHeader.id == (uint32)ChunkId::PerformanceData02)
@@ -89,14 +96,20 @@ void BankFormatReader::ReadEntries(const DynamicArray<KorgFormat::HeaderEntry>& 
 			|| (chunkHeader.id == (uint32)ChunkId::PerformanceData21)
 			|| (chunkHeader.id == (uint32)ChunkId::SongBookListData)
 			|| (chunkHeader.id == (uint32)ChunkId::SongBookListData1)
+			|| (chunkHeader.id == (uint32)ChunkId::SoundData00)
+			|| (chunkHeader.id == (uint32)ChunkId::SoundData0)
 			|| (chunkHeader.id == (uint32)ChunkId::SoundData1)
 			|| (chunkHeader.id == (uint32)ChunkId::SoundData2)
-			|| (chunkHeader.id == (uint32)ChunkId::StyleData), "???");
+			|| (chunkHeader.id == (uint32)ChunkId::StyleData), "???" + String::HexNumber(chunkHeader.id));
 
 		ChainedInputStream chainedInputStream(new LimitedInputStream(this->inputStream, chunkHeader.size));
 		chainedInputStream.Add(new BufferedInputStream(chainedInputStream.GetEnd()));
 
-		if(chunkHeader.flags & (uint8)ChunkHeaderFlags::OC31Compressed)
+		if(chunkHeader.flags & (uint8)ChunkHeaderFlags::Encrypted)
+		{
+			ASSERT_EQUALS(ObjectType::PCM, headerEntry.type);
+		}
+		else if(chunkHeader.flags & (uint8)ChunkHeaderFlags::OC31Compressed)
 		{
 			uint32 oc31Header = this->CreateFourCCReader(chainedInputStream.GetEnd()).ReadUInt32();
 			ASSERT( (oc31Header == FOURCC(u8"OC31")) || (oc31Header == FOURCC(u8"OC32")), "???" + String::HexNumber(oc31Header));
@@ -111,19 +124,21 @@ void BankFormatReader::ReadEntries(const DynamicArray<KorgFormat::HeaderEntry>& 
 				object = new MultiSample(inputStream);
 				break;
 			case ObjectType::Performance:
-				object = new Performance(inputStream);
-				break;
+			{
+				PerformanceReader performanceReader;
+				performanceReader.ReadData(inputStream);
+				exit(9);
+			}
+			break;
 			case ObjectType::Style:
-				object = new Style(headerEntry.name, inputStream);
+				//object = this->ReadInObect(new Style, inputStream);
 				break;
 			case ObjectType::PAD:
-			{
-				FileOutputStream fileOutputStream(FileSystem::Path(u8"/home/amir/Desktop/korg/_OUT/pad"), true);
-				inputStream.FlushTo(fileOutputStream);
-			}
+				NOT_IMPLEMENTED_ERROR;
+				//object = this->ReadInObect(new Pad, inputStream);
 				break;
 			case ObjectType::PCM:
-				if(headerEntry.encryptedPCM)
+				if(chunkHeader.flags & (uint8)ChunkHeaderFlags::Encrypted)
 					object = new EncryptedSample(inputStream);
 				else
 					object = new Sample(inputStream);
@@ -138,8 +153,12 @@ void BankFormatReader::ReadEntries(const DynamicArray<KorgFormat::HeaderEntry>& 
 				object = new Sound(inputStream);
 				break;
 			case ObjectType::StylePerformances:
-				object = new Performance(inputStream);
-				break;
+			{
+				PerformanceReader performanceReader;
+				performanceReader.ReadData(inputStream);
+				exit(9);
+			}
+			break;
 		}
 
 		this->objectEntries.Push({ headerEntry.name, headerEntry.pos, object });

@@ -21,11 +21,31 @@
 #include "ObjectBank.hpp"
 #include "MultiSample.hpp"
 #include "Sound.hpp"
+#include "Pad.hpp"
+#include "Performance.hpp"
+#include "Style.hpp"
 
 namespace libKORG
 {
+	class CompleteStyle
+	{
+	public:
+		//Constructor
+		inline CompleteStyle(StdXX::UniquePointer<Style>&& style, StdXX::UniquePointer<Performance>&& stylePerformances)
+			: style(Move(style)), performances(Move(stylePerformances))
+		{
+		}
+
+	private:
+		StdXX::UniquePointer<Style> style;
+		StdXX::UniquePointer<Performance> performances;
+	};
+
+	typedef ObjectBank<Pad> PadBank;
+	typedef ObjectBank<Performance> PerformanceBank;
 	typedef ObjectBank<AbstractSample> SampleBank;
 	typedef ObjectBank<Sound> SoundBank;
+	typedef ObjectBank<CompleteStyle> StyleBank;
 
 	class Set
 	{
@@ -43,9 +63,12 @@ namespace libKORG
 
 	private:
 		//Members
+		StdXX::UniquePointer<MultiSample> multiSamples;
+		StdXX::Map<uint8, PadBank> padBanks;
+		StdXX::Map<uint8, PerformanceBank> performanceBanks;
 		StdXX::Map<uint8, SampleBank> sampleBanks;
 		StdXX::Map<uint8, SoundBank> soundBanks;
-		StdXX::UniquePointer<MultiSample> multiSamples;
+		StdXX::Map<uint8, StyleBank> styleBanks;
 
 		//Methods
 		void LoadMultiSamples(const String& bankFileName, const DynamicArray<BankObjectEntry>& bankEntries);
