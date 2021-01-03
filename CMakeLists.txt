@@ -17,6 +17,13 @@ target_include_directories(libkorg PRIVATE "include")
 target_link_libraries(libkorg Std++)
 
 
+
+add_subdirectory(src_setinfo)
+add_executable(setinfo ${SOURCE_FILES_SETINFO})
+target_include_directories(setinfo PRIVATE "include")
+target_link_libraries(setinfo LINK_PUBLIC Std++ Std++Static libkorg)
+
+
 add_subdirectory(src_styconv)
 add_executable(styconv ${SOURCE_FILES_STYCONV})
 target_include_directories(styconv PRIVATE "include")

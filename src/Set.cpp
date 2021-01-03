@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -20,6 +20,8 @@
 #include <libkorg/Set.hpp>
 //Local
 #include <libkorg/BankFormatReader.hpp>
+#include <libkorg/SingleTouchSettings.hpp>
+#include <libkorg/Text.hpp>
 //Namespaces
 using namespace libKORG;
 using namespace StdXX;
@@ -32,10 +34,10 @@ Set::Set(const Path &setPath)
 	//this->ReadDirectory(setPath, u8"MULTISMP", &Set::LoadMultiSamples);
 	//this->ReadDirectory(setPath, u8"PAD", &Set::LoadPads);
 	//this->ReadDirectory(setPath, u8"PCM", &Set::LoadSamples);
-	this->ReadDirectory(setPath, u8"PERFORM", &Set::LoadPerformances);
+	//this->ReadDirectory(setPath, u8"PERFORM", &Set::LoadPerformances);
 	//this->LoadSongBook(setPath);
 	//this->ReadDirectory(setPath, u8"SOUND", &Set::LoadSounds);
-	//this->ReadDirectory(setPath, u8"STYLE", &Set::LoadStyles);
+	this->ReadDirectory(setPath, u8"STYLE", &Set::LoadStyles);
 }
 
 //Private methods
@@ -144,18 +146,6 @@ void Set::LoadSounds(const String &bankFileName, const DynamicArray<BankObjectEn
 
 void Set::LoadStyles(const String &bankFileName, const DynamicArray<BankObjectEntry> &bankEntries)
 {
-	bool isUser = bankFileName.StartsWith(u8"USER");
-	bool isFavorite = bankFileName.StartsWith(u8"FAVORITE");
-	ASSERT(bankFileName.StartsWith(u8"BANK") || isUser || isFavorite, u8"???");
-	ASSERT(bankFileName.EndsWith(u8".STY"), u8"???");
-	String bankPart = bankFileName.SubString(isFavorite ? 8 : 4, 2);
-
-	uint32 bankNumber = bankPart.ToUInt32() - 1;
-	if(isFavorite)
-		bankNumber += 20;
-	else if(isUser)
-		bankNumber += 17;
-
 	Map<uint8, const BankObjectEntry*> styleEntries;
 	Map<uint8, const BankObjectEntry*> performanceEntries;
 	for(const BankObjectEntry& bankObjectEntry : bankEntries)
@@ -169,9 +159,13 @@ void Set::LoadStyles(const String &bankFileName, const DynamicArray<BankObjectEn
 	StyleBank bank;
 	for(const auto& kv : styleEntries)
 	{
-		bank.AddObject(kv.value->name, kv.value->pos, new CompleteStyle(dynamic_cast<Style*>(kv.value->object), dynamic_cast<Performance*>(performanceEntries[kv.key]->object)));
+		Style& style = dynamic_cast<Style&>(*styleEntries[kv.key]->object);
+		SingleTouchSettings& sts = dynamic_cast<SingleTouchSettings&>(*performanceEntries[kv.key]->object);
+
+		bank.AddObject(kv.value->name, kv.value->pos, new FullStyle(&style, &sts));
 	}
 
+	uint8 bankNumber = ParseStyleBankFileName(bankFileName);
 	this->styleBanks[bankNumber] = Move(bank);
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -18,6 +18,7 @@
  */
 //Class header
 #include <libkorg/Style.hpp>
+#include <libkorg/ProgramChangeSequence.hpp>
 //Namespaces
 using namespace libKORG;
 using namespace StdXX;
@@ -27,14 +28,4 @@ void Style::WriteData(DataWriter &dataWriter) const
 {
 	NOT_IMPLEMENTED_ERROR;
 	//dataWriter.WriteBytes(this->data.Data(), this->data.Size());
-}
-
-//Protected methods
-String Style::GetDebugDirName() const
-{
-	return u8"/home/amir/Desktop/korg/_OUT/STYLE/";
-}
-
-void Style::ReadDataChunk(uint32 chunkId, DataReader &dataReader)
-{
 }

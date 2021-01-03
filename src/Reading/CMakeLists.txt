@@ -5,5 +5,7 @@ set(SOURCE_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/ChunkReader.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/PerformanceReader.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/PerformanceReader.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/StyleReader.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/StyleReader.hpp
 
 	PARENT_SCOPE)

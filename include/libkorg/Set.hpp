@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
+#pragma once
 #include <StdXX.hpp>
 #include "BankFormatReader.hpp"
 #include "ObjectBank.hpp"
@@ -24,28 +25,41 @@
 #include "Pad.hpp"
 #include "Performance.hpp"
 #include "Style.hpp"
+#include "SingleTouchSettings.hpp"
 
 namespace libKORG
 {
-	class CompleteStyle
+	class FullStyle
 	{
 	public:
 		//Constructor
-		inline CompleteStyle(StdXX::UniquePointer<Style>&& style, StdXX::UniquePointer<Performance>&& stylePerformances)
-			: style(Move(style)), performances(Move(stylePerformances))
+		inline FullStyle(UniquePointer<class Style>&& style, UniquePointer<SingleTouchSettings>&& sts)
+				: style(Move(style)), sts(Move(sts))
 		{
 		}
 
+		//Properties
+		inline const class Style& Style() const
+		{
+			return *this->style;
+		}
+
+		inline const SingleTouchSettings& STS() const
+		{
+			return *this->sts;
+		}
+
 	private:
-		StdXX::UniquePointer<Style> style;
-		StdXX::UniquePointer<Performance> performances;
+		//Members
+		UniquePointer<class Style> style;
+		UniquePointer<SingleTouchSettings> sts;
 	};
 
 	typedef ObjectBank<Pad> PadBank;
 	typedef ObjectBank<Performance> PerformanceBank;
 	typedef ObjectBank<AbstractSample> SampleBank;
 	typedef ObjectBank<Sound> SoundBank;
-	typedef ObjectBank<CompleteStyle> StyleBank;
+	typedef ObjectBank<FullStyle> StyleBank;
 
 	class Set
 	{
@@ -59,6 +73,11 @@ namespace libKORG
 		inline const StdXX::Map<uint8, SampleBank>& SampleBanks() const
 		{
 			return this->sampleBanks;
+		}
+
+		inline const StdXX::Map<uint8, StyleBank>& StyleBanks() const
+		{
+			return this->styleBanks;
 		}
 
 	private:

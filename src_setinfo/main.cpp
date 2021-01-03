@@ -17,12 +17,49 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <libkorg.hpp>
+#include "HumanReadableOutputter.hpp"
+#include "StyleOutputter.hpp"
+
 using namespace libKORG;
 
 int32 Main(const String &programName, const FixedArray<String> &args)
 {
 	FileSystem::Path setPath = FileSystem::OSFileSystem::GetInstance().FromNativePath(args[0]);
 	Set set(setPath);
+
+	UniquePointer<FormattedOutputter> outputter = new HumanReadableOutputter(stdOut);
+
+	for(const auto& kv : set.StyleBanks())
+	{
+		Section bankSection(StyleBankNumberToString(kv.key), *outputter);
+
+		for(const auto& kv2 : kv.value.Objects())
+		{
+			Section objectSection(BankPositionToString(kv2.key) + u8" - " + kv2.value.Get<0>(), *outputter);
+
+			StyleOutputter styleOutputter(*outputter);
+			styleOutputter.Output(*kv2.value.Get<1>());
+		}
+	}
+
+	/*
+
+	FileSystem::Path outPath = String(u8"/home/amir/Desktop/korg/_OUT/");
+	for(const auto& kv : set.SampleBanks())
+	{
+		for(const auto& kv2 : kv.value.Objects())
+		{
+			if(kv2.value.Get<1>().IsInstanceOf<Sample>())
+			{
+				const Sample& sample = dynamic_cast<const Sample &>(*kv2.value.Get<1>());
+
+				FileOutputStream fileOutputStream(outPath / String(u8"PCM") / kv2.value.Get<0>(), true);
+				sample.WriteUnknownData(fileOutputStream);
+			}
+		}
+	}
+
+	 */
 
 	/*
 	uint32 nPerformances = 0;
@@ -36,10 +73,6 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 			uint8 pos = styleBank.GetPositionOf(style);
 
 			stdOut << style.Name()
-				   << u8" at P" << (pos / 8)+1
-				   << u8" row " << ((pos % 8) / 4)
-				   << u8" col " << (pos % 4)
-				   << endl;
 			nStyles++;
 		}
 		else

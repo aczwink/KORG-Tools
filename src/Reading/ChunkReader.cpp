@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -44,8 +44,11 @@ void ChunkReader::ReadChunks(InputStream &inputStream, uint8 depth)
 		LimitedInputStream chunkInputStream(inputStream, chunkSize);
 		if(chunkId & 8)
 		{
+//#define PRINT_CHUNK_STRUCTURE
+#ifdef PRINT_CHUNK_STRUCTURE
 			this->PrintDashes(depth + 1);
 			stdOut << "Reading Data chunk " << String::HexNumber(chunkId) << endl;
+#endif
 
 			DataReader chunkDataReader(true, chunkInputStream);
 			this->ReadDataChunk(chunkId, chunkDataReader);
@@ -53,6 +56,7 @@ void ChunkReader::ReadChunks(InputStream &inputStream, uint8 depth)
 			if(!chunkInputStream.IsAtEnd())
 			{
 				static int __iteration = 0;
+				stdErr << u8"Trailing data found: " << __iteration << endl;
 				FileOutputStream fileOutputStream(
 						FileSystem::Path(this->GetDebugDirName() + String::HexNumber(chunkId) + "_" + String::Number(__iteration++)),
 						true);
@@ -61,13 +65,19 @@ void ChunkReader::ReadChunks(InputStream &inputStream, uint8 depth)
 		}
 		else
 		{
+#ifdef PRINT_CHUNK_STRUCTURE
 			this->PrintDashes(depth + 1);
 			stdOut << "Entering chunk " << String::HexNumber(chunkId) << endl;
+#endif
 
+			this->OnEnteringChunk(chunkId);
 			this->ReadChunks(chunkInputStream, depth + 1);
+			this->OnLeavingChunk(chunkId);
 
+#ifdef PRINT_CHUNK_STRUCTURE
 			this->PrintDashes(depth + 1);
 			stdOut << "Leaving chunk " << String::HexNumber(chunkId) << endl;
+#endif
 		}
 	}
 }

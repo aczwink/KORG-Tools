@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -26,6 +26,14 @@ using namespace StdXX;
 
 const int8 c_knob_offset = 64;
 
+//Public methods
+libKORG::SingleTouchSettings *PerformanceReader::TakeSTSResult()
+{
+	ASSERT_EQUALS(4, this->perfIndex);
+
+	return new SingleTouchSettings(Move(this->accompanimentSettings), Move(this->keyboardSettings));
+}
+
 //Protected methods
 String PerformanceReader::GetDebugDirName() const
 {
@@ -36,6 +44,9 @@ void PerformanceReader::ReadDataChunk(uint32 chunkId, DataReader &dataReader)
 {
 	switch(chunkId)
 	{
+		case 0x04000108:
+			this->Read0x04000108Chunk(dataReader);
+			break;
 		case 0x06000008:
 			ASSERT_EQUALS(0, dataReader.ReadUInt16());
 			ASSERT_EQUALS(true, dataReader.InputStream().IsAtEnd());
@@ -50,10 +61,59 @@ void PerformanceReader::ReadDataChunk(uint32 chunkId, DataReader &dataReader)
 			this->Read0x09000008Chunk(dataReader);
 			break;
 		case 0x0F000008:
+			this->Read0x0F000008Chunk(dataReader);
+		break;
+		case 0x10000008:
+			this->Read0x10000008Chunk(dataReader);
+		break;
+		case 0x11000008:
 		{
-			ASSERT_EQUALS(4, dataReader.ReadUInt32());
-			TextReader textReader(dataReader.InputStream(), TextCodecType::ASCII);
-			stdOut << textReader.ReadZeroTerminatedString(41) << endl;
+			uint16 unknownWhatever = dataReader.ReadUInt16();
+			ASSERT((unknownWhatever == 0xFF)
+				   || (unknownWhatever == 0), String::HexNumber(unknownWhatever));
+		}
+		break;
+		case 0x12000108:
+			this->Read0x12000108Chunk(dataReader);
+			break;
+		case 0x13000008:
+		{
+			uint8 unknownWhatever = dataReader.ReadByte();
+
+			ASSERT_EQUALS(0, dataReader.ReadByte());
+			ASSERT_EQUALS(0, dataReader.ReadByte());
+
+			uint8 unknown1 = dataReader.ReadByte();
+
+			ASSERT_EQUALS(0, dataReader.ReadUInt32());
+
+			uint8 unknown2 = dataReader.ReadByte();
+
+			ASSERT_EQUALS(0, dataReader.ReadByte());
+			ASSERT_EQUALS(0, dataReader.ReadUInt16());
+
+			uint8 unknown3 = dataReader.ReadByte();
+			uint8 unknown4 = dataReader.ReadByte();
+		}
+		break;
+		case 0x14000008:
+		{
+			ASSERT_EQUALS(0, dataReader.ReadByte());
+
+			uint8 unknown3 = dataReader.ReadByte();
+			ASSERT((unknown3 == 0)
+				   || (unknown3 == 4), String::HexNumber(unknown3));
+
+			uint8 unknown2 = dataReader.ReadByte();
+			ASSERT((unknown2 == 0)
+				|| (unknown2 == 1)
+				|| (unknown2 == 2), String::HexNumber(unknown2));
+
+			uint8 unknown1 = dataReader.ReadByte();
+			ASSERT((unknown1 == 0)
+				|| (unknown1 == 1), String::HexNumber(unknown1));
+
+			ASSERT_EQUALS(0, dataReader.ReadByte());
 		}
 		break;
 		case 0x15000108:
@@ -64,18 +124,49 @@ void PerformanceReader::ReadDataChunk(uint32 chunkId, DataReader &dataReader)
 			uint32 unknown1 = dataReader.ReadUInt32();
 			ASSERT((unknown1 == 0xb3)
 				   || (unknown1 == 0xb4)
+				   || (unknown1 == 0x6B)
+				   || (unknown1 == 0x43)
+				   || (unknown1 == 0x42)
+				   || (unknown1 == 0x32)
 				   || (unknown1 == 0)
-			, String::Number(unknown1));
+			, String::HexNumber(unknown1));
+		}
+		break;
+		case 0x1A000008:
+		{
+			ASSERT_EQUALS(1, dataReader.ReadByte());
+			ASSERT_EQUALS(0x3C, dataReader.ReadByte());
+		}
+		break;
+		case 0x1B000008:
+		{
+			ASSERT_EQUALS(1, dataReader.ReadByte());
+			ASSERT_EQUALS(0xff, dataReader.ReadByte());
+			ASSERT_EQUALS(0xff, dataReader.ReadByte());
 		}
 		break;
 	}
 }
 
-//Private methods
-void PerformanceReader::Read0x07000008Chunk(DataReader &dataReader)
+void PerformanceReader::OnEnteringChunk(uint32 chunkId)
 {
-	uint32 trackNumber = dataReader.ReadUInt32();
-	ASSERT(trackNumber < 6, String::Number(trackNumber));
+	this->parentChunkId = chunkId;
+}
+
+void PerformanceReader::OnLeavingChunk(uint32 chunkId)
+{
+	switch(chunkId)
+	{
+		case 0xA000000:
+			this->perfIndex++;
+			break;
+	}
+}
+
+//Private methods
+void PerformanceReader::Read0x04000108Chunk(DataReader &dataReader)
+{
+	ASSERT_EQUALS(0xf, dataReader.ReadUInt32());
 
 	uint8 unknown1 = dataReader.ReadByte();
 	ASSERT((unknown1 == 0)
@@ -85,130 +176,238 @@ void PerformanceReader::Read0x07000008Chunk(DataReader &dataReader)
 		|| (unknown1 == 4)
 		|| (unknown1 == 5)
 		|| (unknown1 == 6)
-		|| (unknown1 == 7)
-		, String::Number(unknown1));
+		|| (unknown1 == 8)
+		|| (unknown1 == 9)
+		|| (unknown1 == 0xC)
+		|| (unknown1 == 0xD)
+		|| (unknown1 == 0xE)
+		|| (unknown1 == 0x11)
+		|| (unknown1 == 0x12)
+		|| (unknown1 == 0x13), String::HexNumber(unknown1));
+
+	uint8 unknown11 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0, dataReader.ReadByte());
 
 	uint8 unknown2 = dataReader.ReadByte();
-	ASSERT((unknown2 == 0)
-		   || (unknown2 == 1)
-	, String::Number(unknown2));
 
 	uint8 unknown3 = dataReader.ReadByte();
 	ASSERT((unknown3 == 0)
 		   || (unknown3 == 1)
-	, String::Number(unknown2));
+		   || (unknown3 == 2)
+		   || (unknown3 == 3)
+	, String::HexNumber(unknown3));
 
 	uint8 unknown4 = dataReader.ReadByte();
-	ASSERT((unknown4 == 0xff)
+	ASSERT((unknown4 == 0)
+		   || (unknown4 == 1)
+		   || (unknown4 == 2)
+		   || (unknown4 == 3)
 		   || (unknown4 == 4)
 		   || (unknown4 == 5)
-		   || (unknown4 == 7)
-		   || (unknown4 == 1)
-	, String::Number(unknown4));
+		   || (unknown4 == 0xB)
+		   || (unknown4 == 0xD)
+	, String::HexNumber(unknown4));
 
-	ASSERT_EQUALS(0xff, dataReader.ReadUInt16());
+	ASSERT_EQUALS(0, dataReader.ReadUInt32());
+	ASSERT_EQUALS(0, dataReader.ReadUInt16());
+	uint8 unknown52 = dataReader.ReadByte();
 
+	uint8 unknown51 = dataReader.ReadByte();
 	uint8 unknown5 = dataReader.ReadByte();
-	ASSERT((unknown5 == 0xff)
-		   || (unknown5 == 1)
-	, String::Number(unknown5));
-
-	ASSERT_EQUALS(0, dataReader.ReadUInt16());
-
 	uint8 unknown6 = dataReader.ReadByte();
-	ASSERT((unknown6 == 0x4a)
-		   || (unknown6 == 0x47)
-		   || (unknown6 == 0x0)
-		   || (unknown6 == 0x1a)
-	, String::Number(unknown6));
-
 	uint8 unknown7 = dataReader.ReadByte();
-	ASSERT((unknown7 == 0x3c)
-		   || (unknown7 == 0x28)
-		   || (unknown7 == 0x0)
-		   || (unknown7 == 0x64)
-	, String::Number(unknown7));
+	uint8 unknown8 = dataReader.ReadByte();
+	uint8 unknown9 = dataReader.ReadByte();
+	uint8 unknown10 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(1, dataReader.ReadByte());
+	ASSERT_EQUALS(1, dataReader.ReadByte());
+	ASSERT_EQUALS(1, dataReader.ReadByte());
+	ASSERT_EQUALS(1, dataReader.ReadByte());
+	ASSERT_EQUALS(1, dataReader.ReadByte());
+	ASSERT_EQUALS(1, dataReader.ReadByte());
+	ASSERT_EQUALS(1, dataReader.ReadByte());
+	ASSERT_EQUALS(1, dataReader.ReadByte());
+
+	uint8 unknown111 = dataReader.ReadByte();
+	uint8 unknown121 = dataReader.ReadByte();
+	uint8 unknown12 = dataReader.ReadByte();
+	uint8 unknown122 = dataReader.ReadByte();
+	uint8 unknown131 = dataReader.ReadByte();
+	uint8 unknown13 = dataReader.ReadByte();
+	uint8 unknown132 = dataReader.ReadByte();
+	uint8 unknown141 = dataReader.ReadByte();
+	uint8 unknown14 = dataReader.ReadByte();
+	uint8 unknown142 = dataReader.ReadByte();
+	uint8 unknown151 = dataReader.ReadByte();
+	uint8 unknown15 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+
+	uint8 unknown161 = dataReader.ReadByte();
+	uint8 unknown16 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+
+	uint8 unknown171 = dataReader.ReadByte();
+	uint8 unknown17 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+
+	uint8 unknown181 = dataReader.ReadByte();
+	uint8 unknown18 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+
+	uint8 unknown191 = dataReader.ReadByte();
+	uint8 unknown19 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+
+	uint8 unknown201 = dataReader.ReadByte();
+	uint8 unknown20 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+
+	uint8 unknown211 = dataReader.ReadByte();
+	uint8 unknown21 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+
+	uint8 unknown212 = dataReader.ReadByte();
+	uint8 unknown213 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+
+	uint8 unknown221 = dataReader.ReadByte();
+	uint8 unknown22 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+
+	uint8 unknown231 = dataReader.ReadByte();
+	uint8 unknown23 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+
+	uint8 unknown241 = dataReader.ReadByte();
+	uint8 unknown24 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+
+	uint8 unknown251 = dataReader.ReadByte();
+	uint8 unknown25 = dataReader.ReadByte();
+}
+
+void PerformanceReader::Read0x07000008Chunk(DataReader &dataReader)
+{
+	uint32 trackNumber = dataReader.ReadUInt32();
+	ASSERT(trackNumber < 6, String::Number(trackNumber));
+
+	auto& data = this->parentChunkId == 0x5000000 ? this->accompanimentSettings._0x07000008_chunks[trackNumber]
+			: this->keyboardSettings[this->perfIndex]._0x07000008_chunks[trackNumber];
+
+	data.unknown1 = dataReader.ReadByte();
+	ASSERT((data.unknown1 == 0)
+		|| (data.unknown1 == 1)
+		|| (data.unknown1 == 2)
+		|| (data.unknown1 == 3)
+		|| (data.unknown1 == 4)
+		|| (data.unknown1 == 5)
+		|| (data.unknown1 == 6)
+		|| (data.unknown1 == 7)
+		, String::Number(data.unknown1));
+
+	data.unknown2 = dataReader.ReadByte();
+	ASSERT((data.unknown2 == 0)
+		   || (data.unknown2 == 1)
+	, String::Number(data.unknown2));
+
+	data.unknown3 = dataReader.ReadByte();
+	ASSERT((data.unknown3 == 0)
+		   || (data.unknown3 == 1)
+	, String::Number(data.unknown3));
+
+	data.unknown4 = dataReader.ReadByte();
+	data.unknown411 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0xff, dataReader.ReadByte());
+
+	data.unknown5 = dataReader.ReadByte();
+	ASSERT((data.unknown5 == 0xff)
+		   || (data.unknown5 == 1)
+	, String::Number(data.unknown5));
+
+	data.unknown51 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+
+	data.unknown6 = dataReader.ReadByte();
+	data.unknown7 = dataReader.ReadByte();
+	data.unknown71 = dataReader.ReadByte();
+	data.unknown72 = dataReader.ReadByte();
+	data.unknown8 = dataReader.ReadByte();
+	data.unknown9 = dataReader.ReadByte();
+	data.unknown10 = dataReader.ReadByte();
+	data.unknown11 = dataReader.ReadByte();
+	data.unknown12 = dataReader.ReadByte();
+	data.unknown13 = dataReader.ReadByte();
+	data.unknown14 = dataReader.ReadByte();
+	data.unknown15 = dataReader.ReadByte();
+	data.unknown16 = dataReader.ReadByte();
+	data.unknown17 = dataReader.ReadByte();
+	data.unknown18 = dataReader.ReadByte();
+	data.unknown19 = dataReader.ReadByte();
+	data.unknown20 = dataReader.ReadByte();
+	data.unknown21 = dataReader.ReadByte();
+	data.unknown22 = dataReader.ReadByte();
+	data.unknown23 = dataReader.ReadByte();
+	data.unknown24 = dataReader.ReadByte();
+	data.unknown251 = dataReader.ReadByte();
+	data.unknown25 = dataReader.ReadByte();
+	data.unknown26 = dataReader.ReadByte();
+	data.unknown27 = dataReader.ReadByte();
+	data.unknown28 = dataReader.ReadByte();
+	data.unknown29 = dataReader.ReadByte();
+	data.unknown30 = dataReader.ReadByte();
+	data.unknown31 = dataReader.ReadByte();
+	data.unknown32 = dataReader.ReadByte();
+	data.unknown33 = dataReader.ReadByte();
 
 	ASSERT_EQUALS(0, dataReader.ReadUInt16());
+	data.unknown331 = dataReader.ReadByte();
 
-	uint8 unknown8 = dataReader.ReadByte();
-	ASSERT((unknown8 == 0xd9)
-		   || (unknown8 == 0)
-		   || (unknown8 == 0xf9)
-		   || (unknown8 == 0x32)
-	, String::Number(unknown8));
-
-	uint8 unknown9 = dataReader.ReadByte();
-	ASSERT((unknown9 == 0xe9)
-		   || (unknown9 == 0xe3)
-		   || (unknown9 == 0)
-		   || (unknown9 == 0xf2)
-		   || (unknown9 == 9)
-	, String::Number(unknown9));
-
-	uint8 unknown10 = dataReader.ReadByte();
-	ASSERT((unknown10 == 0x64)
-		   || (unknown10 == 0xe1)
-		   || (unknown10 == 0)
-		   || (unknown10 == 0xe0)
-		   || (unknown10 == 0x40)
-	, String::Number(unknown10));
-
-	uint8 unknown11 = dataReader.ReadByte();
-	ASSERT((unknown11 == 6)
-		   || (unknown11 == 0xa1)
-		   || (unknown11 == 0)
-	, String::Number(unknown11));
-
-	uint8 unknown12 = dataReader.ReadByte();
-	ASSERT((unknown12 == 0x46)
-		   || (unknown12 == 0)
-	, String::Number(unknown12));
-
-	uint8 unknown13 = dataReader.ReadByte();
-	ASSERT((unknown13 == 0xa8)
-		   || (unknown13 == 0)
-	, String::Number(unknown13));
-
-	uint8 unknown14 = dataReader.ReadByte();
-	ASSERT((unknown14 == 0x8d)
-		   || (unknown14 == 0)
-		   || (unknown14 == 0xee)
-	, String::Number(unknown14));
-
-	uint8 unknown15 = dataReader.ReadByte();
-	ASSERT((unknown15 == 2)
-		   || (unknown15 == 0)
-		   || (unknown15 == 0xb2)
-	, String::Number(unknown15));
-
-	uint8 unknown16 = dataReader.ReadByte();
-	ASSERT((unknown16 == 0x60)
-		   || (unknown16 == 0)
-	, String::Number(unknown16));
-
-	uint8 unknown17 = dataReader.ReadByte();
-	ASSERT((unknown17 == 0xce)
-		   || (unknown17 == 0)
-	, String::Number(unknown17));
-
-	uint8 unknown18 = dataReader.ReadByte();
-	ASSERT((unknown18 == 0xd)
-		   || (unknown18 == 0)
-	, String::Number(unknown18));
-
-	uint8 unknown19 = dataReader.ReadByte();
-	ASSERT((unknown19 == 5)
-		   || (unknown19 == 0)
-	, String::Number(unknown19));
-
-	ASSERT_EQUALS(0, dataReader.ReadUInt64());
-	ASSERT_EQUALS(0, dataReader.ReadUInt64());
-	ASSERT_EQUALS(0, dataReader.ReadUInt64());
-	ASSERT_EQUALS(0, dataReader.ReadUInt64());
-	ASSERT_EQUALS(0, dataReader.ReadUInt64());
-	ASSERT_EQUALS(0, dataReader.ReadUInt64());
-	ASSERT_EQUALS(0, dataReader.ReadByte());
+	data.unknown34 = dataReader.ReadByte();
+	data.unknown35 = dataReader.ReadByte();
+	data.unknown36 = dataReader.ReadByte();
+	data.unknown37 = dataReader.ReadByte();
+	data.unknown38 = dataReader.ReadByte();
+	data.unknown39 = dataReader.ReadByte();
+	data.unknown40 = dataReader.ReadByte();
+	data.unknown41 = dataReader.ReadByte();
+	data.unknown42 = dataReader.ReadByte();
+	data.unknown43 = dataReader.ReadByte();
+	data.unknown44 = dataReader.ReadByte();
+	data.unknown45 = dataReader.ReadByte();
+	data.unknown46 = dataReader.ReadByte();
+	data.unknown47 = dataReader.ReadByte();
+	data.unknown48 = dataReader.ReadByte();
+	data.unknown49 = dataReader.ReadByte();
+	data.unknown50 = dataReader.ReadByte();
+	data.unknown52 = dataReader.ReadByte();
+	data.unknown53 = dataReader.ReadByte();
+	data.unknown54 = dataReader.ReadByte();
+	data.unknown55 = dataReader.ReadByte();
+	data.unknown56 = dataReader.ReadByte();
+	data.unknown57 = dataReader.ReadByte();
+	data.unknown58 = dataReader.ReadByte();
+	data.unknown59 = dataReader.ReadByte();
+	data.unknown591 = dataReader.ReadByte();
+	data.unknown60 = dataReader.ReadByte();
+	data.unknown61 = dataReader.ReadByte();
+	data.unknown62 = dataReader.ReadByte();
+	data.unknown63 = dataReader.ReadByte();
+	data.unknown64 = dataReader.ReadByte();
 }
 
 void PerformanceReader::Read0x08000008Chunk(DataReader &dataReader)
@@ -216,164 +415,320 @@ void PerformanceReader::Read0x08000008Chunk(DataReader &dataReader)
 	uint32 trackNumber = dataReader.ReadUInt32();
 	ASSERT(trackNumber < 4, String::Number(trackNumber));
 
-	ASSERT_EQUALS(9, dataReader.ReadByte());
+	auto& data = this->parentChunkId == 0x5000000 ? this->accompanimentSettings._0x08000008_chunks[trackNumber]
+			: this->keyboardSettings[this->perfIndex]._0x08000008_chunks[trackNumber];
 
-	uint8 unknown1 = dataReader.ReadByte();
-	ASSERT((unknown1 == 0xc)
-		   || (unknown1 == 0xb)
-		   || (unknown1 == 0xf)
-		   || (unknown1 == 0x12)
-		   || (unknown1 == 0)
-		   || (unknown1 == 1)
-	, String::Number(unknown1));
+	data.unknown0 = dataReader.ReadByte();
+	data.unknown1 = dataReader.ReadByte();
 
 	ASSERT_EQUALS(0, dataReader.ReadByte());
 
-	uint8 unknown2 = dataReader.ReadByte();
-	ASSERT((unknown2 == 2)
-		|| (unknown2 == 0xd)
-		|| (unknown2 == 0xb)
-		|| (unknown2 == 0xa)
-		|| (unknown2 == 0x4)
-		|| (unknown2 == 0x1d)
-		|| (unknown2 == 0xf)
-		|| (unknown2 == 0x10)
-	, String::HexNumber(unknown2));
+	data.unknown2 = dataReader.ReadByte();
+	data.unknown3 = dataReader.ReadByte();
+	data.unknown4 = dataReader.ReadByte();
+	data.unknown5 = dataReader.ReadByte();
+	data.unknown6 = dataReader.ReadByte();
 
-	uint8 unknown3 = dataReader.ReadByte();
-	ASSERT((unknown3 == 0x3e)
-		|| (unknown3 == 0x45)
-		|| (unknown3 == 0x61)
-		|| (unknown3 == 0x3f)
-		|| (unknown3 == 0x5e)
-		|| (unknown3 == 0x6e)
-	, String::HexNumber(unknown3));
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+	ASSERT_EQUALS(0, dataReader.ReadUInt16());
 
-	uint8 unknown4 = dataReader.ReadByte();
-	ASSERT((unknown4 == 0x40)
-		|| (unknown4 == 0x3b)
-		|| (unknown4 == 0x7f)
-	, String::HexNumber(unknown4));
+	data.unknown8 = dataReader.ReadByte();
+	data.unknown9 = dataReader.ReadByte();
+	data.unknown10 = dataReader.ReadByte();
 
-	uint8 unknown5 = dataReader.ReadByte();
-	ASSERT((unknown5 == 0xf)
-		|| (unknown5 == 0x36)
-		|| (unknown5 == 0x25)
-		|| (unknown5 == 0x50)
-	, String::HexNumber(unknown5));
-
-	ASSERT_EQUALS(0, dataReader.ReadUInt32());
-	ASSERT_EQUALS(0x5a, dataReader.ReadUInt32());
+	data.unknown7 = dataReader.ReadByte();
+	ASSERT((data.unknown7 == 0x5A)
+	, String::HexNumber(data.unknown7));
 }
 
 void PerformanceReader::Read0x09000008Chunk(DataReader& dataReader)
 {
 	uint32 trackNumber = dataReader.ReadUInt32();
-	ASSERT(trackNumber < 8, "???");
 
-	uint16 unknown_101 = dataReader.ReadUInt16();
-	ASSERT((unknown_101 == 2)
-		   || (unknown_101 == 3), "???");
+	TrackProperties& atp = this->parentChunkId == 0x5000000 ? this->accompanimentSettings.trackProperties[trackNumber]
+			: this->keyboardSettings[this->perfIndex].trackProperties[trackNumber];
 
-	uint8 unknown_103 = dataReader.ReadByte();
-	ASSERT((unknown_103 == 3)
-		   || (unknown_103 == 7), "???");
+	atp.unknown_101 = dataReader.ReadUInt16();
+	ASSERT((atp.unknown_101 == 2)
+		   || (atp.unknown_101 == 3), "???");
 
-	uint8 muted = dataReader.ReadByte();
-	ASSERT((muted == 0)
-		   || (muted == 4), "???"); //0 = playing, 4 = muted
+	atp.unknown_103 = dataReader.ReadByte();
+	ASSERT((atp.unknown_103 == 3)
+		   || (atp.unknown_103 == 7), "???");
 
-	ASSERT_EQUALS(0x7F, dataReader.ReadUInt16());
+	atp.muted = dataReader.ReadByte();
+	ASSERT((atp.muted == 0)
+		|| (atp.muted == 1)
+		|| (atp.muted == 2)
+		|| (atp.muted == 4)
+		|| (atp.muted == 0x40)
+		|| (atp.muted == 0x44), String::HexNumber(atp.muted)); //0 = playing, 4 = muted
 
-	uint16 unknown1 = dataReader.ReadUInt16();
-	ASSERT((unknown1 == 0x156C)
-		   || (unknown1 == 0x7F), "???");
+	atp.unknown11 = dataReader.ReadByte();
+	atp.unknown111 = dataReader.ReadByte();
 
-	ProgramChangeSequence soundProgramChangeSeq = ProgramChangeSequence::FromEncoded(dataReader.ReadUInt32());
+	atp.unknown1 = dataReader.ReadByte();
+	atp.unknown113 = dataReader.ReadByte();
+	atp.soundProgramChangeSeq = new ProgramChangeSequence(ProgramChangeSequence::FromEncoded(dataReader.ReadUInt32()));
 
-	uint8 volume = dataReader.ReadByte();
-	int8 pan = dataReader.ReadByte() - c_knob_offset;
-	int8 detune = dataReader.ReadByte() - c_knob_offset;
+	atp.volume = dataReader.ReadByte();
+	atp.pan = dataReader.ReadByte() - c_knob_offset;
+	atp.detune = dataReader.ReadByte() - c_knob_offset;
 
-	int8 octaveTranspose = (int8)dataReader.ReadByte() / 12;
+	atp.octaveTranspose = (int8)dataReader.ReadByte() / 12;
 
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	atp.unknown3 = dataReader.ReadByte();
+	atp.unknown4 = dataReader.ReadByte();
+	atp.unknown5 = dataReader.ReadByte();
+	atp.unknown6 = dataReader.ReadByte();
+	atp.unknown7 = dataReader.ReadByte();
+	atp.unknown71 = dataReader.ReadByte();
+	atp.unknown72 = dataReader.ReadByte();
+	atp.unknown73 = dataReader.ReadByte();
+	atp.unknown8 = dataReader.ReadByte();
 
-	uint8 unknown4 = dataReader.ReadByte();
-	ASSERT((unknown4 == 0x40)
-		   || (unknown4 == 0x63)
-		   //styleperf:
-		   || (unknown4 == 0x48)
-		   || (unknown4 == 0x56)
-	, String::HexNumber(unknown4));
+	atp.unknown9 = dataReader.ReadUInt16();
+	ASSERT((atp.unknown9 == 0)
+		   || (atp.unknown9 == 1), "???");
 
-	uint8 unknown5 = dataReader.ReadByte();
-	ASSERT((unknown5 == 0x40)
-		   || (unknown5 == 0x2E)
-		   //styleperf:
-		   || (unknown5 == 0x54), String::HexNumber(unknown5));
-
-	uint8 unknown6 = dataReader.ReadByte();
-	ASSERT((unknown6 == 0x40)
-		   || (unknown6 == 0x3A), "???");
-
-	uint8 unknown7 = dataReader.ReadByte();
-	ASSERT((unknown7 == 0x40)
-		   || (unknown7 == 0x4D), "???");
-
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-
-	uint8 unknown8 = dataReader.ReadByte();
-	ASSERT((unknown8 == 0)
-		   || (unknown8 == 1), "???");
-
-	uint8 unknown9 = dataReader.ReadUInt16();
-	ASSERT((unknown9 == 0)
-		   || (unknown9 == 1), "???");
-
-	uint8 fxMaster1 = dataReader.ReadByte();
-	uint8 fxMaster2 = dataReader.ReadByte();
+	atp.fxMaster1 = dataReader.ReadByte();
+	atp.fxMaster2 = dataReader.ReadByte();
 
 	ASSERT_EQUALS(0, dataReader.ReadUInt16());
 
-	uint8 dry = dataReader.ReadByte();
-	ASSERT(dry <= 1, "??");
+	atp.dry = dataReader.ReadByte();
+	ASSERT(atp.dry <= 1, "??");
 
 	ASSERT_EQUALS(0, dataReader.ReadByte());
 	ASSERT_EQUALS(0, dataReader.ReadByte());
 
-	uint8 unknown12 = dataReader.ReadByte();
-	ASSERT((unknown12 == 1)
-		   || (unknown12 == 0x41), "???");
+	atp.unknown12 = dataReader.ReadByte();
+	atp.unknown13 = dataReader.ReadByte();
 
-	uint8 unknown13 = dataReader.ReadByte();
-	ASSERT((unknown13 == 4)
-		   || (unknown13 == 7), "???");
+	atp.pbSensitivity = dataReader.ReadByte();
 
-	uint8 pbSensitivity = dataReader.ReadByte();
+	atp.unknown182 = dataReader.ReadByte();
+	atp.unknown181 = dataReader.ReadByte();
 
-	ASSERT_EQUALS(0, dataReader.ReadUInt16());
+	atp.lowGainTimes2 = dataReader.ReadByte();
+	atp.midGainTimes2 = dataReader.ReadByte();
+	atp.highGainTimes2 = dataReader.ReadByte();
 
-	int8 lowGainTimes2 = dataReader.ReadByte();
-	int8 midGainTimes2 = dataReader.ReadByte();
-	int8 highGainTimes2 = dataReader.ReadByte();
+	atp.unknown18 = dataReader.ReadByte();
+	ASSERT((atp.unknown18 == 0x61)
+		   || (atp.unknown18 == 0x5a), "???");
 
-	uint8 unknown18 = dataReader.ReadByte();
-	ASSERT((unknown18 == 0x61)
-		   || (unknown18 == 0x5a), "???");
+	ASSERT_EQUALS(0, dataReader.ReadByte());
 
-	ASSERT_EQUALS(0xFF, dataReader.ReadUInt32());
+	atp.unknown1811 = dataReader.ReadByte();
+	atp.unknown1812 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0xFF, dataReader.ReadByte());
 	ASSERT_EQUALS(0xFFFFFFFF, dataReader.ReadUInt32());
 	ASSERT_EQUALS(0xFFFFFFFF, dataReader.ReadUInt32());
 	ASSERT_EQUALS(0xFFFFFFFF, dataReader.ReadUInt32());
 	ASSERT_EQUALS(0xFFFF, dataReader.ReadUInt16());
 	ASSERT_EQUALS(0xff, dataReader.ReadByte());
 
-	uint8 unknown19 = dataReader.ReadByte();
-	ASSERT((unknown19 == 0x72)
-		   || (unknown19 == 0x7f), "???");
+	atp.unknown19 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+
+	atp.unknown24 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+
+	atp.unknown23 = dataReader.ReadByte();
+	atp.unknown25 = dataReader.ReadByte();
+	atp.unknown27 = dataReader.ReadByte();
+	atp.unknown28 = dataReader.ReadByte();
+	atp.unknown26 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0x5a, dataReader.ReadByte());
+
+	atp.unknown239 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+
+	atp.unknown20 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+
+	atp.unknown22 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+
+	atp.unknown226 = dataReader.ReadByte();
+	atp.unknown218 = dataReader.ReadByte();
+	atp.unknown221 = dataReader.ReadByte();
+	atp.unknown220 = dataReader.ReadByte();
+	atp.unknown217 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0x5a, dataReader.ReadByte());
+
+	atp.unknown224 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+
+	atp.unknown211 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+
+	atp.unknown236 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+
+	atp.unknown212 = dataReader.ReadByte();
+	atp.unknown238 = dataReader.ReadByte();
+	atp.unknown213 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0x5a, dataReader.ReadByte());
+
+	atp.unknown231 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+
+	atp.unknown21 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+
+	atp.unknown241 = dataReader.ReadByte();
+	atp.unknown214 = dataReader.ReadByte();
+	atp.unknown242 = dataReader.ReadByte();
+	atp.unknown234 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0x5a, dataReader.ReadByte());
+
+	atp.unknown235 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+
+	atp.unknown216 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+
+	atp.unknown232 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+
+	atp.unknown233 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0x5a, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+
+	atp.unknown219 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+
+	atp.unknown222 = dataReader.ReadByte();
+	atp.unknown225 = dataReader.ReadByte();
+	atp.unknown223 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0x5a, dataReader.ReadUInt16());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+
+	atp.unknown215 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+
+	atp.unknown237 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x5a, dataReader.ReadUInt32());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+
+	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+
+	atp.unknown31 = dataReader.ReadByte();
 
 	ASSERT_EQUALS(0, dataReader.ReadByte());
 	ASSERT_EQUALS(0x40, dataReader.ReadByte());
@@ -393,168 +748,62 @@ void PerformanceReader::Read0x09000008Chunk(DataReader& dataReader)
 	ASSERT_EQUALS(0x40, dataReader.ReadByte());
 	ASSERT_EQUALS(0x40, dataReader.ReadByte());
 	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+}
 
-	uint8 unknown20 = dataReader.ReadByte();
-	ASSERT((unknown20 == 0x76)
-		   || (unknown20 == 0x7f), "???");
+void PerformanceReader::Read0x0F000008Chunk(DataReader &dataReader)
+{
+	uint32 perfIndex = dataReader.ReadUInt32();
+	ASSERT(perfIndex < 4, String::Number(perfIndex));
 
-	ASSERT_EQUALS(0, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x5a, dataReader.ReadUInt32());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x7f, dataReader.ReadByte());
-	ASSERT_EQUALS(0, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x5a, dataReader.ReadUInt32());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	TextReader textReader(dataReader.InputStream(), TextCodecType::ASCII);
+	this->keyboardSettings[perfIndex].name = textReader.ReadZeroTerminatedString(41);
+}
 
-	uint8 unknown21 = dataReader.ReadByte();
-	ASSERT((unknown21 == 0x64)
-		   || (unknown21 == 0x7F), "???");
+void PerformanceReader::Read0x10000008Chunk(DataReader &dataReader)
+{
+	auto& data = this->keyboardSettings[this->perfIndex]._0x_10000008_chunk;
+
+	data.unknown21 = dataReader.ReadByte();
+	ASSERT((data.unknown21 == 4)
+		   || (data.unknown21 == 2), "???");
+
+	data.unknown22 = dataReader.ReadByte();
+	ASSERT((data.unknown22 == 2)
+		   || (data.unknown22 == 1), "???");
 
 	ASSERT_EQUALS(0, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x5a, dataReader.ReadUInt32());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
 
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x7f, dataReader.ReadByte());
-	ASSERT_EQUALS(0, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x5a, dataReader.ReadUInt32());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	data.unknown24 = dataReader.ReadByte();
 
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x7f, dataReader.ReadByte());
+	ASSERT_EQUALS(0, dataReader.ReadUInt16());
 	ASSERT_EQUALS(0, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x5a, dataReader.ReadUInt32());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
 
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x7f, dataReader.ReadByte());
-	ASSERT_EQUALS(0, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x5a, dataReader.ReadUInt32());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+	data.unknown23 = dataReader.ReadByte();
 
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x7f, dataReader.ReadByte());
 	ASSERT_EQUALS(0, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x5a, dataReader.ReadUInt32());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
-	ASSERT_EQUALS(0x40, dataReader.ReadByte());
+}
 
-	/*
-	stdOut
-		<< "101\t" << unknown_101 << endl
-		<< "103\t" << unknown_103 << endl
-		<< "1\t" << unknown1 << endl
-		<< "4\t" << unknown4 << endl
-		<< "5\t" << unknown5 << endl
-		<< "6\t" << unknown6 << endl
-		<< "7\t" << unknown7 << endl
-		<< "8\t" << unknown8 << endl
-		<< "9\t" << unknown9 << endl
-		<< "12\t" << unknown12 << endl
-		<< "13\t" << unknown13 << endl
-		<< "18\t" << unknown18 << endl
-		<< "19\t" << unknown19 << endl
-		<< "20\t" << unknown20 << endl
-		<< "21\t" << unknown21 << endl
-	;*/
+void PerformanceReader::Read0x12000108Chunk(DataReader &dataReader)
+{
+	auto& data = this->keyboardSettings[this->perfIndex]._0x12000108_chunk;
+
+	data.unknown1 = dataReader.ReadByte();
+	ASSERT_EQUALS(0xDE, dataReader.ReadByte());
+
+	data.unknown21 = dataReader.ReadByte();
+	data.unknown22 = dataReader.ReadByte();
+	data.unknown221 = dataReader.ReadByte();
+	data.unknown23 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+
+	data.unknown25 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(1, dataReader.ReadByte());
+
+	data.unknown24 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(2, dataReader.ReadByte());
+
+	data.unknown26 = dataReader.ReadByte();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -17,18 +17,30 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <StdXX.hpp>
-#include "BankObject.hpp"
+#include "Performance.hpp"
 
 namespace libKORG
 {
-	class Sample : public AbstractSample
+	class SingleTouchSettings : public BankObject
 	{
 	public:
 		//Constructor
-		inline Sample(StdXX::InputStream& inputStream)
+		inline SingleTouchSettings(struct AccompanimentSettings&& accompanimentSettings,
+				StdXX::StaticArray<libKORG::KeyboardSettings, 4>&& keyboardSettings)
+				: accompanimentSettings(StdXX::Move(accompanimentSettings)), keyboardSettings(Move(keyboardSettings))
 		{
-			this->ReadData(inputStream);
+		}
+
+		//Properties
+		inline const auto& AccompanimentSettings() const
+		{
+			return this->accompanimentSettings;
+		}
+
+		//Inline
+		inline const auto& GetSTS(uint8 number) const
+		{
+			return this->keyboardSettings[number];
 		}
 
 		void WriteData(StdXX::DataWriter &dataWriter) const override
@@ -36,17 +48,9 @@ namespace libKORG
 			NOT_IMPLEMENTED_ERROR;
 		}
 
-		//Methods
-		void WriteUnknownData(StdXX::OutputStream& outputStream) const;
-
 	private:
 		//Members
-		uint64 unknown;
-		uint32 sampleRate;
-		byte unknown2[48];
-		StdXX::DynamicArray<uint16> samples;
-
-		//Methods
-		void ReadData(StdXX::InputStream& inputStream);
+		struct AccompanimentSettings accompanimentSettings;
+		StdXX::StaticArray<libKORG::KeyboardSettings, 4> keyboardSettings;
 	};
 }

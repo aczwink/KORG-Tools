@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -31,6 +31,7 @@
 #include "OC31Decompressor.hpp"
 #include "KorgFormatTOCReader.hpp"
 #include "Reading/PerformanceReader.hpp"
+#include "Reading/StyleReader.hpp"
 //Namespaces
 using namespace KorgFormat;
 using namespace libKORG;
@@ -127,12 +128,17 @@ void BankFormatReader::ReadEntries(const DynamicArray<KorgFormat::HeaderEntry>& 
 			{
 				PerformanceReader performanceReader;
 				performanceReader.ReadData(inputStream);
+
 				exit(9);
 			}
 			break;
 			case ObjectType::Style:
-				//object = this->ReadInObect(new Style, inputStream);
-				break;
+			{
+				StyleReader styleReader;
+				styleReader.ReadData(inputStream);
+				object = styleReader.TakeResult();
+			}
+			break;
 			case ObjectType::PAD:
 				NOT_IMPLEMENTED_ERROR;
 				//object = this->ReadInObect(new Pad, inputStream);
@@ -156,7 +162,7 @@ void BankFormatReader::ReadEntries(const DynamicArray<KorgFormat::HeaderEntry>& 
 			{
 				PerformanceReader performanceReader;
 				performanceReader.ReadData(inputStream);
-				exit(9);
+				object = performanceReader.TakeSTSResult();
 			}
 			break;
 		}

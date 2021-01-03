@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -18,35 +18,14 @@
  */
 #pragma once
 #include <StdXX.hpp>
-#include "BankObject.hpp"
+#include "Performance.hpp"
 
 namespace libKORG
 {
-	class Sample : public AbstractSample
-	{
-	public:
-		//Constructor
-		inline Sample(StdXX::InputStream& inputStream)
-		{
-			this->ReadData(inputStream);
-		}
-
-		void WriteData(StdXX::DataWriter &dataWriter) const override
-		{
-			NOT_IMPLEMENTED_ERROR;
-		}
-
-		//Methods
-		void WriteUnknownData(StdXX::OutputStream& outputStream) const;
-
-	private:
-		//Members
-		uint64 unknown;
-		uint32 sampleRate;
-		byte unknown2[48];
-		StdXX::DynamicArray<uint16> samples;
-
-		//Methods
-		void ReadData(StdXX::InputStream& inputStream);
-	};
+	StdXX::String AccompanimentTrackNumberToAbbreviatedString(AccompanimentTrackNumber accompanimentTrackNumber);
+	StdXX::String BankPositionToString(uint8 bankPosition);
+	StdXX::String KeyboardTrackNumberToAbbreviatedString(KeyboardTrackNumber keyboardTrackNumber);
+	uint8 ParseStyleBankFileName(const StdXX::String& bankFileName);
+	uint8 ParseStyleBankName(const StdXX::String& string);
+	StdXX::String StyleBankNumberToString(uint8 bankNumber);
 }

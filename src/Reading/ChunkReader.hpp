@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -28,6 +28,8 @@ public:
 protected:
 	virtual StdXX::String GetDebugDirName() const = 0;
 	virtual void ReadDataChunk(uint32 chunkId, StdXX::DataReader& dataReader) = 0;
+	virtual void OnEnteringChunk(uint32 chunkId) = 0;
+	virtual void OnLeavingChunk(uint32 chunkId) = 0;
 
 private:
 	//Methods

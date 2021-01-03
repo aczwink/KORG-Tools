@@ -1,0 +1,10 @@
+set(SOURCE_FILES_SETINFO
+	${SOURCE_FILES_SETINFO}
+
+	${CMAKE_CURRENT_SOURCE_DIR}/FormattedOutputter.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/HumanReadableOutputter.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/StyleOutputter.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/StyleOutputter.hpp
+
+	PARENT_SCOPE)

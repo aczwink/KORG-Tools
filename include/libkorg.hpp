@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -18,6 +18,7 @@
  */
 
 #include "libkorg/BankFormatReader.hpp"
+#include <libkorg/Text.hpp>
 #include "libkorg/KorgFormatWriter.hpp"
 #include <libkorg/Sample.hpp>
 #include <libkorg/Set.hpp>

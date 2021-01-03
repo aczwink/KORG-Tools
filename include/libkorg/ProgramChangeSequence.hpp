@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
+#pragma once
 #include <StdXX.hpp>
 
 namespace libKORG
@@ -43,6 +44,15 @@ namespace libKORG
 			ASSERT_EQUALS(0, (encoded >> 8) & 0xFF);
 
 			return ProgramChangeSequence(encoded >> 24, (encoded >> 16) & 0xFF, encoded & 0xFF);
+		}
+
+		static ProgramChangeSequence Read(StdXX::DataReader& dataReader)
+		{
+			uint8 msb = dataReader.ReadByte();
+			uint8 lsb = dataReader.ReadByte();
+			uint8 programChange = dataReader.ReadByte();
+
+			return ProgramChangeSequence(msb, lsb, programChange);
 		}
 
 	private:
