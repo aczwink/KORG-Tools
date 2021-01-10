@@ -34,7 +34,7 @@ Set::Set(const Path &setPath)
 	//this->ReadDirectory(setPath, u8"MULTISMP", &Set::LoadMultiSamples);
 	//this->ReadDirectory(setPath, u8"PAD", &Set::LoadPads);
 	//this->ReadDirectory(setPath, u8"PCM", &Set::LoadSamples);
-	//this->ReadDirectory(setPath, u8"PERFORM", &Set::LoadPerformances);
+	this->ReadDirectory(setPath, u8"PERFORM", &Set::LoadPerformances);
 	//this->LoadSongBook(setPath);
 	//this->ReadDirectory(setPath, u8"SOUND", &Set::LoadSounds);
 	this->ReadDirectory(setPath, u8"STYLE", &Set::LoadStyles);

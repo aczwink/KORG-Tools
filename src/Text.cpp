@@ -98,6 +98,52 @@ uint8 libKORG::ParseStyleBankName(const String& string)
 	return bankNumber;
 }
 
+String libKORG::PitchToString(Pitch pitch)
+{
+	String result;
+	switch(pitch.pitchWithinOctave)
+	{
+		case OctavePitch::C:
+			result = u8"C";
+			break;
+		case OctavePitch::C_SHARP:
+			result = u8"C#";
+			break;
+		case OctavePitch::D:
+			result = u8"D";
+			break;
+		case OctavePitch::D_SHARP:
+			result = u8"D#";
+			break;
+		case OctavePitch::E:
+			result = u8"E";
+			break;
+		case OctavePitch::F:
+			result = u8"F";
+			break;
+		case OctavePitch::F_SHARP:
+			result = u8"F#";
+			break;
+		case OctavePitch::G:
+			result = u8"G";
+			break;
+		case OctavePitch::G_SHARP:
+			result = u8"G#";
+			break;
+		case OctavePitch::A:
+			result = u8"A";
+			break;
+		case OctavePitch::A_SHARP:
+			result = u8"A#";
+			break;
+		case OctavePitch::B:
+			result = u8"B";
+			break;
+	}
+
+	return result + String::Number(pitch.octave);
+}
+
 String libKORG::StyleBankNumberToString(uint8 bankNumber)
 {
 	String numberAsString = String::Number(bankNumber + 1, 10, 2);

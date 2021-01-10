@@ -56,6 +56,7 @@ void StyleOutputter::Output(const GeneralPerformanceSettings::_0x07000008_chunk 
 	this->formattedOutputter.OutputProperty(u8"unknown3", data.unknown3);
 	this->formattedOutputter.OutputProperty(u8"unknown4", data.unknown4);
 	this->formattedOutputter.OutputProperty(u8"unknown411", data.unknown411);
+	this->formattedOutputter.OutputProperty(u8"unknown412", data.unknown412);
 	this->formattedOutputter.OutputProperty(u8"unknown5", data.unknown5);
 	this->formattedOutputter.OutputProperty(u8"unknown51", data.unknown51);
 	this->formattedOutputter.OutputProperty(u8"unknown6", data.unknown6);
@@ -252,7 +253,9 @@ void StyleOutputter::Output(const TrackProperties &trackProperties)
 	this->formattedOutputter.OutputProperty(u8"unknown1811", trackProperties.unknown1811);
 	this->formattedOutputter.OutputProperty(u8"unknown1812", trackProperties.unknown1812);
 	this->formattedOutputter.OutputProperty(u8"unknown19", trackProperties.unknown19);
+	this->formattedOutputter.OutputProperty(u8"unknown401", trackProperties.unknown401);
 	this->formattedOutputter.OutputProperty(u8"unknown24", trackProperties.unknown24);
+	this->formattedOutputter.OutputProperty(u8"unknown402", trackProperties.unknown402);
 	this->formattedOutputter.OutputProperty(u8"unknown23", trackProperties.unknown23);
 	this->formattedOutputter.OutputProperty(u8"unknown25", trackProperties.unknown25);
 	this->formattedOutputter.OutputProperty(u8"unknown27", trackProperties.unknown27);
@@ -260,6 +263,7 @@ void StyleOutputter::Output(const TrackProperties &trackProperties)
 	this->formattedOutputter.OutputProperty(u8"unknown26", trackProperties.unknown26);
 	this->formattedOutputter.OutputProperty(u8"unknown239", trackProperties.unknown239);
 	this->formattedOutputter.OutputProperty(u8"unknown20", trackProperties.unknown20);
+	this->formattedOutputter.OutputProperty(u8"unknown301", trackProperties.unknown301);
 	this->formattedOutputter.OutputProperty(u8"unknown22", trackProperties.unknown22);
 	this->formattedOutputter.OutputProperty(u8"unknown226", trackProperties.unknown226);
 	this->formattedOutputter.OutputProperty(u8"unknown218", trackProperties.unknown218);
@@ -286,7 +290,15 @@ void StyleOutputter::Output(const TrackProperties &trackProperties)
 	this->formattedOutputter.OutputProperty(u8"unknown222", trackProperties.unknown222);
 	this->formattedOutputter.OutputProperty(u8"unknown225", trackProperties.unknown225);
 	this->formattedOutputter.OutputProperty(u8"unknown223", trackProperties.unknown223);
+	this->formattedOutputter.OutputProperty(u8"unknown307", trackProperties.unknown307);
+	this->formattedOutputter.OutputProperty(u8"unknown306", trackProperties.unknown306);
 	this->formattedOutputter.OutputProperty(u8"unknown215", trackProperties.unknown215);
+	this->formattedOutputter.OutputProperty(u8"unknown304", trackProperties.unknown304);
 	this->formattedOutputter.OutputProperty(u8"unknown237", trackProperties.unknown237);
+	this->formattedOutputter.OutputProperty(u8"unknown305", trackProperties.unknown305);
+	this->formattedOutputter.OutputProperty(u8"unknown310", trackProperties.unknown310);
+	this->formattedOutputter.OutputProperty(u8"unknown240", trackProperties.unknown240);
 	this->formattedOutputter.OutputProperty(u8"unknown31", trackProperties.unknown31);
+	this->formattedOutputter.OutputProperty(u8"unknown302", trackProperties.unknown302);
+	this->formattedOutputter.OutputProperty(u8"unknown303", trackProperties.unknown303);
 }

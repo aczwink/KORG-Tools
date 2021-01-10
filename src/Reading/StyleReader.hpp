@@ -41,6 +41,7 @@ private:
 	void Read0x1000308Chunk(StdXX::DataReader& dataReader);
 	void Read0x1010108Chunk(StdXX::DataReader& dataReader);
 	void Read0x2000008Chunk(StdXX::DataReader& dataReader);
+	void Read0x20000FDChunk(StdXX::DataReader& dataReader);
 	void Read0x2000308Chunk(StdXX::DataReader& dataReader);
 	void Read0x3000008Chunk(StdXX::DataReader& dataReader);
 	void Read0x4000008Chunk(StdXX::DataReader& dataReader);

@@ -18,6 +18,8 @@
  */
 //Class header
 #include "StyleReader.hpp"
+//Local
+#include <libkorg/Text.hpp>
 //Namespaces
 using namespace libKORG;
 using namespace StdXX;
@@ -49,6 +51,9 @@ void StyleReader::ReadDataChunk(uint32 chunkId, DataReader &dataReader)
 			break;
 		case 0x2000008:
 			this->Read0x2000008Chunk(dataReader);
+			break;
+		case 0x20000FD:
+			this->Read0x20000FDChunk(dataReader);
 			break;
 		case 0x2000308:
 			this->Read0x2000308Chunk(dataReader);
@@ -151,6 +156,17 @@ void StyleReader::Read0x2000008Chunk(DataReader &dataReader)
 	uint8 unknown2 = dataReader.ReadByte();
 
 	ASSERT_EQUALS(0, dataReader.ReadUInt16());
+
+	uint16 dataLength = dataReader.ReadUInt16();
+	this->ReadKORG_MIDIEvents(dataLength, dataReader);
+}
+
+void StyleReader::Read0x20000FDChunk(DataReader &dataReader)
+{
+	ASSERT_EQUALS(0, dataReader.ReadUInt16());
+	ASSERT_EQUALS(18, dataReader.ReadByte());
+	ASSERT_EQUALS(0, dataReader.ReadUInt16());
+	ASSERT_EQUALS(0, dataReader.ReadByte());
 
 	uint16 dataLength = dataReader.ReadUInt16();
 	this->ReadKORG_MIDIEvents(dataLength, dataReader);
@@ -278,10 +294,6 @@ void StyleReader::Read0x5010008Chunk(DataReader &dataReader)
 
 void StyleReader::ReadKORG_MIDIEvents(uint16 dataLength, DataReader &dataReader)
 {
-	//TODO: DO THIS CORRECTLY AGAIN
-	dataReader.Skip(dataLength);
-	return;
-
 	DynamicArray<KORG_MIDI_Event> midiEvents;
 
 	bool foundEndOfMarker = false;
@@ -297,21 +309,51 @@ void StyleReader::ReadKORG_MIDIEvents(uint16 dataLength, DataReader &dataReader)
 			midiEvents.Push({KORG_MIDI_EventType::DeltaTime, length});
 			continue;
 		}
+		else if(eventType & 0x40)
+		{
+			//uint8 unknown1 = dataReader.ReadByte();
+			ASSERT((eventType == 0x40)
+				   || (eventType == 0x41)
+				   || (eventType == 0x43)
+				   || (eventType == 0x46), String::HexNumber(eventType));
+
+			uint8 unknown2 = dataReader.ReadByte();
+			ASSERT((unknown2 == 0x8)
+				   || (unknown2 == 0x9)
+				   || (unknown2 == 0xA)
+				   || (unknown2 == 0xB)
+				   || (unknown2 == 0xC)
+				   || (unknown2 == 0xD)
+				   || (unknown2 == 0xE)
+				   || (unknown2 == 0xF)
+				   || (unknown2 == 0x71)
+				   || (unknown2 == 0x72)
+				   || (unknown2 == 0x73)
+				   || (unknown2 == 0x74)
+				   || (unknown2 == 0x75)
+				   || (unknown2 == 0x76)
+				   || (unknown2 == 0x77)
+				   || (unknown2 == 0x78), String::HexNumber(unknown2));
+			dataLength--;
+
+			eventType &= ~0x40;
+		}
 
 		switch(eventType)
 		{
 			case 0: //probably note off
 			case 1: //probably note on
 			{
-				Pitch value1 = static_cast<Pitch>(dataReader.ReadByte());
+				Pitch value1 = Pitch(dataReader.ReadByte());
 
 				uint8 value2 = dataReader.ReadByte();
 				ASSERT_EQUALS(0x80, value2 & 0x80);
 				value2 &= ~0x80;
 
-				midiEvents.Push({eventType == 1 ? KORG_MIDI_EventType::NoteOn : KORG_MIDI_EventType::NoteOff, (uint16)value1, value2});
-				if(eventType == 1)
-				stdOut << u8"note " << (uint16)value1 << " " << (uint32)value2 << endl;
+				midiEvents.Push({eventType == 1 ? KORG_MIDI_EventType::NoteOn : KORG_MIDI_EventType::NoteOff, (uint16)value1.Encode(), value2});
+
+				//if(eventType == 1)
+				//stdOut << u8"note " << PitchToString(value1) << " " << (uint32)value2 << endl;
 
 				dataLength -= 2;
 			}
@@ -325,9 +367,22 @@ void StyleReader::ReadKORG_MIDIEvents(uint16 dataLength, DataReader &dataReader)
 				ASSERT_EQUALS(0x80, value2 & 0x80);
 				value2 &= ~0x80;
 
-				midiEvents.Push({KORG_MIDI_EventType::Ctrl, value1, value2});
+				midiEvents.Push({KORG_MIDI_EventType::ControlChange, value1, value2});
+				//stdOut << u8"control " << (uint16)value1 << " " << (uint32)value2 << endl;
 
 				dataLength -= 2;
+			}
+			break;
+			case 5:
+			{
+				uint8 value1 = dataReader.ReadByte();
+				ASSERT_EQUALS(0x80, value1 & 0x80);
+				value1 &= ~0x80;
+
+				midiEvents.Push({KORG_MIDI_EventType::Aftertouch, value1});
+				//stdOut << u8"aftertouch " << (uint16)value1 << endl;
+
+				dataLength--;
 			}
 			break;
 			case 6:
@@ -357,17 +412,20 @@ void StyleReader::ReadKORG_MIDIEvents(uint16 dataLength, DataReader &dataReader)
 				if(unknown == 0x7E)
 				{
 					uint16 nBytes = dataReader.ReadUInt16();
+					ASSERT((nBytes == 2)
+						   || (nBytes == 4), String::HexNumber(nBytes));
+
 					dataReader.Skip(nBytes);
 					dataLength -= 2 + nBytes;
 
 					midiEvents.Push({KORG_MIDI_EventType::Unknown, nBytes});
+					//stdOut << u8"unknown " << nBytes << endl;
 					break;
 				}
 
 				ASSERT_EQUALS(0x2F, unknown);
 				ASSERT_EQUALS(0, dataReader.ReadUInt16());
 				dataLength -= 2;
-				ASSERT_EQUALS(0, dataLength);
 
 				midiEvents.Push({KORG_MIDI_EventType::EndOfTrack});
 
@@ -377,13 +435,15 @@ void StyleReader::ReadKORG_MIDIEvents(uint16 dataLength, DataReader &dataReader)
 			case 12:
 			case 13:
 			{
-				Pitch value1 = static_cast<Pitch>(dataReader.ReadByte());
+				Pitch value1 = Pitch(dataReader.ReadByte());
 
 				uint8 value2 = dataReader.ReadByte();
 				ASSERT_EQUALS(0x80, value2 & 0x80);
 				value2 &= ~0x80;
 
-				midiEvents.Push({eventType == 13 ? KORG_MIDI_EventType::RXnoiseOn : KORG_MIDI_EventType::RXnoiseOff, (uint16)value1, value2});
+				midiEvents.Push({eventType == 13 ? KORG_MIDI_EventType::RXnoiseOn : KORG_MIDI_EventType::RXnoiseOff, (uint16)value1.Encode(), value2});
+				//if(eventType == 13)
+				//stdOut << u8"rxnoise " << PitchToString(value1) << " " << (uint32)value2 << endl;
 
 				dataLength -= 2;
 			}

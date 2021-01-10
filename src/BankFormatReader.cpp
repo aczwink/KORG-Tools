@@ -48,7 +48,7 @@ DynamicArray<BankObjectEntry> BankFormatReader::Read()
 	uint32 kBegLength = dataReader.ReadUInt32();
 	dataReader.Skip(kBegLength);
 
-	stdOut << "Finished at: " << this->inputStream.GetCurrentOffset() << " - remaining: " << this->inputStream.QueryRemainingBytes() << endl;
+	ASSERT_EQUALS(0, this->inputStream.QueryRemainingBytes());
 
 	return this->objectEntries;
 }
@@ -83,8 +83,8 @@ void BankFormatReader::ReadEntries(const DynamicArray<KorgFormat::HeaderEntry>& 
 	for(const KorgFormat::HeaderEntry& headerEntry : headerEntries)
 	{
 		ChunkHeader chunkHeader = this->ReadChunkHeader();
-		stdOut << String::HexNumber(chunkHeader.id) << " " << headerEntry.name << " " << (uint32)headerEntry.type
-			<< " " << headerEntry.pos << " " << this->inputStream.GetCurrentOffset() << endl;
+		/*stdOut << String::HexNumber(chunkHeader.id) << " " << headerEntry.name << " " << (uint32)headerEntry.type
+			<< " " << headerEntry.pos << " " << this->inputStream.GetCurrentOffset() << endl;*/
 
 		ASSERT((chunkHeader.id == (uint32)ChunkId::MultiSampleData)
 			|| (chunkHeader.id == (uint32)ChunkId::OldSoundDataMaybe)
@@ -128,8 +128,6 @@ void BankFormatReader::ReadEntries(const DynamicArray<KorgFormat::HeaderEntry>& 
 			{
 				PerformanceReader performanceReader;
 				performanceReader.ReadData(inputStream);
-
-				exit(9);
 			}
 			break;
 			case ObjectType::Style:

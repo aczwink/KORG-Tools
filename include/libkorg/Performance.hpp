@@ -100,7 +100,9 @@ namespace libKORG
 		uint8 unknown1811;
 		uint8 unknown1812;
 		uint8 unknown19;
+		uint8 unknown401;
 		uint8 unknown24;
+		uint8 unknown402;
 		uint8 unknown23;
 		uint8 unknown25;
 		uint8 unknown27;
@@ -108,6 +110,7 @@ namespace libKORG
 		uint8 unknown26;
 		uint8 unknown239;
 		uint8 unknown20;
+		uint8 unknown301;
 		uint8 unknown22;
 		uint8 unknown226;
 		uint8 unknown218;
@@ -134,9 +137,17 @@ namespace libKORG
 		uint8 unknown222;
 		uint8 unknown225;
 		uint8 unknown223;
+		uint8 unknown307;
+		uint8 unknown306;
 		uint8 unknown215;
+		uint8 unknown304;
 		uint8 unknown237;
+		uint8 unknown305;
+		uint8 unknown310;
+		uint8 unknown240;
 		uint8 unknown31;
+		uint8 unknown302;
+		uint8 unknown303;
 	};
 
 	struct GeneralPerformanceSettings
@@ -148,6 +159,7 @@ namespace libKORG
 			uint8 unknown3;
 			uint8 unknown4;
 			uint8 unknown411;
+			uint8 unknown412;
 			uint8 unknown5;
 			uint8 unknown51;
 			uint8 unknown6;

@@ -27,6 +27,8 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 	FileSystem::Path setPath = FileSystem::OSFileSystem::GetInstance().FromNativePath(args[0]);
 	Set set(setPath);
 
+	bool showObjects = false;
+
 	UniquePointer<FormattedOutputter> outputter = new HumanReadableOutputter(stdOut);
 
 	for(const auto& kv : set.StyleBanks())
@@ -37,8 +39,11 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 		{
 			Section objectSection(BankPositionToString(kv2.key) + u8" - " + kv2.value.Get<0>(), *outputter);
 
-			StyleOutputter styleOutputter(*outputter);
-			styleOutputter.Output(*kv2.value.Get<1>());
+			if(showObjects)
+			{
+				StyleOutputter styleOutputter(*outputter);
+				styleOutputter.Output(*kv2.value.Get<1>());
+			}
 		}
 	}
 

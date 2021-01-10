@@ -19,6 +19,7 @@
 #pragma once
 #include <StdXX.hpp>
 #include "Performance.hpp"
+#include "Style.hpp"
 
 namespace libKORG
 {
@@ -27,5 +28,6 @@ namespace libKORG
 	StdXX::String KeyboardTrackNumberToAbbreviatedString(KeyboardTrackNumber keyboardTrackNumber);
 	uint8 ParseStyleBankFileName(const StdXX::String& bankFileName);
 	uint8 ParseStyleBankName(const StdXX::String& string);
+	StdXX::String PitchToString(Pitch pitch);
 	StdXX::String StyleBankNumberToString(uint8 bankNumber);
 }

@@ -26,7 +26,8 @@ namespace libKORG
 	{
 		NoteOff = 0,
 		NoteOn = 1,
-		Ctrl = 3,
+		ControlChange = 3,
+		Aftertouch = 5,
 		Bend = 6,
 		RXnoiseOff = 12,
 		RXnoiseOn = 13,
@@ -42,26 +43,43 @@ namespace libKORG
 		uint8 value2;
 	};
 
-	enum class Pitch
+	enum class OctavePitch
 	{
-		C_MINUS_1 = 0,
-		//TODO: rest ...
-		A0 = 21,
-		//TODO: rest ...
-		E1 = 28,
-		//TODO: rest ...
-		B1 = 35,
-		//TODO: rest ...
-		F_SHARP_2 = 42,
-		G2 = 43,
-		//TODO: rest ...
-		G4 = 67,
-		//TODO: rest ...
-		C8 = 108,
-		//TODO: rest ...
-		D_SHARP_9 = 123,
-		//TODO: rest ...
-		G9 = 127
+		C = 0,
+		C_SHARP = 1,
+		D = 2,
+		D_SHARP = 3,
+		E = 4,
+		F = 5,
+		F_SHARP = 6,
+		G = 7,
+		G_SHARP = 8,
+		A = 9,
+		A_SHARP = 10,
+		B = 11,
+	};
+
+	struct Pitch
+	{
+		int8 octave;
+		OctavePitch pitchWithinOctave;
+
+		inline Pitch()
+		{
+			this->octave = 0;
+			this->pitchWithinOctave = OctavePitch::C;
+		}
+
+		inline Pitch(uint8 encoded)
+		{
+			this->octave = encoded / 12;
+			this->pitchWithinOctave = static_cast<OctavePitch>(encoded % 12);
+		}
+
+		inline uint8 Encode() const
+		{
+			return this->octave * 12 + (uint8)this->pitchWithinOctave;
+		}
 	};
 
 	struct StyleTrackData

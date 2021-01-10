@@ -24,9 +24,11 @@ using namespace StdXX;
 //Public methods
 void ChunkReader::ReadData(InputStream &inputStream)
 {
+	/*
 	String call = "rm -rf \"" + this->GetDebugDirName() + "\"";
 	system(reinterpret_cast<const char *>(call.ToUTF8().GetRawZeroTerminatedData()));
 	FileSystem::OSFileSystem::GetInstance().CreateDirectoryTree(this->GetDebugDirName());
+	 */
 
 	this->ReadChunks(inputStream, 0);
 }
@@ -47,7 +49,7 @@ void ChunkReader::ReadChunks(InputStream &inputStream, uint8 depth)
 //#define PRINT_CHUNK_STRUCTURE
 #ifdef PRINT_CHUNK_STRUCTURE
 			this->PrintDashes(depth + 1);
-			stdOut << "Reading Data chunk " << String::HexNumber(chunkId) << endl;
+			stdOut << "Reading Data chunk " << String::HexNumber(chunkId) << u8" with size " << chunkSize << endl;
 #endif
 
 			DataReader chunkDataReader(true, chunkInputStream);
@@ -56,7 +58,7 @@ void ChunkReader::ReadChunks(InputStream &inputStream, uint8 depth)
 			if(!chunkInputStream.IsAtEnd())
 			{
 				static int __iteration = 0;
-				stdErr << u8"Trailing data found: " << __iteration << endl;
+				stdErr << u8"Trailing data found. Counter: " << __iteration << endl;
 				FileOutputStream fileOutputStream(
 						FileSystem::Path(this->GetDebugDirName() + String::HexNumber(chunkId) + "_" + String::Number(__iteration++)),
 						true);
@@ -67,7 +69,7 @@ void ChunkReader::ReadChunks(InputStream &inputStream, uint8 depth)
 		{
 #ifdef PRINT_CHUNK_STRUCTURE
 			this->PrintDashes(depth + 1);
-			stdOut << "Entering chunk " << String::HexNumber(chunkId) << endl;
+			stdOut << "Entering chunk " << String::HexNumber(chunkId) << u8" with size " << chunkSize << endl;
 #endif
 
 			this->OnEnteringChunk(chunkId);
