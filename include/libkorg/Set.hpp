@@ -70,6 +70,11 @@ namespace libKORG
 		Set(const StdXX::FileSystem::Path& setPath);
 
 		//Properties
+		inline const StdXX::Map<uint8, PerformanceBank>& PerformanceBanks() const
+		{
+			return this->performanceBanks;
+		}
+
 		inline const StdXX::Map<uint8, SampleBank>& SampleBanks() const
 		{
 			return this->sampleBanks;

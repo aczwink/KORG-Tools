@@ -128,6 +128,7 @@ void BankFormatReader::ReadEntries(const DynamicArray<KorgFormat::HeaderEntry>& 
 			{
 				PerformanceReader performanceReader;
 				performanceReader.ReadData(inputStream);
+				object = performanceReader.TakePerformanceResult();
 			}
 			break;
 			case ObjectType::Style:

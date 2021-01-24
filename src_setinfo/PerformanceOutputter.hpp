@@ -20,21 +20,28 @@
 using namespace libKORG;
 #include "FormattedOutputter.hpp"
 
-class StyleOutputter
+class PerformanceOutputter
 {
 public:
 	//Constructor
-	inline StyleOutputter(FormattedOutputter& formattedOutputter) : formattedOutputter(formattedOutputter)
+	inline PerformanceOutputter(FormattedOutputter& formattedOutputter) : formattedOutputter(formattedOutputter)
 	{
 	}
 
 	//Methods
-	void Output(const FullStyle& fullStyle);
+	void Output(const Performance& performance);
+	void Output(const SingleTouchSettings& sts);
 
 private:
 	//Members
 	FormattedOutputter& formattedOutputter;
 
 	//Methods
-	void Output(const Style& style);
+	void Output(const AccompanimentSettings& accompanimentSettings);
+	void Output(const StdXX::StaticArray<struct TrackProperties, 4>& keyboardTrackProperties);
+	void Output(const StdXX::StaticArray<struct TrackProperties, 8>& accompanimentTrackProperties);
+	void Output(const GeneralPerformanceSettings::_0x07000008_chunk& data);
+	void Output(const GeneralPerformanceSettings::_0x08000008_chunk& data);
+	void Output(const KeyboardSettings& keyboardSettings);
+	void Output(const TrackProperties& trackProperties);
 };

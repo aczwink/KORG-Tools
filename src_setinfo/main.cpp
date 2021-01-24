@@ -19,33 +19,59 @@
 #include <libkorg.hpp>
 #include "HumanReadableOutputter.hpp"
 #include "StyleOutputter.hpp"
+#include "PerformanceOutputter.hpp"
 
 using namespace libKORG;
+
+void PrintPerformanceBanks(bool showObjects, Set& set, FormattedOutputter& outputter)
+{
+	for(const auto& kv : set.PerformanceBanks())
+	{
+		Section bankSection(PerformanceBankNumberToString(kv.key), outputter);
+
+		for(const auto& kv2 : kv.value.Objects())
+		{
+			Section objectSection(BankPositionToString(kv2.key) + u8" - " + kv2.value.Get<0>(), outputter);
+
+			if(showObjects)
+			{
+				PerformanceOutputter performanceOutputter(outputter);
+				performanceOutputter.Output(*kv2.value.Get<1>());
+			}
+		}
+	}
+}
+
+void PrintStyleBanks(bool showObjects, Set& set, FormattedOutputter& outputter)
+{
+	for(const auto& kv : set.StyleBanks())
+	{
+		Section bankSection(StyleBankNumberToString(kv.key), outputter);
+
+		for(const auto& kv2 : kv.value.Objects())
+		{
+			Section objectSection(BankPositionToString(kv2.key) + u8" - " + kv2.value.Get<0>(), outputter);
+
+			if(showObjects)
+			{
+				StyleOutputter styleOutputter(outputter);
+				styleOutputter.Output(*kv2.value.Get<1>());
+			}
+		}
+	}
+}
 
 int32 Main(const String &programName, const FixedArray<String> &args)
 {
 	FileSystem::Path setPath = FileSystem::OSFileSystem::GetInstance().FromNativePath(args[0]);
 	Set set(setPath);
 
-	bool showObjects = false;
+	bool showObjects = true;
 
 	UniquePointer<FormattedOutputter> outputter = new HumanReadableOutputter(stdOut);
 
-	for(const auto& kv : set.StyleBanks())
-	{
-		Section bankSection(StyleBankNumberToString(kv.key), *outputter);
-
-		for(const auto& kv2 : kv.value.Objects())
-		{
-			Section objectSection(BankPositionToString(kv2.key) + u8" - " + kv2.value.Get<0>(), *outputter);
-
-			if(showObjects)
-			{
-				StyleOutputter styleOutputter(*outputter);
-				styleOutputter.Output(*kv2.value.Get<1>());
-			}
-		}
-	}
+	PrintPerformanceBanks(showObjects, set, *outputter);
+	PrintStyleBanks(showObjects, set, *outputter);
 
 	/*
 

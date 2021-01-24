@@ -282,17 +282,23 @@ namespace libKORG
 	{
 	public:
 		//Constructor
-		inline Performance(StdXX::StaticArray<struct TrackProperties, 8>&& accompanimentTrackProperties)
-			: accompanimentTrackProperties(Move(accompanimentTrackProperties))
+		inline Performance(struct AccompanimentSettings&& accompanimentSettings, libKORG::KeyboardSettings&& keyboardSettings)
+				: accompanimentSettings(StdXX::Move(accompanimentSettings)), keyboardSettings(StdXX::Move(keyboardSettings))
 		{
+		}
+
+		//Properties
+		inline const auto& AccompanimentSettings() const
+		{
+			return this->accompanimentSettings;
+		}
+
+		inline const auto& KeyboardSettings() const
+		{
+			return this->keyboardSettings;
 		}
 
 		//Inline
-		inline const struct TrackProperties& GetAccompanimentTrackProperties(AccompanimentTrackNumber accompanimentTrackNumber) const
-		{
-			return this->accompanimentTrackProperties[static_cast<uint32>(accompanimentTrackNumber)];
-		}
-
 		void WriteData(StdXX::DataWriter &dataWriter) const override
 		{
 			NOT_IMPLEMENTED_ERROR; //TODO: implement me
@@ -301,6 +307,7 @@ namespace libKORG
 
 	private:
 		//Members
-		StdXX::StaticArray<struct TrackProperties, 8> accompanimentTrackProperties;
+		struct AccompanimentSettings accompanimentSettings;
+		libKORG::KeyboardSettings keyboardSettings;
 	};
 }

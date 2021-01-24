@@ -29,6 +29,7 @@ public:
 	}
 
 	//Methods
+	libKORG::Performance* TakePerformanceResult();
 	libKORG::SingleTouchSettings* TakeSTSResult();
 
 protected:

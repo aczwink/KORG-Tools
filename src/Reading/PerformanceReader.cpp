@@ -27,6 +27,13 @@ using namespace StdXX;
 const int8 c_knob_offset = 64;
 
 //Public methods
+libKORG::Performance *PerformanceReader::TakePerformanceResult()
+{
+	ASSERT_EQUALS(1, this->perfIndex);
+
+	return new Performance(Move(this->accompanimentSettings), Move(this->keyboardSettings[0]));
+}
+
 libKORG::SingleTouchSettings *PerformanceReader::TakeSTSResult()
 {
 	ASSERT_EQUALS(4, this->perfIndex);
@@ -128,6 +135,7 @@ void PerformanceReader::ReadDataChunk(uint32 chunkId, DataReader &dataReader)
 				   || (unknown1 == 0x43)
 				   || (unknown1 == 0x42)
 				   || (unknown1 == 0x32)
+				   || (unknown1 == 0x1d)
 				   || (unknown1 == 0)
 			, String::HexNumber(unknown1));
 		}
@@ -822,7 +830,8 @@ void PerformanceReader::Read0x09000008Chunk(DataReader& dataReader)
 void PerformanceReader::Read0x0F000008Chunk(DataReader &dataReader)
 {
 	uint32 perfIndex = dataReader.ReadUInt32();
-	ASSERT(perfIndex < 4, String::Number(perfIndex));
+	ASSERT(perfIndex <= 4, String::Number(perfIndex));
+	perfIndex %= 4; //0-3 for style performances and 4 for performances
 
 	TextReader textReader(dataReader.InputStream(), TextCodecType::ASCII);
 	this->keyboardSettings[perfIndex].name = textReader.ReadZeroTerminatedString(41);
@@ -834,7 +843,9 @@ void PerformanceReader::Read0x10000008Chunk(DataReader &dataReader)
 
 	data.unknown21 = dataReader.ReadByte();
 	ASSERT((data.unknown21 == 4)
-		   || (data.unknown21 == 2), "???");
+		   || (data.unknown21 == 2)
+		   || (data.unknown21 == 1)
+		   , String::HexNumber(data.unknown21));
 
 	data.unknown22 = dataReader.ReadByte();
 	ASSERT((data.unknown22 == 2)
