@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -16,18 +16,31 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-//Class header
-#include <libkorg/Sound.hpp>
-//Namespaces
-using namespace StdXX;
-using namespace libKORG;
+#include <StdXX.hpp>
 
-//Public methods
-void Sound::ReadData(InputStream &inputStream)
+namespace libKORG
 {
+	struct PackageHeader
 	{
-		static int i = 0;
-		FileOutputStream fileOutputStream(FileSystem::Path(u8"/home/amir/Desktop/korg/_OUT/sound/" + String::Number(i++)), true);
-		inputStream.FlushTo(fileOutputStream);
-	}
+		byte pkgLibraryVersion[4];
+		//mach_id and customization
+		StdXX::String systemType;
+		StdXX::String buildSystem1;
+		StdXX::String buildSystem2;
+		StdXX::String creationDate;
+		StdXX::String creationTime;
+		StdXX::String packageType1;
+		StdXX::String packageType2;
+	};
+
+	class Package
+	{
+	public:
+		//Members
+		PackageHeader header;
+		StdXX::UniquePointer<StdXX::FileSystem::ReadableFileSystem> fileSystem;
+
+		//Functions
+		static StdXX::UniquePointer<Package> ReadPackage(StdXX::SeekableInputStream& inputStream);
+	};
 }

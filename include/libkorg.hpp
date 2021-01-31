@@ -18,7 +18,8 @@
  */
 
 #include "libkorg/BankFormatReader.hpp"
-#include <libkorg/Text.hpp>
 #include "libkorg/KorgFormatWriter.hpp"
+#include <libkorg/Package.hpp>
 #include <libkorg/Sample.hpp>
 #include <libkorg/Set.hpp>
+#include <libkorg/Text.hpp>

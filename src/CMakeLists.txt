@@ -1,3 +1,4 @@
+add_subdirectory(Package)
 add_subdirectory(Reading)
 
 set(SOURCE_FILES
@@ -10,6 +11,7 @@ set(SOURCE_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/MultiSample.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/OC31Decompressor.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/OC31Decompressor.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Package.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Pad.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Performance.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Sample.cpp

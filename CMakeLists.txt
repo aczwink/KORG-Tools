@@ -10,6 +10,8 @@ XPC_SetCompileDefinitions()
 
 find_package(StdPlusPlus REQUIRED)
 
+add_subdirectory(tools/ospkg)
+
 add_subdirectory(include)
 add_subdirectory(src)
 add_library(libkorg SHARED ${SOURCE_FILES})
