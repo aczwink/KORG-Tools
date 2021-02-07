@@ -22,6 +22,9 @@
 class StyleReader : public ChunkReader
 {
 public:
+	//Constructor
+	StyleReader();
+
 	//Methods
 	libKORG::Style* TakeResult();
 
@@ -35,6 +38,9 @@ protected:
 private:
 	//Members
 	uint32 parentChunkId;
+	libKORG::StyleData data;
+	uint8 nextMIDITrackNumber;
+	uint8 currentStyleElementNumber;
 
 	//Methods
 	void Read0x1000008Chunk(StdXX::DataReader& dataReader);
@@ -46,6 +52,34 @@ private:
 	void Read0x3000008Chunk(StdXX::DataReader& dataReader);
 	void Read0x4000008Chunk(StdXX::DataReader& dataReader);
 	void Read0x5010008Chunk(StdXX::DataReader& dataReader);
-	void ReadKORG_MIDIEvents(uint16 dataLength, StdXX::DataReader& dataReader);
+	void ReadKORG_MIDIEvents(uint16 dataLength, StdXX::DynamicArray<libKORG::KORG_MIDI_Event>& midiEvents, StdXX::DataReader& dataReader);
 	libKORG::StyleTrackData ReadStyleTrackData(StdXX::DataReader& dataReader);
+
+	//Inline
+	inline auto& GetCurrentChordVariationData()
+	{
+		if(this->currentStyleElementNumber < 4)
+			return this->data.variation[this->currentStyleElementNumber].cv[this->nextMIDITrackNumber];
+		return this->data.styleElements[this->currentStyleElementNumber].cv[this->nextMIDITrackNumber];
+	}
+
+	inline libKORG::GeneralStyleElementData& GetCurrentStyleElementData()
+	{
+		uint8 n = this->currentStyleElementNumber;
+		if(n < 4)
+			return this->data.variation[n];
+		return this->data.styleElements[n];
+	}
+
+	inline libKORG::MIDI_Track& GetCurrentStyleElementTrack()
+	{
+		if(this->currentStyleElementNumber < 4)
+			return this->data.variation[this->currentStyleElementNumber].cv[this->nextMIDITrackNumber].midiTrack;
+		return this->data.styleElements[this->currentStyleElementNumber].cv[this->nextMIDITrackNumber].midiTrack;
+	}
+
+	inline libKORG::MIDI_Track& GetNextMIDITrack()
+	{
+		return this->data.midiTracks[this->nextMIDITrackNumber++];
+	}
 };

@@ -34,12 +34,7 @@ class PackageReader
 	struct FileData
 	{
 		Path path;
-		FileDataType dataType;
-		uint64 dataOffset;
-		uint32 fileSize;
-		uint32 dataSize;
-		byte readMD5[16];
-		SharedPointer<FileSystem::POSIXPermissions> permissions;
+		PackageFileHeader header;
 	};
 public:
 	//Members
@@ -49,9 +44,6 @@ public:
 	//Constructor
 	PackageReader(SeekableInputStream &inputStream) : inputStream(inputStream)
 	{
-		//TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		this->fs = new PackageFileSystem(p);
-		//TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	}
 
 	//Methods
@@ -79,45 +71,38 @@ private:
 	//Members
 	SeekableInputStream &inputStream;
 	DynamicArray<String> directoryPaths;
-	Map<String, SharedPointer<FileSystem::POSIXPermissions>> directoryPermissions;
+	Map<String, UniquePointer<FileSystem::POSIXPermissions>> directoryPermissions;
 	DynamicArray<FileData> filesData;
 
 	//Methods
 	void GenerateFileSystem()
 	{
+		this->fs = new PackageFileSystem(inputStream);
+
 		this->directoryPaths.Sort();
 
 		for (const String& path : this->directoryPaths)
 		{
-			this->fs->AddSourceDirectory(path);
-			this->fs->GetDirectory(path)->ChangePermissions(*this->directoryPermissions[path]);
+			FileInfo fileInfo;
+			fileInfo.type = FileType::Directory;
+			fileInfo.permissions = Move(this->directoryPermissions[path]);
+
+			this->fs->AddSourceDirectory(path, Move(fileInfo));
 		}
 
 		for(const FileData& fileData : this->filesData)
 		{
-			ContainerFileHeader header;
-			header.compressedSize = fileData.dataSize;
-			header.uncompressedSize = fileData.fileSize;
-			header.offset = fileData.dataOffset;
-
-			if(fileData.dataType == FILE_DATA_TYPE_ENCRYPTED)
+			if(fileData.header.dataType == FILE_DATA_TYPE_ENCRYPTED)
 			{
 				stdErr << u8"Skipping encrypted file: " << fileData.path << endl;
 				continue;
 			}
 
-			FileHeaderInfo fileHeaderInfo;
-			fileHeaderInfo.fileDataType = fileData.dataType;
-			fileHeaderInfo.header = header;
-			MemCopy(fileHeaderInfo.readMD5, fileData.readMD5, sizeof(fileHeaderInfo.readMD5));
-
 			Path absPath = fileData.path;
 			if(!absPath.IsAbsolute())
 				absPath = u8"/" + fileData.path.String();
 
-			this->fs->AddSourceFile(absPath, new PackageFile(fileHeaderInfo, this->fs.operator->()));
-			if(!fileData.permissions.IsNull())
-				this->fs->GetNode(absPath)->ChangePermissions(*fileData.permissions);
+			this->fs->AddSourceFile(absPath, fileData.header);
 		}
 	}
 
@@ -172,26 +157,26 @@ private:
 
 	void ReadDirectory(DataReader& dataReader)
 	{
-		SharedPointer<FileSystem::POSIXPermissions> permissions = this->ReadPermissions(dataReader);
+		UniquePointer<FileSystem::POSIXPermissions> permissions = this->ReadPermissions(dataReader);
 		dataReader.ReadUInt16(); //condition?
 
 		TextReader textReader(dataReader.InputStream(), TextCodecType::ASCII);
 		String path = textReader.ReadZeroTerminatedString();
 
 		this->directoryPaths.Push(path); //paths are unfortunately out of order
-		this->directoryPermissions[path] = permissions;
+		this->directoryPermissions.Insert(path, Move(permissions));
 	}
 
 	void ReadFile(DataReader& dataReader, uint32 chunkSize, uint64 offset)
 	{
 		FileData fileData;
 
-		dataReader.ReadBytes(fileData.readMD5, sizeof(fileData.readMD5));
-		fileData.permissions = this->ReadPermissions(dataReader);
+		dataReader.ReadBytes(fileData.header.readMD5, sizeof(fileData.header.readMD5));
+		fileData.header.permissions = this->ReadPermissions(dataReader);
 		dataReader.ReadUInt16(); //condition?
 
-		fileData.fileSize = dataReader.ReadUInt32();
-		fileData.dataType = static_cast<FileDataType>(dataReader.ReadByte());
+		fileData.header.size = dataReader.ReadUInt32();
+		fileData.header.dataType = static_cast<FileDataType>(dataReader.ReadByte());
 
 		TextReader textReader(dataReader.InputStream(), TextCodecType::ASCII);
 
@@ -200,35 +185,36 @@ private:
 		String time = textReader.ReadZeroTerminatedString();
 
 		uint32 fileHeaderSize = 29 + (fileData.path.String().GetLength() + 1) + (date.GetLength() + 1) + (time.GetLength() + 1);
-		fileData.dataSize = chunkSize - fileHeaderSize;
+		fileData.header.storedSize = chunkSize - fileHeaderSize;
 
-		fileData.dataOffset = offset + fileHeaderSize;
+		fileData.header.offset = offset + fileHeaderSize;
 
 		this->filesData.Push(fileData);
 
-		dataReader.Skip(fileData.dataSize);
+		dataReader.Skip(fileData.header.storedSize);
 	}
 
 	void ReadInstallerScript(DataReader& dataReader, uint32 chunkSize, uint64 offset)
 	{
 		FileData fileData;
+		PackageFileHeader& header = fileData.header;
 
 		TextReader textReader(dataReader.InputStream(), TextCodecType::ASCII);
 
-		dataReader.ReadBytes(fileData.readMD5, sizeof(fileData.readMD5));
+		dataReader.ReadBytes(header.readMD5, sizeof(header.readMD5));
 		dataReader.ReadUInt16(); //condition?
 		fileData.path = textReader.ReadZeroTerminatedString();
 
-		uint32 headerSize = sizeof(fileData.readMD5) + 2 + (fileData.path.String().GetLength() + 1);
+		uint32 headerSize = sizeof(header.readMD5) + 2 + (fileData.path.String().GetLength() + 1);
 
-		fileData.dataType = FILE_DATA_TYPE_RAW;
-		fileData.fileSize = chunkSize - headerSize;
-		fileData.dataSize = fileData.fileSize;
-		fileData.dataOffset = offset + headerSize;
+		header.dataType = FILE_DATA_TYPE_RAW;
+		header.size = chunkSize - headerSize;
+		header.storedSize = header.size;
+		header.offset = offset + headerSize;
 
 		this->filesData.Push(fileData);
 
-		dataReader.Skip(fileData.dataSize);
+		dataReader.Skip(header.storedSize);
 	}
 
 	void ReadPackageHeader(DataReader& dataReader)
@@ -253,15 +239,26 @@ private:
 		this->header.packageType2 = textReader.ReadZeroTerminatedString();
 	}
 
-	SharedPointer<FileSystem::POSIXPermissions> ReadPermissions(DataReader& dataReader)
+	UniquePointer<FileSystem::POSIXPermissions> ReadPermissions(DataReader& dataReader)
 	{
 		uint16 owner = dataReader.ReadUInt16();
 		uint16 group = dataReader.ReadUInt16();
 		uint16 attributes = dataReader.ReadUInt16();
 
-		//TODO: ATTRIBUTES TO MODE
-		//TODO: check fuse
-		return new FileSystem::POSIXPermissions(owner, group, attributes);
+		UniquePointer<FileSystem::POSIXPermissions> perm = new FileSystem::POSIXPermissions(owner, group, 0);
+		perm->others.execute = (attributes & ATTR_EXT3_OTHER_X) != 0;
+		perm->others.read = (attributes & ATTR_EXT3_OTHER_R) != 0;
+		perm->others.write = (attributes & ATTR_EXT3_OTHER_W) != 0;
+
+		perm->group.execute = (attributes & ATTR_EXT3_GROUP_X) != 0;
+		perm->group.read = (attributes & ATTR_EXT3_GROUP_R) != 0;
+		perm->group.write = (attributes & ATTR_EXT3_GROUP_W) != 0;
+
+		perm->owner.execute = (attributes & ATTR_EXT3_OWNER_X) != 0;
+		perm->owner.read = (attributes & ATTR_EXT3_OWNER_R) != 0;
+		perm->owner.write = (attributes & ATTR_EXT3_OWNER_W) != 0;
+
+		return perm;
 	}
 
 	void ReadRootFS(DataReader& dataReader, uint64 offset)
@@ -269,20 +266,22 @@ private:
 		TextReader textReader(dataReader.InputStream(), TextCodecType::ASCII);
 
 		FileData fileData;
-		dataReader.ReadBytes(fileData.readMD5, sizeof(fileData.readMD5));
-		fileData.dataSize = dataReader.ReadUInt32();
+		PackageFileHeader& header = fileData.header;
+
+		dataReader.ReadBytes(header.readMD5, sizeof(header.readMD5));
+		header.storedSize = dataReader.ReadUInt32();
 		dataReader.ReadUInt16(); //condition?
 		fileData.path = textReader.ReadZeroTerminatedString();
 
-		uint32 headerSize = sizeof(fileData.readMD5) + 6 + (fileData.path.String().GetLength() + 1);
+		uint32 headerSize = sizeof(header.readMD5) + 6 + (fileData.path.String().GetLength() + 1);
 
-		fileData.fileSize = fileData.dataSize;
-		fileData.dataOffset = offset + headerSize;
-		fileData.dataType = FILE_DATA_TYPE_RAW;
+		header.size = header.storedSize;
+		header.offset = offset + headerSize;
+		header.dataType = FILE_DATA_TYPE_RAW;
 
 		this->filesData.Push(fileData);
 
-		dataReader.Skip(fileData.dataSize);
+		dataReader.Skip(header.storedSize);
 	}
 
 	void ReadSystemFile(uint32 chunkId, uint32 chunkSize, DataReader& dataReader, uint64 offset)
@@ -308,17 +307,18 @@ private:
 		}
 
 		FileData fileData;
+		PackageFileHeader& header = fileData.header;
 
 		fileData.path = path;
-		fileData.dataType = FILE_DATA_TYPE_RAW;
-		dataReader.ReadBytes(fileData.readMD5, sizeof(fileData.readMD5));
-		fileData.dataSize = chunkSize - sizeof(fileData.readMD5);
-		fileData.dataOffset = offset + sizeof(fileData.readMD5);
-		fileData.fileSize = fileData.dataSize;
+		header.dataType = FILE_DATA_TYPE_RAW;
+		dataReader.ReadBytes(header.readMD5, sizeof(header.readMD5));
+		header.storedSize = chunkSize - sizeof(header.readMD5);
+		header.offset = offset + sizeof(header.readMD5);
+		header.size = header.storedSize;
 
 		this->filesData.Push(fileData);
 
-		dataReader.Skip(fileData.dataSize);
+		dataReader.Skip(header.storedSize);
 	}
 };
 

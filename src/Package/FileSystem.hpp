@@ -23,32 +23,37 @@
 using namespace StdXX;
 using namespace StdXX::FileSystem;
 
-struct FileHeaderInfo
+struct PackageFileHeader : public ContainerFileHeader
 {
+	FileDataType dataType;
 	byte readMD5[16];
-	FileDataType fileDataType;
-	ContainerFileHeader header;
+
+	inline PackageFileHeader()
+	{
+		this->type = FileType::File;
+	}
 };
 
-class PackageFile : public StdXX::FileSystem::ContainerFile
+class PackageFileSystem : public CustomArchiveFileSystem<PackageFileHeader>
 {
 public:
-	inline PackageFile(const FileHeaderInfo &header, ContainerFileSystem *fileSystem) : ContainerFile(header.header, fileSystem)
+	//Constructor
+	inline PackageFileSystem(SeekableInputStream& seekableInputStream) : CustomArchiveFileSystem(seekableInputStream)
 	{
-		MemCopy(this->readMD5, header.readMD5, sizeof(this->readMD5));
-		this->fileDataType = header.fileDataType;
 	}
 
-	StdXX::UniquePointer<StdXX::InputStream> OpenForReading(bool verify) const override
-	{
-		StdXX::ChainedInputStream* chain = new StdXX::ChainedInputStream(ContainerFile::OpenForReading(verify));
+	using CustomArchiveFileSystem::AddSourceFile;
+	using CustomArchiveFileSystem::AddSourceDirectory;
 
-		switch(this->fileDataType)
+private:
+	void AddTypedFilters(ChainedInputStream& chainedInputStream, const PackageFileHeader &header, bool verify) const override
+	{
+		switch(header.dataType)
 		{
 			case FILE_DATA_TYPE_RAW:
 				break;
 			case FILE_DATA_TYPE_ZLIB_BLOCKS:
-				chain->Add(new ZLibBlocksInputStream(chain->GetEnd(), verify, this->GetHeader().compressedSize, this->GetHeader().uncompressedSize));
+				chainedInputStream.Add(new ZLibBlocksInputStream(chainedInputStream.GetEnd(), verify, header.storedSize, header.size));
 				break;
 			default:
 			case FILE_DATA_TYPE_ENCRYPTED:
@@ -57,30 +62,8 @@ public:
 
 		if(verify)
 		{
-			StdXX::FixedSizeBuffer buffer(this->readMD5, sizeof(this->readMD5));
-			chain->Add(new StdXX::Crypto::CheckedHashingInputStream(chain->GetEnd(), StdXX::Crypto::HashAlgorithm::MD5, buffer));
+			StdXX::FixedSizeBuffer buffer(header.readMD5, sizeof(header.readMD5));
+			chainedInputStream.Add(new StdXX::Crypto::CheckedHashingInputStream(chainedInputStream.GetEnd(), StdXX::Crypto::HashAlgorithm::MD5, buffer));
 		}
-		return chain;
-	}
-
-private:
-	//Members
-	FileDataType fileDataType;
-	byte readMD5[16];
-};
-
-class PackageFileSystem : public FileSystem::ContainerFileSystem
-{
-public:
-	PackageFileSystem(const Path &fileSystemPath) : ContainerFileSystem(fileSystemPath)
-	{
-	}
-
-	using FileSystem::ContainerFileSystem::AddSourceDirectory;
-	using ContainerFileSystem::AddSourceFile;
-
-	void Flush() override
-	{
-		NOT_IMPLEMENTED_ERROR;
 	}
 };

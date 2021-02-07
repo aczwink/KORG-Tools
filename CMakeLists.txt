@@ -11,6 +11,7 @@ XPC_SetCompileDefinitions()
 find_package(StdPlusPlus REQUIRED)
 
 add_subdirectory(tools/ospkg)
+add_subdirectory(tools/setinfo)
 
 add_subdirectory(include)
 add_subdirectory(src)
@@ -18,12 +19,6 @@ add_library(libkorg SHARED ${SOURCE_FILES})
 target_include_directories(libkorg PRIVATE "include")
 target_link_libraries(libkorg Std++)
 
-
-
-add_subdirectory(src_setinfo)
-add_executable(setinfo ${SOURCE_FILES_SETINFO})
-target_include_directories(setinfo PRIVATE "include")
-target_link_libraries(setinfo LINK_PUBLIC Std++ Std++Static libkorg)
 
 
 add_subdirectory(src_styconv)

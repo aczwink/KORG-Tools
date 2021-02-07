@@ -37,45 +37,17 @@ void PrintHeaderInfo(const PackageHeader& header)
 	stdOut << header.packageType2 << endl;
 }
 
-void Extract(AutoPointer<const Directory> dir, const Path& dirPath, const Path &outputPath)
-{
-	//OSFileSystem::GetInstance().CreateDirectoryTree(outputPath);
-
-	for(const auto &childName : *dir)
-	{
-		Path currentOutputPath = outputPath / childName;
-
-		auto child = dir->GetChild(childName);
-		if(child.IsInstanceOf<const Directory>())
-		{
-			Extract(child.Cast<const Directory>(), dirPath / childName, currentOutputPath);
-		}
-		else
-		{
-			AutoPointer<const File> file = child.Cast<const File>();
-			stdOut << u8"Currently extracting " << dirPath / childName << u8" (" << String::FormatBinaryPrefixed(file->QueryInfo().size) << u8")" << endl;
-			UniquePointer<InputStream> input = file->OpenForReading(false);
-			//FileOutputStream output(currentOutputPath);
-			NullOutputStream output;
-			input->FlushTo(output);
-		}
-	}
-}
-
 int32 Main(const String &programName, const FixedArray<String> &args)
 {
-	Path pkgPath = OSFileSystem::GetInstance().FromNativePath(args[0]);
+	OSFileSystem& osFileSystem = FileSystemsManager::Instance().OSFileSystem();
+	Path pkgPath = osFileSystem.FromNativePath(args[0]);
 	FileInputStream fileInputStream(pkgPath);
 	UniquePointer<Package> package = Package::ReadPackage(fileInputStream);
 
 	PrintHeaderInfo(package->header);
 
-	Path mntPath = OSFileSystem::GetInstance().FromNativePath(args[1]);
-	//OSFileSystem::GetInstance().MountReadOnly(mntPath, *package->fileSystem);
-	String dir = u8"/";
-	Extract(package->fileSystem->GetDirectory(dir), dir, mntPath);
-
-
+	Path mntPath = osFileSystem.FromNativePath(args[1]);
+	osFileSystem.MountReadOnly(mntPath, *package->fileSystem);
 
 	return EXIT_SUCCESS;
 }

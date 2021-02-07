@@ -24,10 +24,17 @@
 using namespace libKORG;
 using namespace StdXX;
 
+//Constructor
+StyleReader::StyleReader()
+{
+	this->nextMIDITrackNumber = 0;
+	this->currentStyleElementNumber = 0;
+}
+
 //Public methods
 libKORG::Style *StyleReader::TakeResult()
 {
-	return new Style();
+	return new Style(Move(this->data));
 }
 
 //Protected methods
@@ -73,56 +80,72 @@ void StyleReader::ReadDataChunk(uint32 chunkId, DataReader &dataReader)
 void StyleReader::OnEnteringChunk(uint32 chunkId)
 {
 	this->parentChunkId = chunkId;
+
+	if(chunkId == 0x3000000)
+	{
+		this->nextMIDITrackNumber = 0;
+	}
 }
 
 void StyleReader::OnLeavingChunk(uint32 chunkId)
 {
+	if(chunkId == 0x3000000)
+	{
+		this->currentStyleElementNumber++;
+	}
 }
 
 //Private methods
 void StyleReader::Read0x1000008Chunk(DataReader &dataReader)
 {
-	uint16 highest = dataReader.ReadUInt16();
+	auto& chunk = this->data._0x1000008_chunk;
+
+	chunk.highest = dataReader.ReadUInt16();
+
 	uint16 nEntries = dataReader.ReadUInt16();
+	chunk.values.Resize(nEntries);
 
 	for(uint16 i = 0; i < nEntries; i++)
 	{
 		uint16 v = dataReader.ReadUInt16();
-		ASSERT(v <= highest, String::HexNumber(v));
+		ASSERT(v <= chunk.highest, String::HexNumber(v));
+		chunk.values[i] = v;
 	}
 }
 
 void StyleReader::Read0x1000308Chunk(DataReader &dataReader)
 {
+	auto& chunk = this->data._0x1000308_chunk;
+
 	uint8 nameLength = dataReader.ReadByte();
 	TextReader textReader(dataReader.InputStream(), TextCodecType::ASCII);
 
-	String name = textReader.ReadString(nameLength);
+	chunk.name = textReader.ReadString(nameLength);
 	//stdOut << name << endl;
 
-	uint8 unknown1 = dataReader.ReadByte();
-	uint8 unknown11 = dataReader.ReadByte();
-	uint8 unknown12 = dataReader.ReadByte();
+	chunk.unknown1 = dataReader.ReadByte();
+	chunk.unknown2 = dataReader.ReadByte();
+	chunk.unknown3 = dataReader.ReadByte();
 
-	uint8 unknown2 = dataReader.ReadByte();
-	ASSERT((unknown2 == 0)
-		   || (unknown2 == 0x1f)
-		   || (unknown2 == 0x7f), String::HexNumber(unknown2));
+	chunk.unknown4 = dataReader.ReadByte();
+	ASSERT((chunk.unknown4 == 0)
+		   || (chunk.unknown4 == 0x1f)
+		   || (chunk.unknown4 == 0x7f), String::HexNumber(chunk.unknown4));
 
-	uint8 unknown3 = dataReader.ReadByte();
-	ASSERT((unknown3 == 1)
-		   || (unknown3 == 0xff), String::HexNumber(unknown3));
+	chunk.unknown5 = dataReader.ReadByte();
+	ASSERT((chunk.unknown5 == 1)
+		   || (chunk.unknown5 == 0xff), String::HexNumber(chunk.unknown5));
 
-	uint8 unknown31 = dataReader.ReadByte();
-	uint8 unknown33 = dataReader.ReadByte();
-	uint8 unknown32 = dataReader.ReadByte();
+	chunk.unknown6 = dataReader.ReadByte();
+	chunk.unknown7 = dataReader.ReadByte();
+	chunk.unknown8 = dataReader.ReadByte();
 
-	uint8 unknown4 = dataReader.ReadByte();
-	uint8 unknown41 = dataReader.ReadByte();
-	uint8 unknown42 = dataReader.ReadByte();
-	uint8 unknown43 = dataReader.ReadByte();
-	uint8 unknown5 = dataReader.ReadByte();
-	uint8 unknown6 = dataReader.ReadByte();
+	chunk.unknown9 = dataReader.ReadByte();
+	chunk.unknown10 = dataReader.ReadByte();
+	chunk.unknown11 = dataReader.ReadByte();
+	chunk.unknown12 = dataReader.ReadByte();
+	chunk.unknown13 = dataReader.ReadByte();
+	chunk.unknown14 = dataReader.ReadByte();
 
 	ASSERT_EQUALS(0, dataReader.ReadByte());
 	ASSERT_EQUALS(0, dataReader.ReadByte());
@@ -132,87 +155,97 @@ void StyleReader::Read0x1000308Chunk(DataReader &dataReader)
 
 void StyleReader::Read0x1010108Chunk(DataReader &dataReader)
 {
-	uint8 unknown1 = dataReader.ReadByte();
-	ASSERT((unknown1 == 3)
-		   || (unknown1 == 0x3f), String::HexNumber(unknown1));
+	auto& data = this->GetCurrentStyleElementData()._0x1010108_chunk;
 
-	uint8 unknown3 = dataReader.ReadByte();
+	data.unknown1 = dataReader.ReadByte();
+	ASSERT((data.unknown1 == 3)
+		   || (data.unknown1 == 0x3f), String::HexNumber(data.unknown1));
+
+	data.unknown2 = dataReader.ReadByte();
 
 	ASSERT_EQUALS(0x18, dataReader.ReadByte());
-	dataReader.Skip(0x18); //chord table
+	dataReader.ReadBytes(data.unknownChordTable, sizeof(data.unknownChordTable));
 
-	uint8 unknown2 = dataReader.ReadByte();
-	ASSERT((unknown2 == 0)
-		   || (unknown2 == 1)
-		   || (unknown2 == 2)
-		   || (unknown2 == 3), String::HexNumber(unknown1));
+	data.unknown3 = dataReader.ReadByte();
+	ASSERT((data.unknown3 == 0)
+		   || (data.unknown3 == 1)
+		   || (data.unknown3 == 2)
+		   || (data.unknown3 == 3), String::HexNumber(data.unknown3));
 }
 
 void StyleReader::Read0x2000008Chunk(DataReader &dataReader)
 {
 	ASSERT_EQUALS(0, dataReader.ReadUInt16());
 
-	uint8 unknown1 = dataReader.ReadByte();
-	uint8 unknown2 = dataReader.ReadByte();
+	auto& midiTrack = this->GetNextMIDITrack();
+	midiTrack.chunkType = libKORG::MIDI_Track::CHUNK_0x2000008;
+
+	midiTrack._0x2000008_data.unknown1 = dataReader.ReadByte();
+	midiTrack._0x2000008_data.unknown2 = dataReader.ReadByte();
 
 	ASSERT_EQUALS(0, dataReader.ReadUInt16());
 
 	uint16 dataLength = dataReader.ReadUInt16();
-	this->ReadKORG_MIDIEvents(dataLength, dataReader);
+	this->ReadKORG_MIDIEvents(dataLength, midiTrack.events, dataReader);
 }
 
 void StyleReader::Read0x20000FDChunk(DataReader &dataReader)
 {
+	NOT_IMPLEMENTED_ERROR; //TODO: implement me for reading!!!!!
+
 	ASSERT_EQUALS(0, dataReader.ReadUInt16());
 	ASSERT_EQUALS(18, dataReader.ReadByte());
 	ASSERT_EQUALS(0, dataReader.ReadUInt16());
 	ASSERT_EQUALS(0, dataReader.ReadByte());
 
 	uint16 dataLength = dataReader.ReadUInt16();
-	this->ReadKORG_MIDIEvents(dataLength, dataReader);
+	NOT_IMPLEMENTED_ERROR;
+	//this->ReadKORG_MIDIEvents(dataLength, dataReader);
 }
 
 void StyleReader::Read0x2000308Chunk(DataReader &dataReader)
 {
-	StyleTrackData styleTrackData[8];
+	auto& styleElementData = this->GetCurrentStyleElementData();
 
-	styleTrackData[0] = this->ReadStyleTrackData(dataReader); //drums
-	styleTrackData[1] = this->ReadStyleTrackData(dataReader); //percussion
-	styleTrackData[2] = this->ReadStyleTrackData(dataReader); //bass
-	styleTrackData[3] = this->ReadStyleTrackData(dataReader); //acc1
-	styleTrackData[4] = this->ReadStyleTrackData(dataReader); //acc2
-	styleTrackData[5] = this->ReadStyleTrackData(dataReader); //acc3
-	styleTrackData[6] = this->ReadStyleTrackData(dataReader); //acc4
-	styleTrackData[7] = this->ReadStyleTrackData(dataReader); //acc5
+	styleElementData.styleTrackData[0] = this->ReadStyleTrackData(dataReader); //drums
+	styleElementData.styleTrackData[1] = this->ReadStyleTrackData(dataReader); //percussion
+	styleElementData.styleTrackData[2] = this->ReadStyleTrackData(dataReader); //bass
+	styleElementData.styleTrackData[3] = this->ReadStyleTrackData(dataReader); //acc1
+	styleElementData.styleTrackData[4] = this->ReadStyleTrackData(dataReader); //acc2
+	styleElementData.styleTrackData[5] = this->ReadStyleTrackData(dataReader); //acc3
+	styleElementData.styleTrackData[6] = this->ReadStyleTrackData(dataReader); //acc4
+	styleElementData.styleTrackData[7] = this->ReadStyleTrackData(dataReader); //acc5
 
 	ASSERT_EQUALS(0, dataReader.ReadUInt16());
 	ASSERT_EQUALS(0, dataReader.ReadByte());
 
-	uint8 unknown115 = dataReader.ReadByte();
+	auto& data = styleElementData._0x2000308_chunk;
+
+	data.unknown1 = dataReader.ReadByte();
 
 	ASSERT_EQUALS(0, dataReader.ReadByte());
 
-	uint8 unknown116 = dataReader.ReadByte();
-	uint8 unknown114 = dataReader.ReadByte();
+	data.unknown2 = dataReader.ReadByte();
+	data.unknown3 = dataReader.ReadByte();
 
 	ASSERT_EQUALS(0, dataReader.ReadByte());
 
-	uint8 unknown111 = dataReader.ReadByte();
-	uint8 unknown112 = dataReader.ReadByte();
-	uint8 unknown113 = dataReader.ReadByte();
-	uint8 unknown17 = dataReader.ReadByte();
-	uint8 unknown13 = dataReader.ReadByte();
-	uint8 unknown14 = dataReader.ReadByte();
-	uint8 unknown11 = dataReader.ReadByte();
-	uint8 unknown15 = dataReader.ReadByte();
-	uint8 unknown16 = dataReader.ReadByte();
-	uint8 unknown12 = dataReader.ReadByte();
-	uint8 unknown18 = dataReader.ReadByte();
-	uint8 unknown181 = dataReader.ReadByte();
-	uint8 unknown19 = dataReader.ReadByte();
-	uint8 unknown22 = dataReader.ReadByte();
-	uint8 unknown20 = dataReader.ReadByte();
-	uint8 unknown21 = dataReader.ReadByte();
+	data.unknown4 = dataReader.ReadByte();
+	data.unknown5 = dataReader.ReadByte();
+	data.unknown6 = dataReader.ReadByte();
+	data.unknown7 = dataReader.ReadByte();
+	data.unknown8 = dataReader.ReadByte();
+	data.unknown9 = dataReader.ReadByte();
+	data.unknown10 = dataReader.ReadByte();
+	data.unknown11 = dataReader.ReadByte();
+	data.unknown12 = dataReader.ReadByte();
+	data.unknown13 = dataReader.ReadByte();
+	data.unknown14 = dataReader.ReadByte();
+	data.unknown15 = dataReader.ReadByte();
+	data.unknown16 = dataReader.ReadByte();
+	data.unknown17 = dataReader.ReadByte();
+	data.unknown18 = dataReader.ReadByte();
+	data.unknown19 = dataReader.ReadByte();
 
 	for(uint8 i = 0; i < 16; i++)
 	{
@@ -226,6 +259,7 @@ void StyleReader::Read0x2000308Chunk(DataReader &dataReader)
 			|| (unknown4 == 0x20)
 			|| (unknown4 == 0x23)
 		, String::HexNumber(unknown4));
+		data.unknown20[i] = unknown4;
 	}
 }
 
@@ -233,28 +267,34 @@ void StyleReader::Read0x3000008Chunk(DataReader &dataReader)
 {
 	ASSERT_EQUALS(0, dataReader.ReadUInt16());
 
-	uint8 unknown1 = dataReader.ReadByte();
+	auto& midiTracks = (this->parentChunkId == 0x2000000) ? this->GetNextMIDITrack() : this->GetCurrentStyleElementTrack();
 
-	uint8 unknown21 = dataReader.ReadByte();
-	uint8 unknown22 = dataReader.ReadByte();
+	midiTracks._0x3000008_data.unknown1 = dataReader.ReadByte();
+	midiTracks._0x3000008_data.unknown2 = dataReader.ReadByte();
+	midiTracks._0x3000008_data.unknown3 = dataReader.ReadByte();
 
 	ASSERT_EQUALS(0, dataReader.ReadByte());
 
 	uint16 dataLength = dataReader.ReadUInt16();
-	this->ReadKORG_MIDIEvents(dataLength, dataReader);
+	this->ReadKORG_MIDIEvents(dataLength, midiTracks.events, dataReader);
 
-	if(parentChunkId == 0x2000000)
+	if(this->parentChunkId == 0x2000000)
 	{
-		uint8 unknown2 = dataReader.ReadByte();
-		uint8 unknown3 = dataReader.ReadByte();
+		midiTracks._0x3000008_data.unknown4 = dataReader.ReadByte();
+		midiTracks._0x3000008_data.unknown5 = dataReader.ReadByte();
 	}
 	else
 	{
+		auto&cv = this->GetCurrentChordVariationData();
+
 		uint8 nAdditionals = dataReader.ReadByte();
+		cv.unknown.Resize(nAdditionals);
 		for (uint8 i = 0; i < nAdditionals; i++)
 		{
-			dataReader.ReadUInt16();
+			cv.unknown[i] = dataReader.ReadUInt16();
 		}
+
+		this->nextMIDITrackNumber++;
 	}
 }
 
@@ -262,40 +302,42 @@ void StyleReader::Read0x4000008Chunk(DataReader &dataReader)
 {
 	ASSERT_EQUALS(0, dataReader.ReadUInt16());
 
-	uint8 unknown1 = dataReader.ReadByte();
-	uint8 unknown11 = dataReader.ReadByte();
+	auto& midiTrack = this->GetNextMIDITrack();
+
+	midiTrack._0x4000008_data.unknown1 = dataReader.ReadByte();
+	midiTrack._0x4000008_data.unknown2 = dataReader.ReadByte();
 
 	ASSERT_EQUALS(0, dataReader.ReadByte());
 	ASSERT_EQUALS(0, dataReader.ReadByte());
 
 	uint16 dataLength = dataReader.ReadUInt16();
-	this->ReadKORG_MIDIEvents(dataLength, dataReader);
+	this->ReadKORG_MIDIEvents(dataLength, midiTrack.events, dataReader);
 
-	uint8 unknown2 = dataReader.ReadByte();
-	uint8 unknown3 = dataReader.ReadByte();
+	midiTrack._0x4000008_data.unknown3 = dataReader.ReadByte();
+	midiTrack._0x4000008_data.unknown4 = dataReader.ReadByte();
 }
 
 void StyleReader::Read0x5010008Chunk(DataReader &dataReader)
 {
+	auto& midiTrack = this->GetNextMIDITrack();
+
 	ASSERT_EQUALS(0, dataReader.ReadUInt16());
 
-	uint8 unknown1 = dataReader.ReadByte();
-	uint8 unknown11 = dataReader.ReadByte();
+	midiTrack._0x5010008_data.unknown1 = dataReader.ReadByte();
+	midiTrack._0x5010008_data.unknown2 = dataReader.ReadByte();
 
 	ASSERT_EQUALS(0, dataReader.ReadByte());
 	ASSERT_EQUALS(0, dataReader.ReadByte());
 
 	uint16 dataLength = dataReader.ReadUInt16();
-	this->ReadKORG_MIDIEvents(dataLength, dataReader);
+	this->ReadKORG_MIDIEvents(dataLength, midiTrack.events, dataReader);
 
-	uint8 unknown2 = dataReader.ReadByte();
-	uint8 unknown3 = dataReader.ReadByte();
+	midiTrack._0x5010008_data.unknown3 = dataReader.ReadByte();
+	midiTrack._0x5010008_data.unknown4 = dataReader.ReadByte();
 }
 
-void StyleReader::ReadKORG_MIDIEvents(uint16 dataLength, DataReader &dataReader)
+void StyleReader::ReadKORG_MIDIEvents(uint16 dataLength, DynamicArray<KORG_MIDI_Event>& midiEvents, DataReader &dataReader)
 {
-	DynamicArray<KORG_MIDI_Event> midiEvents;
-
 	bool foundEndOfMarker = false;
 	while(!foundEndOfMarker && dataLength)
 	{

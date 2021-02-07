@@ -37,4 +37,5 @@ private:
 
 	//Methods
 	void Output(const Style& style);
+	void Output(const StyleData& styleData);
 };

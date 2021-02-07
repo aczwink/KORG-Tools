@@ -34,7 +34,7 @@ Set::Set(const Path &setPath)
 	//this->ReadDirectory(setPath, u8"MULTISMP", &Set::LoadMultiSamples);
 	//this->ReadDirectory(setPath, u8"PAD", &Set::LoadPads);
 	//this->ReadDirectory(setPath, u8"PCM", &Set::LoadSamples);
-	this->ReadDirectory(setPath, u8"PERFORM", &Set::LoadPerformances);
+	//this->ReadDirectory(setPath, u8"PERFORM", &Set::LoadPerformances);
 	//this->LoadSongBook(setPath);
 	//this->ReadDirectory(setPath, u8"SOUND", &Set::LoadSounds);
 	this->ReadDirectory(setPath, u8"STYLE", &Set::LoadStyles);
@@ -109,7 +109,7 @@ void Set::LoadSongs(const String& bankFileName, const DynamicArray<BankObjectEnt
 void Set::LoadSongBook(const Path& setPath)
 {
 	Path listsPath = setPath / String(u8"SONGBOOK/LISTDB.SBL");
-	if(OSFileSystem::GetInstance().Exists(listsPath))
+	if(File(listsPath).Exists())
 	{
 		FileInputStream fileInputStream(listsPath);
 		BankFormatReader bankFormatReader(fileInputStream);
@@ -172,12 +172,14 @@ void Set::LoadStyles(const String &bankFileName, const DynamicArray<BankObjectEn
 void Set::ReadDirectory(const Path &setPath, const String &dirName, void (Set::* loader)(const String& bankFileName, const DynamicArray<BankObjectEntry>&))
 {
 	Path dirPath = setPath / dirName;
-	AutoPointer<Directory> directory = OSFileSystem::GetInstance().GetDirectory(dirPath);
-	for (const String& childName : *directory)
+
+	File directory(dirPath);
+	for (const DirectoryEntry& childEntry : directory)
 	{
-		FileInputStream fileInputStream(dirPath / childName);
+		FileInputStream fileInputStream(dirPath / childEntry.name);
 
 		BankFormatReader korgFormatReader(fileInputStream);
-		(this->*loader)(childName, korgFormatReader.Read());
+		(this->*loader)(childEntry.name, korgFormatReader.Read());
+		break; //TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	}
 }

@@ -3,6 +3,7 @@ set(SOURCE_FILES
 
 	${CMAKE_CURRENT_SOURCE_DIR}/FileSystem.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/PackageInternals.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/ZLibBlocksInputStream.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ZLibBlocksInputStream.hpp
 
 	PARENT_SCOPE)

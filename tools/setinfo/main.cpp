@@ -23,55 +23,70 @@
 
 using namespace libKORG;
 
-void PrintPerformanceBanks(bool showObjects, Set& set, FormattedOutputter& outputter)
+struct PrintSettings
 {
-	for(const auto& kv : set.PerformanceBanks())
-	{
-		Section bankSection(PerformanceBankNumberToString(kv.key), outputter);
+	bool showObjects;
+	Optional<uint8> bankNumber;
+	Optional<uint8> posNumber;
+};
 
+template<typename BankType, typename ObjectOutputter>
+void PrintBanks(const PrintSettings& printSettings, const Map<uint8, BankType>& banks, FormattedOutputter& outputter, Function<String(uint8)> bankNumberToString)
+{
+	uint8 bankNumber = 0;
+	for(const auto& kv : banks)
+	{
+		if(printSettings.bankNumber.HasValue() && (*printSettings.bankNumber != bankNumber++))
+			continue;
+
+		Section bankSection(bankNumberToString(kv.key), outputter);
+
+		uint8 posNumber = 0;
 		for(const auto& kv2 : kv.value.Objects())
 		{
-			Section objectSection(BankPositionToString(kv2.key) + u8" - " + kv2.value.Get<0>(), outputter);
+			if(printSettings.posNumber.HasValue() && (*printSettings.posNumber != posNumber++))
+				continue;
 
-			if(showObjects)
+			Section objectSection(BankPositionToString(kv2.key) + u8" - " + kv2.value.template Get<0>(), outputter);
+
+			if(printSettings.showObjects)
 			{
-				PerformanceOutputter performanceOutputter(outputter);
-				performanceOutputter.Output(*kv2.value.Get<1>());
+				ObjectOutputter objectOutputter(outputter);
+				objectOutputter.Output(*kv2.value.template Get<1>());
 			}
 		}
 	}
 }
 
-void PrintStyleBanks(bool showObjects, Set& set, FormattedOutputter& outputter)
+void PrintPerformanceBanks(const PrintSettings& printSettings, Set& set, FormattedOutputter& outputter)
 {
-	for(const auto& kv : set.StyleBanks())
-	{
-		Section bankSection(StyleBankNumberToString(kv.key), outputter);
+	PrintBanks<PerformanceBank, PerformanceOutputter>(printSettings, set.PerformanceBanks(), outputter, PerformanceBankNumberToString);
+}
 
-		for(const auto& kv2 : kv.value.Objects())
-		{
-			Section objectSection(BankPositionToString(kv2.key) + u8" - " + kv2.value.Get<0>(), outputter);
-
-			if(showObjects)
-			{
-				StyleOutputter styleOutputter(outputter);
-				styleOutputter.Output(*kv2.value.Get<1>());
-			}
-		}
-	}
+void PrintStyleBanks(const PrintSettings& printSettings, Set& set, FormattedOutputter& outputter)
+{
+	PrintBanks<StyleBank, StyleOutputter>(printSettings, set.StyleBanks(), outputter, StyleBankNumberToString);
 }
 
 int32 Main(const String &programName, const FixedArray<String> &args)
 {
-	FileSystem::Path setPath = FileSystem::OSFileSystem::GetInstance().FromNativePath(args[0]);
+	FileSystem::Path setPath = FileSystem::FileSystemsManager::Instance().OSFileSystem().FromNativePath(args[0]);
 	Set set(setPath);
 
-	bool showObjects = true;
+	bool showPerformances = false;
+	bool showStyles = true;
+
+	PrintSettings printSettings;
+	printSettings.showObjects = true;
+	printSettings.bankNumber = 0;
+	printSettings.posNumber = 0;
 
 	UniquePointer<FormattedOutputter> outputter = new HumanReadableOutputter(stdOut);
 
-	PrintPerformanceBanks(showObjects, set, *outputter);
-	PrintStyleBanks(showObjects, set, *outputter);
+	if(showPerformances)
+		PrintPerformanceBanks(printSettings, set, *outputter);
+	if(showStyles)
+		PrintStyleBanks(printSettings, set, *outputter);
 
 	/*
 

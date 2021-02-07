@@ -18,6 +18,7 @@
  */
 //Class header
 #include "StyleOutputter.hpp"
+//Local
 #include "PerformanceOutputter.hpp"
 
 //Public methods
@@ -26,11 +27,23 @@ void StyleOutputter::Output(const FullStyle &fullStyle)
 	this->Output(fullStyle.Style());
 
 	PerformanceOutputter performanceOutputter(this->formattedOutputter);
-	performanceOutputter.Output(fullStyle.STS());
+	//performanceOutputter.Output(fullStyle.STS()); //TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
 
 //Private methods
 void StyleOutputter::Output(const Style &style)
 {
 	Section section(u8"Style Data", this->formattedOutputter);
+	this->Output(style.Data());
+}
+
+void StyleOutputter::Output(const StyleData &styleData)
+{
+	{
+		Section chunkSection(u8"0x1000008", this->formattedOutputter);
+
+		this->formattedOutputter.OutputProperty(u8"highest", styleData._0x1000008_chunk.highest);
+		for(uint32 i = 0; i < styleData._0x1000008_chunk.values.GetNumberOfElements(); i++)
+			this->formattedOutputter.OutputProperty(String::Number(i), styleData._0x1000008_chunk.values[i]);
+	}
 }
