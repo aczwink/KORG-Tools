@@ -7,7 +7,8 @@ set(SOURCE_FILES
 	PerformanceOutputter.cpp
 	PerformanceOutputter.hpp
 	StyleOutputter.cpp
-	StyleOutputter.hpp)
+	StyleOutputter.hpp
+	XMLOutputter.hpp)
 
 add_executable(setinfo ${SOURCE_FILES})
 target_include_directories(setinfo PRIVATE "../../include")

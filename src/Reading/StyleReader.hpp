@@ -31,9 +31,9 @@ public:
 protected:
 	//Methods
 	StdXX::String GetDebugDirName() const override;
-	void ReadDataChunk(uint32 chunkId, StdXX::DataReader &dataReader) override;
-	void OnEnteringChunk(uint32 chunkId) override;
-	void OnLeavingChunk(uint32 chunkId) override;
+	void ReadDataChunk(const ChunkHeader& chunkHeader, StdXX::DataReader &dataReader) override;
+	void OnEnteringChunk(const ChunkHeader& chunkHeader) override;
+	void OnLeavingChunk(const ChunkHeader& chunkHeader) override;
 
 private:
 	//Members
@@ -45,7 +45,6 @@ private:
 	//Methods
 	void Read0x1000008Chunk(StdXX::DataReader& dataReader);
 	void Read0x1000308Chunk(StdXX::DataReader& dataReader);
-	void Read0x1010108Chunk(StdXX::DataReader& dataReader);
 	void Read0x2000008Chunk(StdXX::DataReader& dataReader);
 	void Read0x20000FDChunk(StdXX::DataReader& dataReader);
 	void Read0x2000308Chunk(StdXX::DataReader& dataReader);
@@ -60,7 +59,7 @@ private:
 	{
 		if(this->currentStyleElementNumber < 4)
 			return this->data.variation[this->currentStyleElementNumber].cv[this->nextMIDITrackNumber];
-		return this->data.styleElements[this->currentStyleElementNumber].cv[this->nextMIDITrackNumber];
+		return this->data.styleElements[this->currentStyleElementNumber - 4].cv[this->nextMIDITrackNumber];
 	}
 
 	inline libKORG::GeneralStyleElementData& GetCurrentStyleElementData()
@@ -68,18 +67,17 @@ private:
 		uint8 n = this->currentStyleElementNumber;
 		if(n < 4)
 			return this->data.variation[n];
-		return this->data.styleElements[n];
+		return this->data.styleElements[n - 4];
 	}
 
 	inline libKORG::MIDI_Track& GetCurrentStyleElementTrack()
 	{
-		if(this->currentStyleElementNumber < 4)
-			return this->data.variation[this->currentStyleElementNumber].cv[this->nextMIDITrackNumber].midiTrack;
-		return this->data.styleElements[this->currentStyleElementNumber].cv[this->nextMIDITrackNumber].midiTrack;
+		return this->GetCurrentChordVariationData().midiTrack;
 	}
 
 	inline libKORG::MIDI_Track& GetNextMIDITrack()
 	{
-		return this->data.midiTracks[this->nextMIDITrackNumber++];
+		this->data.midiTracks.Push({});
+		return this->data.midiTracks.Last();
 	}
 };

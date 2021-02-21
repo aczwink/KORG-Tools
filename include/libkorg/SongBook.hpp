@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -28,11 +28,6 @@ namespace libKORG
 		inline SongBook(StdXX::InputStream& inputStream)
 		{
 			this->ReadData(inputStream);
-		}
-
-		void WriteData(StdXX::DataWriter &dataWriter) const override
-		{
-			NOT_IMPLEMENTED_ERROR;
 		}
 
 	private:

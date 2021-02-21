@@ -16,16 +16,29 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-//Class header
-#include <libkorg/Style.hpp>
-#include <libkorg/ProgramChangeSequence.hpp>
-//Namespaces
-using namespace libKORG;
-using namespace StdXX;
+//Local
+#include <libkorg/Performance.hpp>
+#include "ChunkReader.hpp"
 
-//Public methods
-void Style::WriteData(DataWriter &dataWriter) const
+class KeyboardSettingsReader : public ChunkReader
 {
-	NOT_IMPLEMENTED_ERROR;
-	//dataWriter.WriteBytes(this->data.Data(), this->data.Size());
-}
+public:
+	//Constructor
+	inline KeyboardSettingsReader(StdXX::StaticArray<libKORG::KeyboardSettings, 4> &keyboardSettings, uint8 perfIndex)
+		: keyboardSettings(keyboardSettings), perfIndex(perfIndex)
+	{
+	}
+
+protected:
+	//Methods
+	StdXX::String GetDebugDirName() const override;
+	void ReadDataChunk(const ChunkHeader &chunkHeader, StdXX::DataReader &dataReader) override;
+
+private:
+	//Members
+	StdXX::StaticArray<libKORG::KeyboardSettings, 4>& keyboardSettings;
+	uint8 perfIndex;
+
+	//Methods
+	void Read0x0FChunk(StdXX::DataReader &dataReader);
+};

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -20,16 +20,19 @@
 #include <StdXX.hpp>
 using namespace StdXX;
 
-namespace KorgFormat
+namespace BankFormat
 {
+	enum class ChunkType
+	{
+		Container = 1,
+		KorgFile = 2,
+		ObjectTOC = 5,
+		StyleObject = 6,
+		PerformancesData = 9,
+		CrossReferenceTable = 0xFE,
+	};
 	enum class ChunkId : uint32
 	{
-		Container = 0x010001,
-		KorgFile = 0x020000,
-		ObjectTOC = 0x050000,
-		ObjectTOC_Extended = 0x050100,
-		ObjectTOC_Extended2 = 0x050101,
-		StyleData = 0x060000,
 		OldSoundDataMaybe = 0x70003,
 		SongBookListData = 0x080000,
 		SongBookListData1 = 0x080001,
@@ -45,22 +48,6 @@ namespace KorgFormat
 		SoundData2 = 0x100300,
 		MultiSampleData = 0x110300,
 		PCMData = 0x120000,
-	};
-
-	struct ChunkHeader
-	{
-		uint32 id;
-		uint8 flags;
-		uint32 size;
-	};
-
-	enum class ChunkHeaderFlags
-	{
-		Unknown2 = 0x4,
-		Unknown3 = 0x8,
-		AlwaysSet = 0x10,
-		OC31Compressed = 0x20,
-		Encrypted = 0x40,
 	};
 
 	enum class ObjectType

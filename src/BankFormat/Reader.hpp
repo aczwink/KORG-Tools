@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -18,7 +18,9 @@
  */
 #pragma once
 #include "BankFormat.hpp"
-#include "BankObject.hpp"
+#include "libkorg/BankObject.hpp"
+#include "libkorg/ChunkFormat.hpp"
+#include "../Reading/ChunkReader.hpp"
 
 struct BankObjectEntry
 {
@@ -27,38 +29,40 @@ struct BankObjectEntry
 	BankObject* object;
 };
 
-namespace libKORG {
-	class BankFormatReader
+namespace BankFormat
+{
+	class Reader : public ChunkReader
 	{
 	public:
 		//Constructor
-		inline BankFormatReader(SeekableInputStream &inputStream) : inputStream(inputStream),
-																	dataReader(true, inputStream)
+		inline Reader()
 		{
+			this->currentHeaderEntryIndex = 0;
 		}
 
+		//Inline
+		inline DynamicArray<BankObjectEntry>&& TakeEntries()
+		{
+			return Move(this->objectEntries);
+		}
+
+	protected:
 		//Methods
-		DynamicArray<BankObjectEntry> Read();
+		String GetDebugDirName() const override;
+		bool IsDataChunk(const ChunkHeader &chunkHeader) override;
+		void ReadDataChunk(const ChunkHeader& chunkHeader, DataReader &dataReader) override;
 
 	private:
 		//Members
-		SeekableInputStream &inputStream;
-		DataReader dataReader;
+		DynamicArray<HeaderEntry> headerEntries;
+		uint8 currentHeaderEntryIndex;
 		DynamicArray<BankObjectEntry> objectEntries;
 
-		//Methods
-		KorgFormat::ChunkHeader ReadChunkHeader();
-
-		void ReadEntries(const DynamicArray<KorgFormat::HeaderEntry> &headerEntries);
-
-		DynamicArray<KorgFormat::HeaderEntry> ReadTOC();
-
-		void ReadHeader();
-
 		//Inline
-		inline DataReader CreateFourCCReader(StdXX::InputStream &inputStream)
+		inline void AddObject(BankObject* object)
 		{
-			return DataReader(false, inputStream);
+			const HeaderEntry& headerEntry = this->headerEntries[this->currentHeaderEntryIndex++];
+			this->objectEntries.Push({ headerEntry.name, headerEntry.pos, object });
 		}
 	};
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -18,7 +18,6 @@
  */
 #pragma once
 #include <StdXX.hpp>
-using namespace StdXX;
 //Local
 #include "BankObject.hpp"
 
@@ -26,19 +25,29 @@ template <typename ObjectType>
 class ObjectBank
 {
 public:
+	//Members
+	bool saved;
+
+	//Constructor
+	inline ObjectBank()
+	{
+		this->saved = true;
+	}
+
 	//Properties
-	inline const Map<uint8, Tuple<String, SharedPointer<ObjectType>>>& Objects() const
+	inline const StdXX::Map<uint8, StdXX::Tuple<StdXX::String, StdXX::SharedPointer<ObjectType>>>& Objects() const
 	{
 		return this->objects;
 	}
 
 	//Inline
-	inline void AddObject(const String& name, uint8 pos, const SharedPointer<ObjectType>& object)
+	inline void AddObject(const StdXX::String& name, uint8 pos, const StdXX::SharedPointer<ObjectType>& object)
 	{
 		this->objects[pos] = { name, object };
+		this->saved = false;
 	}
 
 private:
 	//Members
-	Map<uint8, Tuple<String, SharedPointer<ObjectType>>> objects;
+	StdXX::Map<uint8, StdXX::Tuple<StdXX::String, StdXX::SharedPointer<ObjectType>>> objects;
 };

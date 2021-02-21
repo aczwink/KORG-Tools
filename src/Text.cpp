@@ -84,16 +84,16 @@ uint8 libKORG::ParseStyleBankFileName(const String &bankFileName)
 
 uint8 libKORG::ParseStyleBankName(const String& string)
 {
-	bool isUser = string.StartsWith(u8"USER");
-	bool isFavorite = string.StartsWith(u8"FAVORITE");
-	ASSERT(string.StartsWith(u8"BANK") || isUser || isFavorite, u8"???");
-	String bankPart = string.SubString(isFavorite ? 8 : 4);
+	if(string.StartsWith(u8"FAVORITE"))
+		return string.SubString(8).ToUInt32() - 1 + 20;
+	else if(string.StartsWith(u8"LOCAL"))
+		return string.SubString(5).ToUInt32() - 1 + 100;
+	else if(string.StartsWith(u8"USER"))
+		return string.SubString(4).ToUInt32() - 1 + 17;
 
+	ASSERT(string.StartsWith(u8"BANK"), u8"???");
+	String bankPart = string.SubString(4);
 	uint32 bankNumber = bankPart.ToUInt32() - 1;
-	if(isFavorite)
-		bankNumber += 20;
-	else if(isUser)
-		bankNumber += 17;
 
 	return bankNumber;
 }
@@ -152,10 +152,18 @@ String libKORG::PitchToString(Pitch pitch)
 
 String libKORG::StyleBankNumberToString(uint8 bankNumber)
 {
-	String numberAsString = String::Number(bankNumber + 1, 10, 2);
-	if(bankNumber > 20)
-		return u8"FAVORITE" + numberAsString;
-	if(bankNumber > 17)
-		return u8"USER" + numberAsString;
-	return u8"BANK" + numberAsString;
+	String prefix = u8"BANK";
+
+	if(bankNumber >= 20)
+	{
+		bankNumber -= 20;
+		prefix = u8"FAVORITE";
+	}
+	else if(bankNumber >= 17)
+	{
+		bankNumber -= 17;
+		prefix = u8"USER";
+	}
+
+	return prefix + String::Number(bankNumber + 1, 10, 2);
 }

@@ -1,16 +1,13 @@
+add_subdirectory(BankFormat)
+add_subdirectory(Models)
 add_subdirectory(Package)
 add_subdirectory(Reading)
+add_subdirectory(Writer)
 
 set(SOURCE_FILES
 	${SOURCE_FILES}
 
-	${CMAKE_CURRENT_SOURCE_DIR}/BankFormatReader.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/KorgFormatTOCReader.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/KorgFormatTOCReader.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/KorgFormatWriter.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/MultiSample.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/OC31Decompressor.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/OC31Decompressor.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Package.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Pad.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Performance.cpp
@@ -19,7 +16,6 @@ set(SOURCE_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/SongBook.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/SongBookEntry.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Sound.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/Style.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Text.cpp
 
 	PARENT_SCOPE)

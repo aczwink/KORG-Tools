@@ -12,16 +12,10 @@ find_package(StdPlusPlus REQUIRED)
 
 add_subdirectory(tools/ospkg)
 add_subdirectory(tools/setinfo)
+add_subdirectory(tools/styconv)
 
 add_subdirectory(include)
 add_subdirectory(src)
 add_library(libkorg SHARED ${SOURCE_FILES})
 target_include_directories(libkorg PRIVATE "include")
 target_link_libraries(libkorg Std++)
-
-
-
-add_subdirectory(src_styconv)
-add_executable(styconv ${SOURCE_FILES_STYCONV})
-target_include_directories(styconv PRIVATE "include")
-target_link_libraries(styconv LINK_PUBLIC Std++ Std++Static libkorg)

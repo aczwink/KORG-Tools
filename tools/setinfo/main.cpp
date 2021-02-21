@@ -20,6 +20,7 @@
 #include "HumanReadableOutputter.hpp"
 #include "StyleOutputter.hpp"
 #include "PerformanceOutputter.hpp"
+#include "XMLOutputter.hpp"
 
 using namespace libKORG;
 
@@ -81,64 +82,12 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 	printSettings.bankNumber = 0;
 	printSettings.posNumber = 0;
 
-	UniquePointer<FormattedOutputter> outputter = new HumanReadableOutputter(stdOut);
+	UniquePointer<FormattedOutputter> outputter = new XMLOutputter(stdOut);
 
 	if(showPerformances)
 		PrintPerformanceBanks(printSettings, set, *outputter);
 	if(showStyles)
 		PrintStyleBanks(printSettings, set, *outputter);
-
-	/*
-
-	FileSystem::Path outPath = String(u8"/home/amir/Desktop/korg/_OUT/");
-	for(const auto& kv : set.SampleBanks())
-	{
-		for(const auto& kv2 : kv.value.Objects())
-		{
-			if(kv2.value.Get<1>().IsInstanceOf<Sample>())
-			{
-				const Sample& sample = dynamic_cast<const Sample &>(*kv2.value.Get<1>());
-
-				FileOutputStream fileOutputStream(outPath / String(u8"PCM") / kv2.value.Get<0>(), true);
-				sample.WriteUnknownData(fileOutputStream);
-			}
-		}
-	}
-
-	 */
-
-	/*
-	uint32 nPerformances = 0;
-	uint32 nStyles = 0;
-	stdOut << u8"Styles:" << endl;
-	for(const SharedPointer<BankObject>& object : styleBank.Objects())
-	{
-		if(object.IsInstanceOf<Style>())
-		{
-			const Style& style = dynamic_cast<const Style&>(*object);
-			uint8 pos = styleBank.GetPositionOf(style);
-
-			stdOut << style.Name()
-			nStyles++;
-		}
-		else
-			nPerformances++;
-	}
-	stdOut << u8"Total style count: " << nStyles << endl;
-	stdOut << u8"Performances: " << nPerformances << endl;
-
-	ObjectBank filtered;
-	for(const SharedPointer<BankObject>& object : styleBank.Objects())
-	{
-		if(styleBank.GetPositionOf(*object) == 0)
-		{
-			filtered.AddObject(0, object);
-		}
-	}
-
-	FileOutputStream fileOutputStream(FileSystem::Path(u8"/home/amir/Desktop/_OUT/_OUT.STY"), true);
-	KorgFormatWriter styleBankWriter(fileOutputStream);
-	styleBankWriter.Write(filtered);*/
 
 	return EXIT_SUCCESS;
 }

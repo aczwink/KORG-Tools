@@ -18,39 +18,34 @@
  */
 #pragma once
 #include "Performance.hpp"
+#include "UnknownChunk.hpp"
 
 namespace libKORG
 {
 	class SingleTouchSettings : public BankObject
 	{
 	public:
-		//Constructor
-		inline SingleTouchSettings(struct AccompanimentSettings&& accompanimentSettings,
-				StdXX::StaticArray<libKORG::KeyboardSettings, 4>&& keyboardSettings)
-				: accompanimentSettings(StdXX::Move(accompanimentSettings)), keyboardSettings(Move(keyboardSettings))
-		{
-		}
-
-		//Properties
-		inline const auto& AccompanimentSettings() const
-		{
-			return this->accompanimentSettings;
-		}
-
-		//Inline
-		inline const auto& GetSTS(uint8 number) const
-		{
-			return this->keyboardSettings[number];
-		}
-
-		void WriteData(StdXX::DataWriter &dataWriter) const override
-		{
-			NOT_IMPLEMENTED_ERROR;
-		}
-
-	private:
 		//Members
+		ChunkVersion version;
+		StdXX::DynamicArray<libKORG::UnknownChunk> unknownChunksAtBeginning;
 		struct AccompanimentSettings accompanimentSettings;
 		StdXX::StaticArray<libKORG::KeyboardSettings, 4> keyboardSettings;
+		StdXX::DynamicArray<libKORG::UnknownChunk> unknownChunksAtEnd;
+
+		//Constructors
+		inline SingleTouchSettings(const ChunkVersion& version,
+				StdXX::DynamicArray<libKORG::UnknownChunk>&& unknownChunksAtBeginning,
+							 struct AccompanimentSettings&& accompanimentSettings,
+							 		StdXX::StaticArray<libKORG::KeyboardSettings, 4>&& keyboardSettings,
+							 		StdXX::DynamicArray<libKORG::UnknownChunk>&& unknownChunksAtEnd)
+				: version(version),
+				unknownChunksAtBeginning(StdXX::Move(unknownChunksAtBeginning)),
+				accompanimentSettings(StdXX::Move(accompanimentSettings)),
+				keyboardSettings(Move(keyboardSettings)),
+				  unknownChunksAtEnd(Move(unknownChunksAtEnd))
+		{
+		}
+
+		SingleTouchSettings(const SingleTouchSettings& singleTouchSettings) = default;
 	};
 }

@@ -19,16 +19,17 @@
 //Class header
 #include <libkorg/Set.hpp>
 //Local
-#include <libkorg/BankFormatReader.hpp>
+#include "BankFormat/Reader.hpp"
 #include <libkorg/SingleTouchSettings.hpp>
 #include <libkorg/Text.hpp>
+#include "BankFormat/Writer.hpp"
 //Namespaces
 using namespace libKORG;
 using namespace StdXX;
 using namespace StdXX::FileSystem;
 
 //Constructor
-Set::Set(const Path &setPath)
+Set::Set(const Path &setPath) : setPath(setPath)
 {
 	//TODO: GLOBAL
 	//this->ReadDirectory(setPath, u8"MULTISMP", &Set::LoadMultiSamples);
@@ -38,6 +39,34 @@ Set::Set(const Path &setPath)
 	//this->LoadSongBook(setPath);
 	//this->ReadDirectory(setPath, u8"SOUND", &Set::LoadSounds);
 	this->ReadDirectory(setPath, u8"STYLE", &Set::LoadStyles);
+}
+
+//Public methods
+void Set::Save()
+{
+	for(auto& kv : this->StyleBanks())
+	{
+		if(kv.value.saved)
+			continue;
+
+		FileOutputStream fileOutputStream(this->setPath / String(u8"STYLE") / (StyleBankNumberToString(kv.key) + u8".STY"), true);
+		BankFormat::Writer styleBankWriter(fileOutputStream);
+		styleBankWriter.Write(kv.value);
+
+		kv.value.saved = true;
+	}
+}
+
+//Class functions
+Set Set::Create(const Path &targetPath)
+{
+	File dir(targetPath);
+	dir.CreateDirectory();
+
+	File styleDir(targetPath / String(u8"STYLE"));
+	styleDir.CreateDirectory();
+
+	return Set(targetPath);
 }
 
 //Private methods
@@ -112,8 +141,9 @@ void Set::LoadSongBook(const Path& setPath)
 	if(File(listsPath).Exists())
 	{
 		FileInputStream fileInputStream(listsPath);
-		BankFormatReader bankFormatReader(fileInputStream);
-		auto bankEntries = bankFormatReader.Read();
+		BankFormat::Reader bankFormatReader;
+		bankFormatReader.ReadData(fileInputStream);
+		auto bankEntries = bankFormatReader.TakeEntries();
 
 		for(const BankObjectEntry& bankObjectEntry : bankEntries)
 			delete bankObjectEntry.object;
@@ -164,6 +194,7 @@ void Set::LoadStyles(const String &bankFileName, const DynamicArray<BankObjectEn
 
 		bank.AddObject(kv.value->name, kv.value->pos, new FullStyle(&style, &sts));
 	}
+	bank.saved = true;
 
 	uint8 bankNumber = ParseStyleBankFileName(bankFileName);
 	this->styleBanks[bankNumber] = Move(bank);
@@ -178,8 +209,9 @@ void Set::ReadDirectory(const Path &setPath, const String &dirName, void (Set::*
 	{
 		FileInputStream fileInputStream(dirPath / childEntry.name);
 
-		BankFormatReader korgFormatReader(fileInputStream);
-		(this->*loader)(childEntry.name, korgFormatReader.Read());
-		break; //TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		BankFormat::Reader bankFormatReader;
+		bankFormatReader.ReadData(fileInputStream);
+
+		(this->*loader)(childEntry.name, bankFormatReader.TakeEntries());
 	}
 }

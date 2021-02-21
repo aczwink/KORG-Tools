@@ -31,11 +31,6 @@ namespace libKORG
 			this->ReadData(inputStream);
 		}
 
-		void WriteData(StdXX::DataWriter &dataWriter) const override
-		{
-			NOT_IMPLEMENTED_ERROR;
-		}
-
 		//Methods
 		void WriteUnknownData(StdXX::OutputStream& outputStream) const;
 

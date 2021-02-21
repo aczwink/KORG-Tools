@@ -25,13 +25,51 @@ public:
 	{
 	}
 
+	//Destructor
+	virtual ~FormattedOutputter() = default;
+
 	//Abstract
 	virtual void BeginSection(const String& name) = 0;
 	virtual void EndSection() = 0;
-	virtual void OutputProperty(const String& name, int8 value) = 0;
-	virtual void OutputProperty(const String& name, uint8 value) = 0;
-	virtual void OutputProperty(const String& name, uint16 value) = 0;
+	virtual void OutputProperty(const String& name, int16 value) = 0;
 	virtual void OutputProperty(const String& name, const String& value) = 0;
+
+	//Inline
+	inline void OutputProperty(const String& name, int8 value)
+	{
+		this->OutputProperty(name, int16(value));
+	}
+
+	inline void OutputProperty(const String& name, uint8 value)
+	{
+		this->OutputProperty(name, uint16(value));
+	}
+
+	inline void OutputProperty(const String& name, uint16 value)
+	{
+		if(name.StartsWith(u8"unknown"))
+			this->OutputProperty(name, String::Number(value) + u8" / " + String::HexNumber(value));
+		else
+			this->OutputProperty(name, String::Number(value));
+	}
+
+	inline void OutputProperty(const String& name, const libKORG::Pitch& value)
+	{
+		this->OutputProperty(name, PitchToString(value));
+	}
+
+	inline void OutputUnknownChunk(const UnknownChunk& chunk)
+	{
+		NOT_IMPLEMENTED_ERROR;
+	}
+
+	inline void OutputUnknownProperties(const DynamicByteBuffer& buffer)
+	{
+		for(uint32 i = 0; i < buffer.Size(); i++)
+		{
+			this->OutputProperty(u8"unknown[" + String::Number(i) + u8"]", buffer[i]);
+		}
+	}
 
 protected:
 	//Members

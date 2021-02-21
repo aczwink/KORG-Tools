@@ -23,8 +23,6 @@ class BankObject
 {
 public:
 	virtual ~BankObject() = default;
-
-	virtual void WriteData(StdXX::DataWriter& dataWriter) const = 0;
 };
 
 class AbstractSample : public BankObject

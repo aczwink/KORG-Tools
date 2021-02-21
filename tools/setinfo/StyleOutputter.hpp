@@ -38,4 +38,10 @@ private:
 	//Methods
 	void Output(const Style& style);
 	void Output(const StyleData& styleData);
+	void Output(const MIDI_Track& midiTrack);
+	void Output(uint32 index, const KORG_MIDI_Event& event);
+	void Output(const VariationStyleElementData& data);
+	void Output(const StyleElementData& data);
+	void Output(const ChordVariationData& data);
+	void OutputGeneralStyleElementData(const GeneralStyleElementData& data);
 };

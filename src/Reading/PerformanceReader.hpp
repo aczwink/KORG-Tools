@@ -18,6 +18,7 @@
  */
 //Local
 #include <libkorg/SingleTouchSettings.hpp>
+#include <libkorg/UnknownChunk.hpp>
 #include "ChunkReader.hpp"
 
 class PerformanceReader : public ChunkReader
@@ -26,6 +27,8 @@ public:
 	inline PerformanceReader()
 	{
 		this->perfIndex = 0;
+		this->version.minor = 0;
+		this->version.major = 0;
 	}
 
 	//Methods
@@ -35,23 +38,15 @@ public:
 protected:
 	//Methods
 	StdXX::String GetDebugDirName() const override;
-	void ReadDataChunk(uint32 chunkId, StdXX::DataReader &dataReader) override;
-	void OnEnteringChunk(uint32 chunkId) override;
-	void OnLeavingChunk(uint32 chunkId) override;
+	bool IsDataChunk(const ChunkHeader &chunkHeader) override;
+	void ReadDataChunk(const ChunkHeader& chunkHeader, StdXX::DataReader &dataReader) override;
 
 private:
 	//Members
-	uint32 parentChunkId;
 	uint8 perfIndex;
+	ChunkVersion version;
+	StdXX::DynamicArray<libKORG::UnknownChunk> unknownChunksAtBeginning;
 	libKORG::AccompanimentSettings accompanimentSettings;
 	StdXX::StaticArray<libKORG::KeyboardSettings, 4> keyboardSettings;
-
-	//Methods
-	void Read0x04000108Chunk(StdXX::DataReader& dataReader);
-	void Read0x07000008Chunk(StdXX::DataReader& dataReader);
-	void Read0x08000008Chunk(StdXX::DataReader& dataReader);
-	void Read0x09000008Chunk(StdXX::DataReader& dataReader);
-	void Read0x0F000008Chunk(StdXX::DataReader& dataReader);
-	void Read0x10000008Chunk(StdXX::DataReader& dataReader);
-	void Read0x12000108Chunk(StdXX::DataReader& dataReader);
+	StdXX::DynamicArray<libKORG::UnknownChunk> unknownChunksAtEnd;
 };

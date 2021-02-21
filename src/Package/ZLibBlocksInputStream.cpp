@@ -82,7 +82,7 @@ uint32 ZLibBlocksInputStream::ReadZLibBlock(DataReader &dataReader, void *destin
 	BufferOutputStream bufferOutputStream(destination, uncompressedSize);
 
 	decompressor->FlushTo(bufferOutputStream);
-	ASSERT_EQUALS(uncompressedSize, bufferOutputStream.GetCurrentOffset());
+	ASSERT_EQUALS(uncompressedSize, bufferOutputStream.QueryCurrentOffset());
 
 	this->readDataSize += 8 + compressedSize;
 	this->readFileSize += uncompressedSize;

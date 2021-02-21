@@ -20,6 +20,7 @@
 #include <StdXX.hpp>
 #include "BankObject.hpp"
 #include "ProgramChangeSequence.hpp"
+#include "UnknownChunk.hpp"
 
 namespace libKORG
 {
@@ -63,28 +64,13 @@ namespace libKORG
 
 	struct TrackProperties
 	{
-		uint16 unknown_101;
-		uint8 unknown_103;
-		uint8 muted;
-		uint16 unknown11;
-		uint16 unknown111;
-		uint8 unknown1;
-		uint8 unknown113;
+		StdXX::DynamicByteBuffer unknown1;
 		StdXX::UniquePointer<ProgramChangeSequence> soundProgramChangeSeq;
 		uint8 volume;
 		int8 pan;
 		int8 detune;
 		int8 octaveTranspose;
-		uint8 unknown3;
-		uint8 unknown4;
-		uint8 unknown5;
-		uint8 unknown6;
-		uint8 unknown7;
-		uint8 unknown71;
-		uint8 unknown72;
-		uint8 unknown73;
-		uint8 unknown8;
-		uint8 unknown9;
+		StdXX::DynamicByteBuffer unknown2;
 		uint8 fxMaster1;
 		uint8 fxMaster2;
 		uint8 dry;
@@ -96,218 +82,89 @@ namespace libKORG
 		int8 lowGainTimes2;
 		int8 midGainTimes2;
 		int8 highGainTimes2;
-		uint8 unknown18;
-		uint8 unknown1811;
-		uint8 unknown1812;
-		uint8 unknown19;
-		uint8 unknown401;
-		uint8 unknown24;
-		uint8 unknown402;
-		uint8 unknown23;
-		uint8 unknown25;
-		uint8 unknown27;
-		uint8 unknown28;
-		uint8 unknown26;
-		uint8 unknown239;
-		uint8 unknown20;
-		uint8 unknown301;
-		uint8 unknown22;
-		uint8 unknown226;
-		uint8 unknown218;
-		uint8 unknown221;
-		uint8 unknown220;
-		uint8 unknown217;
-		uint8 unknown224;
-		uint8 unknown211;
-		uint8 unknown236;
-		uint8 unknown212;
-		uint8 unknown238;
-		uint8 unknown213;
-		uint8 unknown231;
-		uint8 unknown21;
-		uint8 unknown241;
-		uint8 unknown214;
-		uint8 unknown242;
-		uint8 unknown234;
-		uint8 unknown235;
-		uint8 unknown216;
-		uint8 unknown232;
-		uint8 unknown233;
-		uint8 unknown219;
-		uint8 unknown222;
-		uint8 unknown225;
-		uint8 unknown223;
-		uint8 unknown307;
-		uint8 unknown306;
-		uint8 unknown215;
-		uint8 unknown304;
-		uint8 unknown237;
-		uint8 unknown305;
-		uint8 unknown310;
-		uint8 unknown240;
-		uint8 unknown31;
-		uint8 unknown302;
-		uint8 unknown303;
+		StdXX::DynamicByteBuffer unknown3;
+
+		//Constructors
+		TrackProperties() = default;
+
+		inline TrackProperties(const TrackProperties& trackProperties)
+		{
+			*this = trackProperties;
+		}
+
+		//Operators
+		TrackProperties& operator=(const TrackProperties& trackProperties)
+		{
+			this->unknown1 = trackProperties.unknown1;
+			this->soundProgramChangeSeq = new ProgramChangeSequence(*trackProperties.soundProgramChangeSeq);
+			this->volume = trackProperties.volume;
+			this->pan = trackProperties.pan;
+			this->detune = trackProperties.detune;
+			this->octaveTranspose = trackProperties.octaveTranspose;
+			this->unknown2 = trackProperties.unknown2;
+			this->fxMaster1 = trackProperties.fxMaster1;
+			this->fxMaster2 = trackProperties.fxMaster2;
+			this->dry = trackProperties.dry;
+			this->unknown12 = trackProperties.unknown12;
+			this->unknown13 = trackProperties.unknown13;
+			this->pbSensitivity = trackProperties.pbSensitivity;
+			this->unknown182 = trackProperties.unknown182;
+			this->unknown181 = trackProperties.unknown181;
+			this->lowGainTimes2 = trackProperties.lowGainTimes2;
+			this->midGainTimes2 = trackProperties.midGainTimes2;
+			this->highGainTimes2 = trackProperties.highGainTimes2;
+			this->unknown3 = trackProperties.unknown3;
+
+			return *this;
+		}
 	};
 
 	struct GeneralPerformanceSettings
 	{
-		struct _0x07000008_chunk
-		{
-			uint8 unknown1;
-			uint8 unknown2;
-			uint8 unknown3;
-			uint8 unknown4;
-			uint8 unknown411;
-			uint8 unknown412;
-			uint8 unknown5;
-			uint8 unknown51;
-			uint8 unknown6;
-			uint8 unknown7;
-			uint8 unknown71;
-			uint8 unknown72;
-			uint8 unknown8;
-			uint8 unknown9;
-			uint8 unknown10;
-			uint8 unknown11;
-			uint8 unknown12;
-			uint8 unknown13;
-			uint8 unknown14;
-			uint8 unknown15;
-			uint8 unknown16;
-			uint8 unknown17;
-			uint8 unknown18;
-			uint8 unknown19;
-			uint8 unknown20;
-			uint8 unknown21;
-			uint8 unknown22;
-			uint8 unknown23;
-			uint8 unknown24;
-			uint8 unknown251;
-			uint8 unknown25;
-			uint8 unknown26;
-			uint8 unknown27;
-			uint8 unknown28;
-			uint8 unknown29;
-			uint8 unknown30;
-			uint8 unknown31;
-			uint8 unknown32;
-			uint8 unknown33;
-			uint8 unknown331;
-			uint8 unknown34;
-			uint8 unknown35;
-			uint8 unknown36;
-			uint8 unknown37;
-			uint8 unknown38;
-			uint8 unknown39;
-			uint8 unknown40;
-			uint8 unknown41;
-			uint8 unknown42;
-			uint8 unknown43;
-			uint8 unknown44;
-			uint8 unknown45;
-			uint8 unknown46;
-			uint8 unknown47;
-			uint8 unknown48;
-			uint8 unknown49;
-			uint8 unknown50;
-			uint8 unknown52;
-			uint8 unknown53;
-			uint8 unknown54;
-			uint8 unknown55;
-			uint8 unknown56;
-			uint8 unknown57;
-			uint8 unknown58;
-			uint8 unknown59;
-			uint8 unknown591;
-			uint8 unknown60;
-			uint8 unknown61;
-			uint8 unknown62;
-			uint8 unknown63;
-			uint8 unknown64;
-		};
-
-		struct _0x08000008_chunk
-		{
-			uint8 unknown0;
-			uint8 unknown1;
-			uint8 unknown2;
-			uint8 unknown3;
-			uint8 unknown4;
-			uint8 unknown5;
-			uint8 unknown6;
-			uint8 unknown8;
-			uint8 unknown9;
-			uint8 unknown10;
-			uint8 unknown7;
-		};
-
-		StdXX::StaticArray<_0x08000008_chunk, 4> _0x08000008_chunks;
+		//Constructors
+		GeneralPerformanceSettings() = default;
+		GeneralPerformanceSettings(const GeneralPerformanceSettings& generalPerformanceSettings) = default;
 	};
 
 	struct AccompanimentSettings : public GeneralPerformanceSettings
 	{
-		StdXX::StaticArray<_0x07000008_chunk, 6> _0x07000008_chunks;
+		StdXX::DynamicArray<libKORG::UnknownChunk> unknownChunksBefore9;
 		StdXX::StaticArray<struct TrackProperties, 8> trackProperties;
+		StdXX::DynamicArray<libKORG::UnknownChunk> unknownChunksAfter9;
+
+		//Constructors
+		AccompanimentSettings() = default;
+
+		inline AccompanimentSettings(const AccompanimentSettings& accompanimentSettings) : GeneralPerformanceSettings(accompanimentSettings)
+		{
+			this->unknownChunksBefore9 = accompanimentSettings.unknownChunksBefore9;
+			this->trackProperties = accompanimentSettings.trackProperties;
+			this->unknownChunksAfter9 = accompanimentSettings.unknownChunksAfter9;
+		}
 	};
 
 	struct KeyboardSettings : public GeneralPerformanceSettings
 	{
 		StdXX::String name;
-		StdXX::StaticArray<_0x07000008_chunk, 4> _0x07000008_chunks;
+		StdXX::DynamicArray<libKORG::UnknownChunk> unknownChunksBeforeTracks;
 		StdXX::StaticArray<libKORG::TrackProperties, 4> trackProperties;
-
-		struct
-		{
-			uint8 unknown21;
-			uint8 unknown22;
-			uint8 unknown24;
-			uint8 unknown23;
-		} _0x_10000008_chunk;
-
-		struct
-		{
-			uint8 unknown1;
-			uint8 unknown21;
-			uint8 unknown22;
-			uint8 unknown221;
-			uint8 unknown23;
-			uint8 unknown25;
-			uint8 unknown24;
-			uint8 unknown26;
-		} _0x12000108_chunk;
+		StdXX::DynamicArray<libKORG::UnknownChunk> unknownChunksAfterTracks;
 	};
 
 	class Performance : public BankObject
 	{
 	public:
-		//Constructor
-		inline Performance(struct AccompanimentSettings&& accompanimentSettings, libKORG::KeyboardSettings&& keyboardSettings)
-				: accompanimentSettings(StdXX::Move(accompanimentSettings)), keyboardSettings(StdXX::Move(keyboardSettings))
-		{
-		}
-
-		//Properties
-		inline const auto& AccompanimentSettings() const
-		{
-			return this->accompanimentSettings;
-		}
-
-		inline const auto& KeyboardSettings() const
-		{
-			return this->keyboardSettings;
-		}
-
-		//Inline
-		void WriteData(StdXX::DataWriter &dataWriter) const override
-		{
-			NOT_IMPLEMENTED_ERROR; //TODO: implement me
-			//dataWriter.WriteBytes(this->data.Data(), this->data.Size());
-		}
-
-	private:
 		//Members
+		StdXX::DynamicArray<libKORG::UnknownChunk> unknownChunksAtBeginning;
 		struct AccompanimentSettings accompanimentSettings;
 		libKORG::KeyboardSettings keyboardSettings;
+
+		//Constructor
+		inline Performance(StdXX::DynamicArray<libKORG::UnknownChunk>&& unknownChunksAtBeginning, struct AccompanimentSettings&& accompanimentSettings, libKORG::KeyboardSettings&& keyboardSettings)
+				: unknownChunksAtBeginning(StdXX::Move(unknownChunksAtBeginning)),
+				accompanimentSettings(StdXX::Move(accompanimentSettings)),
+				keyboardSettings(StdXX::Move(keyboardSettings))
+		{
+		}
 	};
 }

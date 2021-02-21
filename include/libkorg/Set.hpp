@@ -18,43 +18,16 @@
  */
 #pragma once
 #include <StdXX.hpp>
-#include "BankFormatReader.hpp"
+#include "../../src/BankFormat/Reader.hpp"
 #include "ObjectBank.hpp"
 #include "MultiSample.hpp"
 #include "Sound.hpp"
 #include "Pad.hpp"
 #include "Performance.hpp"
-#include "Style.hpp"
-#include "SingleTouchSettings.hpp"
+#include "FullStyle.hpp"
 
 namespace libKORG
 {
-	class FullStyle
-	{
-	public:
-		//Constructor
-		inline FullStyle(UniquePointer<class Style>&& style, UniquePointer<SingleTouchSettings>&& sts)
-				: style(Move(style)), sts(Move(sts))
-		{
-		}
-
-		//Properties
-		inline const class Style& Style() const
-		{
-			return *this->style;
-		}
-
-		inline const SingleTouchSettings& STS() const
-		{
-			return *this->sts;
-		}
-
-	private:
-		//Members
-		UniquePointer<class Style> style;
-		UniquePointer<SingleTouchSettings> sts;
-	};
-
 	typedef ObjectBank<Pad> PadBank;
 	typedef ObjectBank<Performance> PerformanceBank;
 	typedef ObjectBank<AbstractSample> SampleBank;
@@ -64,9 +37,7 @@ namespace libKORG
 	class Set
 	{
 	public:
-		//Members
-
-		//Constructor
+		//Constructors
 		Set(const StdXX::FileSystem::Path& setPath);
 
 		//Properties
@@ -80,13 +51,25 @@ namespace libKORG
 			return this->sampleBanks;
 		}
 
+		inline StdXX::Map<uint8, StyleBank>& StyleBanks()
+		{
+			return this->styleBanks;
+		}
+
 		inline const StdXX::Map<uint8, StyleBank>& StyleBanks() const
 		{
 			return this->styleBanks;
 		}
 
+		//Methods
+		void Save();
+
+		//Functions
+		static Set Create(const FileSystem::Path& targetPath);
+
 	private:
 		//Members
+		FileSystem::Path setPath;
 		StdXX::UniquePointer<MultiSample> multiSamples;
 		StdXX::Map<uint8, PadBank> padBanks;
 		StdXX::Map<uint8, PerformanceBank> performanceBanks;
@@ -103,6 +86,6 @@ namespace libKORG
 		void LoadSongBook(const FileSystem::Path& setPath);
 		void LoadSounds(const String& bankFileName, const DynamicArray<BankObjectEntry>& bankEntries);
 		void LoadStyles(const String& bankFileName, const DynamicArray<BankObjectEntry>& bankEntries);
-		void ReadDirectory(const StdXX::FileSystem::Path& setPath, const StdXX::String& dirName, void (Set::* loader)(const String& bankFileName, const DynamicArray<BankObjectEntry>&));
+		void ReadDirectory(const FileSystem::Path& setPath, const String& dirName, void (Set::* loader)(const String& bankFileName, const DynamicArray<BankObjectEntry>&));
 	};
 }

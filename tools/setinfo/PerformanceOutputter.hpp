@@ -40,8 +40,6 @@ private:
 	void Output(const AccompanimentSettings& accompanimentSettings);
 	void Output(const StdXX::StaticArray<struct TrackProperties, 4>& keyboardTrackProperties);
 	void Output(const StdXX::StaticArray<struct TrackProperties, 8>& accompanimentTrackProperties);
-	void Output(const GeneralPerformanceSettings::_0x07000008_chunk& data);
-	void Output(const GeneralPerformanceSettings::_0x08000008_chunk& data);
 	void Output(const KeyboardSettings& keyboardSettings);
 	void Output(const TrackProperties& trackProperties);
 };

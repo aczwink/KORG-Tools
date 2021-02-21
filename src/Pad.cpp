@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -28,6 +28,7 @@ String Pad::GetDebugDirName() const
 	return u8"/home/amir/Desktop/korg/_OUT/PAD/";
 }
 
-void Pad::ReadDataChunk(uint32 chunkId, DataReader &dataReader)
+void Pad::ReadDataChunk(const ChunkHeader& chunkHeader, DataReader &dataReader)
 {
+	NOT_IMPLEMENTED_ERROR;
 }

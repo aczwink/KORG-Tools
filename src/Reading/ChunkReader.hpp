@@ -17,7 +17,9 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <StdXX.hpp>
+//Local
+#include <libkorg/ChunkFormat.hpp>
+using namespace libKORG;
 
 class ChunkReader
 {
@@ -26,16 +28,32 @@ public:
 	void ReadData(StdXX::InputStream& inputStream);
 
 protected:
+	//Abstract
 	virtual StdXX::String GetDebugDirName() const = 0;
-	virtual void ReadDataChunk(uint32 chunkId, StdXX::DataReader& dataReader) = 0;
-	virtual void OnEnteringChunk(uint32 chunkId) = 0;
-	virtual void OnLeavingChunk(uint32 chunkId) = 0;
+	virtual void ReadDataChunk(const ChunkHeader& chunkHeader, StdXX::DataReader& dataReader) = 0;
+
+	//Overrideable
+	virtual bool IsDataChunk(const ChunkHeader& chunkHeader);
+	virtual void OnEnteringChunk(const ChunkHeader& chunkHeader);
+	virtual void OnLeavingChunk(const ChunkHeader& chunkHeader);
+
+	//Inline
+	inline uint32 ReadFourCC(StdXX::InputStream& inputStream)
+	{
+		return this->CreateFourCCReader(inputStream).ReadUInt32();
+	}
 
 private:
 	//Methods
+	ChunkHeader ReadChunkHeader(StdXX::DataReader& dataReader);
 	void ReadChunks(StdXX::InputStream& inputStream, uint8 depth);
 
 	//Inline
+	inline StdXX::DataReader CreateFourCCReader(StdXX::InputStream &inputStream)
+	{
+		return StdXX::DataReader(false, inputStream);
+	}
+
 	inline void PrintDashes(uint8 depth)
 	{
 		for(uint8 i = 0; i < depth; i++)

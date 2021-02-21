@@ -45,22 +45,9 @@ public:
 		this->output << name << u8": " << value << endl;
 	}
 
-	void OutputProperty(const String &name, int8 value) override
+	void OutputProperty(const String &name, int16 value) override
 	{
 		this->OutputProperty(name, String::Number(value));
-	}
-
-	void OutputProperty(const String &name, uint8 value) override
-	{
-		this->OutputProperty(name, uint16(value));
-	}
-
-	void OutputProperty(const String &name, uint16 value) override
-	{
-		if(name.StartsWith(u8"unknown"))
-			this->OutputProperty(name, String::Number(value) + u8" / " + String::HexNumber(value));
-		else
-			this->OutputProperty(name, String::Number(value));
 	}
 
 private:

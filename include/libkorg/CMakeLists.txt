@@ -1,11 +1,12 @@
 set(SOURCE_FILES
 	${SOURCE_FILES}
 
-	${CMAKE_CURRENT_SOURCE_DIR}/BankFormat.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/BankFormatReader.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/ChunkFormat.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/BankObject.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/EncryptedSample.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/KorgFormatWriter.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/FullStyle.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Model.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/UnknownChunk.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/MultiSample.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ObjectBank.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Package.hpp

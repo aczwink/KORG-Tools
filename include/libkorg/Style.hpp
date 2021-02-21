@@ -19,6 +19,7 @@
 #pragma once
 #include "BankObject.hpp"
 #include "ProgramChangeSequence.hpp"
+#include "UnknownChunk.hpp"
 
 namespace libKORG
 {
@@ -52,12 +53,13 @@ namespace libKORG
 		inline Pitch(uint8 encoded)
 		{
 			this->octave = encoded / 12;
+			this->octave--; //lowest note is 0 => C-1
 			this->pitchWithinOctave = static_cast<OctavePitch>(encoded % 12);
 		}
 
 		inline uint8 Encode() const
 		{
-			return this->octave * 12 + (uint8)this->pitchWithinOctave;
+			return (this->octave + 1) * 12 + (uint8)this->pitchWithinOctave;
 		}
 	};
 
@@ -67,6 +69,25 @@ namespace libKORG
 		StdXX::UniquePointer<ProgramChangeSequence> soundProgramChangeSeq;
 		Pitch keyboardRangeBottom;
 		Pitch keyboardRangeTop;
+
+		//Constructor
+		StyleTrackData() = default;
+
+		inline StyleTrackData(const StyleTrackData& styleTrackData)
+		{
+			*this = styleTrackData;
+		}
+
+		//Operators
+		inline StyleTrackData& operator=(const StyleTrackData& styleTrackData)
+		{
+			this->expression = styleTrackData.expression;
+			this->soundProgramChangeSeq = new ProgramChangeSequence(*styleTrackData.soundProgramChangeSeq);
+			this->keyboardRangeBottom = styleTrackData.keyboardRangeBottom;
+			this->keyboardRangeTop = styleTrackData.keyboardRangeTop;
+
+			return *this;
+		}
 	};
 
 	enum class KORG_MIDI_EventType
@@ -88,13 +109,17 @@ namespace libKORG
 		KORG_MIDI_EventType type;
 		uint16 value1;
 		uint8 value2;
+		StdXX::DynamicArray<uint8> additional9Bytes;
 	};
 
 	struct MIDI_Track
 	{
 		enum
 		{
-			CHUNK_0x2000008,
+			CHUNK_0x2000008 = 0x2000008,
+			CHUNK_0x3000008 = 0x3000008,
+			CHUNK_0x4000008 = 0x4000008,
+			CHUNK_0x5010008 = 0x5010008,
 		} chunkType;
 
 		struct
@@ -133,14 +158,7 @@ namespace libKORG
 
 	struct GeneralStyleElementData
 	{
-		struct
-		{
-			uint8 unknown1;
-			uint8 unknown2;
-			byte unknownChordTable[0x18];
-			uint8 unknown3;
-		} _0x1010108_chunk;
-
+		libKORG::UnknownChunk unknownChordTable;
 		StyleTrackData styleTrackData[8];
 
 		struct
@@ -166,6 +184,18 @@ namespace libKORG
 			uint8 unknown19;
 			uint8 unknown20[16];
 		} _0x2000308_chunk;
+
+		//Constructors
+		GeneralStyleElementData() = default;
+
+		//Operators
+		inline void CopyFrom(const GeneralStyleElementData& styleElementData)
+		{
+			this->unknownChordTable = styleElementData.unknownChordTable;
+			for(uint8 i = 0; i < 8; i++)
+				this->styleTrackData[i] = styleElementData.styleTrackData[i];
+			this->_0x2000308_chunk = styleElementData._0x2000308_chunk;
+		}
 	};
 
 	struct ChordVariationData
@@ -177,11 +207,32 @@ namespace libKORG
 	struct VariationStyleElementData : public GeneralStyleElementData
 	{
 		ChordVariationData cv[6];
+
+		//Constructors
+		VariationStyleElementData() = default;
+
+		//Operators
+		inline VariationStyleElementData& operator=(const VariationStyleElementData& styleElementData)
+		{
+			this->CopyFrom(styleElementData);
+			for(uint8 i = 0; i < 6; i++)
+				this->cv[i] = styleElementData.cv[i];
+			return *this;
+		}
 	};
 
 	struct StyleElementData : public GeneralStyleElementData
 	{
 		ChordVariationData cv[2];
+
+		//Operators
+		inline StyleElementData& operator=(const StyleElementData& styleElementData)
+		{
+			this->CopyFrom(styleElementData);
+			for(uint8 i = 0; i < 2; i++)
+				this->cv[i] = styleElementData.cv[i];
+			return *this;
+		}
 	};
 
 	struct StyleData
@@ -211,23 +262,38 @@ namespace libKORG
 			StdXX::DynamicArray<uint16> values;
 		} _0x1000008_chunk;
 
-		StdXX::StaticArray<MIDI_Track, 169> midiTracks;
-
+		StdXX::DynamicArray<MIDI_Track> midiTracks;
 		VariationStyleElementData variation[4];
-
 		StyleElementData styleElements[11];
+
+		//Constructors
+		StyleData() = default;
+
+		inline StyleData(const StyleData& styleData)
+		{
+			this->_0x1000308_chunk = styleData._0x1000308_chunk;
+			this->_0x1000008_chunk = styleData._0x1000008_chunk;
+			this->midiTracks = styleData.midiTracks;
+			for(uint8 i = 0; i < 4; i++)
+				this->variation[i] = styleData.variation[i];
+			for(uint8 i = 0; i < 11; i++)
+				this->styleElements[i] = styleData.styleElements[i];
+		}
+
+		StyleData(StyleData&& styleData) = default;
 	};
 
 	class Style : public BankObject
 	{
 	public:
-		//Constructor
+		//Constructors
 		inline Style(StyleData&& data) : data(StdXX::Move(data))
 		{
 		}
 
-		//Methods
-		void WriteData(StdXX::DataWriter &dataWriter) const override;
+		inline Style(const Style& style) : data(style.data)
+		{
+		}
 
 		//Properties
 		inline const StyleData& Data() const

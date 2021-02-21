@@ -57,7 +57,7 @@ public:
 
 		try
 		{
-			this->ReadChunks(checkedHashingInputStream, this->inputStream.GetCurrentOffset());
+			this->ReadChunks(checkedHashingInputStream, this->inputStream.QueryCurrentOffset());
 		}
 		catch(ErrorHandling::VerificationFailedException)
 		{

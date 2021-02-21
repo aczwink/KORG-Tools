@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -38,8 +38,7 @@ OC31Decompressor::OC31Decompressor(InputStream &inputStream) : Decompressor(inpu
 //Public methods
 uint32 OC31Decompressor::GetBytesAvailable() const
 {
-	NOT_IMPLEMENTED_ERROR; //TODO: implement me
-	return 0;
+	return this->nBytesInBuffer + this->inputStream.GetBytesAvailable();
 }
 
 bool OC31Decompressor::IsAtEnd() const

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -16,34 +16,24 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#pragma once
 #include <StdXX.hpp>
-using namespace StdXX;
 //Local
-#include "ObjectBank.hpp"
+#include <libkorg/SingleTouchSettings.hpp>
+#include "ChunkWriter.hpp"
 
-class KorgFormatWriter
+class PerformanceWriter : public ChunkWriter
 {
 public:
 	//Constructor
-	inline KorgFormatWriter(SeekableOutputStream& outputStream) : outputStream(outputStream),
-																  dataWriter(true, outputStream), fourccWriter(false, outputStream)
+	inline PerformanceWriter(StdXX::SeekableOutputStream& outputStream) : ChunkWriter(outputStream)
 	{
 	}
 
-	//Methods
-	//void Write(ObjectBank& styleBank);
+	void Write(const libKORG::SingleTouchSettings &settings);
 
 private:
-	//Members
-	SeekableOutputStream& outputStream;
-	DataWriter dataWriter;
-	DataWriter fourccWriter;
-	DynamicArray<uint32> dataObjectOffsets;
-
 	//Methods
-	void WriteHeader(uint32 numberOfEntries);
-	//void WriteHeaderEntries(const ObjectBank& styleBank);
-	//void WriteObjects(const ObjectBank& styleBank);
-	void WriteTOC();
+	void Write0x2000000Chunk(const libKORG::AccompanimentSettings& settings, const libKORG::ChunkVersion& performanceVersion);
+	void Write0x3000000Chunk(const libKORG::KeyboardSettings& keyboardSettings, uint8 number, const libKORG::ChunkVersion& performanceVersion);
+	void WriteTrackProperties(uint32 trackNumber, const libKORG::TrackProperties& trackProperties, const libKORG::ChunkVersion& performanceVersion);
 };

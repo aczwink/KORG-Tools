@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -24,14 +24,8 @@ namespace libKORG
 {
 	class Pad : public AbstractSample, public ChunkReader
 	{
-	public:
-		void WriteData(StdXX::DataWriter &dataWriter) const override
-		{
-			NOT_IMPLEMENTED_ERROR;
-		}
-
 	protected:
 		StdXX::String GetDebugDirName() const override;
-		void ReadDataChunk(uint32 chunkId, StdXX::DataReader &dataReader) override;
+		void ReadDataChunk(const ChunkHeader& chunkHeader, StdXX::DataReader &dataReader) override;
 	};
 }

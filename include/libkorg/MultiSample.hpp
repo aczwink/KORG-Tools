@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -29,9 +29,6 @@ namespace libKORG
 		{
 			this->ReadData(inputStream);
 		}
-
-		//Methods
-		void WriteData(StdXX::DataWriter &dataWriter) const override;
 
 	private:
 		//Methods

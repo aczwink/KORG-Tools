@@ -33,6 +33,18 @@ namespace libKORG
 		}
 
 		//Inline
+		inline void Write(StdXX::DataWriter& dataWriter) const
+		{
+			dataWriter.WriteByte(this->bankSelectMSB);
+			dataWriter.WriteByte(this->bankSelectLSB);
+			dataWriter.WriteByte(this->programChange);
+		}
+
+		inline void WriteUInt32(StdXX::DataWriter& dataWriter) const
+		{
+			dataWriter.WriteUInt32((this->bankSelectMSB << 24) | (this->bankSelectLSB << 16) | this->programChange);
+		}
+
 		inline StdXX::String ToString() const
 		{
 			return StdXX::String::Number(this->bankSelectMSB) + u8"." + this->ZeroFill(this->bankSelectLSB) + u8"." + this->ZeroFill(this->programChange);
