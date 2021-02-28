@@ -34,8 +34,8 @@ void Writer::Write(const ObjectBank<FullStyle> &bank)
 	this->BeginCrossReferencedChunk(ChunkType::ObjectTOC, 0, 0, ChunkHeaderFlags::Leaf);
 	for(const auto& kv : bank.Objects())
 	{
-		this->WriteTOCEntry(kv.value.Get<0>(), kv.key, ObjectType::Style);
-		this->WriteTOCEntry(kv.value.Get<0>(), kv.key, ObjectType::StylePerformances);
+		this->WriteTOCEntry(kv.value.Get<0>(), kv.key, ObjectType::Style, {0, 0});
+		this->WriteTOCEntry(kv.value.Get<0>(), kv.key, ObjectType::StylePerformances, kv.value.Get<1>()->STS().Version());
 	}
 	this->EndChunk();
 
@@ -88,7 +88,7 @@ void Writer::WriteSTS(const SingleTouchSettings &singleTouchSettings)
 
 	performanceWriter.Write(singleTouchSettings);
 
-	this->BeginCrossReferencedChunk(ChunkType::PerformancesData, singleTouchSettings.version.major + 1, singleTouchSettings.version.minor, ChunkHeaderFlags::UnknownAlwaysSetInBankFile);
+	this->BeginCrossReferencedChunk(ChunkType::PerformancesData, singleTouchSettings.Version().major, singleTouchSettings.Version().minor, ChunkHeaderFlags::UnknownAlwaysSetInBankFile);
 	buffer.CreateInputStream()->FlushTo(this->outputStream);
 	this->EndChunk();
 }
@@ -106,7 +106,7 @@ void Writer::WriteStyle(const Style &style)
 	this->EndChunk();
 }
 
-void Writer::WriteTOCEntry(const String& name, uint8 pos, ObjectType objectType)
+void Writer::WriteTOCEntry(const String& name, uint8 pos, ObjectType objectType, const ChunkVersion& version)
 {
 	TextWriter textWriter(this->outputStream, TextCodecType::ASCII);
 
@@ -114,6 +114,7 @@ void Writer::WriteTOCEntry(const String& name, uint8 pos, ObjectType objectType)
 	dataWriter.WriteByte(static_cast<byte>(objectType));
 	dataWriter.WriteByte(0);
 	dataWriter.WriteByte(pos);
+	dataWriter.WriteByte(version.major);
+	dataWriter.WriteByte(version.minor);
 	dataWriter.WriteByte(0);
-	dataWriter.WriteUInt16(0);
 }

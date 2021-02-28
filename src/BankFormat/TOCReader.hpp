@@ -27,27 +27,30 @@ namespace BankFormat
 	{
 	public:
 		//Constructor
-		inline TOCReader(const ChunkHeader& chunkHeader, StdXX::DataReader& dataReader)
-			: chunkHeader(chunkHeader), dataReader(dataReader), textReader(dataReader.InputStream(), TextCodecType::ASCII)
+		inline TOCReader(const ChunkHeader& chunkHeader, StdXX::InputStream& inputStream)
+			: chunkHeader(chunkHeader), inputStream(inputStream)
 		{
 		}
 
 		//Methods
-		DynamicArray<HeaderEntry> Read();
+		StdXX::DynamicArray<HeaderEntry> Read();
 
 	private:
 		//Members
 		const ChunkHeader& chunkHeader;
-		StdXX::DataReader& dataReader;
-		StdXX::TextReader textReader;
-		DynamicArray<BankFormat::HeaderEntry> entries;
+		StdXX::InputStream& inputStream;
+		StdXX::DynamicArray<BankFormat::HeaderEntry> entries;
 
 		//Methods
-		HeaderEntry ReadEntryVersion1_3();
-		HeaderEntry ReadEntryVersion1_4();
-		HeaderEntry ReadEntryVersion1_5();
-		void ReadEntryVersion1_General(HeaderEntry& headerEntry);
-		void ReadVersion0();
+		ObjectType ReadObjectType(StdXX::DataReader& dataReader);
+		void ReadProperty(uint16 propertyType, uint16 propertySize, HeaderEntry& headerEntry, StdXX::DataReader& dataReader, StdXX::TextReader& textReader);
+		void ReadVersion0(StdXX::DataReader& dataReader, StdXX::TextReader& textReader);
 		void ReadVersion1(uint8 versionMinor);
+
+		//Inline
+		inline StdXX::DataReader CreateDataReader(StdXX::InputStream& inputStream)
+		{
+			return StdXX::DataReader(true, inputStream);
+		}
 	};
 }

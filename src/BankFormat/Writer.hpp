@@ -50,7 +50,7 @@ namespace BankFormat
 		void WriteHeader();
 		void WriteSTS(const SingleTouchSettings &singleTouchSettings);
 		void WriteStyle(const Style &style);
-		void WriteTOCEntry(const String &name, uint8 pos, ObjectType objectType);
+		void WriteTOCEntry(const String &name, uint8 pos, ObjectType objectType, const ChunkVersion& version);
 
 		//Inline
 		inline void BeginChunk(ChunkType type, uint8 versionMajor, uint8 versionMinor, ChunkHeaderFlags flag)

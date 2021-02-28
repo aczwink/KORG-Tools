@@ -17,8 +17,7 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <StdXX.hpp>
-using namespace StdXX;
+#include <libkorg/ChunkFormat.hpp>
 
 namespace BankFormat
 {
@@ -65,8 +64,9 @@ namespace BankFormat
 
 	struct HeaderEntry
 	{
-		String name;
+		StdXX::String name;
 		ObjectType type;
+		libKORG::ChunkVersion dataVersion;
 		uint8 pos;
 	};
 

@@ -58,9 +58,6 @@ void StyleReader::ReadDataChunk(const ChunkHeader& chunkHeader, DataReader &data
 		case 0x20000FD:
 			this->Read0x20000FDChunk(dataReader);
 			break;
-		case 0x2000308:
-			this->Read0x2000308Chunk(dataReader);
-			break;
 		case 0x3000008:
 			this->Read0x3000008Chunk(dataReader);
 			break;
@@ -78,6 +75,14 @@ void StyleReader::ReadDataChunk(const ChunkHeader& chunkHeader, DataReader &data
 		{
 			case 1:
 				this->GetCurrentStyleElementData().unknownChordTable = UnknownChunk(chunkHeader, dataReader.InputStream());
+				break;
+			case 2:
+				ASSERT_EQUALS(0, chunkHeader.version.major);
+				ASSERT((chunkHeader.version.minor == 3)
+					|| (chunkHeader.version.minor == 4)
+					,String::Number(chunkHeader.version.minor));
+
+				this->ReadStyleTrackDataChunk(dataReader);
 				break;
 		}
 	}
@@ -131,11 +136,7 @@ void StyleReader::Read0x1000308Chunk(DataReader &dataReader)
 	chunk.unknown1 = dataReader.ReadByte();
 	chunk.unknown2 = dataReader.ReadByte();
 	chunk.unknown3 = dataReader.ReadByte();
-
 	chunk.unknown4 = dataReader.ReadByte();
-	ASSERT((chunk.unknown4 == 0)
-		   || (chunk.unknown4 == 0x1f)
-		   || (chunk.unknown4 == 0x7f), String::HexNumber(chunk.unknown4));
 
 	chunk.unknown5 = dataReader.ReadByte();
 	ASSERT((chunk.unknown5 == 1)
@@ -186,66 +187,6 @@ void StyleReader::Read0x20000FDChunk(DataReader &dataReader)
 	uint16 dataLength = dataReader.ReadUInt16();
 	NOT_IMPLEMENTED_ERROR;
 	//this->ReadKORG_MIDIEvents(dataLength, dataReader);
-}
-
-void StyleReader::Read0x2000308Chunk(DataReader &dataReader)
-{
-	auto& styleElementData = this->GetCurrentStyleElementData();
-
-	styleElementData.styleTrackData[0] = this->ReadStyleTrackData(dataReader); //drums
-	styleElementData.styleTrackData[1] = this->ReadStyleTrackData(dataReader); //percussion
-	styleElementData.styleTrackData[2] = this->ReadStyleTrackData(dataReader); //bass
-	styleElementData.styleTrackData[3] = this->ReadStyleTrackData(dataReader); //acc1
-	styleElementData.styleTrackData[4] = this->ReadStyleTrackData(dataReader); //acc2
-	styleElementData.styleTrackData[5] = this->ReadStyleTrackData(dataReader); //acc3
-	styleElementData.styleTrackData[6] = this->ReadStyleTrackData(dataReader); //acc4
-	styleElementData.styleTrackData[7] = this->ReadStyleTrackData(dataReader); //acc5
-
-	ASSERT_EQUALS(0, dataReader.ReadUInt16());
-	ASSERT_EQUALS(0, dataReader.ReadByte());
-
-	auto& data = styleElementData._0x2000308_chunk;
-
-	data.unknown1 = dataReader.ReadByte();
-
-	ASSERT_EQUALS(0, dataReader.ReadByte());
-
-	data.unknown2 = dataReader.ReadByte();
-	data.unknown3 = dataReader.ReadByte();
-
-	ASSERT_EQUALS(0, dataReader.ReadByte());
-
-	data.unknown4 = dataReader.ReadByte();
-	data.unknown5 = dataReader.ReadByte();
-	data.unknown6 = dataReader.ReadByte();
-	data.unknown7 = dataReader.ReadByte();
-	data.unknown8 = dataReader.ReadByte();
-	data.unknown9 = dataReader.ReadByte();
-	data.unknown10 = dataReader.ReadByte();
-	data.unknown11 = dataReader.ReadByte();
-	data.unknown12 = dataReader.ReadByte();
-	data.unknown13 = dataReader.ReadByte();
-	data.unknown14 = dataReader.ReadByte();
-	data.unknown15 = dataReader.ReadByte();
-	data.unknown16 = dataReader.ReadByte();
-	data.unknown17 = dataReader.ReadByte();
-	data.unknown18 = dataReader.ReadByte();
-	data.unknown19 = dataReader.ReadByte();
-
-	for(uint8 i = 0; i < 16; i++)
-	{
-		uint8 unknown4 = dataReader.ReadByte();
-		ASSERT((unknown4 == 0)
-			|| (unknown4 == 1)
-			|| (unknown4 == 2)
-			|| (unknown4 == 3)
-			|| (unknown4 == 4)
-			|| (unknown4 == 0x14)
-			|| (unknown4 == 0x20)
-			|| (unknown4 == 0x23)
-		, String::HexNumber(unknown4));
-		data.unknown20[i] = unknown4;
-	}
 }
 
 void StyleReader::Read0x3000008Chunk(DataReader &dataReader)
@@ -496,4 +437,21 @@ StyleTrackData StyleReader::ReadStyleTrackData(DataReader &dataReader)
 	styleTrackData.keyboardRangeTop = static_cast<Pitch>(dataReader.ReadByte());
 
 	return styleTrackData;
+}
+
+void StyleReader::ReadStyleTrackDataChunk(DataReader &dataReader)
+{
+	auto& styleElementData = this->GetCurrentStyleElementData();
+
+	styleElementData.styleTrackData[0] = this->ReadStyleTrackData(dataReader); //drums
+	styleElementData.styleTrackData[1] = this->ReadStyleTrackData(dataReader); //percussion
+	styleElementData.styleTrackData[2] = this->ReadStyleTrackData(dataReader); //bass
+	styleElementData.styleTrackData[3] = this->ReadStyleTrackData(dataReader); //acc1
+	styleElementData.styleTrackData[4] = this->ReadStyleTrackData(dataReader); //acc2
+	styleElementData.styleTrackData[5] = this->ReadStyleTrackData(dataReader); //acc3
+	styleElementData.styleTrackData[6] = this->ReadStyleTrackData(dataReader); //acc4
+	styleElementData.styleTrackData[7] = this->ReadStyleTrackData(dataReader); //acc5
+
+	auto output = styleElementData.unknown.CreateOutputStream();
+	dataReader.InputStream().FlushTo(*output);
 }

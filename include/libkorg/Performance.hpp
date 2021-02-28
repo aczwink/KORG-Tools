@@ -65,7 +65,8 @@ namespace libKORG
 	struct TrackProperties
 	{
 		StdXX::DynamicByteBuffer unknown1;
-		StdXX::UniquePointer<ProgramChangeSequence> soundProgramChangeSeq;
+		uint8 unknownSoundAttribute;
+		ProgramChangeSequence soundProgramChangeSeq;
 		uint8 volume;
 		int8 pan;
 		int8 detune;
@@ -86,37 +87,10 @@ namespace libKORG
 
 		//Constructors
 		TrackProperties() = default;
-
-		inline TrackProperties(const TrackProperties& trackProperties)
-		{
-			*this = trackProperties;
-		}
+		TrackProperties(const TrackProperties& trackProperties) = default;
 
 		//Operators
-		TrackProperties& operator=(const TrackProperties& trackProperties)
-		{
-			this->unknown1 = trackProperties.unknown1;
-			this->soundProgramChangeSeq = new ProgramChangeSequence(*trackProperties.soundProgramChangeSeq);
-			this->volume = trackProperties.volume;
-			this->pan = trackProperties.pan;
-			this->detune = trackProperties.detune;
-			this->octaveTranspose = trackProperties.octaveTranspose;
-			this->unknown2 = trackProperties.unknown2;
-			this->fxMaster1 = trackProperties.fxMaster1;
-			this->fxMaster2 = trackProperties.fxMaster2;
-			this->dry = trackProperties.dry;
-			this->unknown12 = trackProperties.unknown12;
-			this->unknown13 = trackProperties.unknown13;
-			this->pbSensitivity = trackProperties.pbSensitivity;
-			this->unknown182 = trackProperties.unknown182;
-			this->unknown181 = trackProperties.unknown181;
-			this->lowGainTimes2 = trackProperties.lowGainTimes2;
-			this->midGainTimes2 = trackProperties.midGainTimes2;
-			this->highGainTimes2 = trackProperties.highGainTimes2;
-			this->unknown3 = trackProperties.unknown3;
-
-			return *this;
-		}
+		TrackProperties& operator=(const TrackProperties& trackProperties) = default;
 	};
 
 	struct GeneralPerformanceSettings

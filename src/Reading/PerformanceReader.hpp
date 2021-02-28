@@ -27,8 +27,8 @@ public:
 	inline PerformanceReader()
 	{
 		this->perfIndex = 0;
-		this->version.minor = 0;
-		this->version.major = 0;
+		this->max9version.minor = 0;
+		this->max9version.major = 0;
 	}
 
 	//Methods
@@ -44,7 +44,7 @@ protected:
 private:
 	//Members
 	uint8 perfIndex;
-	ChunkVersion version;
+	ChunkVersion max9version;
 	StdXX::DynamicArray<libKORG::UnknownChunk> unknownChunksAtBeginning;
 	libKORG::AccompanimentSettings accompanimentSettings;
 	StdXX::StaticArray<libKORG::KeyboardSettings, 4> keyboardSettings;

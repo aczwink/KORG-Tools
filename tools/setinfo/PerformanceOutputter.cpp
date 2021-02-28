@@ -22,19 +22,19 @@
 //Public methods
 void PerformanceOutputter::Output(const Performance &performance)
 {
-	this->Output(performance.AccompanimentSettings());
-	this->Output(performance.KeyboardSettings());
+	this->Output(performance.accompanimentSettings);
+	this->Output(performance.keyboardSettings);
 }
 
 void PerformanceOutputter::Output(const SingleTouchSettings &sts)
 {
 	Section section(u8"Single Touch Settings", this->formattedOutputter);
 
-	this->Output(sts.AccompanimentSettings());
+	this->Output(sts.accompanimentSettings);
 
 	for(uint8 i = 0; i < 4; i++)
 	{
-		const auto& stsi = sts.GetSTS(i);
+		const auto& stsi = sts.keyboardSettings[i];
 
 		Section stsSection(u8"STS" + String::Number(i+1), this->formattedOutputter);
 
@@ -83,7 +83,7 @@ void PerformanceOutputter::Output(const KeyboardSettings &keyboardSettings)
 
 void PerformanceOutputter::Output(const TrackProperties &trackProperties)
 {
-	this->formattedOutputter.OutputProperty(u8"Sound program change sequence", trackProperties.soundProgramChangeSeq->ToString());
+	this->formattedOutputter.OutputProperty(u8"Sound program change sequence", trackProperties.soundProgramChangeSeq.ToString());
 	this->formattedOutputter.OutputProperty(u8"volume", trackProperties.volume);
 	this->formattedOutputter.OutputProperty(u8"pan", trackProperties.pan);
 	this->formattedOutputter.OutputProperty(u8"detune", trackProperties.detune);

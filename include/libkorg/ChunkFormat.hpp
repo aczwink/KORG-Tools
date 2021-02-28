@@ -25,6 +25,19 @@ namespace libKORG
 	{
 		uint8 major;
 		uint8 minor;
+
+		//Operators
+		inline bool operator<(const ChunkVersion& rhs) const
+		{
+			if(this->major < rhs.major)
+				return true;
+			return this->minor < rhs.minor;
+		}
+
+		inline bool operator>(const ChunkVersion& rhs) const
+		{
+			return rhs < *this;
+		}
 	};
 
 	struct ChunkHeader

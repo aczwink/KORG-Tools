@@ -160,30 +160,7 @@ namespace libKORG
 	{
 		libKORG::UnknownChunk unknownChordTable;
 		StyleTrackData styleTrackData[8];
-
-		struct
-		{
-			uint8 unknown1;
-			uint8 unknown2;
-			uint8 unknown3;
-			uint8 unknown4;
-			uint8 unknown5;
-			uint8 unknown6;
-			uint8 unknown7;
-			uint8 unknown8;
-			uint8 unknown9;
-			uint8 unknown10;
-			uint8 unknown11;
-			uint8 unknown12;
-			uint8 unknown13;
-			uint8 unknown14;
-			uint8 unknown15;
-			uint8 unknown16;
-			uint8 unknown17;
-			uint8 unknown18;
-			uint8 unknown19;
-			uint8 unknown20[16];
-		} _0x2000308_chunk;
+		StdXX::DynamicByteBuffer unknown;
 
 		//Constructors
 		GeneralStyleElementData() = default;
@@ -194,7 +171,7 @@ namespace libKORG
 			this->unknownChordTable = styleElementData.unknownChordTable;
 			for(uint8 i = 0; i < 8; i++)
 				this->styleTrackData[i] = styleElementData.styleTrackData[i];
-			this->_0x2000308_chunk = styleElementData._0x2000308_chunk;
+			this->unknown = styleElementData.unknown;
 		}
 	};
 
@@ -268,18 +245,7 @@ namespace libKORG
 
 		//Constructors
 		StyleData() = default;
-
-		inline StyleData(const StyleData& styleData)
-		{
-			this->_0x1000308_chunk = styleData._0x1000308_chunk;
-			this->_0x1000008_chunk = styleData._0x1000008_chunk;
-			this->midiTracks = styleData.midiTracks;
-			for(uint8 i = 0; i < 4; i++)
-				this->variation[i] = styleData.variation[i];
-			for(uint8 i = 0; i < 11; i++)
-				this->styleElements[i] = styleData.styleElements[i];
-		}
-
+		StyleData(const StyleData& styleData) = default;
 		StyleData(StyleData&& styleData) = default;
 	};
 

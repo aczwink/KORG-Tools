@@ -31,16 +31,16 @@ void PerformanceWriter::Write(const SingleTouchSettings &settings)
 
 	for(const auto& chunk : settings.unknownChunksAtBeginning)
 		this->WriteUnknownChunk(chunk);
-	this->Write0x2000000Chunk(settings.accompanimentSettings, settings.version);
+	this->Write0x2000000Chunk(settings.accompanimentSettings, settings.Max9Version());
 
 	for(uint8 i = 0; i < 4; i++)
 	{
-		this->Write0x3000000Chunk(settings.keyboardSettings[i], i, settings.version);
+		this->Write0x3000000Chunk(settings.keyboardSettings[i], i, settings.Max9Version());
 	}
 
 	if(!settings.unknownChunksAtEnd.IsEmpty())
 	{
-		this->BeginChunk(28, settings.version.minor, 0, 0);
+		this->BeginChunk(28, settings.Max9Version().minor, 0, 0);
 		for(const auto& chunk : settings.unknownChunksAtEnd)
 			this->WriteUnknownChunk(chunk);
 		this->EndChunk();
@@ -55,10 +55,6 @@ void PerformanceWriter::Write0x2000000Chunk(const libKORG::AccompanimentSettings
 {
 	this->BeginChunk(2, 0, 0, 0);
 	this->BeginChunk(5, performanceVersion.major, 0, 0);
-
-	this->BeginChunk(6, 0, 0, ChunkHeaderFlags::Leaf);
-	this->dataWriter.WriteUInt16(0);
-	this->EndChunk();
 
 	for(const auto& chunk : settings.unknownChunksBefore9)
 		this->WriteUnknownChunk(chunk);
@@ -109,7 +105,10 @@ void PerformanceWriter::WriteTrackProperties(uint32 trackNumber, const TrackProp
 	this->dataWriter.WriteUInt32(trackNumber);
 
 	trackProperties.unknown1.CreateInputStream()->FlushTo(this->outputStream);
-	trackProperties.soundProgramChangeSeq->WriteUInt32(this->dataWriter);
+	this->dataWriter.WriteByte(trackProperties.soundProgramChangeSeq.BankSelectMSB());
+	this->dataWriter.WriteByte(trackProperties.soundProgramChangeSeq.BankSelectLSB());
+	this->dataWriter.WriteByte(trackProperties.unknownSoundAttribute);
+	this->dataWriter.WriteByte(trackProperties.soundProgramChangeSeq.ProgramChange());
 	this->dataWriter.WriteByte(trackProperties.volume);
 	this->dataWriter.WriteByte(trackProperties.pan + c_knob_offset);
 	this->dataWriter.WriteByte(trackProperties.detune + c_knob_offset);

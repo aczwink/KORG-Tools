@@ -47,12 +47,12 @@ private:
 	void Read0x1000308Chunk(StdXX::DataReader& dataReader);
 	void Read0x2000008Chunk(StdXX::DataReader& dataReader);
 	void Read0x20000FDChunk(StdXX::DataReader& dataReader);
-	void Read0x2000308Chunk(StdXX::DataReader& dataReader);
 	void Read0x3000008Chunk(StdXX::DataReader& dataReader);
 	void Read0x4000008Chunk(StdXX::DataReader& dataReader);
 	void Read0x5010008Chunk(StdXX::DataReader& dataReader);
 	void ReadKORG_MIDIEvents(uint16 dataLength, StdXX::DynamicArray<libKORG::KORG_MIDI_Event>& midiEvents, StdXX::DataReader& dataReader);
 	libKORG::StyleTrackData ReadStyleTrackData(StdXX::DataReader& dataReader);
+	void ReadStyleTrackDataChunk(StdXX::DataReader& dataReader);
 
 	//Inline
 	inline auto& GetCurrentChordVariationData()

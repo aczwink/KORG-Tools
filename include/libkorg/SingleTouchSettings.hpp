@@ -26,19 +26,18 @@ namespace libKORG
 	{
 	public:
 		//Members
-		ChunkVersion version;
 		StdXX::DynamicArray<libKORG::UnknownChunk> unknownChunksAtBeginning;
 		struct AccompanimentSettings accompanimentSettings;
 		StdXX::StaticArray<libKORG::KeyboardSettings, 4> keyboardSettings;
 		StdXX::DynamicArray<libKORG::UnknownChunk> unknownChunksAtEnd;
 
 		//Constructors
-		inline SingleTouchSettings(const ChunkVersion& version,
+		inline SingleTouchSettings(const ChunkVersion& max9version,
 				StdXX::DynamicArray<libKORG::UnknownChunk>&& unknownChunksAtBeginning,
 							 struct AccompanimentSettings&& accompanimentSettings,
 							 		StdXX::StaticArray<libKORG::KeyboardSettings, 4>&& keyboardSettings,
 							 		StdXX::DynamicArray<libKORG::UnknownChunk>&& unknownChunksAtEnd)
-				: version(version),
+				: max9version(max9version),
 				unknownChunksAtBeginning(StdXX::Move(unknownChunksAtBeginning)),
 				accompanimentSettings(StdXX::Move(accompanimentSettings)),
 				keyboardSettings(Move(keyboardSettings)),
@@ -47,5 +46,20 @@ namespace libKORG
 		}
 
 		SingleTouchSettings(const SingleTouchSettings& singleTouchSettings) = default;
+
+		//Properties
+		inline const ChunkVersion& Max9Version() const
+		{
+			return this->max9version;
+		}
+
+		inline ChunkVersion Version() const
+		{
+			return {static_cast<uint8>(this->max9version.major + 1), this->max9version.minor};
+		}
+
+	private:
+		//Members
+		ChunkVersion max9version;
 	};
 }

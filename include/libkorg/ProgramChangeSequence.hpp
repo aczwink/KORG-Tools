@@ -24,12 +24,35 @@ namespace libKORG
 	class ProgramChangeSequence
 	{
 	public:
-		//Constructor
+		//Constructors
+		inline ProgramChangeSequence(bool drumKit = false)
+		{
+			this->bankSelectMSB = 121 - (drumKit ? 1 : 0);
+			this->bankSelectLSB = 0;
+			this->programChange = 0;
+		}
+
 		inline ProgramChangeSequence(uint8 bankSelectMSB, uint8 bankSelectLSB, uint8 programChange)
 		{
 			this->bankSelectMSB = bankSelectMSB;
 			this->bankSelectLSB = bankSelectLSB;
 			this->programChange = programChange;
+		}
+
+		//Properties
+		inline uint8 BankSelectMSB() const
+		{
+			return this->bankSelectMSB;
+		}
+
+		inline uint8 BankSelectLSB() const
+		{
+			return this->bankSelectLSB;
+		}
+
+		inline uint8 ProgramChange() const
+		{
+			return this->programChange;
 		}
 
 		//Inline
@@ -40,24 +63,12 @@ namespace libKORG
 			dataWriter.WriteByte(this->programChange);
 		}
 
-		inline void WriteUInt32(StdXX::DataWriter& dataWriter) const
-		{
-			dataWriter.WriteUInt32((this->bankSelectMSB << 24) | (this->bankSelectLSB << 16) | this->programChange);
-		}
-
 		inline StdXX::String ToString() const
 		{
 			return StdXX::String::Number(this->bankSelectMSB) + u8"." + this->ZeroFill(this->bankSelectLSB) + u8"." + this->ZeroFill(this->programChange);
 		}
 
 		//Functions
-		static ProgramChangeSequence FromEncoded(uint32 encoded)
-		{
-			ASSERT_EQUALS(0, (encoded >> 8) & 0xFF);
-
-			return ProgramChangeSequence(encoded >> 24, (encoded >> 16) & 0xFF, encoded & 0xFF);
-		}
-
 		static ProgramChangeSequence Read(StdXX::DataReader& dataReader)
 		{
 			uint8 msb = dataReader.ReadByte();

@@ -29,7 +29,8 @@ void ChunkReader::ReadData(InputStream &inputStream)
 	FileSystem::File dir(this->GetDebugDirName());
 	//dir.RemoveChildrenRecursively();
 
-	this->ReadChunks(inputStream, 0);
+	BufferedInputStream bufferedInputStream(inputStream);
+	this->ReadChunks(bufferedInputStream, 0);
 }
 
 //Protected methods
@@ -81,7 +82,6 @@ void ChunkReader::ReadChunks(InputStream &inputStream, uint8 depth)
 		ChunkHeader chunkHeader = this->ReadChunkHeader(dataReader);
 
 		ChainedInputStream chainedInputStream(new LimitedInputStream(inputStream, chunkHeader.size));
-		chainedInputStream.Add(new BufferedInputStream(chainedInputStream.GetEnd()));
 
 		if(chunkHeader.flags & (uint8)ChunkHeaderFlags::OC31Compressed)
 		{

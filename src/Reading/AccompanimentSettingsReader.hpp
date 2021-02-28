@@ -24,8 +24,8 @@ class AccompanimentSettingsReader : public ChunkReader
 {
 public:
 	//Constructor
-	inline AccompanimentSettingsReader(libKORG::AccompanimentSettings& accompanimentSettings, ChunkVersion& version)
-		: accompanimentSettings(accompanimentSettings), version(version)
+	inline AccompanimentSettingsReader(libKORG::AccompanimentSettings& accompanimentSettings, ChunkVersion& max9version)
+		: accompanimentSettings(accompanimentSettings), max9version(max9version)
 	{
 	}
 
@@ -34,11 +34,10 @@ protected:
 	StdXX::String GetDebugDirName() const override;
 	void ReadDataChunk(const ChunkHeader &chunkHeader, StdXX::DataReader &dataReader) override;
 
+	bool IsDataChunk(const ChunkHeader &chunkHeader) override;
+
 private:
 	//Members
 	libKORG::AccompanimentSettings& accompanimentSettings;
-	ChunkVersion& version;
-
-	//Methods
-	void Read0x09000008Chunk(StdXX::DataReader& dataReader);
+	ChunkVersion& max9version;
 };

@@ -35,6 +35,7 @@
 //Namespaces
 using namespace BankFormat;
 using namespace libKORG;
+using namespace StdXX;
 
 //Protected methods
 String Reader::GetDebugDirName() const
@@ -74,7 +75,7 @@ void Reader::ReadDataChunk(const ChunkHeader& chunkHeader, DataReader &dataReade
 		break;
 		case ChunkType::ObjectTOC:
 		{
-			TOCReader tocReader(chunkHeader, dataReader);
+			TOCReader tocReader(chunkHeader, dataReader.InputStream());
 			this->headerEntries = tocReader.Read();
 		}
 		break;
@@ -86,6 +87,7 @@ void Reader::ReadDataChunk(const ChunkHeader& chunkHeader, DataReader &dataReade
 				dataReader.InputStream().FlushTo(fileOutputStream);
 				exit(9);
 			}*/
+			this->VerifyDataVersion(chunkHeader.version);
 
 			PerformanceReader performanceReader;
 			performanceReader.ReadData(dataReader.InputStream());
@@ -95,15 +97,9 @@ void Reader::ReadDataChunk(const ChunkHeader& chunkHeader, DataReader &dataReade
 		break;
 		case ChunkType::StyleObject:
 		{
+			this->VerifyDataVersion(chunkHeader.version);
 			ASSERT_EQUALS(0, chunkHeader.version.major);
 			ASSERT_EQUALS(0, chunkHeader.version.minor);
-
-			/*{
-				static int i = 0;
-				FileOutputStream fileOutputStream(FileSystem::Path(u8"/home/amir/Desktop/korg/_OUT/style"), true);
-				dataReader.InputStream().FlushTo(fileOutputStream);
-				break;
-			}*/
 
 			StyleReader styleReader;
 			styleReader.ReadData(dataReader.InputStream());

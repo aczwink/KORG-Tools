@@ -18,7 +18,6 @@
  */
 #pragma once
 #include <StdXX.hpp>
-#include "../../src/BankFormat/Reader.hpp"
 #include "ObjectBank.hpp"
 #include "MultiSample.hpp"
 #include "Sound.hpp"
@@ -33,6 +32,13 @@ namespace libKORG
 	typedef ObjectBank<AbstractSample> SampleBank;
 	typedef ObjectBank<Sound> SoundBank;
 	typedef ObjectBank<FullStyle> StyleBank;
+
+	struct BankObjectEntry
+	{
+		StdXX::String name;
+		uint8 pos;
+		BankObject* object;
+	};
 
 	class Set
 	{
@@ -65,11 +71,11 @@ namespace libKORG
 		void Save();
 
 		//Functions
-		static Set Create(const FileSystem::Path& targetPath);
+		static Set Create(const StdXX::FileSystem::Path& targetPath);
 
 	private:
 		//Members
-		FileSystem::Path setPath;
+		StdXX::FileSystem::Path setPath;
 		StdXX::UniquePointer<MultiSample> multiSamples;
 		StdXX::Map<uint8, PadBank> padBanks;
 		StdXX::Map<uint8, PerformanceBank> performanceBanks;
@@ -78,14 +84,14 @@ namespace libKORG
 		StdXX::Map<uint8, StyleBank> styleBanks;
 
 		//Methods
-		void LoadMultiSamples(const String& bankFileName, const DynamicArray<BankObjectEntry>& bankEntries);
-		void LoadPads(const String& bankFileName, const DynamicArray<BankObjectEntry>& bankEntries);
-		void LoadPerformances(const String& bankFileName, const DynamicArray<BankObjectEntry>& bankEntries);
-		void LoadSamples(const String& bankFileName, const DynamicArray<BankObjectEntry>& bankEntries);
-		void LoadSongs(const String& bankFileName, const DynamicArray<BankObjectEntry>& bankEntries);
-		void LoadSongBook(const FileSystem::Path& setPath);
-		void LoadSounds(const String& bankFileName, const DynamicArray<BankObjectEntry>& bankEntries);
-		void LoadStyles(const String& bankFileName, const DynamicArray<BankObjectEntry>& bankEntries);
-		void ReadDirectory(const FileSystem::Path& setPath, const String& dirName, void (Set::* loader)(const String& bankFileName, const DynamicArray<BankObjectEntry>&));
+		void LoadMultiSamples(const StdXX::String& bankFileName, const StdXX::DynamicArray<BankObjectEntry>& bankEntries);
+		void LoadPads(const StdXX::String& bankFileName, const StdXX::DynamicArray<BankObjectEntry>& bankEntries);
+		void LoadPerformances(const StdXX::String& bankFileName, const StdXX::DynamicArray<BankObjectEntry>& bankEntries);
+		void LoadSamples(const StdXX::String& bankFileName, const StdXX::DynamicArray<BankObjectEntry>& bankEntries);
+		void LoadSongs(const StdXX::String& bankFileName, const StdXX::DynamicArray<BankObjectEntry>& bankEntries);
+		void LoadSongBook(const StdXX::FileSystem::Path& setPath);
+		void LoadSounds(const StdXX::String& bankFileName, const StdXX::DynamicArray<BankObjectEntry>& bankEntries);
+		void LoadStyles(const StdXX::String& bankFileName, const StdXX::DynamicArray<BankObjectEntry>& bankEntries);
+		void ReadDirectory(const StdXX::FileSystem::Path& setPath, const StdXX::String& dirName, void (Set::* loader)(const StdXX::String& bankFileName, const StdXX::DynamicArray<BankObjectEntry>&));
 	};
 }

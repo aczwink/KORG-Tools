@@ -18,8 +18,10 @@
  */
 //Class header
 #include "TOCReader.hpp"
+#include "TOCEntryChecksumFunction.hpp"
 //Namespaces
 using namespace BankFormat;
+using namespace StdXX;
 
 //Public methods
 DynamicArray<HeaderEntry> TOCReader::Read()
@@ -27,7 +29,9 @@ DynamicArray<HeaderEntry> TOCReader::Read()
 	if(this->chunkHeader.version.major == 0)
 	{
 		ASSERT_EQUALS(0, this->chunkHeader.version.minor);
-		this->ReadVersion0();
+		auto dataReader = this->CreateDataReader(this->inputStream);
+		TextReader textReader(this->inputStream, TextCodecType::ASCII);
+		this->ReadVersion0(dataReader, textReader);
 	}
 	else if(this->chunkHeader.version.major == 1)
 	{
@@ -41,89 +45,69 @@ DynamicArray<HeaderEntry> TOCReader::Read()
 }
 
 //Private methods
-HeaderEntry TOCReader::ReadEntryVersion1_3()
+ObjectType TOCReader::ReadObjectType(DataReader& dataReader)
 {
-	HeaderEntry headerEntry;
-
-	this->ReadEntryVersion1_General(headerEntry);
-
-	uint16 unknown1 = this->dataReader.ReadUInt16();
-	ASSERT((unknown1 == 0)
-		|| (unknown1 == 1)
-		|| (unknown1 == 0x100)
-		|| (unknown1 == 0x200), "???" + String::Number(unknown1));
-	this->dataReader.ReadUInt32();
-
-	return headerEntry;
-}
-
-HeaderEntry TOCReader::ReadEntryVersion1_4()
-{
-	HeaderEntry headerEntry;
-
-	this->ReadEntryVersion1_General(headerEntry);
-
-	ASSERT_EQUALS(5, this->dataReader.ReadUInt32());
-	ASSERT_EQUALS(7, this->dataReader.ReadUInt16());
-	ASSERT_EQUALS(0x14, this->dataReader.ReadByte());
-	this->dataReader.ReadByte();
-	this->dataReader.ReadUInt16();
-	this->dataReader.ReadUInt16();
-	this->dataReader.ReadUInt16();
-	this->dataReader.ReadUInt16();
-	this->dataReader.ReadByte();
-
-	return headerEntry;
-}
-
-HeaderEntry TOCReader::ReadEntryVersion1_5()
-{
-	HeaderEntry headerEntry;
-
-	this->ReadEntryVersion1_General(headerEntry);
-
-	this->dataReader.ReadUInt16();
-	ASSERT_EQUALS(5, this->dataReader.ReadUInt16());
-	ASSERT_EQUALS(7, this->dataReader.ReadUInt16());
-	ASSERT_EQUALS(0x14, this->dataReader.ReadByte());
-	ASSERT_EQUALS(0x11, this->dataReader.ReadByte());
-
-	this->dataReader.ReadByte();
-	this->dataReader.ReadUInt32();
-	ASSERT_EQUALS(6, this->dataReader.ReadUInt16());
-
-	uint16 systemInfoSize = this->dataReader.ReadUInt16();
-	textReader.ReadZeroTerminatedString(systemInfoSize);
-	this->dataReader.ReadUInt32();
-
-	return headerEntry;
-}
-
-void TOCReader::ReadEntryVersion1_General(HeaderEntry &headerEntry)
-{
-	ASSERT_EQUALS(2, this->dataReader.ReadUInt16());
-
-	uint16 nameLength = this->dataReader.ReadUInt16();
-	headerEntry.name = this->textReader.ReadString(nameLength);
-
-	ASSERT_EQUALS(3_u32, this->dataReader.ReadUInt32());
-
 	uint8 type = dataReader.ReadByte();
-	ASSERT((type == (uint8)ObjectType::PCM)
-		   || (type == (uint8)ObjectType::SongBookEntry)
-		   || (type == (uint8)ObjectType::Style)
-		   || (type == (uint8)ObjectType::StylePerformances)
-	, "???");
-	headerEntry.type = static_cast<ObjectType>(type);
+	ASSERT(type == (uint8)ObjectType::MultiSample
+		   || type == (uint8)ObjectType::PAD
+		   || type == (uint8)ObjectType::PCM
+		   || type == (uint8)ObjectType::Performance
+		   || type == (uint8)ObjectType::SongBookEntry
+		   || type == (uint8)ObjectType::SongBook
+		   || type == (uint8)ObjectType::Sound
+		   || type == (uint8)ObjectType::Style
+		   || type == (uint8)ObjectType::StylePerformances, String::Number(type));
 
-	uint8 bankNumber = this->dataReader.ReadByte();
-	headerEntry.pos = this->dataReader.ReadByte();
-
-	ASSERT_EQUALS(1, this->dataReader.ReadUInt16());
-	ASSERT_EQUALS(2, this->dataReader.ReadUInt16());
+	return static_cast<ObjectType>(type);
 }
 
-void TOCReader::ReadVersion0()
+void TOCReader::ReadProperty(uint16 propertyType, uint16 propertySize, HeaderEntry& headerEntry, DataReader& dataReader, TextReader& textReader)
+{
+	switch(propertyType)
+	{
+		case 0:
+		{
+			ASSERT_EQUALS(3, propertySize);
+
+			headerEntry.type = this->ReadObjectType(dataReader);
+			uint8 bankNumber = dataReader.ReadByte();
+			headerEntry.pos = dataReader.ReadByte();
+		}
+		break;
+		case 1:
+		{
+			ASSERT_EQUALS(2, propertySize);
+
+			headerEntry.dataVersion.major = dataReader.ReadByte();
+			headerEntry.dataVersion.minor = dataReader.ReadByte();
+		}
+		break;
+		case 2:
+			headerEntry.name = textReader.ReadZeroTerminatedStringBySize(propertySize);
+			break;
+		case 5: //unknown
+		{
+			ASSERT_EQUALS(7, propertySize);
+
+			ASSERT_EQUALS(0x14, dataReader.ReadByte());
+
+			uint8 unknown2 = dataReader.ReadByte();
+			uint8 unknown3 = dataReader.ReadByte();
+			uint8 unknown4 = dataReader.ReadByte();
+			uint8 unknown5 = dataReader.ReadByte();
+			uint8 unknown6 = dataReader.ReadByte();
+			uint8 unknown7 = dataReader.ReadByte();
+		}
+			break;
+		case 6: //system information
+			textReader.ReadZeroTerminatedString(propertySize);
+			break;
+		default:
+			NOT_IMPLEMENTED_ERROR;
+	}
+}
+
+void TOCReader::ReadVersion0(DataReader& dataReader, TextReader& textReader)
 {
 	uint32 nEntries = this->chunkHeader.size / BankFormat::OBJECTTOC_LINESIZE;
 	this->entries.Resize(nEntries);
@@ -133,60 +117,44 @@ void TOCReader::ReadVersion0()
 		BankFormat::HeaderEntry& headerEntry = this->entries[i];
 
 		headerEntry.name = textReader.ReadZeroTerminatedString(BankFormat::HEADERENTRY_NAME_SIZE);
-
-		uint8 type = dataReader.ReadByte();
-		ASSERT(type == (uint8)ObjectType::MultiSample
-			|| type == (uint8)ObjectType::PAD
-			|| type == (uint8)ObjectType::PCM
-			|| type == (uint8)ObjectType::Performance
-			|| type == (uint8)ObjectType::SongBookEntry
-			|| type == (uint8)ObjectType::SongBook
-			|| type == (uint8)ObjectType::Sound
-			|| type == (uint8)ObjectType::Style
-			|| type == (uint8)ObjectType::StylePerformances, "???");
-		headerEntry.type = static_cast<ObjectType>(type);
+		headerEntry.type = this->ReadObjectType(dataReader);
 
 		uint8 bankNumber = dataReader.ReadByte();
 		headerEntry.pos = dataReader.ReadByte();
 
-		uint8 unknown = dataReader.ReadByte();
-		ASSERT((unknown == 3)
-		|| (unknown == 2)
-		|| (unknown == 1)
-		|| (unknown == 0), "???");
+		headerEntry.dataVersion.major = dataReader.ReadByte();
+		headerEntry.dataVersion.minor = dataReader.ReadByte();
 
-		uint16 unknown1 = dataReader.ReadUInt16();
-		ASSERT((unknown1 == 0)
-		|| (unknown1 == 0x200)
-		|| (unknown1 == 0x300), "???");
+		ASSERT_EQUALS(0, dataReader.ReadByte());
 	}
 }
 
 void TOCReader::ReadVersion1(uint8 versionMinor)
 {
 	uint32 leftTocSize = this->chunkHeader.size;
+	DataReader dataReader = this->CreateDataReader(this->inputStream);
 	while(leftTocSize)
 	{
 		HeaderEntry headerEntry;
 
-		uint16 headerEntrySize = this->dataReader.ReadUInt16();
+		ChecksumInputStream checksumInputStream(this->inputStream, new TOCEntryChecksumFunction);
+		DataReader checkedDataReader = this->CreateDataReader(checksumInputStream);
+		TextReader textReader(checksumInputStream, TextCodecType::UTF8);
+
+		uint16 headerEntrySize = checkedDataReader.ReadUInt16();
 		leftTocSize -= 2;
 
-		uint16 version = this->dataReader.ReadUInt16();
-		switch(version)
+		uint16 nProperties = checkedDataReader.ReadUInt16();
+		for(uint16 i = 0; i < nProperties; i++)
 		{
-			case 3:
-				headerEntry = this->ReadEntryVersion1_3();
-				break;
-			case 4:
-				headerEntry = this->ReadEntryVersion1_4();
-				break;
-			case 5:
-				headerEntry = this->ReadEntryVersion1_5();
-				break;
-			default:
-				NOT_IMPLEMENTED_ERROR;
+			uint16 propertyType = checkedDataReader.ReadUInt16();
+			uint16 propertySize = checkedDataReader.ReadUInt16();
+
+			this->ReadProperty(propertyType, propertySize, headerEntry, checkedDataReader, textReader);
 		}
+
+		uint32 readChecksum = dataReader.ReadUInt32();
+		ASSERT_EQUALS(readChecksum, checksumInputStream.Finish());
 
 		leftTocSize -= headerEntrySize;
 		this->entries.Push(headerEntry);

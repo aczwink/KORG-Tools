@@ -18,10 +18,13 @@
  */
 //Class header
 #include "AccompanimentSettingsReader.hpp"
+//Local
 #include "TrackPropertiesReader.hpp"
+//Namespaces
+using namespace StdXX;
 
 //Protected methods
-StdXX::String AccompanimentSettingsReader::GetDebugDirName() const
+String AccompanimentSettingsReader::GetDebugDirName() const
 {
 	return u8"/home/amir/Desktop/korg/_OUT/PERFORMANCE_ACCOMPANY/";
 }
@@ -31,11 +34,6 @@ void AccompanimentSettingsReader::ReadDataChunk(const ChunkHeader &chunkHeader, 
 	switch (chunkHeader.type)
 	{
 		case 6:
-			ASSERT_EQUALS(0, chunkHeader.version.major);
-			ASSERT_EQUALS(0, chunkHeader.version.minor);
-			ASSERT_EQUALS(0, dataReader.ReadUInt16());
-			ASSERT_EQUALS(true, dataReader.InputStream().IsAtEnd());
-			break;
 		case 7:
 		case 8:
 		case 29:
@@ -46,12 +44,20 @@ void AccompanimentSettingsReader::ReadDataChunk(const ChunkHeader &chunkHeader, 
 			TrackPropertiesReader trackPropertiesReader(this->accompanimentSettings.trackProperties);
 			trackPropertiesReader.Read(chunkHeader, dataReader);
 
-			this->version.major = Math::Max(this->version.major, chunkHeader.version.major);
-			this->version.minor = Math::Max(this->version.minor, chunkHeader.version.minor);
+			this->max9version.major = Math::Max(this->max9version.major, chunkHeader.version.major);
+			this->max9version.minor = Math::Max(this->max9version.minor, chunkHeader.version.minor);
 		}
 		break;
 		case 30:
+		case 31:
 			this->accompanimentSettings.unknownChunksAfter9.Push(UnknownChunk(chunkHeader, dataReader.InputStream()));
 		break;
 	}
+}
+
+bool AccompanimentSettingsReader::IsDataChunk(const ChunkHeader &chunkHeader)
+{
+	if(chunkHeader.type == 31)
+		return true;
+	return ChunkReader::IsDataChunk(chunkHeader);
 }

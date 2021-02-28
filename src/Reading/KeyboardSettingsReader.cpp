@@ -32,6 +32,7 @@ void KeyboardSettingsReader::ReadDataChunk(const ChunkHeader &chunkHeader, DataR
 {
 	switch(chunkHeader.type)
 	{
+		case 7:
 		case 8:
 		case 16:
 		case 17:
@@ -53,6 +54,7 @@ void KeyboardSettingsReader::ReadDataChunk(const ChunkHeader &chunkHeader, DataR
 			ASSERT_EQUALS(0, chunkHeader.version.minor);
 			this->Read0x0FChunk(dataReader);
 			break;
+		case 24:
 		case 34:
 			this->keyboardSettings[this->perfIndex].unknownChunksAfterTracks.Push(UnknownChunk(chunkHeader, dataReader.InputStream()));
 			break;

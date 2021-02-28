@@ -17,6 +17,8 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
+using namespace StdXX;
+
 class FormattedOutputter
 {
 public:
@@ -60,7 +62,11 @@ public:
 
 	inline void OutputUnknownChunk(const UnknownChunk& chunk)
 	{
-		NOT_IMPLEMENTED_ERROR;
+		this->BeginSection(u8"unknown chunk " + String::HexNumber(chunk.Header().id));
+		this->OutputProperty(u8"size", uint16(chunk.Header().size));
+		for(uint32 i = 0; i < chunk.Buffer().Size(); i++)
+			this->OutputProperty(u8"unknown" + String::Number(i), chunk.Buffer()[i]);
+		this->EndSection();
 	}
 
 	inline void OutputUnknownProperties(const DynamicByteBuffer& buffer)

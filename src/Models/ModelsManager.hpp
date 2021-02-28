@@ -27,7 +27,7 @@ public:
 	{
 		for(const auto& model : this->models)
 		{
-			if(model->GetName() == name)
+			if(model->GetName().ToLowercase() == name.ToLowercase())
 				return model.operator->();
 		}
 		return nullptr;

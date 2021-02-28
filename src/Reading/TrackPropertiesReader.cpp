@@ -20,6 +20,9 @@
 #include "TrackPropertiesReader.hpp"
 //Local
 #include "PerformanceDataFormat.hpp"
+//Namespaces
+using namespace libKORG;
+using namespace StdXX;
 
 //Public methods
 template<uint32 N>
@@ -52,7 +55,16 @@ void TrackPropertiesReader<N>::ReadVersion00Chunk(DataReader& dataReader)
 	auto unknown1 = atp.unknown1.CreateOutputStream();
 	dataReader.InputStream().FlushTo(*unknown1, 8);
 
-	atp.soundProgramChangeSeq = new ProgramChangeSequence(ProgramChangeSequence::FromEncoded(dataReader.ReadUInt32()));
+	uint8 msb = dataReader.ReadByte();
+	uint8 lsb = dataReader.ReadByte();
+	atp.unknownSoundAttribute = dataReader.ReadByte();
+	uint8 pc = dataReader.ReadByte();
+
+	//0 = internal korg bank, 2 = GM bank?
+	ASSERT((atp.unknownSoundAttribute == 0) || (atp.unknownSoundAttribute == 2), String::Number(atp.unknownSoundAttribute));
+
+
+	atp.soundProgramChangeSeq = ProgramChangeSequence(msb, lsb, pc);
 
 	atp.volume = dataReader.ReadByte();
 	atp.pan = dataReader.ReadByte() - c_knob_offset;

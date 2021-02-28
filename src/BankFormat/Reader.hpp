@@ -17,17 +17,11 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
+#include <libkorg/Set.hpp>
 #include "BankFormat.hpp"
 #include "libkorg/BankObject.hpp"
 #include "libkorg/ChunkFormat.hpp"
 #include "../Reading/ChunkReader.hpp"
-
-struct BankObjectEntry
-{
-	String name;
-	uint8 pos;
-	BankObject* object;
-};
 
 namespace BankFormat
 {
@@ -41,28 +35,35 @@ namespace BankFormat
 		}
 
 		//Inline
-		inline DynamicArray<BankObjectEntry>&& TakeEntries()
+		inline StdXX::DynamicArray<libKORG::BankObjectEntry>&& TakeEntries()
 		{
 			return Move(this->objectEntries);
 		}
 
 	protected:
 		//Methods
-		String GetDebugDirName() const override;
+		StdXX::String GetDebugDirName() const override;
 		bool IsDataChunk(const ChunkHeader &chunkHeader) override;
-		void ReadDataChunk(const ChunkHeader& chunkHeader, DataReader &dataReader) override;
+		void ReadDataChunk(const ChunkHeader& chunkHeader, StdXX::DataReader &dataReader) override;
 
 	private:
 		//Members
-		DynamicArray<HeaderEntry> headerEntries;
+		StdXX::DynamicArray<HeaderEntry> headerEntries;
 		uint8 currentHeaderEntryIndex;
-		DynamicArray<BankObjectEntry> objectEntries;
+		StdXX::DynamicArray<BankObjectEntry> objectEntries;
 
 		//Inline
 		inline void AddObject(BankObject* object)
 		{
 			const HeaderEntry& headerEntry = this->headerEntries[this->currentHeaderEntryIndex++];
 			this->objectEntries.Push({ headerEntry.name, headerEntry.pos, object });
+		}
+
+		inline void VerifyDataVersion(const ChunkVersion& dataVersion)
+		{
+			const HeaderEntry& headerEntry = this->headerEntries[this->currentHeaderEntryIndex];
+			ASSERT_EQUALS(headerEntry.dataVersion.major, dataVersion.major);
+			ASSERT_EQUALS(headerEntry.dataVersion.minor, dataVersion.minor);
 		}
 	};
 }

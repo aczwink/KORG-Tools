@@ -178,10 +178,14 @@ void StyleOutputter::Output(uint32 index, const KORG_MIDI_Event &event)
 			this->formattedOutputter.OutputProperty(u8"velocity", (int16)event.value1);
 			break;
 		case KORG_MIDI_EventType::RXnoiseOff:
-			NOT_IMPLEMENTED_ERROR;
+			this->formattedOutputter.OutputProperty(u8"type", u8"rxnoise off");
+			this->formattedOutputter.OutputProperty(u8"pitch", PitchToString(Pitch(event.value1)));
+			this->formattedOutputter.OutputProperty(u8"velocity", event.value2);
 			break;
 		case KORG_MIDI_EventType::RXnoiseOn:
-			NOT_IMPLEMENTED_ERROR;
+			this->formattedOutputter.OutputProperty(u8"type", u8"rxnoise on");
+			this->formattedOutputter.OutputProperty(u8"pitch", PitchToString(Pitch(event.value1)));
+			this->formattedOutputter.OutputProperty(u8"velocity", event.value2);
 			break;
 		case KORG_MIDI_EventType::EndOfTrack:
 			this->formattedOutputter.OutputProperty(u8"type", u8"end of track");
@@ -236,7 +240,7 @@ void StyleOutputter::OutputGeneralStyleElementData(const GeneralStyleElementData
 	{
 		Section chunkSection(u8"unknown chord table", this->formattedOutputter);
 
-		this->formattedOutputter.OutputUnknownProperties(data.unknownChordTable);
+		this->formattedOutputter.OutputUnknownChunk(data.unknownChordTable);
 	}
 
 	for(uint32 i = 0; i < 8; i++)
@@ -246,33 +250,5 @@ void StyleOutputter::OutputGeneralStyleElementData(const GeneralStyleElementData
 		this->formattedOutputter.OutputProperty(u8"soundProgramChangeSeq", data.styleTrackData[i].soundProgramChangeSeq->ToString());
 		this->formattedOutputter.OutputProperty(u8"keyboardRangeBottom", data.styleTrackData[i].keyboardRangeBottom);
 		this->formattedOutputter.OutputProperty(u8"keyboardRangeTop", data.styleTrackData[i].keyboardRangeTop);
-	}
-
-	{
-		Section chunkSection(u8"0x2000308", this->formattedOutputter);
-
-		this->formattedOutputter.OutputProperty(u8"unknown1", data._0x2000308_chunk.unknown1);
-		this->formattedOutputter.OutputProperty(u8"unknown2", data._0x2000308_chunk.unknown2);
-		this->formattedOutputter.OutputProperty(u8"unknown3", data._0x2000308_chunk.unknown3);
-		this->formattedOutputter.OutputProperty(u8"unknown4", data._0x2000308_chunk.unknown4);
-		this->formattedOutputter.OutputProperty(u8"unknown5", data._0x2000308_chunk.unknown5);
-		this->formattedOutputter.OutputProperty(u8"unknown6", data._0x2000308_chunk.unknown6);
-		this->formattedOutputter.OutputProperty(u8"unknown7", data._0x2000308_chunk.unknown7);
-		this->formattedOutputter.OutputProperty(u8"unknown8", data._0x2000308_chunk.unknown8);
-		this->formattedOutputter.OutputProperty(u8"unknown9", data._0x2000308_chunk.unknown9);
-		this->formattedOutputter.OutputProperty(u8"unknown10", data._0x2000308_chunk.unknown10);
-		this->formattedOutputter.OutputProperty(u8"unknown11", data._0x2000308_chunk.unknown11);
-		this->formattedOutputter.OutputProperty(u8"unknown12", data._0x2000308_chunk.unknown12);
-		this->formattedOutputter.OutputProperty(u8"unknown13", data._0x2000308_chunk.unknown13);
-		this->formattedOutputter.OutputProperty(u8"unknown14", data._0x2000308_chunk.unknown14);
-		this->formattedOutputter.OutputProperty(u8"unknown15", data._0x2000308_chunk.unknown15);
-		this->formattedOutputter.OutputProperty(u8"unknown16", data._0x2000308_chunk.unknown16);
-		this->formattedOutputter.OutputProperty(u8"unknown17", data._0x2000308_chunk.unknown17);
-		this->formattedOutputter.OutputProperty(u8"unknown18", data._0x2000308_chunk.unknown18);
-		this->formattedOutputter.OutputProperty(u8"unknown19", data._0x2000308_chunk.unknown19);
-		for(uint32 i = 0; i < 16; i++)
-		{
-			this->formattedOutputter.OutputProperty(u8"unknown20[" + String::Number(i) + u8"]", data._0x2000308_chunk.unknown20[i]);
-		}
 	}
 }

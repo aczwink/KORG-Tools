@@ -18,6 +18,56 @@
  */
 #include <libkorg.hpp>
 using namespace libKORG;
+using namespace StdXX;
+
+struct BankSelection
+{
+	FileSystem::Path setPath;
+	uint8 bankNumber;
+};
+
+struct BankSelectionWithModel : BankSelection
+{
+	const Model* model;
+};
+
+UniquePointer<SingleTouchSettings> MapSTS(const SingleTouchSettings& sts, const Set& targetSet, const Model* model)
+{
+	if(model && (sts.Version() > model->GetMaximumPerformanceVersion()))
+	{
+		PerformanceV2ToV1Converter converter(targetSet);
+		return new SingleTouchSettings(converter.Convert(sts));
+	}
+
+	return new SingleTouchSettings(sts);
+}
+
+void ConvertStyleBank(const BankSelection& source, const BankSelectionWithModel& target)
+{
+	Set sourceSet(source.setPath);
+
+	if(!FileSystem::File(target.setPath).Exists())
+		Set::Create(target.setPath);
+	Set targetSet(target.setPath);
+
+	if(!targetSet.StyleBanks().Contains(target.bankNumber))
+		targetSet.StyleBanks().Insert(target.bankNumber, {});
+
+	const auto& entries = sourceSet.StyleBanks()[source.bankNumber].Objects();
+	for(const auto& entry : entries)
+	{
+		const String& styleName = entry.value.Get<0>();
+		const FullStyle& fullStyle = *entry.value.Get<1>();
+
+		UniquePointer<Style> mappedStyle = new Style(fullStyle.Style());
+		UniquePointer<SingleTouchSettings> mappedSTS = MapSTS(fullStyle.STS(), targetSet, target.model);
+
+		SharedPointer<FullStyle> mappedFullStyle = new FullStyle(Move(mappedStyle), Move(mappedSTS));
+
+		targetSet.StyleBanks()[target.bankNumber].AddObject(styleName, entry.key, mappedFullStyle);
+	}
+	targetSet.Save();
+}
 
 int32 Main(const String &programName, const FixedArray<String> &args)
 {
@@ -31,17 +81,14 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 	CommandLine::StringArgument sourceBankArg(u8"source-bank", u8"Source bank name");
 	parser.AddPositionalArgument(sourceBankArg);
 
-	CommandLine::UnsignedArgument sourcePosNumberArg(u8"source-pos", u8"Source position in bank");
-	parser.AddPositionalArgument(sourcePosNumberArg);
-
 	CommandLine::PathArgument targetSetPathArg(u8"target-set-path", u8"Path to the target set");
 	parser.AddPositionalArgument(targetSetPathArg);
 
 	CommandLine::StringArgument targetBankArg(u8"target-bank", u8"Target bank name");
 	parser.AddPositionalArgument(targetBankArg);
 
-	CommandLine::UnsignedArgument targetPosNumberArg(u8"target-pos", u8"Target position in bank");
-	parser.AddPositionalArgument(targetPosNumberArg);
+	CommandLine::OptionWithArgument targetModelOpt(u8'm', u8"target-model", u8"The model that the target set is for");
+	parser.AddOption(targetModelOpt);
 
 	if(!parser.Parse(args))
 	{
@@ -51,47 +98,25 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 
 	const CommandLine::MatchResult& result = parser.ParseResult();
 
-	struct
+	BankSelection source;
+	source.setPath = sourceSetPathArg.Value(result);
+	source.bankNumber = ParseStyleBankName(sourceBankArg.Value(result));
+
+	BankSelectionWithModel target;
+	target.setPath = targetSetPathArg.Value(result);
+	target.bankNumber = ParseStyleBankName(targetBankArg.Value(result));
+	target.model = nullptr;
+	if(result.IsActivated(targetModelOpt))
 	{
-		FileSystem::Path setPath;
-		uint8 bankNumber;
-		uint8 posNumber;
-	} sourceInfo;
+		target.model = FindModel(result.Value(targetModelOpt));
+		if(target.model == nullptr)
+		{
+			stdErr << u8"Unknown model: " << result.Value(targetModelOpt) << endl;
+			return EXIT_FAILURE;
+		}
+	}
 
-	sourceInfo.setPath = sourceSetPathArg.Value(result);
-	sourceInfo.bankNumber = ParseStyleBankName(sourceBankArg.Value(result));
-	sourceInfo.posNumber = sourcePosNumberArg.Value(result);
-
-	struct
-	{
-		FileSystem::Path setPath;
-		uint8 bankNumber;
-		uint8 posNumber;
-	} targetInfo;
-
-	targetInfo.setPath = targetSetPathArg.Value(result);
-	targetInfo.bankNumber = ParseStyleBankName(targetBankArg.Value(result));
-	sourceInfo.posNumber = targetPosNumberArg.Value(result);
-
-
-
-
-	Set sourceSet(sourceInfo.setPath);
-
-	auto& entry = sourceSet.StyleBanks()[sourceInfo.bankNumber].Objects()[sourceInfo.posNumber];
-	const String& styleName = entry.Get<0>();
-
-	SharedPointer<FullStyle> mappedStyle = new FullStyle(*entry.Get<1>());
-
-	if(!FileSystem::File(targetInfo.setPath).Exists())
-		Set::Create(targetInfo.setPath);
-
-	Set targetSet(targetInfo.setPath);
-	if(!targetSet.StyleBanks().Contains(targetInfo.bankNumber))
-		targetSet.StyleBanks().Insert(targetInfo.bankNumber, {});
-
-	targetSet.StyleBanks()[targetInfo.bankNumber].AddObject(styleName, targetInfo.posNumber, mappedStyle);
-	targetSet.Save();
+	ConvertStyleBank(source, target);
 
 	return EXIT_SUCCESS;
 }

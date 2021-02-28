@@ -39,7 +39,7 @@ libKORG::SingleTouchSettings *PerformanceReader::TakeSTSResult()
 {
 	ASSERT_EQUALS(4, this->perfIndex);
 
-	return new SingleTouchSettings(this->version, Move(this->unknownChunksAtBeginning), Move(this->accompanimentSettings), Move(this->keyboardSettings), Move(this->unknownChunksAtEnd));
+	return new SingleTouchSettings(this->max9version, Move(this->unknownChunksAtBeginning), Move(this->accompanimentSettings), Move(this->keyboardSettings), Move(this->unknownChunksAtEnd));
 }
 
 //Protected methods
@@ -65,7 +65,7 @@ void PerformanceReader::ReadDataChunk(const ChunkHeader& chunkHeader, DataReader
 	{
 		case 2:
 		{
-			AccompanimentSettingsReader reader(this->accompanimentSettings, this->version);
+			AccompanimentSettingsReader reader(this->accompanimentSettings, this->max9version);
 			reader.ReadData(dataReader.InputStream());
 		}
 		break;

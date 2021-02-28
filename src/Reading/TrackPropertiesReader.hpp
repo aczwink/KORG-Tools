@@ -1,5 +1,3 @@
-#include <libkorg.hpp>
-
 /*
  * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
  *
@@ -18,13 +16,15 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <libkorg/ChunkFormat.hpp>
+#include <libkorg/Performance.hpp>
 
 template<uint32 N>
 class TrackPropertiesReader
 {
 public:
 	//Constructor
-	inline TrackPropertiesReader(StaticArray<TrackProperties, N>& trackProperties) : trackProperties(trackProperties)
+	inline TrackPropertiesReader(StdXX::StaticArray<libKORG::TrackProperties, N>& trackProperties) : trackProperties(trackProperties)
 	{
 	}
 
@@ -33,10 +33,10 @@ public:
 
 private:
 	//Members
-	StaticArray<TrackProperties, N>& trackProperties;
+	StdXX::StaticArray<libKORG::TrackProperties, N>& trackProperties;
 
 	//Methods
-	void ReadVersion00Chunk(DataReader& dataReader);
-	void ReadVersion10Chunk(DataReader& dataReader);
-	void ReadVersion11Chunk(DataReader& dataReader);
+	void ReadVersion00Chunk(StdXX::DataReader& dataReader);
+	void ReadVersion10Chunk(StdXX::DataReader& dataReader);
+	void ReadVersion11Chunk(StdXX::DataReader& dataReader);
 };
