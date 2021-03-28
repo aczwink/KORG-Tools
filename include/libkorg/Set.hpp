@@ -24,6 +24,7 @@
 #include "Pad.hpp"
 #include "Performance.hpp"
 #include "FullStyle.hpp"
+#include "SoundBankNumber.hpp"
 
 namespace libKORG
 {
@@ -57,6 +58,11 @@ namespace libKORG
 			return this->sampleBanks;
 		}
 
+		inline const StdXX::Map<SoundBankNumber, SoundBank>& SoundBanks() const
+		{
+			return this->soundBanks;
+		}
+
 		inline StdXX::Map<uint8, StyleBank>& StyleBanks()
 		{
 			return this->styleBanks;
@@ -80,7 +86,7 @@ namespace libKORG
 		StdXX::Map<uint8, PadBank> padBanks;
 		StdXX::Map<uint8, PerformanceBank> performanceBanks;
 		StdXX::Map<uint8, SampleBank> sampleBanks;
-		StdXX::Map<uint8, SoundBank> soundBanks;
+		StdXX::Map<SoundBankNumber, SoundBank> soundBanks;
 		StdXX::Map<uint8, StyleBank> styleBanks;
 
 		//Methods

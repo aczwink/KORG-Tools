@@ -65,7 +65,6 @@ namespace libKORG
 	struct TrackProperties
 	{
 		StdXX::DynamicByteBuffer unknown1;
-		uint8 unknownSoundAttribute;
 		ProgramChangeSequence soundProgramChangeSeq;
 		uint8 volume;
 		int8 pan;

@@ -95,6 +95,18 @@ void Reader::ReadDataChunk(const ChunkHeader& chunkHeader, DataReader &dataReade
 			this->AddObject(performanceReader.TakeSTSResult());
 		}
 		break;
+		case ChunkType::SoundData:
+		{
+			this->VerifyDataVersion(chunkHeader.version);
+			ASSERT(
+					(chunkHeader.version.AsUInt16() == 0x0200)
+					||
+					(chunkHeader.version.AsUInt16() == 0x0300)
+					, u8"Unknown sound version");
+
+			this->AddObject(new Sound(dataReader.InputStream()));
+		}
+		break;
 		case ChunkType::StyleObject:
 		{
 			this->VerifyDataVersion(chunkHeader.version);
@@ -169,9 +181,6 @@ void Reader::ReadDataChunk(const ChunkHeader& chunkHeader, DataReader &dataReade
 				break;
 			case ObjectType::SongBook:
 				object = new SongBook(inputStream);
-				break;
-			case ObjectType::Sound:
-				object = new Sound(inputStream);
 				break;
 		}
 

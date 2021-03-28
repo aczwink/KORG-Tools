@@ -18,6 +18,7 @@
  */
 
 #include <libkorg/Converters/PerformanceV2ToV1Converter.hpp>
+#include <libkorg/Converters/SoundMapper.hpp>
 
 #include <libkorg/Model.hpp>
 #include <libkorg/Package.hpp>

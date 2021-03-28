@@ -252,6 +252,9 @@ namespace libKORG
 	class Style : public BankObject
 	{
 	public:
+		//Members
+		StyleData data;
+
 		//Constructors
 		inline Style(StyleData&& data) : data(StdXX::Move(data))
 		{
@@ -260,15 +263,5 @@ namespace libKORG
 		inline Style(const Style& style) : data(style.data)
 		{
 		}
-
-		//Properties
-		inline const StyleData& Data() const
-		{
-			return this->data;
-		}
-
-	private:
-		//Members
-		StyleData data;
 	};
 }

@@ -16,26 +16,46 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-//Class header
-#include "ModelsManager.hpp"
-//Local
-#include "pa600.hpp"
-#include "pa700.hpp"
-//Namespaces
-using namespace libKORG;
-using namespace StdXX;
 
-//Private methods
-void ModelsManager::RegisterModels()
+class Pa700 : public libKORG::Model
 {
-	this->models.Push(new Pa600());
-	this->models.Push(new Pa600QT());
-	this->models.Push(new Pa700());
-	this->models.Push(new Pa700OR());
-}
+public:
+	StdXX::String GetCustomization() const override
+	{
+		return u8"STD";
+	}
 
-//Namespace functions
-const Model* libKORG::FindModel(const String& name)
+	StdXX::String GetMachId() const override
+	{
+		return u8"111A";
+	}
+
+	libKORG::ChunkVersion GetMaximumPerformanceVersion() const override
+	{
+		return {2, 1};
+	}
+
+	StdXX::String GetName() const override
+	{
+		return u8"Pa700";
+	}
+};
+
+class Pa700OR : public Pa700
 {
-	return ModelsManager::Instance().FindModel(name);
-}
+public:
+	StdXX::String GetCustomization() const override
+	{
+		return u8"ORT";
+	}
+
+	StdXX::String GetMachId() const override
+	{
+		return u8"113A";
+	}
+
+	StdXX::String GetName() const override
+	{
+		return u8"Pa700Oriental";
+	}
+};

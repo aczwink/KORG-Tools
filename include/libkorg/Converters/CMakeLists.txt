@@ -2,5 +2,6 @@ set(SOURCE_FILES
 	${SOURCE_FILES}
 
 	${CMAKE_CURRENT_SOURCE_DIR}/PerformanceV2ToV1Converter.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/SoundMapper.hpp
 
 	PARENT_SCOPE)

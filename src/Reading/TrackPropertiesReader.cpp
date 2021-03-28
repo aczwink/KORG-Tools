@@ -57,14 +57,15 @@ void TrackPropertiesReader<N>::ReadVersion00Chunk(DataReader& dataReader)
 
 	uint8 msb = dataReader.ReadByte();
 	uint8 lsb = dataReader.ReadByte();
-	atp.unknownSoundAttribute = dataReader.ReadByte();
+	uint8 soundSetType = dataReader.ReadByte();
 	uint8 pc = dataReader.ReadByte();
 
-	//0 = internal korg bank, 2 = GM bank?
-	ASSERT((atp.unknownSoundAttribute == 0) || (atp.unknownSoundAttribute == 2), String::Number(atp.unknownSoundAttribute));
+	ASSERT(
+			(soundSetType == (uint8)SoundSetType::KORG)
+			|| (soundSetType == (uint8)SoundSetType::XG), String::Number(soundSetType));
 
 
-	atp.soundProgramChangeSeq = ProgramChangeSequence(msb, lsb, pc);
+	atp.soundProgramChangeSeq = ProgramChangeSequence(static_cast<SoundSetType>(soundSetType), msb, lsb, pc);
 
 	atp.volume = dataReader.ReadByte();
 	atp.pan = dataReader.ReadByte() - c_knob_offset;

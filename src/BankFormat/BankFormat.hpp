@@ -28,6 +28,7 @@ namespace BankFormat
 		ObjectTOC = 5,
 		StyleObject = 6,
 		PerformancesData = 9,
+		SoundData = 16,
 		CrossReferenceTable = 0xFE,
 	};
 	enum class ChunkId : uint32
@@ -43,8 +44,6 @@ namespace BankFormat
 		PadData = 0x0C0000,
 		SoundData00 = 0x100000,
 		SoundData0 = 0x100100,
-		SoundData1 = 0x100200,
-		SoundData2 = 0x100300,
 		MultiSampleData = 0x110300,
 		PCMData = 0x120000,
 	};

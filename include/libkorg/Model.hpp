@@ -26,6 +26,7 @@ namespace libKORG
 	{
 	public:
 		//Abstract
+		virtual StdXX::String GetCustomization() const = 0;
 		virtual StdXX::String GetMachId() const = 0;
 		virtual ChunkVersion GetMaximumPerformanceVersion() const = 0;
 		virtual StdXX::String GetName() const = 0;
@@ -33,7 +34,7 @@ namespace libKORG
 		//Properties
 		inline StdXX::String InternalName() const
 		{
-			return u8"Z" + this->GetMachId();
+			return u8"Z" + this->GetMachId() + this->GetCustomization();
 		}
 	};
 

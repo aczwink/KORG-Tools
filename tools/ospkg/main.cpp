@@ -18,6 +18,7 @@
  */
 #include <libkorg.hpp>
 using namespace libKORG;
+using namespace StdXX;
 using namespace StdXX::FileSystem;
 
 void PrintHeaderInfo(const PackageHeader& header)

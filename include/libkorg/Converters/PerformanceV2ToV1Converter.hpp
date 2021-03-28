@@ -74,7 +74,6 @@ namespace libKORG
 
 		void MapTrackProperties(TrackProperties& target, const TrackProperties& source) const
 		{
-			target.unknownSoundAttribute = source.unknownSoundAttribute;
 			target.soundProgramChangeSeq = source.soundProgramChangeSeq;
 			target.highGainTimes2 = source.highGainTimes2;
 			target.midGainTimes2 = source.midGainTimes2;

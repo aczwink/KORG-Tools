@@ -21,12 +21,19 @@
 
 namespace libKORG
 {
+	enum class SoundSetType
+	{
+		KORG = 0,
+		XG = 2
+	};
+
 	class ProgramChangeSequence
 	{
 	public:
 		//Constructors
 		inline ProgramChangeSequence(bool drumKit = false)
 		{
+			soundSetType = SoundSetType::KORG;
 			this->bankSelectMSB = 121 - (drumKit ? 1 : 0);
 			this->bankSelectLSB = 0;
 			this->programChange = 0;
@@ -34,9 +41,39 @@ namespace libKORG
 
 		inline ProgramChangeSequence(uint8 bankSelectMSB, uint8 bankSelectLSB, uint8 programChange)
 		{
+			soundSetType = SoundSetType::KORG;
 			this->bankSelectMSB = bankSelectMSB;
 			this->bankSelectLSB = bankSelectLSB;
 			this->programChange = programChange;
+		}
+
+		inline ProgramChangeSequence(enum SoundSetType soundSetType, uint8 bankSelectMSB, uint8 bankSelectLSB, uint8 programChange)
+		{
+			this->soundSetType = soundSetType;
+			this->bankSelectMSB = bankSelectMSB;
+			this->bankSelectLSB = bankSelectLSB;
+			this->programChange = programChange;
+		}
+
+		//Operators
+		inline bool operator<(const ProgramChangeSequence& rhs) const
+		{
+			if(this->soundSetType == rhs.soundSetType)
+			{
+				if(this->bankSelectMSB == rhs.bankSelectMSB)
+				{
+					if(this->bankSelectLSB == rhs.bankSelectLSB)
+						return this->programChange < rhs.programChange;
+					return this->bankSelectLSB < rhs.bankSelectLSB;
+				}
+				return this->bankSelectMSB < rhs.bankSelectMSB;
+			}
+			return this->soundSetType < rhs.soundSetType;
+		}
+
+		inline bool operator>(const ProgramChangeSequence& rhs) const
+		{
+			return rhs < *this;
 		}
 
 		//Properties
@@ -53,6 +90,11 @@ namespace libKORG
 		inline uint8 ProgramChange() const
 		{
 			return this->programChange;
+		}
+
+		inline enum SoundSetType SoundSetType() const
+		{
+			return this->soundSetType;
 		}
 
 		//Inline
@@ -80,6 +122,7 @@ namespace libKORG
 
 	private:
 		//Members
+		enum SoundSetType soundSetType;
 		uint8 bankSelectMSB;
 		uint8 bankSelectLSB;
 		uint8 programChange;

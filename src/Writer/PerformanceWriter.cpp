@@ -107,7 +107,7 @@ void PerformanceWriter::WriteTrackProperties(uint32 trackNumber, const TrackProp
 	trackProperties.unknown1.CreateInputStream()->FlushTo(this->outputStream);
 	this->dataWriter.WriteByte(trackProperties.soundProgramChangeSeq.BankSelectMSB());
 	this->dataWriter.WriteByte(trackProperties.soundProgramChangeSeq.BankSelectLSB());
-	this->dataWriter.WriteByte(trackProperties.unknownSoundAttribute);
+	this->dataWriter.WriteByte(static_cast<byte>(trackProperties.soundProgramChangeSeq.SoundSetType()));
 	this->dataWriter.WriteByte(trackProperties.soundProgramChangeSeq.ProgramChange());
 	this->dataWriter.WriteByte(trackProperties.volume);
 	this->dataWriter.WriteByte(trackProperties.pan + c_knob_offset);

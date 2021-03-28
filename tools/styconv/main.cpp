@@ -42,7 +42,7 @@ UniquePointer<SingleTouchSettings> MapSTS(const SingleTouchSettings& sts, const 
 	return new SingleTouchSettings(sts);
 }
 
-void ConvertStyleBank(const BankSelection& source, const BankSelectionWithModel& target)
+void ConvertStyleBank(const BankSelection& source, const BankSelectionWithModel& target, const SoundMapper& soundMapper)
 {
 	Set sourceSet(source.setPath);
 
@@ -62,11 +62,57 @@ void ConvertStyleBank(const BankSelection& source, const BankSelectionWithModel&
 		UniquePointer<Style> mappedStyle = new Style(fullStyle.Style());
 		UniquePointer<SingleTouchSettings> mappedSTS = MapSTS(fullStyle.STS(), targetSet, target.model);
 
+		soundMapper.Map(*mappedStyle);
+		soundMapper.Map(*mappedSTS);
+
 		SharedPointer<FullStyle> mappedFullStyle = new FullStyle(Move(mappedStyle), Move(mappedSTS));
 
 		targetSet.StyleBanks()[target.bankNumber].AddObject(styleName, entry.key, mappedFullStyle);
 	}
 	targetSet.Save();
+}
+
+static Map<ProgramChangeSequence, ProgramChangeSequence> LoadSoundMapping(const String& pathString)
+{
+	FileSystem::Path inputPath = FileSystem::FileSystemsManager::Instance().OSFileSystem().FromNativePath(pathString);
+	FileInputStream fileInputStream(inputPath);
+	BufferedInputStream bufferedInputStream(fileInputStream);
+	TextReader textReader(bufferedInputStream, TextCodecType::UTF8);
+
+	CommonFileFormats::CSVReader csvReader(textReader, CommonFileFormats::csvDialect_excel);
+	Map<ProgramChangeSequence, ProgramChangeSequence> map;
+
+	//skip column headers
+	String tmp;
+	for(uint8 i = 0; i < 6; i++)
+		csvReader.ReadCell(tmp);
+
+	int i = 0;
+	while(!textReader.IsAtEnd())
+	{
+		i++;
+		if(i == 95)
+		{
+			i++;
+		}
+		csvReader.ReadCell(tmp);
+		csvReader.ReadCell(tmp);
+		auto parts = tmp.Split(u8".");
+		csvReader.ReadCell(tmp);
+
+		ProgramChangeSequence source(static_cast<SoundSetType>(tmp.ToUInt32()), parts[0].ToUInt32(), parts[1].ToUInt32(), parts[2].ToUInt32());
+
+		csvReader.ReadCell(tmp);
+		csvReader.ReadCell(tmp);
+		parts = tmp.Split(u8".");
+		csvReader.ReadCell(tmp);
+
+		ProgramChangeSequence target(static_cast<SoundSetType>(tmp.ToUInt32()), parts[0].ToUInt32(), parts[1].ToUInt32(), parts[2].ToUInt32());
+
+		map[source] = target;
+	}
+
+	return map;
 }
 
 int32 Main(const String &programName, const FixedArray<String> &args)
@@ -89,6 +135,9 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 
 	CommandLine::OptionWithArgument targetModelOpt(u8'm', u8"target-model", u8"The model that the target set is for");
 	parser.AddOption(targetModelOpt);
+
+	CommandLine::OptionWithArgument soundMappingPathOpt(u8's', u8"sound-mapping", u8"A path to a sound mapping csv file that is used to remap sounds");
+	parser.AddOption(soundMappingPathOpt);
 
 	if(!parser.Parse(args))
 	{
@@ -116,7 +165,11 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 		}
 	}
 
-	ConvertStyleBank(source, target);
+	Map<ProgramChangeSequence, ProgramChangeSequence> soundMappings = result.IsActivated(soundMappingPathOpt) ? LoadSoundMapping(result.Value(soundMappingPathOpt))
+																 : Map<ProgramChangeSequence, ProgramChangeSequence>();
+	SoundMapper soundMapper(Move(soundMappings));
+
+	ConvertStyleBank(source, target, soundMapper);
 
 	return EXIT_SUCCESS;
 }

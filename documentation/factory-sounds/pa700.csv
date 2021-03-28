@@ -1,0 +1,1775 @@
+Sound,CC00,CC32,PC
+Factory/Piano,,,
+Concert Grand,121,13,0
+Classic Piano,121,4,0
+Live Piano,121,6,1
+Bright Piano,121,5,1
+Pop Grand,121,12,0
+Jazz Piano,121,5,0
+Rock Piano,121,8,0
+M1 Piano,121,2,2
+G.Piano Stack 1,121,8,2
+Grand Piano RX,121,10,0
+Honky-Tonk,121,2,3
+Ragtime Piano,121,3,3
+Grand&MovingPad,121,9,0
+Piano & Vibes,121,6,0
+Piano & Strings,121,7,0
+Midi Grand & Pad,121,4,1
+Harpsichord 1,121,7,6
+Harpsichord 8+4’,121,8,6
+Classic Clav DNC,121,7,7
+Clav,121,5,7
+Synth Clav,121,6,7
+Clav Wah,121,2,7
+Piano Layers,121,6,2
+Grand & FM Stack,121,7,2
+Grand Piano,121,3,0
+Grand RX DEMO,121,11,0
+Factory/E. piano,,,
+Tine EP Phaser,121,27,4
+Tine EP Dyno,121,28,4
+Tine EP Amp/Pha,121,29,4
+Wet Tine EP,121,31,4
+Dist. Tine EP,121,30,4
+Bell Tine EP,121,32,4
+Classic Tine EP,121,45,4
+Suit Case88 EP1,121,34,4
+Wurly Logic,121,36,4
+Wurly Amp,121,38,4
+Tremolo Wurly 1,121,39,4
+Tremolo Wurly 2,121,16,4
+Wurly Clean,121,41,4
+Natural Wurly,121,44,4
+Wurly Amp/Comp,121,40,4
+Reed EP Clean,121,37,4
+VPM Tine,121,17,5
+Digi E. Piano,121,14,5
+Classic Tines,121,9,5
+DW8000 EP,121,11,5
+Natural EP,121,43,4
+E. Piano Halo,121,1,94
+Thin E. Piano,121,9,4
+EP+Damper 1,121,25,4
+Tine E. Piano 1,121,18,4
+Club E. Piano,121,11,4
+Suit E.Piano 1,121,20,4
+Suit E.Piano 2,121,21,4
+Classic Wurly 1,121,17,4
+Classic Wurly 2,121,12,4
+R&B E. Piano,121,8,4
+Factory/Mallet & Bell,,,
+Vibraphone 1,121,2,11
+Marimba,121,7,12
+Marimba Syn Seq,121,8,12
+Metallic Syn Seq,121,2,114
+Wood&Metal Seq,121,4,114
+Xylophone,121,1,13
+Glockenspiel,121,2,9
+Celesta,121,1,8
+Marimba Key Off,121,2,12
+Balaphon,121,6,12
+Kalimba 1,121,2,108
+Kalimba 2,121,1,108
+Music Box,121,2,10
+Sistro,121,1,9
+Orgel,121,1,10
+Warm Steel,121,1,114
+Vs Bell Boy,121,2,98
+Tubular Bell,121,4,14
+Bells,121,3,14
+Santur,121,1,15
+Mallet Clock,121,5,12
+Factory/Accordion,,,
+Harmonica 1 DN1,121,11,22
+Harmonica 1 DN2,121,12,22
+Harmonica 2 DN1,121,13,22
+Harmonica 3 DN1,121,14,22
+Bandoneon DNC,121,11,23
+Bandoneon Sync,121,12,23
+Bandoneon Short,121,13,23
+Tango Accordion,121,10,23
+Classic Musette,121,29,21
+Musette 1,121,3,21
+2 Voices Musette,121,16,21
+3 Voices Musette,121,17,21
+French Musette,121,18,21
+Cassotto 16’,121,12,21
+Fisa Master,121,8,21
+Fisa Tango,121,1,23
+"Fisa 16,4’",121,7,21
+"Fisa 16,8’",121,6,21
+Accordion,121,24,21
+"Accordion 16,4’",121,7,23
+"Accordion 16,8’",121,2,23
+"Acc.16,8,4’ Plus",121,8,23
+Acc.Clarinet OT,121,19,21
+Acc. Piccolo OT,121,21,21
+Accordion Bass,121,5,23
+Acc. & Acc. Bass,121,9,23
+"Acc.16,8’ & Bass",121,4,23
+Melodica,121,15,22
+Steirisch.Akk.1,121,25,21
+Steirisch.Akk.2,121,26,21
+Factory/Organ,,,
+DRAWBARS,121,127,16
+Jimmy Organ,121,13,18
+Perc. Organ 1,121,9,17
+Perc. Organ 2,121,11,17
+BX3 Rock 1,121,14,18
+BX3 Rock 2,121,15,18
+BX3 Rock 3,121,16,18
+BX3 Rock 4,121,17,18
+BX3 Full,121,6,16
+BX3 Jazz,121,20,16
+BX3 Jazz Pc.,121,9,18
+BX3 Gospel,121,37,16
+Gospel Organ 1,121,38,16
+Jazz Organ,121,8,16
+Organ Low 1,121,39,16
+Organ Low 2,121,15,16
+Organ Low Pc.,121,4,17
+Big Theatre Org.,121,30,16
+Theatre Organ 1,121,22,16
+Theatre Organ 2,121,23,16
+Wunder Organ,121,12,17
+VOX Legend,121,11,16
+60’s Organ,121,40,16
+Pianola,121,6,20
+Pipe Tutti 1,121,6,19
+Pipe Tutti 2,121,8,19
+Pipe Tutti 3,121,9,19
+Pipe Tutti 4,121,10,19
+Church Pipes,121,4,19
+Full Pipes,121,5,19
+Flauto Pipes,121,3,20
+Pipe Mixture,121,3,19
+Pipe Flute 1,121,4,20
+Pipe Flute 2,121,5,20
+Small Pipe,121,2,20
+Positive Organ,121,7,19
+Organ Pedal,121,11,32
+Factory/Guitar,,,
+Concert Gtr DNC,121,20,24
+Nylon GuitarDNC,121,18,24
+ClassicSteel DNC,121,36,25
+RealFolk Gtr DNC,121,34,25
+SteelGtrPro DNC,121,19,25
+Strum 12Str. DNC,121,33,25
+Strat N Cln DNC,121,38,27
+Strat N Cln Mute,121,22,28
+Dist. Gtr 1 DNC,121,14,30
+Crunch Gtr DNC,121,3,29
+Stereo Dist.Gtr,121,8,30
+Stra.GtrUpDwDNC,121,33,27
+Jazz Gtr 1 DNC,121,8,26
+Oct. Jazz Guitar,121,9,26
+Soft Jazz Guitar,121,5,26
+Clean Jazz 1,121,23,27
+E.Gtr Ch/Dly DNC,121,35,27
+Real El. Gtr ST1,121,28,27
+Chorus Guitar,121,3,27
+Chorus Gtr Pro,121,18,27
+Single Coil,121,6,27
+Single Coil Pro,121,14,27
+Concert Gtr Pro,121,21,24
+Real Nylon Gtr,121,17,24
+RealSteel Gtr ST,121,28,25
+RealFolk GtrST 2,121,30,25
+Steel Gtr RX,121,35,25
+Pedal Steel,121,4,26
+E.Gtr Amp DNC,121,37,27
+New Stra.Guitar,121,7,27
+Stra. Vel. Pro,121,16,27
+Processed E.Gtr,121,5,27
+Solid Guitar,121,21,27
+Soft Overdrive,121,2,29
+5th Mute Gtr,121,21,28
+Dist. Guitar,121,11,30
+Disto Mute,121,9,28
+Mute Monster,121,5,30
+Power Chords 1,121,15,30
+Factory/Strings & Vocal,,,
+Violin DNC,121,9,40
+Real Violin DNC,121,7,40
+Violin Expr. DNC,121,5,40
+Conc.Violin DNC,121,6,40
+Violin Expr. 1,121,4,40
+SopranoVox1 DNC,121,4,53
+Real Strings 1,121,9,49
+Real Strings 2,121,10,49
+Movie Str.1 DNC,121,7,49
+Movie Str.2 DNC,121,8,49
+Strings&Orch.V.,121,24,48
+Arabic Strings,121,13,48
+Classic Harp,121,2,46
+Scat Voices DNC,121,20,52
+Cycle Scat 1,121,21,52
+Cycle Scat 2,121,22,52
+ConcertStrings 1,121,11,49
+ConcertStrings 2,121,23,48
+Full Strings,121,2,49
+i3 Strings,121,5,48
+Tremolo Strings,121,1,44
+Class.Contrabs,121,1,43
+Cello,121,1,42
+Viola Expr.,121,1,41
+Violin & Viola,121,2,41
+Strings Quartet,121,9,48
+Chamber Strings,121,12,48
+OrchestraTutti 1,121,14,48
+Orchestra&Flute,121,20,48
+Orch. & Oboe 1,121,16,48
+Strings & Horns,121,15,48
+Strings & Glock.,121,18,48
+Pizz. Ensemble,121,1,45
+Pizz. Section,121,2,45
+Octave Strings,121,8,48
+Symphonic Bows,121,10,48
+StrappatoStrings,121,12,49
+Spiccato Strings,121,4,49
+Analog Strings 1,121,5,50
+Synth Strings 1,121,6,50
+Scat V.& Bass 1,121,17,52
+Scat V.& Bass 2,121,18,52
+Wuuh Choir,121,8,52
+Oh-Ah Voices,121,9,52
+Femal&Male Scat,121,14,52
+Little Boy Voice,121,23,52
+Take Voices 1,121,4,52
+Choir Light,121,12,52
+Ooh Choir,121,6,52
+Ooh Slow Voice,121,3,52
+Ooh Voices,121,2,52
+Synth Voices,121,6,54
+Full Vox Pad,121,9,91
+Vocalesque,121,2,54
+Fresh Breath,121,7,91
+Vocalscape,121,3,54
+Heaven,121,3,91
+Airways,121,3,53
+Factory/Trumpet & Trbn.,,,
+Jazz Trumpet DN1,121,33,56
+Jazz Trumpet DN2,121,34,56
+Jazz Trb. DN1,121,20,57
+Jazz Trb. DN2,121,21,57
+Soft Trb. DN1,121,22,57
+Soft Trb. DN2,121,23,57
+HardTrombone DN1,121,24,57
+HardTrombone DN2,121,25,57
+Jazz Cornet DN1,121,32,56
+Cornet Expr.,121,21,56
+Trumpet Expr.1,121,15,56
+Trumpet Expr.2,121,4,56
+Wah Trumpet,121,2,59
+Mute Trumpet,121,5,59
+Sweet FlugelHorn,121,12,56
+Trombone Expr. 1,121,6,57
+Trumpet Overb.,121,2,56
+Concert Trumpet,121,19,56
+Trombone Vel. 1,121,8,57
+Trombone Vel. 2,121,9,57
+Dual Trumpets,121,6,56
+Alp Trumpet,121,17,56
+TrumpetShake Y+,121,18,56
+Trumpet Pitch,121,5,56
+Alp Tuba,121,6,58
+Tuba Gold,121,2,58
+Oberkr. Tuba,121,1,58
+Factory/Brass,,,
+Big Band Brass 1,121,32,61
+Big Band Brass 2,121,4,61
+Tight Brass 1,121,27,61
+Tight Brass 2,121,29,61
+French Section,121,2,60
+Brass of Power,121,30,61
+Sforzato Brass,121,23,61
+Horns Swell DNC,121,45,61
+Soft Horns 1,121,8,60
+Soft Horns 2,121,7,60
+Soft Horns 3,121,6,60
+Fat Brass,121,13,61
+Movie Brass,121,20,61
+Dyna Brass 1,121,14,61
+Brass Expr.,121,15,61
+Tight Brass 3,121,2,61
+Horns & Ensemble,121,4,60
+Glenn & Friends,121,3,61
+Glenn & Boys,121,6,61
+Trpts & Trombs,121,34,61
+Trpts & Brass,121,7,61
+Trpt. & Horns,121,5,60
+Brass & Sax,121,16,61
+Flute & Muted,121,6,73
+Trumpet Ens.,121,9,61
+Trombone Ens.,121,10,61
+Mute Ensemble 1,121,3,59
+Mute Ensemble 2,121,4,59
+Synth Brass 1,121,5,62
+Electrik Brass,121,4,62
+Brass Fall,121,26,61
+Brass Impact,121,4,55
+Brass Hit,121,25,61
+Factory/Sax,,,
+Tenor Sax DN1,121,16,66
+Tenor Sax DN2,121,17,66
+Jazz Sax DN1,121,20,65
+Jazz Sax DN2,121,21,65
+Tenor Growl DN1,121,18,66
+PopAltoSax DN1,121,22,65
+Alto Sax DN1,121,23,65
+SoftAltoSax DN1,121,24,65
+Soprano Sax DN1,121,6,64
+Baritone Sax DN1,121,6,67
+Jazz Tenor Sax 1,121,9,66
+Tenor Sax Noise1,121,1,66
+Sweet Soprano 1,121,3,64
+Folk Sax,121,5,66
+Baritone Sax Pro,121,3,67
+Reed of Power,121,11,66
+Sax Ensemble,121,2,65
+Real Sax Ens.,121,15,65
+Cool Sax Ens.,121,11,65
+Sax Ens. Legato,121,19,65
+Factory/Woodwind,,,
+RealClarinet DN1,121,21,71
+JazzClarinet DN1,121,22,71
+Flute,121,9,73
+Jazz Flute Expr.,121,1,73
+Oboe 1,121,5,68
+Classic Oboe,121,2,68
+Cool Oboe,121,3,68
+Bassoon,121,1,70
+Double Reed,121,1,68
+Piccolo,121,3,72
+Ocarina,121,1,79
+Blown Bottle,121,1,76
+Pan Flute DN1,121,5,75
+Whistle DN1,121,6,78
+Whistle Robin,121,7,78
+Whistle Sine,121,1,78
+Shakuhachi,121,2,77
+Shakuhachi Vel.,121,3,77
+Clarinet Pro 1,121,8,71
+Clarinet Pro 2,121,9,71
+Clar & Sax Ens 1,121,17,71
+Clar & Sax Ens 2,121,18,71
+Clarinet Ens.,121,5,71
+Reeds & Saxes,121,10,71
+Small Orchestra,121,1,72
+Factory/Synth Pad,,,
+Warm Pad,121,15,89
+Square Pad,121,15,90
+Dark Pad,121,6,89
+Analog Pad 1,121,8,89
+Symphonic Ens.,121,14,89
+Warm Buzz,121,17,89
+The Pad,121,4,89
+Far Memories,121,14,91
+Big Side Attack,121,18,89
+Atmoschoir Pad,121,15,91
+Dark Anna,121,13,89
+Tsunami Wave,121,6,91
+Ravelian Pad,121,8,91
+Motion Ocean,121,1,96
+Moving Bell,121,5,98
+Mixed Echoes,121,16,91
+Space Trailer,121,1,103
+Jurassic Pad,121,3,88
+Pisco Pad,121,2,99
+Tension Scene,121,8,97
+Movie Stack 1,121,4,99
+Movie Stack 2,121,5,99
+Movie Stack 3,121,6,99
+Dronas Pad,121,4,93
+S&H Pad DNC,121,10,96
+Techno Stab DNC,121,3,93
+VCF Modulation,121,3,101
+Rhythmical Synth,121,9,99
+Krystal Bell,121,3,98
+Moon Cycles,121,5,102
+Eastern Depths,121,8,99
+Wave-Sequence,121,4,96
+Pop Synth Pad 1,121,4,91
+Pop Synth Pad 2,121,12,91
+Cosmic,121,1,93
+Aerosonic,121,5,96
+My Sequencer,121,6,96
+Step Sequencer,121,7,96
+Choir-Sequence,121,13,91
+Big Panner,121,4,63
+Digi Ice Pad,121,2,101
+Cinema Pad,121,5,95
+OB Pad,121,12,89
+Future Pad,121,5,91
+Double Sweep,121,9,95
+Vintage Sweep,121,7,95
+Super Sweep,121,4,90
+Wave Sweep,121,5,90
+Fresh Air 1,121,2,91
+Fresh Air 2,121,11,91
+Bell Pad,121,6,98
+80’s Pop Synth,121,2,93
+Next Analog,121,16,89
+Air Clouds,121,1,97
+Meditate,121,2,95
+Factory/Synth Lead,,,
+Next Dance DNC,121,13,87
+Lab Synth DNC,121,8,84
+Trance Filter,121,16,87
+Vintage Monster,121,17,87
+Thin PulSeq DNC,121,21,81
+Deep Modul. DNC,121,10,84
+Summit Pulse,121,13,81
+Bros Buzz Y+,121,14,87
+Noised Lead DNC,121,20,87
+Fast Glide Saw,121,20,81
+Fat Synth,121,15,87
+Parallel Trance,121,9,84
+Dance Syn Perc,121,3,114
+Old Portamento,121,3,80
+Monster & Dist.,121,18,87
+Side Distortion,121,13,84
+Revolution,121,12,84
+Reverse Pulse,121,14,81
+Rave,121,6,97
+Rich Lead,121,3,87
+MonoSaw Detune,121,17,81
+MonoSaw 2 Oct.,121,18,81
+MonoSaw 3 Oct.,121,19,81
+Power Saw,121,5,81
+Bass Phat Saw,121,12,87
+Justified,121,11,84
+Octo Lead,121,6,81
+Dance Lead,121,4,80
+Wave Lead,121,5,80
+Simple Square,121,14,80
+HipHop Lead,121,6,87
+Phat Saw Lead,121,8,81
+Big Sweep Stab,121,12,90
+Noisy Stabb,121,8,90
+A Leadload,121,11,87
+OB Lead,121,10,87
+Big & Raw,121,8,87
+Synth Pianoid,121,12,81
+Factory/Ethnic,,,
+Mandolin DNC,121,40,25
+Mandolin UpDw,121,43,25
+Mandolin Orch.1,121,41,25
+Mandolin Orch.2,121,42,25
+Mandolin Trem.,121,11,25
+Real Cavaquinho,121,27,24
+Cavaquinho 1,121,23,24
+Cavaquinho 2,121,24,24
+Real Ukulele,121,25,24
+Zither,121,9,104
+Sitar,121,8,104
+Sitar Tambou,121,2,104
+Indian Frets,121,4,104
+Fiddle,121,1,110
+Banjo,121,4,105
+Banjo Key Off,121,1,105
+Kanoun 1,121,5,107
+Kanoun 2,121,2,107
+Kanoun Trem. 1,121,6,107
+Kanoun Trem. 2,121,3,107
+Oud 1,121,5,105
+Oud 2,121,2,105
+Mandolin Ens. 1,121,26,25
+Mandolin Ens. 2,121,27,25
+Kanoun Mix,121,4,107
+Bouzouki,121,5,104
+Nay,121,2,72
+Kawala,121,1,75
+Klarnet 1,121,11,71
+Klarnet 2,121,12,71
+Clarinet G,121,2,71
+Hichiriki,121,2,111
+HighlandBagPipes,121,3,109
+Uillean BagPipes,121,2,109
+Zurna 1,121,3,111
+Zurna 2,121,1,111
+Ac. Baglama 1,121,7,107
+Ac. Baglama 2,121,8,107
+Ac. Baglama Grp.,121,9,107
+Gamelan,121,1,112
+Jaw Harp,121,3,105
+Garbage Mall,121,3,112
+Factory/Bass,,,
+Real Ac. Bass 1,121,13,32
+Acoustic Bass 1,121,14,32
+Acous. Bass Pro1,121,3,32
+Ac. Jazz Bass,121,9,32
+JB Finger BsDN1,121,29,33
+JB Finger BsDN2,121,30,33
+JB Pick Bs DN1,121,18,34
+JB Pick Bs DN2,121,19,34
+Finger Bass DN1,121,16,33
+Dark Bs&Slap DN1,121,7,36
+JB Fing.Slap Bs,121,32,33
+JB Slap Bass,121,8,36
+Basic Saw Bass,121,18,39
+SimplePulse Bass,121,19,39
+Euro Bass,121,4,39
+30303 Square,121,6,38
+Vintage P. Pick,121,12,34
+Vintage P. Bass,121,23,33
+Vintage P.Round,121,17,33
+Vintage P. Flat,121,18,33
+Finger E.Bass 1,121,7,33
+Finger E.Bass 2,121,4,33
+Dark E.Bass 2,121,24,33
+5StringsBass RX,121,19,33
+Synth Bass 1,121,18,38
+Disclosure Bass,121,16,39
+Jungle Bass,121,13,38
+Jungle Reso.,121,5,39
+Fretless Bass 1,121,1,35
+Sweet Fretless,121,3,35
+MM Fretless B.RX,121,8,35
+Woofer Pusher 1,121,9,35
+Picked E. Bass 1,121,2,34
+Picked Jazz Bass,121,13,34
+Super Bass 1,121,2,36
+Thumb Bass,121,1,37
+Digi Bass 1,121,11,38
+Digi Bass 2,121,9,38
+30303 Bass,121,5,38
+Fancy Bass,121,17,39
+Bass & Ride 1,121,6,32
+Bass & Ride 2,121,2,32
+Chorus Fing.Bass,121,8,33
+Stein Bass,121,3,34
+Techno Org.Bass,121,6,17
+Org. Synth Pulse,121,13,17
+Organ Bass,121,10,32
+Syn Bass Reso.,121,8,38
+Willy FM Bass,121,19,38
+Bass&Gtr Double,121,6,34
+FingerB.& Guitar,121,14,33
+Bass & Guitar,121,4,34
+Legacy,,,
+Legacy/Piano,,,
+Piano Pad 1,121,2,1
+Piano Pad 2,121,3,1
+G.Piano Stack 2,121,9,2
+90’s Piano,121,3,2
+2000’s Piano,121,4,2
+Chorus Piano,121,5,2
+E. Grand Phaser,121,10,2
+Saloon Piano,121,4,3
+Harpsichord 2,121,6,6
+Harpsi 16’,121,5,6
+Harpsi Korg,121,4,6
+Clav Snap,121,3,7
+Sticky Clav,121,4,7
+Legacy/E. Piano,,,
+Pro Dyno EP,121,5,4
+Pro Stage EP,121,6,4
+Studio EP,121,7,4
+Suit Case88 EP2,121,33,4
+Dyno Tine EP 1,121,10,4
+Dyno Tine EP 2,121,22,4
+Bell E. Piano 1,121,23,4
+Bell E. Piano 2,121,24,4
+Tine E. Piano 2,121,19,4
+EP+Damper 2,121,26,4
+Vintage EP,121,4,4
+Stereo Dig. EP,121,6,5
+Hybrid EP,121,8,5
+Phantom Tine,121,10,5
+Soft Wurly,121,13,4
+Hard Wurly,121,14,4
+FM Stack EP,121,16,5
+Velo Wurly,121,15,4
+White Pad EP,121,13,5
+FM Pad EP,121,15,5
+Sweeping EP,121,12,5
+Classic Dig. EP,121,7,5
+Syn Piano X,121,5,5
+Road Piano,121,11,2
+E. Piano Noise,121,35,4
+Wurly Noise,121,42,4
+Legacy/Mallet & Bell,,,
+Vibraphone 2,121,3,11
+Monkey Skuls,121,3,12
+Digi Bell,121,4,98
+Legacy/Accordion,,,
+Sweet Harmonica,121,1,22
+Cassotto NorTune,121,14,21
+Acc. Clarinet NT,121,20,21
+Acc. Piccolo NT,121,22,21
+Sweet Musette,121,11,21
+Musette 2,121,4,21
+Musette Clar.,121,5,21
+Detune Accordion,121,15,21
+Akordeon,121,2,21
+Arabic Accordion,121,10,21
+Cassotto,121,9,21
+Cassotto 16’ DNC,121,30,21
+Cassotto Or.Tune,121,13,21
+Master Accordion,121,23,21
+Steirisch.Akk.3,121,27,21
+Steirisch.Akk.4,121,28,21
+Harmonica 1 DNC,121,5,22
+Harmonica 2 DNC,121,9,22
+Harmonica 3 DNC,121,10,22
+Jazz Harm. DNC,121,6,22
+Sweet Harm. DNC,121,7,22
+Harmonica 1,121,3,22
+Harmonica 2,121,4,22
+Harmonica 3,121,2,22
+Melodica DNC,121,8,22
+"Accordion16,8,4’",121,3,23
+Acc.Voice Change,121,6,23
+Legacy/Organ,,,
+Classic Click,121,4,18
+Perc. Organ 3,121,10,17
+Perc.Short Deca,121,8,18
+Rock Organ 2,121,11,18
+Jimmy Organ V.,121,10,18
+BX3 Rock 1 V.,121,10,16
+BX3 Rock 2 V.,121,1,18
+BX3 Rock 3 V.,121,5,18
+BX3 Rock 4 V.,121,12,18
+Dirty B,121,3,18
+Killer B,121,2,18
+BX3 Short Decay,121,7,17
+Super BX Perc.,121,6,18
+Gospel Organ 2,121,9,16
+Gospel Organ V.,121,13,16
+BX3 Gospel V.,121,21,16
+Drawbars Organ,121,14,16
+Organ Mid V.,121,16,16
+Organ Hi V.,121,17,16
+Drawbars Slow V.,121,19,16
+Drawbars Fast V.,121,18,16
+Organ Low+1’V.,121,33,16
+Organ HiMix1 V.,121,34,16
+Organ HiMix2 V.,121,35,16
+Organ 16+51/3 V.,121,36,16
+Organ Low V.,121,4,16
+Old Wheels,121,3,17
+Dark Organ 1,121,7,16
+Dark Organ 2,121,5,16
+Rotary Organ,121,8,17
+M1 Organ,121,5,17
+Dirty JazzOrgan,121,7,18
+Arabian Organ,121,12,16
+Theatre Organ 3,121,24,16
+Theatre Organ 4,121,25,16
+Tibia,121,26,16
+Tibia 16+8+4’,121,27,16
+Tibia & Vox,121,28,16
+Tibia & Kinura,121,31,16
+Tibia Vox Glock,121,32,16
+Post Horn Trem.,121,29,16
+Legacy/Guitar,,,
+Nylon Bossa,121,4,24
+Nylon Vel. Harm.,121,10,24
+Nylon Guitar,121,15,24
+Nylon Gtr Pro1,121,8,24
+Nylon Gtr Pro2,121,11,24
+Nylon Slide Pro,121,14,24
+Natural Nylon,121,19,24
+Spanish Guitar,121,6,24
+Brazilian Guitar,121,9,24
+Real Steel Gtr,121,31,25
+Real Folk Gtr,121,32,25
+RealFolk GtrST 1,121,29,25
+Steel Folk Gtr,121,9,25
+Guitar & Strings,121,7,24
+Finger Tips,121,8,25
+Finger Key Off,121,7,25
+Jazz Gtr 2 DNC,121,7,26
+Club Jazz Gtr 2,121,3,26
+Pop Steel Slide,121,23,25
+Reso Guitar,121,12,25
+Tel. Midddle,121,26,27
+Clean Mute Gtr,121,6,28
+Clean Funk,121,8,28
+Country Nu,121,11,27
+Hackbrett,121,6,25
+Tel. Bridge,121,27,27
+Guitarish,121,8,27
+Stra. Gtr Slide,121,17,27
+Stra. Chime,121,5,28
+L&R E.Guitar 1,121,9,27
+L&R E.Guitar 2,121,10,27
+Rhythm E.Guitar,121,7,28
+Chorus Gtr DNC,121,34,27
+Muted Guitar,121,19,28
+E.Gtr Harmonics,121,2,31
+Solo Dist.Guitar,121,7,30
+Lead Guitar DNC,121,4,29
+Dist. Steel Gtr,121,12,30
+Joystick Gtr Y-,121,3,30
+Nylon Gtr RX1,121,12,24
+Nylon Gtr RX2,121,13,24
+RealNylon Gtr ST,121,16,24
+Ac.Guitar KeyOff,121,5,24
+Steel Slide Pro1,121,13,25
+Steel Slide Pro2,121,14,25
+Steel Guitar 1,121,4,25
+Steel Guitar 2,121,20,25
+Steel 12 Strings,121,5,25
+Concert 12 Str,121,22,24
+Steel Gtr DNC,121,44,25
+Classic12Str DNC,121,38,25
+Classic12Str Pro,121,37,25
+Classic12Strings,121,39,25
+12 Strings Pro,121,17,25
+12 Strings RX,121,18,25
+Pop Steel Gtr 1,121,21,25
+Pop Steel Gtr 2,121,22,25
+Steel Guitar RX1,121,15,25
+Steel Guitar RX2,121,16,25
+Pop SteelGtr RX1,121,24,25
+Pop SteelGtr RX2,121,25,25
+Clean Funk RX1,121,10,28
+Clean Funk RX3,121,11,28
+Funk Stein RX1,121,12,28
+Funk Stein RX2,121,13,28
+Clean Guitar RX1,121,14,28
+Clean Guitar RX2,121,15,28
+Clean Guitar RX3,121,16,28
+Clean Guitar RX4,121,17,28
+Clean Guitar RX5,121,18,28
+Clean Guitar RX6,121,20,28
+Club Jazz Gtr 1,121,2,26
+JazzGtr SlidePro,121,6,26
+Vintage S. 1,121,19,27
+Vintage S. 2,121,4,27
+Clean Jazz 2,121,22,27
+R&R Guitar,121,4,28
+Real El. Guitar1,121,30,27
+Real El. Guitar2,121,31,27
+Real El. Gtr ST2,121,29,27
+Funky Wah RX,121,12,27
+Clean Gtr Pro 1,121,13,27
+Clean Gtr Pro 2,121,15,27
+Clean Guitar 1,121,20,27
+Clean Guitar 2,121,25,27
+Dist. Guitar RX1,121,9,30
+Dist. Guitar RX2,121,10,30
+Dist. Gtr 2 DNC,121,13,30
+Power Chords 2,121,4,30
+Stra. Gtr 1 DNC,121,32,27
+Clean Funk RX2,121,36,27
+‘54 E. Guitar,121,24,27
+Wet Dist. Guitar,121,6,30
+Vox Wah Chick,121,3,120
+Legacy/Strings & Vocal,,,
+Violin Expr. 2,121,2,40
+Violin Expr. 3,121,8,40
+Strings Ens. 1,121,21,48
+Strings Ens. 2,121,3,49
+Strings Ens. 3,121,22,48
+Movie Strings 1,121,5,49
+Movie Strings 2,121,6,49
+OrchestraTutti 2,121,19,48
+SopranoChoirDNC,121,6,53
+Stereo Strings,121,3,48
+Master Pad,121,2,89
+N Strings,121,6,48
+Arco Strings,121,7,48
+Legato Strings,121,4,48
+Double Strings,121,3,45
+Ensemble & Solo,121,11,48
+Analog Strings 2,121,2,50
+Sweeper Strings,121,1,49
+Synth Strings 2,121,1,51
+SopranoVox2 DNC,121,5,53
+Take Voices 2,121,5,52
+Aah Choir,121,7,52
+Femal Scat,121,15,52
+Male Scat,121,16,52
+Scat Voices,121,19,52
+Grand Choir,121,11,52
+Cyber Choir,121,2,85
+Strings Choir,121,13,52
+Slow Choir,121,10,52
+Slow Violin,121,3,40
+Odissey,121,4,50
+Analog Velve,121,3,50
+Ether Voices,121,1,85
+Dream Voice,121,5,54
+Classic Vox,121,4,54
+Orch. & Oboe 2,121,17,48
+Doolally,121,2,53
+Legacy/Trumpet & Trbn.,,,
+JazzTrumpet1 DNC,121,24,56
+JazzTrumpet2 DNC,121,27,56
+JazzTrumpet3 DNC,121,28,56
+JazzTrumpet4 DNC,121,30,56
+JazzTrumpet5 DNC,121,35,56
+Trumpet Expr.DNC,121,26,56
+JazzCornet 1 DNC,121,25,56
+JazzCornet 2 DNC,121,29,56
+Jazz Trb. 1 DNC,121,15,57
+Jazz Trb. 2 DNC,121,14,57
+Jazz Trb. 3 DNC,121,18,57
+Trombone DNC,121,13,57
+HardTrombone DNC,121,19,57
+Soft Trb. DNC,121,16,57
+Cornet Pro 1,121,22,56
+Cornet Pro 2,121,23,56
+Trb. Expr. DNC,121,17,57
+Trombone Expr. 2,121,7,57
+Trombone Vel. 3,121,10,57
+Mono Trumpet,121,3,56
+Trumpet Pro 1,121,10,56
+Trumpet Pro 2,121,11,56
+Trumpet Pro 3,121,16,56
+Trumpet,121,14,56
+Cornet Legato,121,31,56
+Warm Flugel,121,8,56
+Flugel Horn Pro,121,13,56
+Flugel Horn,121,7,56
+Hard Trombone,121,3,57
+Soft Trombone,121,4,57
+Pitch Trombone,121,5,57
+Trombone Pro Vel,121,11,57
+Ob.Tuba&E.Bass 1,121,4,58
+Ob.Tuba&E.Bass 2,121,5,58
+Concert Trp. Pro,121,20,56
+BeBop Cornet,121,9,56
+Trombone,121,12,57
+Dynabone,121,3,58
+Legacy/Brass,,,
+Tight Brass 4,121,12,61
+Tight Brass Pro,121,28,61
+Attack Brass,121,8,61
+Big BandShake Y+,121,33,61
+Film Brass,121,17,61
+Brass Section,121,31,61
+Power Brass,121,21,61
+Dyna Brass 2,121,22,61
+Trumpet Ens1 Y+,121,35,61
+Trumpet Ens2 Y+,121,36,61
+Trombones,121,11,61
+Double Brass,121,24,61
+Brass Slow,121,18,61
+Sax & Brass,121,5,61
+Classic Horns,121,3,60
+Fanfare,121,19,61
+Synth Brass 2,121,5,63
+Brass Pad,121,3,63
+MorphAttackBrass,121,37,61
+Netherland Hit,121,8,55
+Legacy/Sax,,,
+Tenor Sax 1 DNC,121,12,66
+Tenor Sax 2 DNC,121,13,66
+Tenor Sax 3 DNC,121,14,66
+Tenor Sax 4 DNC,121,15,66
+Jazz Sax 1 DNC,121,13,65
+Jazz Sax 2 DNC,121,14,65
+Jazz Sax 3 DNC,121,16,65
+Soprano Sax DNC,121,5,64
+Alto Sax 1 DNC,121,12,65
+Alto Sax 2 DNC,121,17,65
+SoftLatinSax DNC,121,18,65
+Baritone Sax DNC,121,5,67
+Jazz Tenor Sax 2,121,10,66
+Tenor Sax Noise2,121,6,66
+Tenor Sax Expr.1,121,7,66
+Tenor Sax Expr.2,121,8,66
+Breathy Tenor,121,3,66
+Soft Tenor,121,2,66
+Tenor Growl,121,4,66
+Alto Sax Pro,121,8,65
+Alto Sax Expr.,121,9,65
+Breathy Alto 1,121,1,65
+Breathy Alto 2,121,3,65
+Alto Sax Growl,121,4,65
+Sweet Alto Sax 1,121,5,65
+Sweet Alto Sax 2,121,6,65
+Soft Alto Sax,121,7,65
+Alto Sax,121,10,65
+Sweet Soprano 2,121,4,64
+Sweet Soprano 3,121,1,64
+Soprano Pro,121,2,64
+Baritone Sax,121,4,67
+Breathy Baritone,121,2,67
+Baritone Growl,121,1,67
+Sax Breath & Key,121,2,121
+Legacy/Woodwind,,,
+RealClarinet DNC,121,14,71
+JazzClarinet DNC,121,15,71
+Folk Clarinet,121,7,71
+Jazz Clarinet,121,1,71
+Clarinet 1 DNC,121,13,71
+SoloClarinet DNC,121,16,71
+Clarinet 2 DNC,121,19,71
+Clarinet 3 DNC,121,20,71
+Jazz Flute 1 DNC,121,13,73
+Jazz Flute 2 DNC,121,14,73
+Orch. Flute DNC,121,12,73
+Jazz Flute,121,10,73
+Flute DNC,121,11,73
+Orchestra Flute,121,5,73
+Flute Switch,121,2,73
+Flute Dyn. 5th,121,3,73
+Flute Frullato,121,4,73
+Wooden Flute,121,7,73
+Oboe 2,121,4,68
+English Horn,121,1,69
+Pan Flute 1 DNC,121,2,75
+Pan Flute 2 DNC,121,3,75
+Pan Flute Y-,121,4,75
+Bambu Flute,121,8,73
+Whistle 1,121,3,78
+Whistle 2,121,4,78
+Whistle 2 DNC,121,5,78
+Breathy Whistle,121,2,78
+Recorder 1,121,1,74
+Recorder 2,121,2,74
+Old Shakuhachi,121,1,77
+Woodwinds,121,6,71
+Section Winds 1,121,3,71
+Section Winds 2,121,4,71
+Legacy/Synth Pad,,,
+Sky Watcher,121,2,90
+Vintage Pad,121,11,89
+You Decide,121,8,95
+Korgmatose,121,13,90
+Reoccuring Astra,121,6,95
+Astral Dream,121,1,95
+Reso Down,121,2,97
+Crimson 5ths,121,1,86
+Freedom Pad,121,7,89
+Noble Pad,121,5,97
+Mellow Pad,121,4,95
+Elastick Pad,121,7,97
+Lonely Spin,121,1,100
+Synth Ghostly,121,2,100
+Farluce,121,11,90
+Dark Element,121,3,95
+Bell Choir,121,7,98
+Wide Attack,121,10,99
+Wave Cycle,121,3,96
+Movie Stack 4,121,7,99
+Bengione,121,1,99
+Cross Sweep,121,6,90
+Virtual Traveler,121,1,88
+Dreaming Coil,121,3,99
+Analog Pad 2,121,9,89
+Analog Pad 3,121,10,89
+Money Pad,121,5,89
+Pods In Pad,121,4,97
+Chiff Touch Pad,121,1,83
+Tinklin Pad,121,3,97
+Dance ReMix,121,10,91
+Organ Stab DNC,121,4,101
+Legacy/Synth Lead,,,
+Synchro City,121,2,84
+Wild Arp,121,6,55
+Seq Lead,121,7,81
+Electro Lead,121,2,87
+Thin Analog Lead,121,4,87
+Glide Lead,121,9,81
+Fire Wave,121,10,81
+Old & Analog,121,8,80
+Power Synth,121,3,89
+Mega Synth,121,9,90
+Digital PolySix,121,7,90
+Flip Blip,121,7,55
+Reso Sweep,121,1,90
+Synth Sweeper,121,3,90
+Sync Kron,121,3,84
+Tecno Phonic,121,10,90
+Band Passed,121,3,102
+Cat Lead,121,9,87
+Pan Reso,121,4,102
+Metallic Rez,121,4,84
+Square Rez,121,11,80
+Rezbo,121,11,81
+Express. Lead,121,5,87
+Port Whine,121,12,80
+Auto Pilot 1,121,14,38
+Arp Angeles,121,2,88
+Brian Sync,121,5,84
+Arp Twins,121,6,84
+LoFi Ethnic,121,7,84
+Caribbean,121,2,96
+Sine Wave,121,6,80
+Analog Lead,121,7,80
+Gliding Square,121,9,80
+Sine Switch,121,10,80
+Cycle Seq. 1,121,8,96
+Cycle Seq. 2,121,9,96
+2VCO Planet Lead,121,13,80
+Motion Raver,121,1,101
+Legacy/Ethnic,,,
+Mandolin Key Off,121,10,25
+War Pipes,121,1,109
+Sitar Sitar,121,7,104
+Hit in India,121,5,55
+Tambra,121,6,104
+Indian Stars,121,3,104
+Bali Gamelan,121,2,112
+Ukulele Gtr,121,26,24
+Legacy/Bass,,,
+Acous. Bass Pro2,121,4,32
+Acous. Bass RX,121,7,32
+Acoustic Bass 2,121,8,32
+Real Ac. Bass 2,121,12,32
+Ac. Bass Buzz,121,1,32
+Finger E.Bass 3,121,2,33
+Finger E.Bass 4,121,3,33
+Finger E.Bass 5,121,6,33
+Bright Finger B.,121,9,33
+FingerE.Bass1 RX,121,10,33
+Finger Slap,121,12,33
+FingerE.Bass2 RX,121,13,33
+Finger E.Bass 6,121,15,33
+Dark E.Bass 1,121,20,33
+FingerE.Bass3 RX,121,21,33
+Dark E.Bass DNC,121,22,33
+Picked E. Bass 2,121,1,34
+Bass Mute,121,5,34
+Picked E. Bass 4,121,7,34
+Picked E. Bass 5,121,8,34
+Picked E.Bass RX,121,10,34
+Picked E. Bass 3,121,11,34
+Fretless Bass 2,121,2,35
+Dark R&B Bass2,121,5,35
+Slap Bass 1,121,6,36
+Slap Bass 2,121,6,37
+Slap Bass 3,121,7,37
+DynaSlapBass RX,121,3,37
+Super Bass 2,121,1,36
+FunkSlapBass RX,121,3,36
+The Other Slap,121,5,37
+SlapFingerBassRX,121,4,36
+SlapPickedBassRX,121,5,36
+Chorus Slap Bass,121,4,37
+DarkWoody A.Bass,121,5,32
+More Mid Bass,121,11,33
+Woofer Pusher 2,121,6,35
+Dark R&B Bass1,121,4,35
+Dyna Bass,121,2,37
+Ticktacing Bass,121,9,34
+Fretless Bass 3,121,7,35
+Stick Bass,121,5,33
+Auto Pilot 2,121,13,39
+Phunk Synth Bass,121,14,39
+Digi Bass 3,121,10,38
+Dr. Octave,121,16,38
+Monofilter Bass,121,11,39
+Autofilter Bass,121,10,39
+Hybrid Bass,121,15,38
+Synth Bass 80ish,121,9,39
+Synth Bass 2,121,15,39
+Reso Bass,121,12,39
+Drive Bass,121,17,38
+Nasty Bass,121,6,39
+Bass Square,121,7,38
+Square Bass,121,7,87
+Phat Bass,121,7,39
+Blind As A Bat,121,12,38
+Poinker Bass,121,8,39
+GM/XG,,,
+GM/XG/Piano,,,
+AcousticPiano GM,121,0,0
+Ac. Piano Wide,121,1,0
+Ac. Piano Dark,121,2,0
+Bright Piano GM,121,0,1
+Bright PianoWide,121,1,1
+E.Grand Piano GM,121,0,2
+E. Grand Wide,121,1,2
+Honky-Tonk GM,121,0,3
+Honky Wide,121,1,3
+E. Piano 1 GM,121,0,4
+Detuned EP 1,121,1,4
+EP 1 Veloc. Mix,121,2,4
+60’s E. Piano,121,3,4
+E. Piano 2 GM,121,0,5
+Detuned EP 2,121,1,5
+EP 2 Veloc. Mix,121,2,5
+EP Legend,121,3,5
+EP Phase,121,4,5
+Harpsichord GM,121,0,6
+Harpsi OctaveMix,121,1,6
+Harpsi Wide,121,2,6
+Harpsi Key Off,121,3,6
+Clav GM,121,0,7
+Pulse Clav,121,1,7
+AcousticPiano XG,0,0,0
+AcousticPiano KP,0,1,0
+Mellow Gr. Piano,0,18,0
+Piano Strings,0,40,0
+Piano Dream,0,41,0
+Bright Piano XG,0,0,1
+Bright Piano KP,0,1,1
+E.Grand Piano XG,0,0,2
+E.Grand Piano KP,0,1,2
+E. Grand Detuned,0,32,2
+Layered E.Grand1,0,40,2
+Layered E.Grand2,0,41,2
+Honky-Tonk XG,0,0,3
+Honky-Tonk KP,0,1,3
+E. Piano 1 XG,0,0,4
+E. Piano 1 KP,0,1,4
+Mellow EP1,0,18,4
+Chorus EP 1,0,32,4
+Hard El. Piano,0,40,4
+Vel. X-Fade EP 1,0,45,4
+60’s El. Piano 1,0,64,4
+E. Piano 2 XG,0,0,5
+E. Piano 2 KP,0,1,5
+Chorus EP 2,0,32,5
+FM EP Hard,0,33,5
+FM Legend EP,0,34,5
+FM Phase EP,0,40,5
+Dx & Analog,0,41,5
+FM Koto EP,0,42,5
+Vel. X-Fade EP 2,0,45,5
+Harpsichord XG,0,0,6
+Harpsichord KP,0,1,6
+Harpsichord HP,0,25,6
+Harpsi Octave,0,35,6
+Clav XG,0,0,7
+Clav KP,0,1,7
+Clav. Wah Dyn.,0,27,7
+Pulse Clav X,0,64,7
+Pierce Clav,0,65,7
+GM/XG/Chrom. Perc.,,,
+Celesta GM,121,0,8
+Glockenspiel GM,121,0,9
+Music Box GM,121,0,10
+Vibraphone GM,121,0,11
+Vibraphone Wide,121,1,11
+Marimba GM,121,0,12
+Marimba Wide,121,1,12
+Xylophone GM,121,0,13
+Tubular Bell GM,121,0,14
+Church Bell,121,1,14
+Carillon,121,2,14
+Dulcimer GM,121,0,15
+Celesta XG,0,0,8
+Glockenspiel XG,0,0,9
+Music Box XG,0,0,10
+Orgel Bell,0,64,10
+Vibraphone XG,0,0,11
+Vibraphone KP,0,1,11
+Hard Vibraphone,0,45,11
+Marimba XG,0,0,12
+Marimba KP,0,1,12
+Sin Marimba,0,64,12
+Balimba,0,97,12
+Log Drum X,0,98,12
+Xylophone XG,0,0,13
+Tubular Bell XG,0,0,14
+Church Bells,0,96,14
+Carillonx,0,97,14
+Dulcimer XG,0,0,15
+Dulcimer Octave,0,35,15
+Cimbalom,0,96,15
+Santur 2,0,97,15
+GM/XG/Organ,,,
+Drawbar Org GM,121,0,16
+Det. Drawbar Org,121,1,16
+It. 60’s Organ,121,2,16
+Drawbar Org. 2,121,3,16
+Perc.Organ GM,121,0,17
+Det. Perc. Organ,121,1,17
+Percussive Org 2,121,2,17
+Rock Organ GM,121,0,18
+Church Organ GM,121,0,19
+Church Oct. Mix,121,1,19
+Detuned Church,121,2,19
+Reed Organ GM,121,0,20
+Puff Organ,121,1,20
+Accordion GM,121,0,21
+Accordion 2,121,1,21
+Harmonica GM,121,0,22
+Tango Accord.GM,121,0,23
+Drawbar Org XG,0,0,16
+Detuned Drawbar,0,32,16
+60’s Draw.Org. 1,0,33,16
+60’s Organ X,0,34,16
+70’s DB Org. 1,0,35,16
+Drawbar Org. 3,0,36,16
+Drawbar 5th,0,37,16
+Even Bar Org.,0,38,16
+Organ 16+2’2/3,0,40,16
+Organ Bass Dance,0,64,16
+70’s DB Org. 2,0,65,16
+Cheezy Organ,0,66,16
+Drawbar Org Perc,0,67,16
+Perc.Organ XG,0,0,17
+70’s Perc. Organ,0,24,17
+ChorusPerc.Organ,0,32,17
+Lite Organ,0,33,17
+Percussive Org X,0,37,17
+Rock Organ XG,0,0,18
+Rotary Organ V.,0,64,18
+Slow Rotary,0,65,18
+Fast Rotary,0,66,18
+Church Organ XG,0,0,19
+Church Organ 3,0,32,19
+Church Organ 2,0,35,19
+Notre Dame,0,40,19
+Organ Flute,0,64,19
+Trem. Org. Flute,0,65,19
+Reed Organ XG,0,0,20
+Puff Organx,0,40,20
+Accordion XG,0,0,21
+Accord. It.,0,32,21
+Harmonica XG,0,0,22
+Soft Harmonica,0,32,22
+Tango Accord.XG,0,0,23
+TangoAccordion 2,0,64,23
+GM/XG/Guitar,,,
+Nylon Guitar GM,121,0,24
+Ukulele,121,1,24
+Nylon Key Off,121,2,24
+Nylon Guitar 2,121,3,24
+Steel Guitar GM,121,0,25
+12 Strings Gtr,121,1,25
+Mandolin,121,2,25
+Steel Gtr & Body,121,3,25
+Jazz Guitar GM,121,0,26
+Pedal Steel Gtr,121,1,26
+Clean Guitar GM,121,0,27
+Det.Clean El.Gtr,121,1,27
+Mid Tone Gtr,121,2,27
+Muted Guitar GM,121,0,28
+Funky Cut El.Gtr,121,1,28
+Mute Vel. El.Gtr,121,2,28
+Jazz Man,121,3,28
+Overdrive Gtr GM,121,0,29
+Guitar Pinch,121,1,29
+DistortionGtr GM,121,0,30
+Feedback DistGtr,121,1,30
+Dist. Rhythm Gtr,121,2,30
+Gtr Harmonic GM,121,0,31
+Guitar Feedback,121,1,31
+Nylon Guitar XG,0,0,24
+Nylon Guitar 2X,0,16,24
+Nylon Guitar 3X,0,25,24
+Nylon & Harm. V.,0,43,24
+Ukulele X,0,96,24
+Steel Guitar XG,0,0,25
+Steel Guitar X,0,16,25
+12 Strings Gtr X,0,35,25
+Nylon plus Steel,0,40,25
+SteelGtrWithBody,0,41,25
+Mandolin X,0,96,25
+Jazz Guitar XG,0,0,26
+Mellow Guitar,0,18,26
+Jazz Man Amp,0,32,26
+Clean Guitar XG,0,0,27
+Chorus El.Gtr,0,32,27
+Muted Guitar XG,0,0,28
+Funk Cut Guitar,0,40,28
+Muted Steel Gtr,0,41,28
+Funk Guitar 2,0,43,28
+Jazz Boy,0,45,28
+Overdrive Gtr XG,0,0,29
+Guitar Nip,0,43,29
+DistortionGtr XG,0,0,30
+Feedback DistGt1,0,40,30
+Feedback DistGt2,0,41,30
+Gtr Harmonic XG,0,0,31
+Gtr Feedback,0,65,31
+Gtr Harmonic,0,66,31
+GM/XG/Bass,,,
+Acoustic Bass GM,121,0,32
+Finger Bass GM,121,0,33
+Finger Slap Bass,121,1,33
+Picked E.Bass GM,121,0,34
+Fretless Bass GM,121,0,35
+Slap Bass 1 GM,121,0,36
+Slap Bass 2 GM,121,0,37
+Synth Bass 1 GM,121,0,38
+Synth Bass Warm,121,1,38
+Synth Bass Reso,121,2,38
+Clavi Bass,121,3,38
+Hammer,121,4,38
+Synth Bass 2 GM,121,0,39
+SynthBass Attack,121,1,39
+SynthBass Rubber,121,2,39
+Attack Pulse,121,3,39
+Acoustic Bass XG,0,0,32
+Jazz Rhythm,0,40,32
+Ac. Bass V.,0,45,32
+Finger Bass XG,0,0,33
+Finger Dark,0,18,33
+Flange Bass,0,27,33
+FngBass&DstGuit.,0,40,33
+FingerSlapBass V,0,43,33
+Finger Bass X,0,45,33
+Modulated Bass,0,65,33
+Picked E.Bass XG,0,0,34
+Muted Pick Bass,0,28,34
+Fretless Bass XG,0,0,35
+Fretless Bass B,0,32,35
+Fretless Det.,0,33,35
+Fretless Soft,0,34,35
+Synth Fretless,0,96,35
+Smooth Fretless,0,97,35
+Slap Bass 1 XG,0,0,36
+Resonant Slap,0,27,36
+Punch Thumb Bass,0,32,36
+Slap Bass 2 XG,0,0,37
+Velo. Sw. Slap,0,43,37
+Synth Bass 1 XG,0,0,38
+Syn. Bass Dark,0,18,38
+Fast Reso. Bass,0,20,38
+Acid Bass,0,24,38
+Clav. Bass,0,35,38
+Techno Bass,0,40,38
+Orbiter Bass,0,64,38
+Xquare Bass,0,65,38
+Rubber Bass,0,66,38
+Hammer Bass,0,96,38
+Synth Bass 2 XG,0,0,39
+Mellow Syn Bass,0,6,39
+Sequenced Bass,0,12,39
+Click Synth Bass,0,18,39
+Synth Bass Dark,0,19,39
+Smooth Syn. Bass,0,32,39
+Modular Syn Bass,0,40,39
+DX Bass,0,41,39
+X Wire Bass,0,64,39
+GM/XG/Strings,,,
+Violin GM,121,0,40
+Slow Att. Violin,121,1,40
+Viola GM,121,0,41
+Cello GM,121,0,42
+Contrabass GM,121,0,43
+Tremolo Str. GM,121,0,44
+Pizzicato Str.GM,121,0,45
+Harp GM,121,0,46
+Yang Chin,121,1,46
+Timpani GM,121,0,47
+Violin XG,0,0,40
+Slow Atk Violin,0,8,40
+Viola XG,0,0,41
+Cello XG,0,0,42
+Contrabass XG,0,0,43
+Tremolo Str. XG,0,0,44
+Slw Tremolo Str.,0,8,44
+Suspense Strings,0,40,44
+Pizzicato Str.XG,0,0,45
+Harp XG,0,0,46
+Yang Chin X,0,40,46
+Timpani XG,0,0,47
+GM/XG/Ensemble,,,
+Strings Ens.1 GM,121,0,48
+Strings & Brass,121,1,48
+60’s Strings,121,2,48
+Strings Ens.2 GM,121,0,49
+Synth Strings1GM,121,0,50
+Synth Strings 3,121,1,50
+Synth Strings2GM,121,0,51
+Choir Aahs GM,121,0,52
+Choir Aahs 2,121,1,52
+Voice Oohs GM,121,0,53
+Humming,121,1,53
+Synth Voice GM,121,0,54
+Analog Voice,121,1,54
+Orchestra Hit GM,121,0,55
+Bass Hit Plus,121,1,55
+6th Hit,121,2,55
+Euro Hit,121,3,55
+Strings Ens.1 XG,0,0,48
+Stereo Stringx,0,3,48
+Slw Atk Strings,0,8,48
+Arco Stringx,0,24,48
+60’s Strings X,0,35,48
+Orchestra,0,40,48
+Orchestra 2,0,41,48
+TremoloOrchestra,0,42,48
+Velocity Strings,0,45,48
+Strings Ens.2 XG,0,0,49
+StereoSlwStrings,0,3,49
+SlwLegatoStrings,0,8,49
+Warm Strings,0,40,49
+Kingdom,0,41,49
+70’s Strings,0,64,49
+Strings 3,0,65,49
+Synth Strings1XG,0,0,50
+Reso Strings,0,27,50
+Synth Strings 4,0,64,50
+Synth Strings 5,0,65,50
+Synth Strings2XG,0,0,51
+Choir Aahs XG,0,0,52
+Stereo Choir,0,3,52
+Choir Aahs 3,0,16,52
+Mellow Choir,0,32,52
+Choir Strings,0,40,52
+Voice Oohs XG,0,0,53
+Synth Voice XG,0,0,54
+Synth Voix,0,40,54
+Choral,0,41,54
+Analog Voix,0,64,54
+Orchestra Hit XG,0,0,55
+Orchestra Hitx,0,35,55
+Impact,0,64,55
+GM/XG/Brass,,,
+Trumpet GM,121,0,56
+Dark Trumpet,121,1,56
+Trombone GM,121,0,57
+Trombone 2,121,1,57
+Bright Trombone,121,2,57
+Tuba GM,121,0,58
+Muted Trumpet GM,121,0,59
+Muted Trumpet 2,121,1,59
+French Horn GM,121,0,60
+FrenchHorn Warm,121,1,60
+Brass Section GM,121,0,61
+Brass Section 2,121,1,61
+Synth Brass 1 GM,121,0,62
+Synth Brass 3,121,1,62
+Analog Brass 1,121,2,62
+Jump Brass,121,3,62
+Synth Brass 2 GM,121,0,63
+Synth Brass 4,121,1,63
+Analog Brass 2,121,2,63
+Trumpet XG,0,0,56
+Trumpet 2,0,16,56
+Brite Trumpet,0,17,56
+Trombone XG,0,0,57
+Warm Trombone,0,18,57
+Tuba XG,0,0,58
+Tuba 2,0,16,58
+Muted Trumpet XG,0,0,59
+French Horn XG,0,0,60
+French Horn Solo,0,6,60
+Warm French Horn,0,32,60
+Horn Orchestra,0,37,60
+Brass Section XG,0,0,61
+Tpt&Tbn Section,0,35,61
+Brass Section 3,0,40,61
+Hit Brass,0,41,61
+Mellow Brass,0,42,61
+Synth Brass 1 XG,0,0,62
+Quack Brass,0,12,62
+Res. Synth Brass,0,20,62
+Poly Brass,0,24,62
+Synth Brass 4 X,0,27,62
+Jump Brass X,0,32,62
+AnaVel Brass 1,0,45,62
+AnaLog Brass 1,0,64,62
+Synth Brass 2 XG,0,0,63
+Soft Brass,0,18,63
+Synth Brass X,0,40,63
+Choir Brass,0,41,63
+AnaVel Brass 2,0,45,63
+AnaLog Brass 2,0,64,63
+GM/XG/Reed,,,
+Soprano Sax GM,121,0,64
+Alto Sax GM,121,0,65
+Tenor Sax GM,121,0,66
+Baritone Sax GM,121,0,67
+Oboe GM,121,0,68
+English Horn GM,121,0,69
+Bassoon GM,121,0,70
+Clarinet GM,121,0,71
+Soprano Sax XG,0,0,64
+Alto Sax XG,0,0,65
+Sax Section,0,40,65
+HyperAltoSax,0,43,65
+Tenor Sax XG,0,0,66
+BreathyTenorSax,0,40,66
+Soft Tenor Sax,0,41,66
+Tenor Sax 2,0,64,66
+Baritone Sax XG,0,0,67
+Oboe XG,0,0,68
+English Horn XG,0,0,69
+Bassoon XG,0,0,70
+Clarinet XG,0,0,71
+GM/XG/Pipe,,,
+Piccolo GM,121,0,72
+Flute GM,121,0,73
+Recorder GM,121,0,74
+Pan Flute GM,121,0,75
+Blown Bottle GM,121,0,76
+Shakuhachi GM,121,0,77
+Whistle GM,121,0,78
+Ocarina GM,121,0,79
+Piccolo XG,0,0,72
+Flute XG,0,0,73
+Recorder XG,0,0,74
+Pan Flute XG,0,0,75
+Blown Bottle XG,0,0,76
+Shakuhachi XG,0,0,77
+Whistle XG,0,0,78
+Ocarina XG,0,0,79
+GM/XG/Syn Lead Syn Pad,,,
+Lead Square GM,121,0,80
+Lead Square 2,121,1,80
+Lead Sine,121,2,80
+Lead Saw GM,121,0,81
+Lead Saw 2,121,1,81
+Lead Saw & Pulse,121,2,81
+Lead Double Saw,121,3,81
+Lead Seq. Analog,121,4,81
+Calliope GM,121,0,82
+Chiff GM,121,0,83
+Charang GM,121,0,84
+Wire Lead,121,1,84
+Voice Lead GM,121,0,85
+Fifths Lead GM,121,0,86
+Bass & Lead GM,121,0,87
+Lead Soft Wrl,121,1,87
+New Age Pad GM,121,0,88
+Warm Pad GM,121,0,89
+Sine Pad,121,1,89
+Polysynth GM,121,0,90
+Choir Pad GM,121,0,91
+Itopia Pad,121,1,91
+Bowed Glass GM,121,0,92
+Metallic Pad GM,121,0,93
+Halo Pad GM,121,0,94
+Sweep Pad GM,121,0,95
+Lead Square XG,0,0,80
+Square Lead,0,6,80
+LM Square,0,8,80
+Hollow,0,18,80
+Shroud,0,19,80
+Mellow,0,64,80
+Solo Sine,0,65,80
+Sine Lead,0,66,80
+Lead Saw XG,0,0,81
+Sawtooth Lead,0,6,81
+Thick Sawtooth,0,8,81
+Dynamic Sawtooth,0,18,81
+Digital Saw,0,19,81
+Big Lead,0,20,81
+Heavy Synth,0,24,81
+Wasp Synth,0,25,81
+Pulse Saw,0,40,81
+Dr. Lead,0,41,81
+Velocity Lead,0,45,81
+Sequenced Analog,0,96,81
+Calliope XG,0,0,82
+Pure Lead,0,65,82
+Chiff XG,0,0,83
+Rubby,0,64,83
+Charang XG,0,0,84
+Distorted Lead,0,64,84
+Wire Lead X,0,65,84
+Voice Lead XG,0,0,85
+Synth Aahs,0,24,85
+Vox Lead,0,64,85
+Fifths Lead XG,0,0,86
+Big Five,0,35,86
+Bass & Lead XG,0,0,87
+Big & Low,0,16,87
+Fat & Perky,0,64,87
+Soft Whirl,0,65,87
+New Age Pad XG,0,0,88
+Fantasy,0,64,88
+Warm Pad XG,0,0,89
+Thick Pad,0,16,89
+Soft Pad,0,17,89
+Sine Pad X,0,18,89
+Horn Pad,0,64,89
+Rotary Strings,0,65,89
+Polysynth XG,0,0,90
+Poly Pad 800,0,64,90
+Click Pad,0,65,90
+Analog Pad,0,66,90
+Square Pad X,0,67,90
+Choir Pad XG,0,0,91
+Heaven Mod,0,64,91
+Itopia,0,66,91
+C.C. Pad,0,67,91
+Bowed Glass XG,0,0,92
+Glacier,0,64,92
+Metallic Pad XG,0,0,93
+Tine Pad,0,64,93
+Pan Pad,0,65,93
+Halo Pad XG,0,0,94
+Sweep Pad XG,0,0,95
+Shwimmer,0,20,95
+Converge,0,27,95
+Polar Pad,0,64,95
+Celestial,0,66,95
+GM/XG/Synth SFX,,,
+Ice Rain GM,121,0,96
+Soundtrack GM,121,0,97
+Crystal GM,121,0,98
+Synth Mallet,121,1,98
+Atmosphere GM,121,0,99
+Brightness GM,121,0,100
+Goblins GM,121,0,101
+Echo Drops GM,121,0,102
+Echo Bell,121,1,102
+Echo Pan,121,2,102
+Star Theme GM,121,0,103
+Ice Rain XG,0,0,96
+Clav. Pad,0,45,96
+Harmo. Rain,0,64,96
+African Wind,0,65,96
+Carib,0,66,96
+Soundtrack XG,0,0,97
+Prologue,0,27,97
+Ancestral Clouds,0,64,97
+Crystal XG,0,0,98
+Synth Drum Comp.,0,12,98
+Popcorn,0,14,98
+Tiny Bells,0,18,98
+Round Glocken.,0,35,98
+Glocken. Chimes,0,40,98
+Clear Bells,0,41,98
+Chorus Bells,0,42,98
+Synth Mallet X,0,64,98
+Soft Crystal,0,65,98
+LoudGlockenspiel,0,66,98
+Xmas Bell,0,67,98
+Vibe Bells,0,68,98
+Digital Bells,0,69,98
+Air Bells,0,70,98
+Bell Harp,0,71,98
+Gamelimba,0,72,98
+Atmosphere XG,0,0,99
+Warm Atmosph.,0,18,99
+Hollow Release,0,19,99
+Nylon El. Piano,0,40,99
+Nylon Harp,0,64,99
+Harp Vox,0,65,99
+Atmosphere Pad,0,66,99
+Planet,0,67,99
+Brightness XG,0,0,100
+Fantasy Bells,0,64,100
+Smokey,0,96,100
+Goblins XG,0,0,101
+Goblin Synth,0,64,101
+Creeper,0,65,101
+Ring Pad,0,66,101
+Ritual,0,67,101
+To Heaven,0,68,101
+Night,0,70,101
+Glisten,0,71,101
+Bell Choir X,0,96,101
+Echo Drops XG,0,0,102
+Echoes,0,8,102
+Echo Pan X,0,14,102
+Echo Bell X,0,64,102
+Big Pan,0,65,102
+Synth Piano,0,66,102
+Creation,0,67,102
+Star Dust,0,68,102
+Pan Reso X,0,69,102
+Star Theme XG,0,0,103
+Starz,0,64,103
+GM/XG/Ethnic,,,
+Sitar GM,121,0,104
+Sitar 2,121,1,104
+Banjo GM,121,0,105
+Shamisen GM,121,0,106
+Koto GM,121,0,107
+Taisho Koto,121,1,107
+Kalimba GM,121,0,108
+Bag Pipes GM,121,0,109
+Fiddle GM,121,0,110
+Shanai GM,121,0,111
+Sitar XG,0,0,104
+Detuned Sitar,0,32,104
+Octave Sitar,0,35,104
+Tamboura,0,97,104
+Banjo XG,0,0,105
+Muted Banjo,0,28,105
+Rabab,0,96,105
+Gopichant,0,97,105
+Oud 3,0,98,105
+Shamisen XG,0,0,106
+Koto XG,0,0,107
+Taisho-Kin,0,96,107
+Kanoun X,0,97,107
+Kalimba XG,0,0,108
+Bag Pipes XG,0,0,109
+Fiddle XG,0,0,110
+Shanai XG,0,0,111
+GM/XG/Percussive,,,
+Tinkle Bell GM,121,0,112
+Agogo GM,121,0,113
+Steel Drums GM,121,0,114
+Woodblock GM,121,0,115
+Castanets,121,1,115
+Taiko Drum GM,121,0,116
+Concert BassDrum,121,1,116
+Melodic Tom GM,121,0,117
+Melodic Tom 2,121,1,117
+Synth Drum GM,121,0,118
+Rhythm Box Tom,121,1,118
+Electric Drum,121,2,118
+ReverseCymbalGM,121,0,119
+Tinkle Bell XG,0,0,112
+Bonang,0,96,112
+Altair,0,97,112
+Gamelal Gongs,0,98,112
+St.GamelanGongs,0,99,112
+Rama Cymbal,0,100,112
+Asian Bells,0,101,112
+Agogo XG,0,0,113
+Steel Drums XG,0,0,114
+Glass Percussion,0,97,114
+Thai Bells,0,98,114
+Woodblock XG,0,0,115
+Castanex,0,96,115
+Taiko Drum XG,0,0,116
+Gran Cassa,0,96,116
+Melodic Tom XG,0,0,117
+Melodic Tom 3,0,64,117
+Real Tom,0,65,117
+Rock Tom,0,66,117
+Synth Drum XG,0,0,118
+Analog Tom,0,64,118
+Electric Perc.,0,65,118
+ReverseCymbalXG,0,0,119
+GM/XG/SFX,,,
+Gtr FretNoise GM,121,0,120
+Guitar Cut Noise,121,1,120
+Ac. Bass String,121,2,120
+Breath Noise GM,121,0,121
+Flute Key Click,121,1,121
+Seashore GM,121,0,122
+Rain,121,1,122
+Thunder,121,2,122
+Wind,121,3,122
+Stream,121,4,122
+Bubble,121,5,122
+Bird Tweet GM,121,0,123
+Dog,121,1,123
+Horse Gallop,121,2,123
+Bird Tweet 2,121,3,123
+Telephone GM,121,0,124
+Telephone 2,121,1,124
+Door Creaking,121,2,124
+Door,121,3,124
+Scratch,121,4,124
+Wind Chime,121,5,124
+Helicopter GM,121,0,125
+Car Engine,121,1,125
+Car Stop,121,2,125
+Car Pass,121,3,125
+Car Crash,121,4,125
+Siren,121,5,125
+Train,121,6,125
+Jetplane,121,7,125
+Starship,121,8,125
+Burst Noise,121,9,125
+Applause GM,121,0,126
+Laughing,121,1,126
+Screaming,121,2,126
+Punch,121,3,126
+Heart Beat,121,4,126
+Footsteps,121,5,126
+Gun Shot GM,121,0,127
+Machine Gun,121,1,127
+Laser Gun,121,2,127
+Explosion,121,3,127
+Gtr FretNoise XG,0,0,120
+Breath Noise XG,0,0,121
+Seashore XG,0,0,122
+Bird Tweet XG,0,0,123
+Telephone XG,0,0,124
+Helicopter XG,0,0,125
+Applause XG,0,0,126
+Gun Shot XG,0,0,127

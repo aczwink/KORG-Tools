@@ -38,6 +38,12 @@ namespace libKORG
 		{
 			return rhs < *this;
 		}
+
+		//Inline
+		inline uint16 AsUInt16() const
+		{
+			return (this->major << 8) | this->minor;
+		}
 	};
 
 	struct ChunkHeader

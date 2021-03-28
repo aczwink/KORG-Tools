@@ -24,7 +24,7 @@ using namespace libKORG;
 //Public methods
 void StyleWriter::Write(const Style &style)
 {
-	const StyleData &styleData = style.Data();
+	const StyleData &styleData = style.data;
 
 	this->BeginChunk(1, 5, 0, 0);
 

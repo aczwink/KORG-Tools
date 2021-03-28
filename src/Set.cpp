@@ -37,7 +37,7 @@ Set::Set(const Path &setPath) : setPath(setPath)
 	//this->ReadDirectory(setPath, u8"PCM", &Set::LoadSamples);
 	//this->ReadDirectory(setPath, u8"PERFORM", &Set::LoadPerformances);
 	//this->LoadSongBook(setPath);
-	//this->ReadDirectory(setPath, u8"SOUND", &Set::LoadSounds);
+	this->ReadDirectory(setPath, u8"SOUND", &Set::LoadSounds);
 	this->ReadDirectory(setPath, u8"STYLE", &Set::LoadStyles);
 }
 
@@ -154,16 +154,6 @@ void Set::LoadSongBook(const Path& setPath)
 
 void Set::LoadSounds(const String &bankFileName, const DynamicArray<BankObjectEntry> &bankEntries)
 {
-	ASSERT(bankFileName.StartsWith(u8"USER"), u8"???");
-	ASSERT(bankFileName.EndsWith(u8".PCG"), u8"???");
-	String bankPart = bankFileName.SubString(4, 2);
-
-	uint32 bankNumber;
-	if(bankPart == u8"DK")
-		bankNumber = 11;
-	else
-		bankNumber = 9 + bankPart.ToUInt32() - 1;
-
 	SoundBank bank;
 	for(const BankObjectEntry& bankObjectEntry : bankEntries)
 	{
@@ -171,7 +161,7 @@ void Set::LoadSounds(const String &bankFileName, const DynamicArray<BankObjectEn
 		bank.AddObject(bankObjectEntry.name, bankObjectEntry.pos, &sound);
 	}
 
-	this->soundBanks[bankNumber] = Move(bank);
+	this->soundBanks[SoundBankNumber::FromBankFileName(bankFileName)] = Move(bank);
 }
 
 void Set::LoadStyles(const String &bankFileName, const DynamicArray<BankObjectEntry> &bankEntries)

@@ -17,9 +17,14 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-class Pa600QT : public libKORG::Model
+class Pa600 : public libKORG::Model
 {
 public:
+	StdXX::String GetCustomization() const override
+	{
+		return u8"STD";
+	}
+
 	StdXX::String GetMachId() const override
 	{
 		return u8"103A";
@@ -28,6 +33,20 @@ public:
 	libKORG::ChunkVersion GetMaximumPerformanceVersion() const override
 	{
 		return {1, 0};
+	}
+
+	StdXX::String GetName() const override
+	{
+		return u8"Pa600";
+	}
+};
+
+class Pa600QT : public Pa600
+{
+public:
+	StdXX::String GetCustomization() const override
+	{
+		return u8"QTK";
 	}
 
 	StdXX::String GetName() const override
