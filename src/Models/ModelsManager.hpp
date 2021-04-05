@@ -19,7 +19,7 @@
 //Local
 #include <libkorg/Model.hpp>
 
-class ModelsManager
+class ModelsManager : private StdXX::Releasable
 {
 public:
 	//Inline
@@ -47,9 +47,11 @@ private:
 	//Constructor
 	inline ModelsManager()
 	{
+		StdXX::ShutdownManager::Instance().Register(this);
 		this->RegisterModels();
 	}
 
 	//Methods
 	void RegisterModels();
+	void Release() override;
 };

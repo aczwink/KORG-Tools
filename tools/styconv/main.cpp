@@ -44,8 +44,10 @@ UniquePointer<SingleTouchSettings> MapSTS(const SingleTouchSettings& sts, const 
 
 void ConvertStyleBank(const BankSelection& source, const BankSelectionWithModel& target, const SoundMapper& soundMapper)
 {
+	stdOut << u8"Loading source set..." << endl;
 	Set sourceSet(source.setPath);
 
+	stdOut << u8"Loading target set..." << endl;
 	if(!FileSystem::File(target.setPath).Exists())
 		Set::Create(target.setPath);
 	Set targetSet(target.setPath);
@@ -82,19 +84,11 @@ static Map<ProgramChangeSequence, ProgramChangeSequence> LoadSoundMapping(const 
 	CommonFileFormats::CSVReader csvReader(textReader, CommonFileFormats::csvDialect_excel);
 	Map<ProgramChangeSequence, ProgramChangeSequence> map;
 
-	//skip column headers
-	String tmp;
-	for(uint8 i = 0; i < 6; i++)
-		csvReader.ReadCell(tmp);
+	csvReader.ReadRow(); //skip column headers
 
-	int i = 0;
+	String tmp;
 	while(!textReader.IsAtEnd())
 	{
-		i++;
-		if(i == 95)
-		{
-			i++;
-		}
 		csvReader.ReadCell(tmp);
 		csvReader.ReadCell(tmp);
 		auto parts = tmp.Split(u8".");

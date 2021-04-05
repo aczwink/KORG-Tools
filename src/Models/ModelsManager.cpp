@@ -34,6 +34,11 @@ void ModelsManager::RegisterModels()
 	this->models.Push(new Pa700OR());
 }
 
+void ModelsManager::Release()
+{
+	this->models.Release();
+}
+
 //Namespace functions
 const Model* libKORG::FindModel(const String& name)
 {
