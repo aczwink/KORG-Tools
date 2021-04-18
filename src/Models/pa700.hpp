@@ -20,6 +20,17 @@
 class Pa700 : public libKORG::Model
 {
 public:
+	BankSetup GetBankSetup() const override
+	{
+		return {
+			.factoryBankIds = {1, 12},
+			.userBankIds = {13, 24},
+			.favoriteBankIds = {},
+			.localBankIds = {},
+			.nStylesPerBank = 48,
+		};
+	}
+
 	StdXX::String GetCustomization() const override
 	{
 		return u8"STD";

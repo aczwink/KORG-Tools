@@ -25,7 +25,17 @@ namespace libKORG
 	class Model
 	{
 	public:
+		struct BankSetup
+		{
+			StdXX::Math::Range<uint8> factoryBankIds;
+			StdXX::Math::Range<uint8> userBankIds;
+			StdXX::Optional<StdXX::Math::Range<uint8>> favoriteBankIds;
+			StdXX::Optional<StdXX::Math::Range<uint8>> localBankIds;
+			uint8 nStylesPerBank;
+		};
+
 		//Abstract
+		virtual BankSetup GetBankSetup() const = 0;
 		virtual StdXX::String GetCustomization() const = 0;
 		virtual StdXX::String GetMachId() const = 0;
 		virtual ChunkVersion GetMaximumPerformanceVersion() const = 0;

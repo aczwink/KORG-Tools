@@ -267,6 +267,8 @@ void StyleReader::Read0x5010008Chunk(DataReader &dataReader)
 
 void StyleReader::ReadKORG_MIDIEvents(uint16 dataLength, DynamicArray<KORG_MIDI_Event>& midiEvents, DataReader &dataReader)
 {
+	midiEvents.EnsureCapacity(dataLength * 2 / 3); //Events are either 1 or 2 bytes, with the exception being 0x40 and end of track marker
+
 	bool foundEndOfMarker = false;
 	while(!foundEndOfMarker && dataLength)
 	{

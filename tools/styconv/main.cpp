@@ -24,6 +24,7 @@ struct BankSelection
 {
 	FileSystem::Path setPath;
 	uint8 bankNumber;
+	uint8 posOffset;
 };
 
 struct BankSelectionWithModel : BankSelection
@@ -56,10 +57,20 @@ void ConvertStyleBank(const BankSelection& source, const BankSelectionWithModel&
 		targetSet.StyleBanks().Insert(target.bankNumber, {});
 
 	const auto& entries = sourceSet.StyleBanks()[source.bankNumber].Objects();
+	auto& targetStyleBank = targetSet.StyleBanks()[target.bankNumber];
 	for(const auto& entry : entries)
 	{
 		const String& styleName = entry.value.Get<0>();
 		const FullStyle& fullStyle = *entry.value.Get<1>();
+
+		if(source.posOffset > entry.key)
+			continue;
+		uint8 targetPos = entry.key - source.posOffset;
+		if(target.model and (targetPos >= target.model->GetBankSetup().nStylesPerBank))
+		{
+			stdOut << u8"Skipping style '" << styleName << u8"' because bank can't hold that many styles" << endl;
+			continue;
+		}
 
 		UniquePointer<Style> mappedStyle = new Style(fullStyle.Style());
 		UniquePointer<SingleTouchSettings> mappedSTS = MapSTS(fullStyle.STS(), targetSet, target.model);
@@ -69,7 +80,7 @@ void ConvertStyleBank(const BankSelection& source, const BankSelectionWithModel&
 
 		SharedPointer<FullStyle> mappedFullStyle = new FullStyle(Move(mappedStyle), Move(mappedSTS));
 
-		targetSet.StyleBanks()[target.bankNumber].AddObject(styleName, entry.key, mappedFullStyle);
+		targetStyleBank.AddObject(styleName, targetPos, mappedFullStyle);
 	}
 	targetSet.Save();
 }
@@ -91,12 +102,16 @@ static Map<ProgramChangeSequence, ProgramChangeSequence> LoadSoundMapping(const 
 	{
 		csvReader.ReadCell(tmp);
 		csvReader.ReadCell(tmp);
+
+		csvReader.ReadCell(tmp);
 		auto parts = tmp.Split(u8".");
 		csvReader.ReadCell(tmp);
 
 		ProgramChangeSequence source(static_cast<SoundSetType>(tmp.ToUInt32()), parts[0].ToUInt32(), parts[1].ToUInt32(), parts[2].ToUInt32());
 
 		csvReader.ReadCell(tmp);
+		csvReader.ReadCell(tmp);
+
 		csvReader.ReadCell(tmp);
 		parts = tmp.Split(u8".");
 		csvReader.ReadCell(tmp);
@@ -130,6 +145,9 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 	CommandLine::OptionWithArgument targetModelOpt(u8'm', u8"target-model", u8"The model that the target set is for");
 	parser.AddOption(targetModelOpt);
 
+	CommandLine::OptionWithArgument offsetOpt(u8'o', u8"offset", u8"The first position number in the bank that should be converted. Lower numbers are skipped.");
+	parser.AddOption(offsetOpt);
+
 	CommandLine::OptionWithArgument soundMappingPathOpt(u8's', u8"sound-mapping", u8"A path to a sound mapping csv file that is used to remap sounds");
 	parser.AddOption(soundMappingPathOpt);
 
@@ -144,6 +162,7 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 	BankSelection source;
 	source.setPath = sourceSetPathArg.Value(result);
 	source.bankNumber = ParseStyleBankName(sourceBankArg.Value(result));
+	source.posOffset = result.IsActivated(offsetOpt) ? result.Value(offsetOpt).ToUInt32() : 0;
 
 	BankSelectionWithModel target;
 	target.setPath = targetSetPathArg.Value(result);

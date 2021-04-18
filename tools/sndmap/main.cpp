@@ -20,21 +20,33 @@
 using namespace libKORG;
 using namespace StdXX;
 
-static DynamicArray<Tuple<String, ProgramChangeSequence>> ReadXMLSoundMap(const FileSystem::Path& path)
+static DynamicArray<Tuple<String, String, ProgramChangeSequence>> ReadXMLSoundMap(const FileSystem::Path& path)
 {
 	FileInputStream fileInputStream(path);
 	BufferedInputStream bufferedInputStream(fileInputStream);
 	Serialization::XmlDeserializer deserializer(bufferedInputStream);
 
-	DynamicArray<Tuple<String, ProgramChangeSequence>> result;
+	DynamicArray<Tuple<String, String, ProgramChangeSequence>> result;
 
 	deserializer.EnterElement(u8"SoundMap");
 	while(deserializer.MoreChildrenExistsAtCurrentLevel())
 	{
 		deserializer.EnterElement(u8"SoundSet");
+
+		deserializer.EnterAttributes();
+		String setName;
+		deserializer >> Serialization::Binding(u8"name", setName);
+		deserializer.LeaveAttributes();
+
 		while(deserializer.MoreChildrenExistsAtCurrentLevel())
 		{
 			deserializer.EnterElement(u8"Bank");
+
+			deserializer.EnterAttributes();
+			String bankName;
+			deserializer >> Serialization::Binding(u8"name", bankName);
+			deserializer.LeaveAttributes();
+
 			while(deserializer.MoreChildrenExistsAtCurrentLevel())
 			{
 				deserializer.EnterElement(u8"SoundEntry");
@@ -54,7 +66,7 @@ static DynamicArray<Tuple<String, ProgramChangeSequence>> ReadXMLSoundMap(const 
 
 				deserializer.LeaveAttributes();
 
-				result.Push({ name, ProgramChangeSequence(static_cast<SoundSetType>(soundSetType), msb, lsb, pc) });
+				result.Push({ setName + u8"/" + bankName, name, ProgramChangeSequence(static_cast<SoundSetType>(soundSetType), msb, lsb, pc) });
 
 				deserializer.LeaveElement();
 			}
@@ -92,7 +104,7 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 
 	Set set(sourceSetPath);
 
-	DynamicArray<Tuple<String, ProgramChangeSequence>> soundMap = ReadXMLSoundMap(factorySoundMapPath);
+	DynamicArray<Tuple<String, String, ProgramChangeSequence>> soundMap = ReadXMLSoundMap(factorySoundMapPath);
 
 	for(const auto& bank : set.SoundBanks())
 	{
@@ -101,17 +113,20 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 
 		for(const auto& soundEntry : bank.value.Objects())
 		{
-			soundMap.Push({ soundEntry.value.Get<0>(), ProgramChangeSequence(msb, lsb, soundEntry.key) });
+			String bankName = u8"User";
+			bankName += bank.key.IsDrumKit() ? u8" DK" : u8"";
+			soundMap.Push({ bankName, soundEntry.value.Get<0>(), ProgramChangeSequence(msb, lsb, soundEntry.key) });
 		}
 	}
 
 	CommonFileFormats::CSVWriter csvWriter(stdOut, CommonFileFormats::csvDialect_excel);
-	csvWriter << u8"Sound name" << u8"Program change sequence" << u8"Sound set" << endl;
+	csvWriter << u8"Bank name" << u8"Sound name" << u8"Program change sequence" << u8"Sound set" << endl;
 	for(const auto& tuple : soundMap)
 	{
 		csvWriter << tuple.Get<0>()
-		        << tuple.Get<1>().ToString()
-		        << (uint32)tuple.Get<1>().SoundSetType()
+		        << tuple.Get<1>()
+		        << tuple.Get<2>().ToString()
+		        << (uint32)tuple.Get<2>().SoundSetType()
 		        << endl;
 	}
 
