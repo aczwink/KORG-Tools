@@ -28,17 +28,17 @@ namespace libKORG
 	{
 	public:
 		//Constructors
-		inline FullStyle(StdXX::UniquePointer<class Style>&& style, StdXX::UniquePointer<SingleTouchSettings>&& sts)
+		inline FullStyle(StdXX::UniquePointer<class StyleObject>&& style, StdXX::UniquePointer<SingleTouchSettings>&& sts)
 				: style(Move(style)), sts(Move(sts))
 		{
 		}
 
-		inline FullStyle(const FullStyle& other) : style(new class Style(*other.style)), sts(new SingleTouchSettings(*other.sts))
+		inline FullStyle(const FullStyle& other) : style(new class StyleObject(*other.style)), sts(new SingleTouchSettings(*other.sts))
 		{
 		}
 
 		//Properties
-		inline const class Style& Style() const
+		inline const class StyleObject& Style() const
 		{
 			return *this->style;
 		}
@@ -50,7 +50,7 @@ namespace libKORG
 
 	private:
 		//Members
-		StdXX::UniquePointer<class Style> style;
+		StdXX::UniquePointer<class StyleObject> style;
 		StdXX::UniquePointer<SingleTouchSettings> sts;
 	};
 }

@@ -1,7 +1,12 @@
 add_subdirectory(BankFormat)
+add_subdirectory(DataViews)
 add_subdirectory(Models)
 add_subdirectory(Package)
+add_subdirectory(PCMFormat)
+add_subdirectory(PerformanceFormat)
 add_subdirectory(Reading)
+add_subdirectory(SoundFormat)
+add_subdirectory(StyleFormat)
 add_subdirectory(Writer)
 
 set(SOURCE_FILES

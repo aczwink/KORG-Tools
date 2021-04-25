@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <libkorg/ChunkFormat.hpp>
+#include <libkorg/ChunkFormat/ChunkFormat.hpp>
 #include <libkorg/Performance.hpp>
 
 template<uint32 N>

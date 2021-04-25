@@ -22,7 +22,7 @@
 
 namespace libKORG
 {
-	class MultiSample : public BankObject
+	class MultiSample : public BankFormat::BankObject
 	{
 	public:
 		//Constructor

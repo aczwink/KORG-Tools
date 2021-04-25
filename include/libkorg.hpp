@@ -17,9 +17,15 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <libkorg/BankFormat/Reader.hpp>
+
 #include <libkorg/Converters/PerformanceV2ToV1Converter.hpp>
 #include <libkorg/Converters/SoundMapper.hpp>
 
+#include <libkorg/DataViews/RangedEventView.hpp>
+#include <libkorg/DataViews/StyleView.hpp>
+
+#include <libkorg/EncryptedSample.hpp>
 #include <libkorg/Model.hpp>
 #include <libkorg/Package.hpp>
 #include <libkorg/Sample.hpp>

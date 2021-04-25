@@ -17,41 +17,41 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <libkorg/Style.hpp>
-#include "ChunkReader.hpp"
+#include <libkorg/ChunkFormat/ChunkReader.hpp>
 
-class StyleReader : public ChunkReader
+class StyleFormat0_0V5_0Reader : public libKORG::ChunkReader
 {
 public:
 	//Constructor
-	StyleReader();
+	StyleFormat0_0V5_0Reader();
 
 	//Methods
-	libKORG::Style* TakeResult();
+	libKORG::StyleObject* TakeResult();
 
 protected:
 	//Methods
-	StdXX::String GetDebugDirName() const override;
-	void ReadDataChunk(const ChunkHeader& chunkHeader, StdXX::DataReader &dataReader) override;
-	void OnEnteringChunk(const ChunkHeader& chunkHeader) override;
-	void OnLeavingChunk(const ChunkHeader& chunkHeader) override;
+	void ReadDataChunk(const libKORG::ChunkHeader& chunkHeader, StdXX::DataReader &dataReader) override;
+	libKORG::ChunkReader& OnEnteringChunk(const libKORG::ChunkHeader& chunkHeader) override;
+	void OnLeavingChunk(const libKORG::ChunkHeader& chunkHeader) override;
 
 private:
 	//Members
 	uint32 parentChunkId;
-	libKORG::StyleData data;
+	libKORG::Style::StyleData data;
 	uint8 nextMIDITrackNumber;
 	uint8 currentStyleElementNumber;
 
 	//Methods
-	void Read0x1000008Chunk(StdXX::DataReader& dataReader);
+	void ReadChordTable(libKORG::Style::ChordTable& chordTable, StdXX::DataReader& dataReader);
+	void ReadMasterMIDITrack(StdXX::DataReader& dataReader);
+	void ReadMIDITrackMapping(StdXX::DataReader& dataReader);
 	void Read0x1000308Chunk(StdXX::DataReader& dataReader);
 	void Read0x2000008Chunk(StdXX::DataReader& dataReader);
-	void Read0x20000FDChunk(StdXX::DataReader& dataReader);
 	void Read0x3000008Chunk(StdXX::DataReader& dataReader);
 	void Read0x4000008Chunk(StdXX::DataReader& dataReader);
 	void Read0x5010008Chunk(StdXX::DataReader& dataReader);
-	void ReadKORG_MIDIEvents(uint16 dataLength, StdXX::DynamicArray<libKORG::KORG_MIDI_Event>& midiEvents, StdXX::DataReader& dataReader);
-	libKORG::StyleTrackData ReadStyleTrackData(StdXX::DataReader& dataReader);
+	void ReadKORG_MIDIEvents(uint16 dataLength, StdXX::DynamicArray<libKORG::Style::KORG_MIDI_Event>& midiEvents, StdXX::DataReader& dataReader);
+	libKORG::Style::StyleTrackData ReadStyleTrackData(StdXX::DataReader& dataReader);
 	void ReadStyleTrackDataChunk(StdXX::DataReader& dataReader);
 
 	//Inline
@@ -62,7 +62,7 @@ private:
 		return this->data.styleElements[this->currentStyleElementNumber - 4].cv[this->nextMIDITrackNumber];
 	}
 
-	inline libKORG::GeneralStyleElementData& GetCurrentStyleElementData()
+	inline libKORG::Style::GeneralStyleElementData& GetCurrentStyleElementData()
 	{
 		uint8 n = this->currentStyleElementNumber;
 		if(n < 4)
@@ -70,12 +70,12 @@ private:
 		return this->data.styleElements[n - 4];
 	}
 
-	inline libKORG::MIDI_Track& GetCurrentStyleElementTrack()
+	inline libKORG::Style::MasterMIDI_Track& GetCurrentStyleElementTrack()
 	{
-		return this->GetCurrentChordVariationData().midiTrack;
+		return this->GetCurrentChordVariationData().masterMidiTrack;
 	}
 
-	inline libKORG::MIDI_Track& GetNextMIDITrack()
+	inline libKORG::Style::MIDI_Track& GetNextMIDITrack()
 	{
 		this->data.midiTracks.Push({});
 		return this->data.midiTracks.Last();

@@ -19,7 +19,6 @@
 //Class header
 #include "Writer.hpp"
 //Local
-#include "Reader.hpp"
 #include "libkorg/Style.hpp"
 #include "../Writer/PerformanceWriter.hpp"
 #include "../Writer/StyleWriter.hpp"
@@ -68,7 +67,7 @@ void Writer::WriteCrossReferenceTable()
 
 void Writer::WriteHeader()
 {
-	this->BeginChunk(ChunkType::Container, 0, 1, ChunkHeaderFlags::Unknown);
+	this->BeginChunk(ChunkType::Container, 0, 1, ChunkHeaderFlags::Unknown4);
 
 	this->BeginChunk(ChunkType::KorgFile, 0, 0, ChunkHeaderFlags::Leaf);
 	this->dataWriter.WriteUInt32(0x0B000000);
@@ -93,7 +92,7 @@ void Writer::WriteSTS(const SingleTouchSettings &singleTouchSettings)
 	this->EndChunk();
 }
 
-void Writer::WriteStyle(const Style &style)
+void Writer::WriteStyle(const StyleObject &style)
 {
 	DynamicByteBuffer buffer;
 	UniquePointer<SeekableOutputStream> outputStream = buffer.CreateOutputStream();

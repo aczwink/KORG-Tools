@@ -18,14 +18,15 @@
  */
 //Class header
 #include "KeyboardSettingsReader.hpp"
-#include "TrackPropertiesReader.hpp"
+#include "../../Reading/TrackPropertiesReader.hpp"
 //Namespaces
+using namespace libKORG;
 using namespace StdXX;
 
 //Protected methods
-String KeyboardSettingsReader::GetDebugDirName() const
+ChunkReader &KeyboardSettingsReader::OnEnteringChunk(const ChunkHeader &chunkHeader)
 {
-	return u8"/home/amir/Desktop/korg/_OUT/PERFORMANCE_KEYBOARD/";
+	return *this;
 }
 
 void KeyboardSettingsReader::ReadDataChunk(const ChunkHeader &chunkHeader, DataReader &dataReader)

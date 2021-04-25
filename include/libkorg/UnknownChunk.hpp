@@ -18,7 +18,7 @@
  */
 #pragma once
 //Local
-#include "ChunkFormat.hpp"
+#include "libkorg/ChunkFormat/ChunkFormat.hpp"
 
 namespace libKORG
 {

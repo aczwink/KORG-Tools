@@ -29,16 +29,16 @@ public:
 	{
 	}
 
-	void Write(const libKORG::Style &style);
+	void Write(const libKORG::StyleObject &style);
 
 private:
 	//Methods
-	void Write0x1000008Chunk(const libKORG::StyleData& styleData);
-	void Write0x1000308Chunk(const libKORG::StyleData& styleData);
-	void Write0x2000308Chunk(const libKORG::GeneralStyleElementData& styleElementData);
-	void WriteChordVariationData(const libKORG::ChordVariationData& cv);
-	void WriteMIDIEvent(const libKORG::KORG_MIDI_Event& event);
-	void WriteMIDITrack(const libKORG::MIDI_Track& midiTrack);
-	void WriteStyleElement(const libKORG::VariationStyleElementData& styleElementData);
-	void WriteStyleElement(const libKORG::StyleElementData& styleElementData);
+	void WriteMIDITrackMapping(const libKORG::Style::StyleData& styleData);
+	void Write0x1000308Chunk(const libKORG::Style::StyleData& styleData);
+	void Write0x2000308Chunk(const libKORG::Style::GeneralStyleElementData& styleElementData);
+	void WriteChordVariationData(const libKORG::Style::ChordVariationData& cv);
+	void WriteMIDIEvent(const libKORG::Style::KORG_MIDI_Event& event);
+	void WriteMIDITrack(const libKORG::Style::MIDI_Track& midiTrack);
+	void WriteStyleElement(const libKORG::Style::VariationStyleElementData& styleElementData);
+	void WriteStyleElement(const libKORG::Style::StyleElementData& styleElementData);
 };

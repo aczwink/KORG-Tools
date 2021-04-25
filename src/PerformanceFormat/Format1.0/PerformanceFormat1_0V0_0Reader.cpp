@@ -17,10 +17,10 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 //Class header
-#include "PerformanceReader.hpp"
+#include "PerformanceFormat1_0V0_0Reader.hpp"
 //Local
 #include <libkorg/ProgramChangeSequence.hpp>
-#include "PerformanceDataFormat.hpp"
+#include "../../Reading/PerformanceDataFormat.hpp"
 #include "AccompanimentSettingsReader.hpp"
 #include "KeyboardSettingsReader.hpp"
 //Namespaces
@@ -28,14 +28,14 @@ using namespace libKORG;
 using namespace StdXX;
 
 //Public methods
-libKORG::Performance *PerformanceReader::TakePerformanceResult()
+libKORG::Performance *PerformanceFormat1_0V0_0Reader::TakePerformanceResult()
 {
 	ASSERT_EQUALS(1, this->perfIndex);
 
 	return new Performance(Move(this->unknownChunksAtBeginning), Move(this->accompanimentSettings), Move(this->keyboardSettings[0]));
 }
 
-libKORG::SingleTouchSettings *PerformanceReader::TakeSTSResult()
+libKORG::SingleTouchSettings *PerformanceFormat1_0V0_0Reader::TakeSTSResult()
 {
 	ASSERT_EQUALS(4, this->perfIndex);
 
@@ -43,44 +43,37 @@ libKORG::SingleTouchSettings *PerformanceReader::TakeSTSResult()
 }
 
 //Protected methods
-String PerformanceReader::GetDebugDirName() const
-{
-	return u8"/home/amir/Desktop/korg/_OUT/PERFORMANCE/";
-}
-
-bool PerformanceReader::IsDataChunk(const ChunkHeader &chunkHeader)
+ChunkReader &PerformanceFormat1_0V0_0Reader::OnEnteringChunk(const ChunkHeader &chunkHeader)
 {
 	switch(chunkHeader.type)
 	{
 		case 2:
+			return this->accompanimentSettingsReader;
 		case 10:
-			return true;
+			this->keyboardSettingsReader = new KeyboardSettingsReader(keyboardSettings, perfIndex);
+			return *this->keyboardSettingsReader;
 	}
-	return ChunkReader::IsDataChunk(chunkHeader);
+	return *this;
 }
 
-void PerformanceReader::ReadDataChunk(const ChunkHeader& chunkHeader, DataReader &dataReader)
+void PerformanceFormat1_0V0_0Reader::OnLeavingChunk(const ChunkHeader &chunkHeader)
+{
+	if(chunkHeader.type == 10)
+	{
+		this->perfIndex++;
+	}
+
+	ChunkReader::OnLeavingChunk(chunkHeader);
+}
+
+void PerformanceFormat1_0V0_0Reader::ReadDataChunk(const ChunkHeader& chunkHeader, DataReader &dataReader)
 {
 	switch(chunkHeader.type)
 	{
-		case 2:
-		{
-			AccompanimentSettingsReader reader(this->accompanimentSettings, this->max9version);
-			reader.ReadData(dataReader.InputStream());
-		}
-		break;
 		case 4:
 		case 32:
 			this->unknownChunksAtBeginning.Push(UnknownChunk(chunkHeader, dataReader.InputStream()));
 			break;
-		case 10:
-		{
-			KeyboardSettingsReader reader(this->keyboardSettings, this->perfIndex);
-			reader.ReadData(dataReader.InputStream());
-
-			this->perfIndex++;
-		}
-		break;
 		case 26:
 		case 27:
 		case 33:

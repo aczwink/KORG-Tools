@@ -22,6 +22,9 @@
 //Public methods
 void PerformanceOutputter::Output(const Performance &performance)
 {
+	for(const auto& unknownChunk : performance.unknownChunksAtBeginning)
+		this->formattedOutputter.OutputUnknownChunk(unknownChunk);
+
 	this->Output(performance.accompanimentSettings);
 	this->Output(performance.keyboardSettings);
 }
@@ -29,6 +32,9 @@ void PerformanceOutputter::Output(const Performance &performance)
 void PerformanceOutputter::Output(const SingleTouchSettings &sts)
 {
 	Section section(u8"Single Touch Settings", this->formattedOutputter);
+
+	for(const auto& unknownChunk : sts.unknownChunksAtBeginning)
+		this->formattedOutputter.OutputUnknownChunk(unknownChunk);
 
 	this->Output(sts.accompanimentSettings);
 
@@ -40,14 +46,20 @@ void PerformanceOutputter::Output(const SingleTouchSettings &sts)
 
 		this->Output(stsi);
 	}
+
+	for(const auto& unknownChunk : sts.unknownChunksAtEnd)
+		this->formattedOutputter.OutputUnknownChunk(unknownChunk);
 }
 
 //Private methods
 void PerformanceOutputter::Output(const AccompanimentSettings &accompanimentSettings)
 {
+	for(const auto& chunk : accompanimentSettings.unknownChunksBefore9)
+		this->formattedOutputter.OutputUnknownChunk(chunk);
+
 	this->Output(accompanimentSettings.trackProperties);
 
-	for(const auto& chunk : accompanimentSettings.unknownChunksBefore9)
+	for(const auto& chunk : accompanimentSettings.unknownChunksAfter9)
 		this->formattedOutputter.OutputUnknownChunk(chunk);
 }
 
@@ -79,15 +91,20 @@ void PerformanceOutputter::Output(const KeyboardSettings &keyboardSettings)
 		this->formattedOutputter.OutputUnknownChunk(chunk);
 
 	this->Output(keyboardSettings.trackProperties);
+
+	for(const auto& chunk : keyboardSettings.unknownChunksAfterTracks)
+		this->formattedOutputter.OutputUnknownChunk(chunk);
 }
 
 void PerformanceOutputter::Output(const TrackProperties &trackProperties)
 {
+	this->formattedOutputter.OutputUnknownProperties(trackProperties.unknown1);
 	this->formattedOutputter.OutputProperty(u8"Sound program change sequence", trackProperties.soundProgramChangeSeq.ToString());
 	this->formattedOutputter.OutputProperty(u8"volume", trackProperties.volume);
 	this->formattedOutputter.OutputProperty(u8"pan", trackProperties.pan);
 	this->formattedOutputter.OutputProperty(u8"detune", trackProperties.detune);
 	this->formattedOutputter.OutputProperty(u8"octaveTranspose", trackProperties.octaveTranspose);
+	this->formattedOutputter.OutputUnknownProperties(trackProperties.unknown2);
 	this->formattedOutputter.OutputProperty(u8"fxMaster1", trackProperties.fxMaster1);
 	this->formattedOutputter.OutputProperty(u8"fxMaster2", trackProperties.fxMaster2);
 	this->formattedOutputter.OutputProperty(u8"dry", trackProperties.dry);
@@ -99,4 +116,5 @@ void PerformanceOutputter::Output(const TrackProperties &trackProperties)
 	this->formattedOutputter.OutputProperty(u8"lowGainTimes2", trackProperties.lowGainTimes2);
 	this->formattedOutputter.OutputProperty(u8"midGainTimes2", trackProperties.midGainTimes2);
 	this->formattedOutputter.OutputProperty(u8"highGainTimes2", trackProperties.highGainTimes2);
+	this->formattedOutputter.OutputUnknownProperties(trackProperties.unknown3);
 }

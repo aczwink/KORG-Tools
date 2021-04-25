@@ -34,19 +34,19 @@ namespace libKORG
 			this->MapSound(trackProperties.soundProgramChangeSeq);
 		}
 
-		void Map(Style& style) const
+		void Map(StyleObject& style) const
 		{
-			for(VariationStyleElementData& variationStyleElementData : style.data.variation)
+			for(Style::VariationStyleElementData& variationStyleElementData : style.data.variation)
 			{
-				for(StyleTrackData& styleTrackData : variationStyleElementData.styleTrackData)
+				for(Style::StyleTrackData& styleTrackData : variationStyleElementData.styleTrackData)
 				{
 					this->Map(styleTrackData);
 				}
 			}
 
-			for(StyleElementData& styleElementData : style.data.styleElements)
+			for(Style::StyleElementData& styleElementData : style.data.styleElements)
 			{
-				for(StyleTrackData& styleTrackData : styleElementData.styleTrackData)
+				for(Style::StyleTrackData& styleTrackData : styleElementData.styleTrackData)
 				{
 					this->Map(styleTrackData);
 				}
@@ -74,9 +74,9 @@ namespace libKORG
 		StdXX::Map<ProgramChangeSequence, ProgramChangeSequence> soundMappings;
 
 		//Methods
-		void Map(StyleTrackData& styleTrackData) const
+		void Map(Style::StyleTrackData& styleTrackData) const
 		{
-			this->MapSound(*styleTrackData.soundProgramChangeSeq);
+			this->MapSound(styleTrackData.soundProgramChangeSeq);
 		}
 
 		void MapSound(ProgramChangeSequence& programChangeSequence) const

@@ -18,7 +18,7 @@
  */
 #pragma once
 //Local
-#include <libkorg/ChunkFormat.hpp>
+#include <libkorg/ChunkFormat/ChunkFormat.hpp>
 //Namespaces
 using namespace StdXX;
 

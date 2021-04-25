@@ -110,16 +110,6 @@ namespace libKORG
 			return StdXX::String::Number(this->bankSelectMSB) + u8"." + this->ZeroFill(this->bankSelectLSB) + u8"." + this->ZeroFill(this->programChange);
 		}
 
-		//Functions
-		static ProgramChangeSequence Read(StdXX::DataReader& dataReader)
-		{
-			uint8 msb = dataReader.ReadByte();
-			uint8 lsb = dataReader.ReadByte();
-			uint8 programChange = dataReader.ReadByte();
-
-			return ProgramChangeSequence(msb, lsb, programChange);
-		}
-
 	private:
 		//Members
 		enum SoundSetType soundSetType;

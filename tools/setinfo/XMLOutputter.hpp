@@ -61,6 +61,8 @@ private:
 		return changed.Replace(u8" ", u8"")
 			.Replace(u8"#", u8"")
 			.Replace(u8"[", u8"")
-			.Replace(u8"]", u8"");
+			.Replace(u8"]", u8"")
+			.Replace(u8"/", u8"")
+			.Replace(u8"?", u8"_unknown_");
 	}
 };

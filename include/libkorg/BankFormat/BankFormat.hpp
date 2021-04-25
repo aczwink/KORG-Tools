@@ -17,9 +17,10 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <libkorg/ChunkFormat.hpp>
+//Local
+#include <libkorg/ChunkFormat/ChunkFormat.hpp>
 
-namespace BankFormat
+namespace libKORG::BankFormat
 {
 	enum class ChunkType
 	{
@@ -27,25 +28,11 @@ namespace BankFormat
 		KorgFile = 2,
 		ObjectTOC = 5,
 		StyleObject = 6,
+		OldSoundDataMaybe = 7,
 		PerformancesData = 9,
 		SoundData = 16,
+		PCMData = 18,
 		CrossReferenceTable = 0xFE,
-	};
-	enum class ChunkId : uint32
-	{
-		OldSoundDataMaybe = 0x70003,
-		SongBookListData = 0x080000,
-		SongBookListData1 = 0x080001,
-		PerformanceData02 = 0x090002,
-		PerformanceData03 = 0x090003,
-		PerformanceData10 = 0x090100,
-		PerformanceData20 = 0x090200,
-		PerformanceData21 = 0x090201,
-		PadData = 0x0C0000,
-		SoundData00 = 0x100000,
-		SoundData0 = 0x100100,
-		MultiSampleData = 0x110300,
-		PCMData = 0x120000,
 	};
 
 	enum class ObjectType
@@ -61,6 +48,22 @@ namespace BankFormat
 		SongBook = 12,
 	};
 
+	/*
+	 * enum class ChunkId : uint32
+{
+	SongBookListData = 0x080000,
+	SongBookListData1 = 0x080001,
+	PerformanceData02 = 0x090002,
+	PerformanceData03 = 0x090003,
+	PerformanceData20 = 0x090200,
+	PerformanceData21 = 0x090201,
+	PadData = 0x0C0000,
+	SoundData00 = 0x100000,
+	SoundData0 = 0x100100,
+	MultiSampleData = 0x110300,
+};
+	 */
+
 	struct HeaderEntry
 	{
 		StdXX::String name;
@@ -69,6 +72,6 @@ namespace BankFormat
 		uint8 pos;
 	};
 
-	const uint32 OBJECTTOC_LINESIZE = 24;
 	const uint32 HEADERENTRY_NAME_SIZE = 18;
+	const uint32 OBJECTTOC_LINESIZE = 24;
 }

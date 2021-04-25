@@ -20,9 +20,10 @@
 #include "StyleWriter.hpp"
 //Namespaces
 using namespace libKORG;
+using namespace libKORG::Style;
 
 //Public methods
-void StyleWriter::Write(const Style &style)
+void StyleWriter::Write(const StyleObject &style)
 {
 	const StyleData &styleData = style.data;
 
@@ -31,7 +32,7 @@ void StyleWriter::Write(const Style &style)
 	this->Write0x1000308Chunk(styleData);
 
 	this->BeginChunk(2, 0, 0, 0);
-	this->Write0x1000008Chunk(styleData);
+	this->WriteMIDITrackMapping(styleData);
 	for(const MIDI_Track& midiTrack : styleData.midiTracks)
 		this->WriteMIDITrack(midiTrack);
 	this->EndChunk();
@@ -45,21 +46,21 @@ void StyleWriter::Write(const Style &style)
 }
 
 //Private methods
-void StyleWriter::Write0x1000008Chunk(const StyleData &styleData)
+void StyleWriter::WriteMIDITrackMapping(const StyleData &styleData)
 {
-	auto& chunk = styleData._0x1000008_chunk;
+	auto& data = styleData.oneBasedMIDITrackMappingIndices;
 
 	this->BeginChunk(1, 0, 0, ChunkHeaderFlags::Leaf);
 
-	this->dataWriter.WriteUInt16(chunk.highest);
-	this->dataWriter.WriteUInt16(chunk.values.GetNumberOfElements());
-	for(uint16 value : chunk.values)
+	this->dataWriter.WriteUInt16(styleData.midiTracks.GetNumberOfElements());
+	this->dataWriter.WriteUInt16(data.GetNumberOfElements());
+	for(uint16 value : data)
 		this->dataWriter.WriteUInt16(value);
 
 	this->EndChunk();
 }
 
-void StyleWriter::Write0x1000308Chunk(const libKORG::StyleData& styleData)
+void StyleWriter::Write0x1000308Chunk(const StyleData& styleData)
 {
 	auto& data = styleData._0x1000308_chunk;
 	TextWriter textWriter(this->outputStream, TextCodecType::ASCII);
@@ -72,8 +73,7 @@ void StyleWriter::Write0x1000308Chunk(const libKORG::StyleData& styleData)
 	this->dataWriter.WriteByte(data.unknown1);
 	this->dataWriter.WriteByte(data.unknown2);
 	this->dataWriter.WriteByte(data.unknown3);
-	this->dataWriter.WriteByte(data.unknown4);
-	this->dataWriter.WriteByte(data.unknown5);
+	this->dataWriter.WriteUInt16(data.enabledStyleElements);
 	this->dataWriter.WriteByte(data.unknown6);
 	this->dataWriter.WriteByte(data.unknown7);
 	this->dataWriter.WriteByte(data.unknown8);
@@ -111,7 +111,7 @@ void StyleWriter::Write0x2000308Chunk(const GeneralStyleElementData &styleElemen
 	for(const StyleTrackData& styleTrackData : styleElementData.styleTrackData)
 	{
 		this->dataWriter.WriteByte(styleTrackData.expression);
-		styleTrackData.soundProgramChangeSeq->Write(this->dataWriter);
+		styleTrackData.soundProgramChangeSeq.Write(this->dataWriter);
 		this->dataWriter.WriteByte(styleTrackData.keyboardRangeBottom.Encode());
 		this->dataWriter.WriteByte(styleTrackData.keyboardRangeTop.Encode());
 	}
@@ -125,19 +125,22 @@ void StyleWriter::WriteChordVariationData(const ChordVariationData &cv)
 	this->BeginChunk(3, 0, 0, ChunkHeaderFlags::Leaf);
 
 	this->dataWriter.WriteUInt16(0);
-	this->dataWriter.WriteByte(cv.midiTrack._0x3000008_data.unknown1);
-	this->dataWriter.WriteByte(cv.midiTrack._0x3000008_data.unknown2);
-	this->dataWriter.WriteByte(cv.midiTrack._0x3000008_data.unknown3);
+	this->dataWriter.WriteByte(cv.masterMidiTrack.unknown1);
+	this->dataWriter.WriteByte(cv.masterMidiTrack.unknown2);
+	this->dataWriter.WriteByte(cv.masterMidiTrack.unknown3);
 	this->dataWriter.WriteByte(0);
 
 	this->BeginSizeBracket16();
-	for(const auto& event : cv.midiTrack.events)
+	for(const auto& event : cv.masterMidiTrack.events)
 		this->WriteMIDIEvent(event);
 	this->EndSizeBracket16();
 
-	this->dataWriter.WriteByte(cv.unknown.GetNumberOfElements());
-	for(uint16 v : cv.unknown)
-		this->dataWriter.WriteUInt16(v);
+	this->dataWriter.WriteByte(cv.trackMapping.GetNumberOfElements());
+	for(const auto& mapping : cv.trackMapping)
+	{
+		this->dataWriter.WriteByte(static_cast<byte>(mapping.type));
+		this->dataWriter.WriteByte(static_cast<byte>(mapping.trackNumber));
+	}
 
 	this->EndChunk();
 }
@@ -195,8 +198,18 @@ void StyleWriter::WriteMIDIEvent(const KORG_MIDI_Event &event)
 			this->dataWriter.WriteBytes(&event.additional9Bytes[0], event.value1);
 			break;
 		case KORG_MIDI_EventType::DeltaTime:
-			this->dataWriter.WriteByte(event.value1 | 0x80);
-			break;
+		{
+			uint16 v = event.value1;
+			DynamicArray<uint8> bytes;
+			while(v)
+			{
+				bytes.Push((v & 0x7F) | (v >= 0x7F ? 0x80 : 0));
+				v >>= 7;
+			}
+			while(!bytes.IsEmpty())
+				this->dataWriter.WriteByte(bytes.Pop());
+		}
+		break;
 		default:
 			NOT_IMPLEMENTED_ERROR;
 	}
@@ -269,7 +282,7 @@ void StyleWriter::WriteStyleElement(const VariationStyleElementData &styleElemen
 {
 	this->BeginChunk(3, 0, 0, 0);
 
-	this->WriteUnknownChunk(styleElementData.unknownChordTable);
+	NOT_IMPLEMENTED_ERROR; //TODO: chord table
 	this->Write0x2000308Chunk(styleElementData);
 	for(const ChordVariationData& cv : styleElementData.cv)
 		this->WriteChordVariationData(cv);
@@ -281,7 +294,7 @@ void StyleWriter::WriteStyleElement(const StyleElementData &styleElementData)
 {
 	this->BeginChunk(3, 0, 0, 0);
 
-	this->WriteUnknownChunk(styleElementData.unknownChordTable);
+	NOT_IMPLEMENTED_ERROR; //TODO: chord table
 	this->Write0x2000308Chunk(styleElementData);
 	for(const ChordVariationData& cv : styleElementData.cv)
 		this->WriteChordVariationData(cv);

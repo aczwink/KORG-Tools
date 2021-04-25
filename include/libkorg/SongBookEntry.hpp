@@ -69,7 +69,7 @@ namespace libKORG
 		On = 2
 	};
 
-	class SongBookEntry : public BankObject
+	class SongBookEntry : public BankFormat::BankObject
 	{
 	public:
 		//Constructor

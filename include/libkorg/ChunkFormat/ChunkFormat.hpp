@@ -57,11 +57,11 @@ namespace libKORG
 	};
 
 	enum class ChunkHeaderFlags
-			{
+	{
 		/**
 		 * Only set for the very first chunk of a bank format file
 		 */
-		Unknown = 0x4,
+		Unknown4 = 0x4,
 		/**
 		 * A leaf has only data and no children.
 		 * A non-leaf has only children and no data itself

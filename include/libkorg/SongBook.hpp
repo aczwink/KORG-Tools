@@ -21,7 +21,7 @@
 
 namespace libKORG
 {
-	class SongBook : public BankObject
+	class SongBook : public BankFormat::BankObject
 	{
 	public:
 		//Constructor

@@ -18,15 +18,14 @@
  */
 #pragma once
 #include <StdXX.hpp>
+#include <libkorg/ChunkFormat/ChunkReader.hpp>
 #include "BankObject.hpp"
-#include "../../src/Reading/ChunkReader.hpp"
 
 namespace libKORG
 {
 	class Pad : public AbstractSample, public ChunkReader
 	{
 	protected:
-		StdXX::String GetDebugDirName() const override;
 		void ReadDataChunk(const ChunkHeader& chunkHeader, StdXX::DataReader &dataReader) override;
 	};
 }

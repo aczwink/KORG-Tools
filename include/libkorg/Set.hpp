@@ -38,7 +38,7 @@ namespace libKORG
 	{
 		StdXX::String name;
 		uint8 pos;
-		BankObject* object;
+		BankFormat::BankObject* object;
 	};
 
 	class Set

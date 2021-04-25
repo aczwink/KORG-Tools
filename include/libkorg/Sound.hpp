@@ -22,7 +22,7 @@
 
 namespace libKORG
 {
-	class Sound : public BankObject
+	class Sound : public BankFormat::BankObject
 	{
 	public:
 		//Constructor

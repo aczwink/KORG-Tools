@@ -1,9 +1,12 @@
+add_subdirectory(BankFormat)
+add_subdirectory(ChunkFormat)
 add_subdirectory(Converters)
+add_subdirectory(DataViews)
+add_subdirectory(Style)
 
 set(SOURCE_FILES
 	${SOURCE_FILES}
 
-	${CMAKE_CURRENT_SOURCE_DIR}/ChunkFormat.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/BankObject.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/EncryptedSample.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/FullStyle.hpp
@@ -14,6 +17,7 @@ set(SOURCE_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/Package.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Pad.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Performance.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Pitch.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ProgramChangeSequence.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Sample.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Set.hpp
@@ -24,5 +28,6 @@ set(SOURCE_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/SoundBankNumber.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Style.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Text.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Numbers.hpp
 
 	PARENT_SCOPE)

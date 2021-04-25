@@ -17,27 +17,16 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 //Local
-#include <libkorg.hpp>
-#include "ChunkReader.hpp"
+#include <libkorg/Pitch.hpp>
+#include <libkorg/ProgramChangeSequence.hpp>
 
-class AccompanimentSettingsReader : public ChunkReader
+namespace libKORG::Style
 {
-public:
-	//Constructor
-	inline AccompanimentSettingsReader(libKORG::AccompanimentSettings& accompanimentSettings, ChunkVersion& max9version)
-		: accompanimentSettings(accompanimentSettings), max9version(max9version)
+	struct StyleTrackData
 	{
-	}
-
-protected:
-	//Methods
-	StdXX::String GetDebugDirName() const override;
-	void ReadDataChunk(const ChunkHeader &chunkHeader, StdXX::DataReader &dataReader) override;
-
-	bool IsDataChunk(const ChunkHeader &chunkHeader) override;
-
-private:
-	//Members
-	libKORG::AccompanimentSettings& accompanimentSettings;
-	ChunkVersion& max9version;
-};
+		uint8 expression;
+		ProgramChangeSequence soundProgramChangeSeq;
+		Pitch keyboardRangeBottom;
+		Pitch keyboardRangeTop;
+	};
+}

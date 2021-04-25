@@ -16,11 +16,12 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
+#pragma once
 //Local
 #include <libkorg/Performance.hpp>
-#include "ChunkReader.hpp"
+#include <libkorg/ChunkFormat/ChunkReader.hpp>
 
-class KeyboardSettingsReader : public ChunkReader
+class KeyboardSettingsReader : public libKORG::ChunkReader
 {
 public:
 	//Constructor
@@ -31,8 +32,8 @@ public:
 
 protected:
 	//Methods
-	StdXX::String GetDebugDirName() const override;
-	void ReadDataChunk(const ChunkHeader &chunkHeader, StdXX::DataReader &dataReader) override;
+	ChunkReader &OnEnteringChunk(const libKORG::ChunkHeader &chunkHeader) override;
+	void ReadDataChunk(const libKORG::ChunkHeader &chunkHeader, StdXX::DataReader &dataReader) override;
 
 private:
 	//Members

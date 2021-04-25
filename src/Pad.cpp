@@ -23,11 +23,6 @@ using namespace libKORG;
 using namespace StdXX;
 
 //Protected methods
-String Pad::GetDebugDirName() const
-{
-	return u8"/home/amir/Desktop/korg/_OUT/PAD/";
-}
-
 void Pad::ReadDataChunk(const ChunkHeader& chunkHeader, DataReader &dataReader)
 {
 	NOT_IMPLEMENTED_ERROR;

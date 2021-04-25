@@ -22,7 +22,7 @@
 
 namespace libKORG
 {
-	class SingleTouchSettings : public BankObject
+	class SingleTouchSettings : public BankFormat::BankObject
 	{
 	public:
 		//Members

@@ -60,7 +60,7 @@ public:
 		this->OutputProperty(name, PitchToString(value));
 	}
 
-	inline void OutputUnknownChunk(const UnknownChunk& chunk)
+	inline void OutputUnknownChunk(const libKORG::UnknownChunk& chunk)
 	{
 		this->BeginSection(u8"unknown chunk " + String::HexNumber(chunk.Header().id));
 		this->OutputProperty(u8"size", uint16(chunk.Header().size));

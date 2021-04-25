@@ -17,12 +17,11 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 //Local
-#include <libkorg/ChunkFormat.hpp>
-#include "BankFormat.hpp"
+#include <libkorg/ChunkFormat/ChunkFormat.hpp>
+#include <libkorg/BankFormat/BankFormat.hpp>
 using namespace libKORG;
 
-namespace BankFormat
-{
+
 	class TOCReader
 	{
 	public:
@@ -33,17 +32,17 @@ namespace BankFormat
 		}
 
 		//Methods
-		StdXX::DynamicArray<HeaderEntry> Read();
+		StdXX::DynamicArray<libKORG::BankFormat::HeaderEntry> Read();
 
 	private:
 		//Members
 		const ChunkHeader& chunkHeader;
 		StdXX::InputStream& inputStream;
-		StdXX::DynamicArray<BankFormat::HeaderEntry> entries;
+		StdXX::DynamicArray<libKORG::BankFormat::HeaderEntry> entries;
 
 		//Methods
-		ObjectType ReadObjectType(StdXX::DataReader& dataReader);
-		void ReadProperty(uint16 propertyType, uint16 propertySize, HeaderEntry& headerEntry, StdXX::DataReader& dataReader, StdXX::TextReader& textReader);
+		libKORG::BankFormat::ObjectType ReadObjectType(StdXX::DataReader& dataReader);
+		void ReadProperty(uint16 propertyType, uint16 propertySize, libKORG::BankFormat::HeaderEntry& headerEntry, StdXX::DataReader& dataReader, StdXX::TextReader& textReader);
 		void ReadVersion0(StdXX::DataReader& dataReader, StdXX::TextReader& textReader);
 		void ReadVersion1(uint8 versionMinor);
 
@@ -53,4 +52,3 @@ namespace BankFormat
 			return StdXX::DataReader(true, inputStream);
 		}
 	};
-}

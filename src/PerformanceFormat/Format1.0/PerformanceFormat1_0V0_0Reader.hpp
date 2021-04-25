@@ -19,12 +19,14 @@
 //Local
 #include <libkorg/SingleTouchSettings.hpp>
 #include <libkorg/UnknownChunk.hpp>
-#include "ChunkReader.hpp"
+#include <libkorg/ChunkFormat/ChunkReader.hpp>
+#include "AccompanimentSettingsReader.hpp"
+#include "KeyboardSettingsReader.hpp"
 
-class PerformanceReader : public ChunkReader
+class PerformanceFormat1_0V0_0Reader : public libKORG::ChunkReader
 {
 public:
-	inline PerformanceReader()
+	inline PerformanceFormat1_0V0_0Reader() : accompanimentSettingsReader(accompanimentSettings, max9version)
 	{
 		this->perfIndex = 0;
 		this->max9version.minor = 0;
@@ -37,16 +39,20 @@ public:
 
 protected:
 	//Methods
-	StdXX::String GetDebugDirName() const override;
-	bool IsDataChunk(const ChunkHeader &chunkHeader) override;
-	void ReadDataChunk(const ChunkHeader& chunkHeader, StdXX::DataReader &dataReader) override;
+	ChunkReader &OnEnteringChunk(const libKORG::ChunkHeader &chunkHeader) override;
+	void OnLeavingChunk(const libKORG::ChunkHeader &chunkHeader) override;
+	void ReadDataChunk(const libKORG::ChunkHeader& chunkHeader, StdXX::DataReader &dataReader) override;
 
 private:
 	//Members
 	uint8 perfIndex;
-	ChunkVersion max9version;
+	libKORG::ChunkVersion max9version;
 	StdXX::DynamicArray<libKORG::UnknownChunk> unknownChunksAtBeginning;
 	libKORG::AccompanimentSettings accompanimentSettings;
 	StdXX::StaticArray<libKORG::KeyboardSettings, 4> keyboardSettings;
 	StdXX::DynamicArray<libKORG::UnknownChunk> unknownChunksAtEnd;
+
+	//Subreaders
+	AccompanimentSettingsReader accompanimentSettingsReader;
+	StdXX::UniquePointer<KeyboardSettingsReader> keyboardSettingsReader;
 };

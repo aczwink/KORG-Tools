@@ -17,14 +17,31 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <StdXX.hpp>
+#include "ChunkFormat/ChunkReader.hpp"
 
-class BankObject
+namespace libKORG::BankFormat
 {
-public:
-	virtual ~BankObject() = default;
-};
 
-class AbstractSample : public BankObject
+	class BankObject
+	{
+	public:
+		virtual ~BankObject() = default;
+	};
+
+	class BankObjectReader : public ChunkReader
+	{
+	public:
+		//Destructor
+		virtual ~BankObjectReader() = default;
+
+		//Abstract
+		virtual BankObject* TakeResult() = 0;
+	};
+}
+
+namespace libKORG
 {
-};
+	class AbstractSample : public BankFormat::BankObject
+	{
+	};
+}

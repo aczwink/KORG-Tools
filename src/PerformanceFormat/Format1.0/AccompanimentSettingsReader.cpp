@@ -19,14 +19,15 @@
 //Class header
 #include "AccompanimentSettingsReader.hpp"
 //Local
-#include "TrackPropertiesReader.hpp"
+#include "../../Reading/TrackPropertiesReader.hpp"
 //Namespaces
+using namespace libKORG;
 using namespace StdXX;
 
 //Protected methods
-String AccompanimentSettingsReader::GetDebugDirName() const
+ChunkReader &AccompanimentSettingsReader::OnEnteringChunk(const ChunkHeader &chunkHeader)
 {
-	return u8"/home/amir/Desktop/korg/_OUT/PERFORMANCE_ACCOMPANY/";
+	return *this;
 }
 
 void AccompanimentSettingsReader::ReadDataChunk(const ChunkHeader &chunkHeader, StdXX::DataReader &dataReader)

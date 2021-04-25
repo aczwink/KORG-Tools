@@ -18,6 +18,7 @@
  */
 #include <libkorg.hpp>
 using namespace libKORG;
+using namespace libKORG::Style;
 #include "FormattedOutputter.hpp"
 
 class StyleOutputter
@@ -36,12 +37,16 @@ private:
 	FormattedOutputter& formattedOutputter;
 
 	//Methods
-	void Output(const Style& style);
+	void Output(const ChordTable& chordTable);
+	void Output(const StyleObject& style);
 	void Output(const StyleData& styleData);
+	void Output(const MasterMIDI_Track& midiTrack);
 	void Output(const MIDI_Track& midiTrack);
 	void Output(uint32 index, const KORG_MIDI_Event& event);
 	void Output(const VariationStyleElementData& data);
 	void Output(const StyleElementData& data);
 	void Output(const ChordVariationData& data);
 	void OutputGeneralStyleElementData(const GeneralStyleElementData& data);
+
+	String ToString(StyleElementNumber styleElementNumber) const;
 };

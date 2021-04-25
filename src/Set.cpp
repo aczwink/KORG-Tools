@@ -19,9 +19,9 @@
 //Class header
 #include <libkorg/Set.hpp>
 //Local
-#include "BankFormat/Reader.hpp"
 #include <libkorg/SingleTouchSettings.hpp>
 #include <libkorg/Text.hpp>
+#include <libkorg/BankFormat/Reader.hpp>
 #include "BankFormat/Writer.hpp"
 //Namespaces
 using namespace libKORG;
@@ -31,10 +31,13 @@ using namespace StdXX::FileSystem;
 //Constructor
 Set::Set(const Path &setPath) : setPath(setPath)
 {
+	File setDir(setPath);
+	ASSERT(setDir.Exists(), u8"Set does not exist");
+
 	//TODO: GLOBAL
 	//this->ReadDirectory(setPath, u8"MULTISMP", &Set::LoadMultiSamples);
 	//this->ReadDirectory(setPath, u8"PAD", &Set::LoadPads);
-	//this->ReadDirectory(setPath, u8"PCM", &Set::LoadSamples);
+	this->ReadDirectory(setPath, u8"PCM", &Set::LoadSamples);
 	//this->ReadDirectory(setPath, u8"PERFORM", &Set::LoadPerformances);
 	//this->LoadSongBook(setPath);
 	this->ReadDirectory(setPath, u8"SOUND", &Set::LoadSounds);
@@ -141,12 +144,13 @@ void Set::LoadSongBook(const Path& setPath)
 	if(File(listsPath).Exists())
 	{
 		FileInputStream fileInputStream(listsPath);
-		BankFormat::Reader bankFormatReader;
+		NOT_IMPLEMENTED_ERROR; //TODO: reimplement me
+		/*BankFormat::Reader bankFormatReader;
 		bankFormatReader.ReadData(fileInputStream);
 		auto bankEntries = bankFormatReader.TakeEntries();
 
 		for(const BankObjectEntry& bankObjectEntry : bankEntries)
-			delete bankObjectEntry.object;
+			delete bankObjectEntry.object;*/
 	}
 
 	this->ReadDirectory(setPath, u8"SONGBOOK/SONGDB.SBD", &Set::LoadSongs);
@@ -170,7 +174,7 @@ void Set::LoadStyles(const String &bankFileName, const DynamicArray<BankObjectEn
 	Map<uint8, const BankObjectEntry*> performanceEntries;
 	for(const BankObjectEntry& bankObjectEntry : bankEntries)
 	{
-		if(IS_INSTANCE_OF(bankObjectEntry.object, Style))
+		if(IS_INSTANCE_OF(bankObjectEntry.object, StyleObject))
 			styleEntries[bankObjectEntry.pos] = &bankObjectEntry;
 		else
 			performanceEntries[bankObjectEntry.pos] = &bankObjectEntry;
@@ -179,7 +183,7 @@ void Set::LoadStyles(const String &bankFileName, const DynamicArray<BankObjectEn
 	StyleBank bank;
 	for(const auto& kv : styleEntries)
 	{
-		Style& style = dynamic_cast<Style&>(*styleEntries[kv.key]->object);
+		StyleObject& style = dynamic_cast<StyleObject&>(*styleEntries[kv.key]->object);
 		SingleTouchSettings& sts = dynamic_cast<SingleTouchSettings&>(*performanceEntries[kv.key]->object);
 
 		bank.AddObject(kv.value->name, kv.value->pos, new FullStyle(&style, &sts));
@@ -195,6 +199,8 @@ void Set::ReadDirectory(const Path &setPath, const String &dirName, void (Set::*
 	Path dirPath = setPath / dirName;
 
 	File directory(dirPath);
+	if(!directory.Exists())
+		return;
 	for (const DirectoryEntry& childEntry : directory)
 	{
 		FileInputStream fileInputStream(dirPath / childEntry.name);

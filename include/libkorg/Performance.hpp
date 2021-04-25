@@ -24,44 +24,6 @@
 
 namespace libKORG
 {
-	enum class AccompanimentTrackNumber
-	{
-		Drum = 0,
-		Percussion = 1,
-		Bass = 2,
-		Accompaniment1 = 3,
-		Accompaniment2 = 4,
-		Accompaniment3 = 5,
-		Accompaniment4 = 6,
-		Accompaniment5 = 7
-	};
-
-	static const AccompanimentTrackNumber AccompanimentTrackNumbers[] = {
-		AccompanimentTrackNumber::Drum,
-		AccompanimentTrackNumber::Percussion,
-		AccompanimentTrackNumber::Bass,
-		AccompanimentTrackNumber::Accompaniment1,
-		AccompanimentTrackNumber::Accompaniment2,
-		AccompanimentTrackNumber::Accompaniment3,
-		AccompanimentTrackNumber::Accompaniment4,
-		AccompanimentTrackNumber::Accompaniment5
-	};
-
-	enum class KeyboardTrackNumber
-	{
-		Low = 0,
-		Upper1 = 1,
-		Upper2 = 2,
-		Upper3 = 3
-	};
-
-	static const KeyboardTrackNumber KeyboardTrackNumbers[] = {
-		KeyboardTrackNumber::Low,
-		KeyboardTrackNumber::Upper1,
-		KeyboardTrackNumber::Upper2,
-		KeyboardTrackNumber::Upper3,
-	};
-
 	struct TrackProperties
 	{
 		StdXX::DynamicByteBuffer unknown1;
@@ -124,7 +86,7 @@ namespace libKORG
 		StdXX::DynamicArray<libKORG::UnknownChunk> unknownChunksAfterTracks;
 	};
 
-	class Performance : public BankObject
+	class Performance : public BankFormat::BankObject
 	{
 	public:
 		//Members

@@ -20,13 +20,13 @@
 //Local
 #include <libkorg/FullStyle.hpp>
 #include <libkorg/ObjectBank.hpp>
+#include <libkorg/BankFormat/BankFormat.hpp>
 #include "../Writer/ChunkWriter.hpp"
-#include "BankFormat.hpp"
 //Namespaces
 using namespace StdXX;
 using namespace libKORG;
 
-namespace BankFormat
+namespace libKORG::BankFormat
 {
 	class Writer : public ChunkWriter
 	{
@@ -49,8 +49,8 @@ namespace BankFormat
 		void WriteCrossReferenceTable();
 		void WriteHeader();
 		void WriteSTS(const SingleTouchSettings &singleTouchSettings);
-		void WriteStyle(const Style &style);
-		void WriteTOCEntry(const String &name, uint8 pos, ObjectType objectType, const ChunkVersion& version);
+		void WriteStyle(const StyleObject &style);
+		void WriteTOCEntry(const String &name, uint8 pos, libKORG::BankFormat::ObjectType objectType, const ChunkVersion& version);
 
 		//Inline
 		inline void BeginChunk(ChunkType type, uint8 versionMajor, uint8 versionMinor, ChunkHeaderFlags flag)

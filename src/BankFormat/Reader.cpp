@@ -17,47 +17,123 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 //Class header
-#include "Reader.hpp"
+#include <libkorg/BankFormat/Reader.hpp>
 //Local
 #include <libkorg/Sample.hpp>
 #include <libkorg/EncryptedSample.hpp>
-#include <libkorg/MultiSample.hpp>
-#include <libkorg/SongBook.hpp>
-#include <libkorg/SongBookEntry.hpp>
 #include <libkorg/Sound.hpp>
-#include <libkorg/Pad.hpp>
-#include "libkorg/Style.hpp"
-#include "libkorg/Performance.hpp"
 #include "OC31Decompressor.hpp"
 #include "TOCReader.hpp"
-#include "../Reading/PerformanceReader.hpp"
-#include "../Reading/StyleReader.hpp"
+#include "../StyleFormat/Format0.0/StyleFormat0_0V5_0Reader.hpp"
+#include "../StyleFormat/StyleReader.hpp"
+#include "../PCMFormat/PCMReader.hpp"
+#include "../SoundFormat/SoundReader.hpp"
+#include "../PerformanceFormat/PerformanceReader.hpp"
 //Namespaces
-using namespace BankFormat;
 using namespace libKORG;
+using namespace libKORG::BankFormat;
 using namespace StdXX;
 
 //Protected methods
-String Reader::GetDebugDirName() const
-{
-	return u8"/home/amir/Desktop/korg/_OUT/_BANK/";
-}
-
 bool Reader::IsDataChunk(const ChunkHeader &chunkHeader)
 {
 	switch((ChunkType)chunkHeader.type)
 	{
-		case ChunkType::PerformancesData:
-		case ChunkType::StyleObject:
+		case ChunkType::PCMData:
 			return true;
 	}
 
 	return ChunkReader::IsDataChunk(chunkHeader);
 }
 
+void Reader::ReadBankObject(ChunkType chunkType, const ChunkHeader &chunkHeader, const HeaderEntry &headerEntry, DataReader &dataReader)
+{
+	BankObject* object = nullptr;
+
+	switch(chunkType)
+	{
+		case ChunkType::OldSoundDataMaybe: //TODO: no idea what that is
+		{
+			stdErr << u8"Unknown data for entry: " << headerEntry.name << endl;
+		}
+		break;
+		case ChunkType::PCMData:
+		{
+			PCMReader pcmReader;
+			object = pcmReader.Read(chunkHeader, dataReader);
+		}
+		break;
+		case ChunkType::SoundData:
+		{
+			SoundReader soundReader;
+			object = soundReader.ReadData(chunkHeader.version, dataReader);
+		}
+		break;
+	}
+
+	if(object)
+		this->AddObject(object, headerEntry);
+}
+
+ChunkReader &Reader::OnEnteringChunk(const ChunkHeader &chunkHeader)
+{
+	switch(ChunkType(chunkHeader.type))
+	{
+		case ChunkType::Container:
+			return *this;
+		case ChunkType::PerformancesData:
+		case ChunkType::StyleObject:
+		{
+			this->VerifyData(chunkHeader);
+
+			const HeaderEntry& headerEntry = this->headerEntries[this->currentHeaderEntryIndex];
+			return this->OnEnteringChunkedResourceChunk(chunkHeader, headerEntry);
+		}
+	}
+
+	NOT_IMPLEMENTED_ERROR; //TODO: implement me
+	return *this;
+}
+
+ChunkReader &Reader::OnEnteringChunkedResourceChunk(const ChunkHeader &chunkHeader, const HeaderEntry& headerEntry)
+{
+	switch(ChunkType(chunkHeader.type))
+	{
+		case ChunkType::PerformancesData:
+		{
+			this->objectReader = PerformanceReader::CreateInstance(headerEntry.type == ObjectType::StylePerformances, chunkHeader.version);
+			return *this->objectReader;
+		}
+		case ChunkType::StyleObject:
+		{
+			this->objectReader = StyleReader::CreateInstance(chunkHeader.version);
+			return *this->objectReader;
+		}
+	}
+
+	NOT_IMPLEMENTED_ERROR; //TODO: implement me
+	return *this;
+}
+
+void Reader::OnLeavingChunk(const ChunkHeader &chunkHeader)
+{
+	switch(ChunkType(chunkHeader.type))
+	{
+		case ChunkType::PerformancesData:
+		case ChunkType::StyleObject:
+		{
+			const HeaderEntry& headerEntry = this->headerEntries[this->currentHeaderEntryIndex];
+			this->AddObject(this->objectReader->TakeResult(), headerEntry);
+			this->currentHeaderEntryIndex++;
+		}
+		break;
+	}
+}
+
 void Reader::ReadDataChunk(const ChunkHeader& chunkHeader, DataReader &dataReader)
 {
-	switch((ChunkType)chunkHeader.type)
+	ChunkType chunkType = (ChunkType)chunkHeader.type;
+	switch(chunkType)
 	{
 		case ChunkType::CrossReferenceTable:
 			dataReader.Skip(chunkHeader.size);
@@ -79,45 +155,16 @@ void Reader::ReadDataChunk(const ChunkHeader& chunkHeader, DataReader &dataReade
 			this->headerEntries = tocReader.Read();
 		}
 		break;
-		case ChunkType::PerformancesData:
-		{
-			/*{
-				static int i = 0;
-				FileOutputStream fileOutputStream(FileSystem::Path(u8"/home/amir/Desktop/korg/_OUT/perf"), true);
-				dataReader.InputStream().FlushTo(fileOutputStream);
-				exit(9);
-			}*/
-			this->VerifyDataVersion(chunkHeader.version);
-
-			PerformanceReader performanceReader;
-			performanceReader.ReadData(dataReader.InputStream());
-
-			this->AddObject(performanceReader.TakeSTSResult());
-		}
-		break;
+		case ChunkType::OldSoundDataMaybe:
+		case ChunkType::PCMData:
 		case ChunkType::SoundData:
 		{
-			this->VerifyDataVersion(chunkHeader.version);
-			ASSERT(
-					(chunkHeader.version.AsUInt16() == 0x0200)
-					||
-					(chunkHeader.version.AsUInt16() == 0x0300)
-					, u8"Unknown sound version");
+			const HeaderEntry& headerEntry = this->headerEntries[this->currentHeaderEntryIndex];
+			this->VerifyDataType(headerEntry, chunkHeader.type);
+			this->VerifyDataVersion(headerEntry, chunkHeader.version);
 
-			this->AddObject(new Sound(dataReader.InputStream()));
-		}
-		break;
-		case ChunkType::StyleObject:
-		{
-			this->VerifyDataVersion(chunkHeader.version);
-			ASSERT_EQUALS(0, chunkHeader.version.major);
-			ASSERT_EQUALS(0, chunkHeader.version.minor);
-
-			StyleReader styleReader;
-			styleReader.ReadData(dataReader.InputStream());
-			Style* style = styleReader.TakeResult();
-
-			this->AddObject(style);
+			this->ReadBankObject(chunkType, chunkHeader, headerEntry, dataReader);
+			this->currentHeaderEntryIndex++;
 		}
 		break;
 		default:
@@ -125,73 +172,3 @@ void Reader::ReadDataChunk(const ChunkHeader& chunkHeader, DataReader &dataReade
 			NOT_IMPLEMENTED_ERROR;
 	}
 }
-
-//Private methods
-/*void Reader::ReadEntries(const DynamicArray<HeaderEntry>& headerEntries)
-{
-	for(const HeaderEntry& headerEntry : headerEntries)
-	{
-		ASSERT((chunkHeader.id == (uint32)ChunkId::MultiSampleData)
-			|| (chunkHeader.id == (uint32)ChunkId::OldSoundDataMaybe)
-			|| (chunkHeader.id == (uint32)ChunkId::PadData)
-			|| (chunkHeader.id == (uint32)ChunkId::PCMData)
-			|| (chunkHeader.id == (uint32)ChunkId::PerformanceData02)
-			|| (chunkHeader.id == (uint32)ChunkId::PerformanceData03)
-			|| (chunkHeader.id == (uint32)ChunkId::PerformanceData10)
-			|| (chunkHeader.id == (uint32)ChunkId::PerformanceData20)
-			|| (chunkHeader.id == (uint32)ChunkId::PerformanceData21)
-			|| (chunkHeader.id == (uint32)ChunkId::SongBookListData)
-			|| (chunkHeader.id == (uint32)ChunkId::SongBookListData1)
-			|| (chunkHeader.id == (uint32)ChunkId::SoundData00)
-			|| (chunkHeader.id == (uint32)ChunkId::SoundData0)
-			|| (chunkHeader.id == (uint32)ChunkId::SoundData1)
-			|| (chunkHeader.id == (uint32)ChunkId::SoundData2), "???" + String::HexNumber(chunkHeader.id));
-
-		if()
-		{
-			ASSERT_EQUALS(ObjectType::PCM, headerEntry.type);
-		}
-
-		InputStream& inputStream = chainedInputStream.GetEnd();
-		BankObject* object;
-		switch(headerEntry.type)
-		{
-			case ObjectType::MultiSample:
-				object = new MultiSample(inputStream);
-				break;
-			case ObjectType::Performance:
-			{
-				PerformanceReader performanceReader;
-				performanceReader.ReadData(inputStream);
-				object = performanceReader.TakePerformanceResult();
-			}
-			break;
-			case ObjectType::PAD:
-				NOT_IMPLEMENTED_ERROR;
-				//object = this->ReadInObect(new Pad, inputStream);
-				break;
-			case ObjectType::PCM:
-				if(chunkHeader.flags & (uint8)ChunkHeaderFlags::Encrypted)
-					object = new EncryptedSample(inputStream);
-				else
-					object = new Sample(inputStream);
-				break;
-			case ObjectType::SongBookEntry:
-				object = new SongBookEntry(inputStream);
-				break;
-			case ObjectType::SongBook:
-				object = new SongBook(inputStream);
-				break;
-		}
-
-		this->objectEntries.Push({ headerEntry.name, headerEntry.pos, object });
-
-		//make sure we read all of it
-		while(!inputStream.IsAtEnd())
-		{
-			uint32 nBytesSkipped = inputStream.Skip(c_io_blockSize);
-			stdErr << nBytesSkipped << u8" bytes of trailing data found..." << endl;
-		}
-	}
-}
-*/
