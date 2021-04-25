@@ -1,0 +1,115 @@
+-Entering chunk 0x1050000
+--Reading Data chunk 0x1000308
+--Entering chunk 0x2000000
+---Reading Data chunk 0x1000008 MIDI Track mapping
+---Reading Data chunk 0x2000008 DRUM/PERC MIDI Track
+---Reading Data chunk 0x3000008 BASS MIDI Track
+---Reading Data chunk 0x4000008 ACC1/.../ACC5 MIDI Track
+--Leaving chunk 0x2000000
+--Entering chunk 0x3000000 Variation1
+---Reading Data chunk 0x1010108 Chord table
+---Reading Data chunk 0x2000308 Style tracks data
+---Reading Data chunk 0x3000008 CV1 MIDI Master Track
+---Reading Data chunk 0x3000008 CV2 MIDI Master Track
+---Reading Data chunk 0x3000008 CV3 MIDI Master Track
+---Reading Data chunk 0x3000008 CV4 MIDI Master Track
+---Reading Data chunk 0x3000008 CV5 MIDI Master Track
+---Reading Data chunk 0x3000008 CV6 MIDI Master Track
+--Leaving chunk 0x3000000
+--Entering chunk 0x3000000 Variation2
+---Reading Data chunk 0x1010108 Chord table
+---Reading Data chunk 0x2000308 Style tracks data
+---Reading Data chunk 0x3000008 CV1 MIDI Master Track
+---Reading Data chunk 0x3000008 CV2 MIDI Master Track
+---Reading Data chunk 0x3000008 CV3 MIDI Master Track
+---Reading Data chunk 0x3000008 CV4 MIDI Master Track
+---Reading Data chunk 0x3000008 CV5 MIDI Master Track
+---Reading Data chunk 0x3000008 CV6 MIDI Master Track
+--Leaving chunk 0x3000000
+--Entering chunk 0x3000000 Variation3
+---Reading Data chunk 0x1010108 Chord table
+---Reading Data chunk 0x2000308 Style tracks data
+---Reading Data chunk 0x3000008 CV1 MIDI Master Track
+---Reading Data chunk 0x3000008 CV2 MIDI Master Track
+---Reading Data chunk 0x3000008 CV3 MIDI Master Track
+---Reading Data chunk 0x3000008 CV4 MIDI Master Track
+---Reading Data chunk 0x3000008 CV5 MIDI Master Track
+---Reading Data chunk 0x3000008 CV6 MIDI Master Track
+--Leaving chunk 0x3000000
+--Entering chunk 0x3000000 Variation4
+---Reading Data chunk 0x1010108 Chord table
+---Reading Data chunk 0x2000308 Style tracks data
+---Reading Data chunk 0x3000008 CV1 MIDI Master Track
+---Reading Data chunk 0x3000008 CV2 MIDI Master Track
+---Reading Data chunk 0x3000008 CV3 MIDI Master Track
+---Reading Data chunk 0x3000008 CV4 MIDI Master Track
+---Reading Data chunk 0x3000008 CV5 MIDI Master Track
+---Reading Data chunk 0x3000008 CV6 MIDI Master Track
+--Leaving chunk 0x3000000
+--Entering chunk 0x3000000 Intro1
+---Reading Data chunk 0x1010108 Chord table
+---Reading Data chunk 0x2000308 Style tracks data
+---Reading Data chunk 0x3000008 CV1 MIDI Master Track
+---Reading Data chunk 0x3000008 CV2 MIDI Master Track
+--Leaving chunk 0x3000000
+--Entering chunk 0x3000000 Intro2
+---Reading Data chunk 0x1010108 Chord table
+---Reading Data chunk 0x2000308 Style tracks data
+---Reading Data chunk 0x3000008 CV1 MIDI Master Track
+---Reading Data chunk 0x3000008 CV2 MIDI Master Track
+--Leaving chunk 0x3000000
+--Entering chunk 0x3000000 Fill1
+---Reading Data chunk 0x1010108 Chord table
+---Reading Data chunk 0x2000308 Style tracks data
+---Reading Data chunk 0x3000008 CV1 MIDI Master Track
+---Reading Data chunk 0x3000008 CV2 MIDI Master Track
+--Leaving chunk 0x3000000
+--Entering chunk 0x3000000 Fill2
+---Reading Data chunk 0x1010108 Chord table
+---Reading Data chunk 0x2000308 Style tracks data
+---Reading Data chunk 0x3000008 CV1 MIDI Master Track
+---Reading Data chunk 0x3000008 CV2 MIDI Master Track
+--Leaving chunk 0x3000000
+--Entering chunk 0x3000000 Ending1
+---Reading Data chunk 0x1010108 Chord table
+---Reading Data chunk 0x2000308 Style tracks data
+---Reading Data chunk 0x3000008 CV1 MIDI Master Track
+---Reading Data chunk 0x3000008 CV2 MIDI Master Track
+--Leaving chunk 0x3000000
+--Entering chunk 0x3000000 Ending2
+---Reading Data chunk 0x1010108 Chord table
+---Reading Data chunk 0x2000308 Style tracks data
+---Reading Data chunk 0x3000008 CV1 MIDI Master Track
+---Reading Data chunk 0x3000008 CV2 MIDI Master Track
+--Leaving chunk 0x3000000
+--Entering chunk 0x3000000 Break
+---Reading Data chunk 0x1010108 Chord table
+---Reading Data chunk 0x2000308 Style tracks data
+---Reading Data chunk 0x3000008 CV1 MIDI Master Track
+---Reading Data chunk 0x3000008 CV2 MIDI Master Track
+--Leaving chunk 0x3000000
+--Entering chunk 0x3000000 Intro3 - Count in
+---Reading Data chunk 0x1010108 Chord table
+---Reading Data chunk 0x2000308 Style tracks data
+---Reading Data chunk 0x3000008 CV1 MIDI Master Track
+---Reading Data chunk 0x3000008 CV2 MIDI Master Track
+--Leaving chunk 0x3000000
+--Entering chunk 0x3000000 Ending3
+---Reading Data chunk 0x1010108 Chord table
+---Reading Data chunk 0x2000308 Style tracks data
+---Reading Data chunk 0x3000008 CV1 MIDI Master Track
+---Reading Data chunk 0x3000008 CV2 MIDI Master Track
+--Leaving chunk 0x3000000
+--Entering chunk 0x3000000 Fill3
+---Reading Data chunk 0x1010108 Chord table
+---Reading Data chunk 0x2000308 Style tracks data
+---Reading Data chunk 0x3000008 CV1 MIDI Master Track
+---Reading Data chunk 0x3000008 CV2 MIDI Master Track
+--Leaving chunk 0x3000000
+--Entering chunk 0x3000000 Fill4
+---Reading Data chunk 0x1010108 Chord table
+---Reading Data chunk 0x2000308 Style tracks data
+---Reading Data chunk 0x3000008 CV1 MIDI Master Track
+---Reading Data chunk 0x3000008 CV2 MIDI Master Track
+--Leaving chunk 0x3000000
+-Leaving chunk 0x1050000

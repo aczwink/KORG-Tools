@@ -1,0 +1,54 @@
+Entering chunk 0x00000000
+-Entering chunk 0x01000000
+--Reading Data chunk 0x04000108
+--Entering chunk 0x02000000
+---Entering chunk 0x05000000
+----Reading Data chunk 0x06000008
+----Reading Data chunk 0x07000008
+----Reading Data chunk 0x07000008
+----Reading Data chunk 0x07000008
+----Reading Data chunk 0x07000008
+----Reading Data chunk 0x07000008
+----Reading Data chunk 0x07000008
+----Reading Data chunk 0x08000008
+----Reading Data chunk 0x08000008
+----Reading Data chunk 0x08000008
+----Reading Data chunk 0x08000008
+----Reading Data chunk 0x09000008
+----Reading Data chunk 0x09000008
+----Reading Data chunk 0x09000008
+----Reading Data chunk 0x09000008
+----Reading Data chunk 0x09000008
+----Reading Data chunk 0x09000008
+----Reading Data chunk 0x09000008
+----Reading Data chunk 0x09000008
+---Leaving chunk 0x05000000
+--Leaving chunk 0x02000000
+--Entering chunk 0x03000000
+---Entering chunk 0x0A000000
+----Reading Data chunk 0x0F000008
+----Reading Data chunk 0x10000008
+----Reading Data chunk 0x11000008
+----Reading Data chunk 0x12000108
+----Reading Data chunk 0x13000008
+----Reading Data chunk 0x07000008
+----Reading Data chunk 0x07000008
+----Reading Data chunk 0x07000008
+----Reading Data chunk 0x07000008
+----Reading Data chunk 0x14000008
+----Reading Data chunk 0x08000008
+----Reading Data chunk 0x08000008
+----Reading Data chunk 0x08000008
+----Reading Data chunk 0x08000008
+----Reading Data chunk 0x15000108
+----Reading Data chunk 0x15000108
+----Reading Data chunk 0x15000108
+----Reading Data chunk 0x15000108
+----Reading Data chunk 0x09000008
+----Reading Data chunk 0x09000008
+----Reading Data chunk 0x09000008
+----Reading Data chunk 0x09000008
+---Leaving chunk 0x0A000000
+--Leaving chunk 0x03000000
+-Leaving chunk 0x01000000
+Leaving chunk 0x00000000
