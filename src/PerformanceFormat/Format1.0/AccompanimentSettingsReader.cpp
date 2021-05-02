@@ -25,9 +25,9 @@ using namespace libKORG;
 using namespace StdXX;
 
 //Protected methods
-ChunkReader &AccompanimentSettingsReader::OnEnteringChunk(const ChunkHeader &chunkHeader)
+ChunkReader* AccompanimentSettingsReader::OnEnteringChunk(const ChunkHeader &chunkHeader)
 {
-	return *this;
+	return this;
 }
 
 void AccompanimentSettingsReader::ReadDataChunk(const ChunkHeader &chunkHeader, StdXX::DataReader &dataReader)

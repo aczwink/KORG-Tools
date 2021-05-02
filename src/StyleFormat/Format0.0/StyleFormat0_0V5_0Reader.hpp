@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <libkorg/Style.hpp>
+#include <libkorg/BankFormat/Style.hpp>
 #include <libkorg/ChunkFormat/ChunkReader.hpp>
 
 class StyleFormat0_0V5_0Reader : public libKORG::ChunkReader
@@ -31,7 +31,7 @@ public:
 protected:
 	//Methods
 	void ReadDataChunk(const libKORG::ChunkHeader& chunkHeader, StdXX::DataReader &dataReader) override;
-	libKORG::ChunkReader& OnEnteringChunk(const libKORG::ChunkHeader& chunkHeader) override;
+	libKORG::ChunkReader* OnEnteringChunk(const libKORG::ChunkHeader& chunkHeader) override;
 	void OnLeavingChunk(const libKORG::ChunkHeader& chunkHeader) override;
 
 private:

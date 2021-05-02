@@ -19,7 +19,7 @@
 #pragma once
 //Local
 #include <libkorg/ChunkFormat/ChunkReader.hpp>
-#include <libkorg/Performance.hpp>
+#include <libkorg/BankFormat/Performance.hpp>
 
 class AccompanimentSettingsReader : public libKORG::ChunkReader
 {
@@ -32,7 +32,7 @@ public:
 
 protected:
 	//Methods
-	ChunkReader &OnEnteringChunk(const libKORG::ChunkHeader &chunkHeader) override;
+	ChunkReader* OnEnteringChunk(const libKORG::ChunkHeader &chunkHeader) override;
 	void ReadDataChunk(const libKORG::ChunkHeader &chunkHeader, StdXX::DataReader &dataReader) override;
 	bool IsDataChunk(const libKORG::ChunkHeader &chunkHeader) override;
 

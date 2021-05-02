@@ -18,8 +18,9 @@
  */
 #pragma once
 #include <StdXX.hpp>
-#include <libkorg/Style.hpp>
-#include <libkorg/Performance.hpp>
+#include <libkorg/BankFormat/Style.hpp>
+#include <libkorg/BankFormat/Performance.hpp>
+#include <libkorg/Style/StyleElementNumber.hpp>
 
 namespace libKORG
 {
@@ -69,12 +70,12 @@ namespace libKORG
 			return *this->variationViews[index];
 		}
 
-		inline const IStyleElementView& GetStyleElement(StyleElementNumber styleElementNumber) const
+		inline const IStyleElementView& GetStyleElement(Style::StyleElementNumber styleElementNumber) const
 		{
 			return *this->styleElementViews[static_cast<uint32>(styleElementNumber)];
 		}
 
-		inline bool IsStyleElementEnabled(StyleElementNumber styleElementNumber) const
+		inline bool IsStyleElementEnabled(Style::StyleElementNumber styleElementNumber) const
 		{
 			uint16 shiftAmount = 4 + (uint16)styleElementNumber;
 			return this->styleData._0x1000308_chunk.enabledStyleElements & (1 << shiftAmount);

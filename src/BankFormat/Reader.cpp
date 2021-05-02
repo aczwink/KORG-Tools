@@ -19,9 +19,8 @@
 //Class header
 #include <libkorg/BankFormat/Reader.hpp>
 //Local
-#include <libkorg/Sample.hpp>
-#include <libkorg/EncryptedSample.hpp>
-#include <libkorg/Sound.hpp>
+#include <libkorg/BankFormat/SampleObject.hpp>
+#include <libkorg/BankFormat/EncryptedSample.hpp>
 #include "OC31Decompressor.hpp"
 #include "TOCReader.hpp"
 #include "../StyleFormat/Format0.0/StyleFormat0_0V5_0Reader.hpp"
@@ -29,22 +28,11 @@
 #include "../PCMFormat/PCMReader.hpp"
 #include "../SoundFormat/SoundReader.hpp"
 #include "../PerformanceFormat/PerformanceReader.hpp"
+#include "../MultiSamplesFormat/MultiSamplesReader.hpp"
 //Namespaces
 using namespace libKORG;
 using namespace libKORG::BankFormat;
 using namespace StdXX;
-
-//Protected methods
-bool Reader::IsDataChunk(const ChunkHeader &chunkHeader)
-{
-	switch((ChunkType)chunkHeader.type)
-	{
-		case ChunkType::PCMData:
-			return true;
-	}
-
-	return ChunkReader::IsDataChunk(chunkHeader);
-}
 
 void Reader::ReadBankObject(ChunkType chunkType, const ChunkHeader &chunkHeader, const HeaderEntry &headerEntry, DataReader &dataReader)
 {
@@ -52,9 +40,17 @@ void Reader::ReadBankObject(ChunkType chunkType, const ChunkHeader &chunkHeader,
 
 	switch(chunkType)
 	{
+		case ChunkType::MultiSampleData:
+		{
+			MultiSamplesReader multiSamplesReader;
+			object = multiSamplesReader.Read(chunkHeader.version, dataReader);
+		}
+		break;
 		case ChunkType::OldSoundDataMaybe: //TODO: no idea what that is
 		{
-			stdErr << u8"Unknown data for entry: " << headerEntry.name << endl;
+			stdErr << u8"Unknown bank object for chunk " << String::HexNumber(chunkHeader.id, 8) <<  u8": " << headerEntry.name << endl;
+			NullOutputStream nullOutputStream;
+			dataReader.InputStream().FlushTo(nullOutputStream);
 		}
 		break;
 		case ChunkType::PCMData:
@@ -75,12 +71,12 @@ void Reader::ReadBankObject(ChunkType chunkType, const ChunkHeader &chunkHeader,
 		this->AddObject(object, headerEntry);
 }
 
-ChunkReader &Reader::OnEnteringChunk(const ChunkHeader &chunkHeader)
+ChunkReader* Reader::OnEnteringChunk(const ChunkHeader &chunkHeader)
 {
 	switch(ChunkType(chunkHeader.type))
 	{
 		case ChunkType::Container:
-			return *this;
+			return this;
 		case ChunkType::PerformancesData:
 		case ChunkType::StyleObject:
 		{
@@ -91,28 +87,26 @@ ChunkReader &Reader::OnEnteringChunk(const ChunkHeader &chunkHeader)
 		}
 	}
 
-	NOT_IMPLEMENTED_ERROR; //TODO: implement me
-	return *this;
+	return nullptr;
 }
 
-ChunkReader &Reader::OnEnteringChunkedResourceChunk(const ChunkHeader &chunkHeader, const HeaderEntry& headerEntry)
+ChunkReader* Reader::OnEnteringChunkedResourceChunk(const ChunkHeader &chunkHeader, const HeaderEntry& headerEntry)
 {
 	switch(ChunkType(chunkHeader.type))
 	{
 		case ChunkType::PerformancesData:
 		{
 			this->objectReader = PerformanceReader::CreateInstance(headerEntry.type == ObjectType::StylePerformances, chunkHeader.version);
-			return *this->objectReader;
+			return this->objectReader.IsNull() ? nullptr : this->objectReader.operator->();
 		}
 		case ChunkType::StyleObject:
 		{
 			this->objectReader = StyleReader::CreateInstance(chunkHeader.version);
-			return *this->objectReader;
+			return this->objectReader.operator->();
 		}
 	}
 
-	NOT_IMPLEMENTED_ERROR; //TODO: implement me
-	return *this;
+	return nullptr;
 }
 
 void Reader::OnLeavingChunk(const ChunkHeader &chunkHeader)
@@ -123,7 +117,8 @@ void Reader::OnLeavingChunk(const ChunkHeader &chunkHeader)
 		case ChunkType::StyleObject:
 		{
 			const HeaderEntry& headerEntry = this->headerEntries[this->currentHeaderEntryIndex];
-			this->AddObject(this->objectReader->TakeResult(), headerEntry);
+			if(!this->objectReader.IsNull())
+				this->AddObject(this->objectReader->TakeResult(), headerEntry);
 			this->currentHeaderEntryIndex++;
 		}
 		break;
@@ -155,6 +150,7 @@ void Reader::ReadDataChunk(const ChunkHeader& chunkHeader, DataReader &dataReade
 			this->headerEntries = tocReader.Read();
 		}
 		break;
+		case ChunkType::MultiSampleData:
 		case ChunkType::OldSoundDataMaybe:
 		case ChunkType::PCMData:
 		case ChunkType::SoundData:

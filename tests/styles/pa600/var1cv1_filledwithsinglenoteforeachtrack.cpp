@@ -20,6 +20,8 @@
 #include <libkorg.hpp>
 #include "../EventComparison.hpp"
 //Namespaces
+using namespace libKORG;
+using namespace libKORG::Style;
 using namespace StdXX;
 
 TEST_SUITE(Var1CV1FilledWithSingleNoteForEachTrackTests)

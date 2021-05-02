@@ -20,6 +20,7 @@
 #include <libkorg/ChunkFormat/ChunkReader.hpp>
 //Local
 #include "../BankFormat/OC31Decompressor.hpp"
+#include "SkippingChunkReader.hpp"
 //Namespaces
 using namespace libKORG;
 using namespace StdXX;
@@ -97,17 +98,24 @@ void ChunkReader::ReadChunks(InputStream &inputStream)
 			if(!chunkInputStream.IsAtEnd())
 			{
 				static int __iteration = 0;
-				stdErr << u8"Trailing data found for chunk " << String::HexNumber(chunkHeader.id) << u8". Counter: " << __iteration << endl;
+				stdErr << u8"Trailing data found for chunk " << String::HexNumber(chunkHeader.id, 8) << u8". Counter: " << __iteration << endl;
 				FileOutputStream fileOutputStream(
-						FileSystem::Path(String::HexNumber(chunkHeader.id) + u8"_" + String::Number(__iteration++)),
+						FileSystem::Path(String::HexNumber(chunkHeader.id, 8) + u8"_" + String::Number(__iteration++)),
 						true);
 				chunkInputStream.FlushTo(fileOutputStream);
 			}
 		}
 		else
 		{
-			ChunkReader& delegate = this->OnEnteringChunk(chunkHeader);
-			delegate.ReadChunks(chunkInputStream);
+			SkippingChunkReader skippingChunkReader;
+
+			ChunkReader* delegate = this->OnEnteringChunk(chunkHeader);
+			if(delegate == nullptr)
+			{
+				stdErr << u8"No handler found for chunk " << String::HexNumber(chunkHeader.id, 8) << u8". Skipping..." << endl;
+				delegate = &skippingChunkReader;
+			}
+			delegate->ReadChunks(chunkInputStream);
 			this->OnLeavingChunk(chunkHeader);
 		}
 	}

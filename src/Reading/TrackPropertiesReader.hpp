@@ -17,7 +17,7 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <libkorg/ChunkFormat/ChunkFormat.hpp>
-#include <libkorg/Performance.hpp>
+#include <libkorg/BankFormat/Performance.hpp>
 
 template<uint32 N>
 class TrackPropertiesReader

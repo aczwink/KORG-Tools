@@ -18,8 +18,70 @@
  */
 #include <libkorg.hpp>
 using namespace libKORG;
+using namespace libKORG::Sample;
 using namespace StdXX;
-using namespace StdXX::FileSystem;
+using namespace StdXX::Multimedia;
+
+Frame* DecodeAudio(const DynamicByteBuffer& buffer, CodingFormatId sourceFormatId, const AudioSampleFormat& sampleFormat)
+{
+	Packet sourcePacket;
+	sourcePacket.Allocate(buffer.Size());
+	buffer.CopyTo(sourcePacket.GetData(), 0, sourcePacket.GetSize());
+
+	UniquePointer<AudioStream> sourceStream = new AudioStream;
+	sourceStream->sampleFormat = sampleFormat;
+
+	UniquePointer<DecoderContext> decoderContext = CodingFormat::GetCodingFormatById(sourceFormatId)->GetBestMatchingDecoder()->CreateContext(*sourceStream.operator->());
+	decoderContext->Decode(sourcePacket);
+
+	return decoderContext->GetNextFrame();
+}
+
+Packet* EncodeAudio(Frame& audioFrame, CodingFormatId targetFormatId, Stream& stream)
+{
+	UniquePointer<EncoderContext> encoderContext = CodingFormat::GetCodingFormatById(targetFormatId)->GetBestMatchingEncoder()->CreateContext(stream);
+	encoderContext->Encode(audioFrame);
+
+	return encoderContext->GetNextPacket();
+}
+
+void ExportWave(const FileSystem::Path& outPath, const SampleData& sampleData)
+{
+	FileOutputStream file(outPath.String() + u8".wav");
+
+	const Format* format = Format::FindByExtension(u8"wav");
+	UniquePointer<Muxer> muxer = format->CreateMuxer(file);
+
+	AudioStream* targetStream = new AudioStream;
+	muxer->AddStream(targetStream);
+
+	CodingFormatId sourceFormatId;
+	AudioSampleType sampleType;
+	switch(sampleData.sampleFormat)
+	{
+		case SampleFormat::S16BE:
+			sourceFormatId = CodingFormatId::PCM_S16BE;
+			sampleType = AudioSampleType::S16;
+			targetStream->SetCodingFormat(CodingFormatId::PCM_S16LE);
+			break;
+		case SampleFormat::S8:
+			sourceFormatId = CodingFormatId::PCM_S8;
+			sampleType = AudioSampleType::U8;
+			targetStream->SetCodingFormat(CodingFormatId::PCM_U8);
+			break;
+	}
+	targetStream->sampleFormat = AudioSampleFormat(1, sampleType, false);
+	targetStream->codingParameters.audio.sampleRate = sampleData.sampleRate;
+
+	UniquePointer<Frame> audioFrame = DecodeAudio(sampleData.sampleBuffer, sourceFormatId, *targetStream->sampleFormat);
+	UniquePointer<Packet> packet = EncodeAudio(*audioFrame, targetStream->codingParameters.codingFormat->GetId(), *targetStream);
+
+	muxer->WriteHeader();
+
+	//write an audio packet
+	muxer->WritePacket(*packet);
+	muxer->Finalize();
+}
 
 int32 Main(const String &programName, const FixedArray<String> &args)
 {
@@ -38,11 +100,18 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 
 	const CommandLine::MatchResult& result = parser.ParseResult();
 
-	Path setPath = setPathArg.Value(result);
+	FileSystem::Path setPath = setPathArg.Value(result);
 
 	Set set(setPath);
 	for(const auto& bank : set.SampleBanks())
 	{
+		stdOut << u8"Exporting bank: " << bank.key.ToString() << endl;
+
+		FileSystem::Path bankPath = bank.key.ToString();
+		FileSystem::File bankDir(bankPath);
+		bankDir.CreateDirectory();
+
+		uint32 i = 0;
 		for(const auto& entry : bank.value.Objects())
 		{
 			const String& sampleName = entry.value.Get<0>();
@@ -55,7 +124,11 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 			else
 			{
 				stdOut << u8"Exporting sample: " << sampleName << endl;
+
+				const SampleObject& sampleObject = dynamic_cast<const SampleObject&>(sample);
+				ExportWave(bankPath / (String::Number(i) + u8"_" + sampleName.Trim()), sampleObject.data);
 			}
+			i++;
 		}
 	}
 

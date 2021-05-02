@@ -19,8 +19,8 @@
 #pragma once
 #include <StdXX.hpp>
 //Local
-#include "SingleTouchSettings.hpp"
-#include "Style.hpp"
+#include "libkorg/BankFormat/SingleTouchSettings.hpp"
+#include "libkorg/BankFormat/Style.hpp"
 
 namespace libKORG
 {

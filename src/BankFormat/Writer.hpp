@@ -19,7 +19,7 @@
 #pragma once
 //Local
 #include <libkorg/FullStyle.hpp>
-#include <libkorg/ObjectBank.hpp>
+#include <libkorg/BankFormat/ObjectBank.hpp>
 #include <libkorg/BankFormat/BankFormat.hpp>
 #include "../Writer/ChunkWriter.hpp"
 //Namespaces

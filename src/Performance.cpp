@@ -17,7 +17,7 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 //Class header
-#include <libkorg/Performance.hpp>
+#include <libkorg/BankFormat/Performance.hpp>
 //Namespaces
 using namespace libKORG;
 using namespace StdXX;

@@ -30,7 +30,7 @@ namespace libKORG
 
 	protected:
 		//Abstract
-		virtual ChunkReader& OnEnteringChunk(const ChunkHeader& chunkHeader) = 0;
+		virtual ChunkReader* OnEnteringChunk(const ChunkHeader& chunkHeader) = 0;
 		virtual void ReadDataChunk(const ChunkHeader& chunkHeader, StdXX::DataReader& dataReader) = 0;
 
 		//Overrideable

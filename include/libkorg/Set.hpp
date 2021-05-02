@@ -18,20 +18,23 @@
  */
 #pragma once
 #include <StdXX.hpp>
-#include "ObjectBank.hpp"
-#include "MultiSample.hpp"
-#include "Sound.hpp"
-#include "Pad.hpp"
-#include "Performance.hpp"
+#include "libkorg/BankFormat/ObjectBank.hpp"
+#include "libkorg/BankFormat/MultiSamplesObject.hpp"
+#include <libkorg/BankFormat/SoundObject.hpp>
+#include "libkorg/BankFormat/Pad.hpp"
+#include "libkorg/BankFormat/Performance.hpp"
 #include "FullStyle.hpp"
-#include "SoundBankNumber.hpp"
+#include <libkorg/BankFormat/SoundBankNumber.hpp>
+#include <libkorg/BankFormat/PerformanceBankNumber.hpp>
+#include <libkorg/BankFormat/StyleBankNumber.hpp>
+#include <libkorg/BankFormat/SampleBankNumber.hpp>
 
 namespace libKORG
 {
 	typedef ObjectBank<Pad> PadBank;
 	typedef ObjectBank<Performance> PerformanceBank;
 	typedef ObjectBank<AbstractSample> SampleBank;
-	typedef ObjectBank<Sound> SoundBank;
+	typedef ObjectBank<SoundObject> SoundBank;
 	typedef ObjectBank<FullStyle> StyleBank;
 
 	struct BankObjectEntry
@@ -48,12 +51,17 @@ namespace libKORG
 		Set(const StdXX::FileSystem::Path& setPath);
 
 		//Properties
-		inline const StdXX::Map<uint8, PerformanceBank>& PerformanceBanks() const
+		inline const MultiSamplesObject& MultiSamples() const
+		{
+			return *this->multiSamples;
+		}
+
+		inline const StdXX::Map<PerformanceBankNumber, PerformanceBank>& PerformanceBanks() const
 		{
 			return this->performanceBanks;
 		}
 
-		inline const StdXX::Map<uint8, SampleBank>& SampleBanks() const
+		inline const StdXX::Map<SampleBankNumber, SampleBank>& SampleBanks() const
 		{
 			return this->sampleBanks;
 		}
@@ -63,12 +71,12 @@ namespace libKORG
 			return this->soundBanks;
 		}
 
-		inline StdXX::Map<uint8, StyleBank>& StyleBanks()
+		inline StdXX::Map<StyleBankNumber, StyleBank>& StyleBanks()
 		{
 			return this->styleBanks;
 		}
 
-		inline const StdXX::Map<uint8, StyleBank>& StyleBanks() const
+		inline const StdXX::Map<StyleBankNumber, StyleBank>& StyleBanks() const
 		{
 			return this->styleBanks;
 		}
@@ -82,12 +90,12 @@ namespace libKORG
 	private:
 		//Members
 		StdXX::FileSystem::Path setPath;
-		StdXX::UniquePointer<MultiSample> multiSamples;
+		StdXX::UniquePointer<MultiSamplesObject> multiSamples;
 		StdXX::Map<uint8, PadBank> padBanks;
-		StdXX::Map<uint8, PerformanceBank> performanceBanks;
-		StdXX::Map<uint8, SampleBank> sampleBanks;
+		StdXX::Map<PerformanceBankNumber, PerformanceBank> performanceBanks;
+		StdXX::Map<SampleBankNumber, SampleBank> sampleBanks;
 		StdXX::Map<SoundBankNumber, SoundBank> soundBanks;
-		StdXX::Map<uint8, StyleBank> styleBanks;
+		StdXX::Map<StyleBankNumber, StyleBank> styleBanks;
 
 		//Methods
 		void LoadMultiSamples(const StdXX::String& bankFileName, const StdXX::DynamicArray<BankObjectEntry>& bankEntries);

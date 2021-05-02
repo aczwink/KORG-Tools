@@ -20,6 +20,7 @@
 #include <libkorg.hpp>
 #include "../EventComparison.hpp"
 //Namespaces
+using namespace libKORG;
 using namespace StdXX;
 
 TEST_SUITE(EmptyStyleTests)
@@ -40,13 +41,13 @@ TEST_SUITE(EmptyStyleTests)
 		for(const auto& styleElement : styleData.styleElements)
 		{
 			for(const auto& cv : styleElement.cv)
-				ShouldHaveNoEvents(cv.midiTrack.events);
+				ShouldHaveNoEvents(cv.masterMidiTrack.events);
 		}
 
 		for(const auto& styleElement : styleData.variation)
 		{
 			for(const auto& cv : styleElement.cv)
-				ShouldHaveNoEvents(cv.midiTrack.events);
+				ShouldHaveNoEvents(cv.masterMidiTrack.events);
 		}
 	}
 }

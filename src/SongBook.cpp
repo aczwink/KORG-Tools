@@ -17,7 +17,7 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 //Class header
-#include <libkorg/SongBook.hpp>
+#include <libkorg/BankFormat/SongBook.hpp>
 //Namespaces
 using namespace StdXX;
 using namespace libKORG;

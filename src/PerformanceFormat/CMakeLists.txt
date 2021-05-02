@@ -8,6 +8,7 @@ set(SOURCE_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/Format1.0/PerformanceFormat1_0V0_0Reader.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Format1.0/PerformanceFormat1_0V0_0Reader.hpp
 
+	${CMAKE_CURRENT_SOURCE_DIR}/PerformanceFormatReader.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/PerformanceReader.hpp
 
 	PARENT_SCOPE)

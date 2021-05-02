@@ -41,13 +41,12 @@ namespace libKORG::BankFormat
 
 	protected:
 		//Methods
-		bool IsDataChunk(const ChunkHeader &chunkHeader) override;
-		ChunkReader& OnEnteringChunk(const ChunkHeader &chunkHeader) override;
+		ChunkReader* OnEnteringChunk(const ChunkHeader &chunkHeader) override;
 		void OnLeavingChunk(const ChunkHeader &chunkHeader) override;
 		void ReadDataChunk(const ChunkHeader& chunkHeader, StdXX::DataReader &dataReader) override;
 
 		//Overrideable
-		virtual ChunkReader& OnEnteringChunkedResourceChunk(const ChunkHeader &chunkHeader, const HeaderEntry& headerEntry);
+		virtual ChunkReader* OnEnteringChunkedResourceChunk(const ChunkHeader &chunkHeader, const HeaderEntry& headerEntry);
 		virtual void ReadBankObject(ChunkType chunkType, const ChunkHeader& chunkHeader, const HeaderEntry& headerEntry, StdXX::DataReader& dataReader);
 
 		//Inline

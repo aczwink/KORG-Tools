@@ -18,7 +18,7 @@
  */
 #include <StdXX.hpp>
 //Local
-#include <libkorg/SingleTouchSettings.hpp>
+#include <libkorg/BankFormat/SingleTouchSettings.hpp>
 #include "ChunkWriter.hpp"
 
 class PerformanceWriter : public ChunkWriter

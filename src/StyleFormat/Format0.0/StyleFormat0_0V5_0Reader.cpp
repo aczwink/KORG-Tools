@@ -84,7 +84,7 @@ void StyleFormat0_0V5_0Reader::ReadDataChunk(const ChunkHeader& chunkHeader, Dat
 	}
 }
 
-ChunkReader& StyleFormat0_0V5_0Reader::OnEnteringChunk(const ChunkHeader& chunkHeader)
+ChunkReader* StyleFormat0_0V5_0Reader::OnEnteringChunk(const ChunkHeader& chunkHeader)
 {
 	this->parentChunkId = chunkHeader.id;
 
@@ -93,7 +93,7 @@ ChunkReader& StyleFormat0_0V5_0Reader::OnEnteringChunk(const ChunkHeader& chunkH
 		this->nextMIDITrackNumber = 0;
 	}
 
-	return *this;
+	return this;
 }
 
 void StyleFormat0_0V5_0Reader::OnLeavingChunk(const ChunkHeader& chunkHeader)

@@ -17,7 +17,7 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 //Local
-#include <libkorg/Numbers.hpp>
+#include <libkorg/Performance/Numbers.hpp>
 #include "KORG_MIDI.hpp"
 
 namespace libKORG::Style

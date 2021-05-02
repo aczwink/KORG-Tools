@@ -36,19 +36,18 @@ public:
 
 protected:
 	//Methods
-	ChunkReader &OnEnteringChunk(const ChunkHeader &chunkHeader) override
+	ChunkReader* OnEnteringChunk(const ChunkHeader &chunkHeader) override
 	{
 		if(chunkHeader.type == 1)
 		{
 			switch(chunkHeader.version.AsUInt16())
 			{
 				case 0x0500:
-					return this->styleFormat00V50Reader;
+					return &this->styleFormat00V50Reader;
 			}
 		}
 
-		NOT_IMPLEMENTED_ERROR; //TODO: implement me
-		return *this;
+		return nullptr;
 	}
 
 	void ReadDataChunk(const ChunkHeader &chunkHeader, StdXX::DataReader &dataReader) override

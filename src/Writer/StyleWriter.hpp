@@ -18,7 +18,7 @@
  */
 #include <StdXX.hpp>
 //Local
-#include <libkorg/Style.hpp>
+#include <libkorg/BankFormat/Style.hpp>
 #include "ChunkWriter.hpp"
 
 class StyleWriter : public ChunkWriter

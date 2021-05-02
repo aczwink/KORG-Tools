@@ -17,22 +17,38 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 //Local
-#include <libkorg/BankObject.hpp>
+#include <libkorg/BankFormat/BankObject.hpp>
 #include <libkorg/ChunkFormat/ChunkFormat.hpp>
+#include "Format3.0/SoundFormat3_0Reader.hpp"
+#include "Format2.0/SoundFormat2_0Reader.hpp"
+
 using namespace StdXX;
 
 class SoundReader
 {
 public:
-	Sound* ReadData(const libKORG::ChunkVersion& chunkVersion, DataReader& dataReader)
+	SoundObject* ReadData(const libKORG::ChunkVersion& chunkVersion, DataReader& dataReader)
 	{
 		switch (chunkVersion.AsUInt16())
 		{
 			case 0x0200:
+			{
+				SoundFormat2_0Reader soundFormat20Reader;
+				soundFormat20Reader.Read(dataReader);
+				return new SoundObject(Move(soundFormat20Reader.data));
+			}
 			case 0x0300:
-				return new Sound(dataReader.InputStream());
+			{
+				SoundFormat3_0Reader soundFormat30Reader;
+				soundFormat30Reader.Read(dataReader);
+				return new SoundObject(Move(soundFormat30Reader.data));
+			}
 			default:
-				stdErr << u8"Unknown sound version: " << String::HexNumber(chunkVersion.AsUInt16(), 4) << endl;
+			{
+				stdErr << u8"Unknown sound version: " << String::HexNumber(chunkVersion.AsUInt16(), 4) << u8" skipping..." << endl;
+				NullOutputStream nullOutputStream;
+				dataReader.InputStream().FlushTo(nullOutputStream);
+			}
 		}
 
 		return nullptr;

@@ -18,7 +18,7 @@
  */
 #pragma once
 //Local
-#include <libkorg/Performance.hpp>
+#include <libkorg/BankFormat/Performance.hpp>
 #include <libkorg/ChunkFormat/ChunkReader.hpp>
 
 class KeyboardSettingsReader : public libKORG::ChunkReader
@@ -32,7 +32,7 @@ public:
 
 protected:
 	//Methods
-	ChunkReader &OnEnteringChunk(const libKORG::ChunkHeader &chunkHeader) override;
+	ChunkReader* OnEnteringChunk(const libKORG::ChunkHeader &chunkHeader) override;
 	void ReadDataChunk(const libKORG::ChunkHeader &chunkHeader, StdXX::DataReader &dataReader) override;
 
 private:

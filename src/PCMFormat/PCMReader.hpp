@@ -17,20 +17,35 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 //Local
-#include <libkorg/BankObject.hpp>
+#include <libkorg/BankFormat/BankObject.hpp>
 #include <libkorg/ChunkFormat/ChunkFormat.hpp>
+#include "Format0.0/PCMFormat0_0Reader.hpp"
 
 class PCMReader
 {
 public:
 	AbstractSample *Read(const libKORG::ChunkHeader& chunkHeader, StdXX::DataReader& dataReader)
 	{
-		ASSERT_EQUALS(0, chunkHeader.version.major);
-		ASSERT_EQUALS(0, chunkHeader.version.minor);
-
 		if(chunkHeader.flags & (uint8)ChunkHeaderFlags::Encrypted)
 			return new EncryptedSample(dataReader.InputStream());
 
-		return new Sample(dataReader.InputStream());
+		switch(chunkHeader.version.AsUInt16())
+		{
+			case 0x0000:
+			{
+				PCMFormat0_0Reader pcmFormat00Reader;
+				pcmFormat00Reader.Read(dataReader);
+				return new SampleObject(StdXX::Move(pcmFormat00Reader.data));
+			}
+			break;
+			default:
+			{
+				StdXX::stdErr << u8"Unknown PCM version: " << StdXX::String::HexNumber(chunkHeader.version.AsUInt16(), 4) << u8" skipping..." << StdXX::endl;
+				StdXX::NullOutputStream nullOutputStream;
+				dataReader.InputStream().FlushTo(nullOutputStream);
+			}
+		}
+
+		return nullptr;
 	}
 };

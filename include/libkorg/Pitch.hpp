@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
+#pragma once
 #include <StdXX.hpp>
 
 namespace libKORG
@@ -58,6 +59,11 @@ namespace libKORG
 		{
 			this->octave = octave;
 			this->pitchWithinOctave = pitchWithinOctave;
+		}
+
+		inline bool operator==(const Pitch& other) const
+		{
+			return this->Encode() == other.Encode();
 		}
 
 		inline uint8 Encode() const

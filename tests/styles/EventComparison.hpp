@@ -16,6 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
+using namespace libKORG;
+using namespace libKORG::Style;
 
 inline void OnlyVar1ShouldBeEnabled(const StyleView& styleView)
 {

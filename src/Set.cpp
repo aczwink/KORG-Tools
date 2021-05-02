@@ -19,7 +19,7 @@
 //Class header
 #include <libkorg/Set.hpp>
 //Local
-#include <libkorg/SingleTouchSettings.hpp>
+#include <libkorg/BankFormat/SingleTouchSettings.hpp>
 #include <libkorg/Text.hpp>
 #include <libkorg/BankFormat/Reader.hpp>
 #include "BankFormat/Writer.hpp"
@@ -35,10 +35,10 @@ Set::Set(const Path &setPath) : setPath(setPath)
 	ASSERT(setDir.Exists(), u8"Set does not exist");
 
 	//TODO: GLOBAL
-	//this->ReadDirectory(setPath, u8"MULTISMP", &Set::LoadMultiSamples);
+	this->ReadDirectory(setPath, u8"MULTISMP", &Set::LoadMultiSamples);
 	//this->ReadDirectory(setPath, u8"PAD", &Set::LoadPads);
 	this->ReadDirectory(setPath, u8"PCM", &Set::LoadSamples);
-	//this->ReadDirectory(setPath, u8"PERFORM", &Set::LoadPerformances);
+	this->ReadDirectory(setPath, u8"PERFORM", &Set::LoadPerformances);
 	//this->LoadSongBook(setPath);
 	this->ReadDirectory(setPath, u8"SOUND", &Set::LoadSounds);
 	this->ReadDirectory(setPath, u8"STYLE", &Set::LoadStyles);
@@ -52,7 +52,7 @@ void Set::Save()
 		if(kv.value.saved)
 			continue;
 
-		FileOutputStream fileOutputStream(this->setPath / String(u8"STYLE") / (StyleBankNumberToString(kv.key) + u8".STY"), true);
+		FileOutputStream fileOutputStream(this->setPath / String(u8"STYLE") / (kv.key.ToString() + u8".STY"), true);
 		BankFormat::Writer styleBankWriter(fileOutputStream);
 		styleBankWriter.Write(kv.value);
 
@@ -75,8 +75,11 @@ Set Set::Create(const Path &targetPath)
 //Private methods
 void Set::LoadMultiSamples(const String &bankFileName, const DynamicArray<BankObjectEntry> &bankEntries)
 {
-	ASSERT_EQUALS(1, bankEntries.GetNumberOfElements());
-	this->multiSamples = dynamic_cast<MultiSample*>(bankEntries[0].object);
+	if(!bankEntries.IsEmpty())
+	{
+		ASSERT_EQUALS(1, bankEntries.GetNumberOfElements());
+		this->multiSamples = dynamic_cast<MultiSamplesObject*>(bankEntries[0].object);
+	}
 }
 
 void Set::LoadPads(const String &bankFileName, const DynamicArray<BankObjectEntry> &bankEntries)
@@ -161,7 +164,7 @@ void Set::LoadSounds(const String &bankFileName, const DynamicArray<BankObjectEn
 	SoundBank bank;
 	for(const BankObjectEntry& bankObjectEntry : bankEntries)
 	{
-		Sound& sound = dynamic_cast<Sound&>(*bankObjectEntry.object);
+		SoundObject& sound = dynamic_cast<SoundObject&>(*bankObjectEntry.object);
 		bank.AddObject(bankObjectEntry.name, bankObjectEntry.pos, &sound);
 	}
 
@@ -184,9 +187,11 @@ void Set::LoadStyles(const String &bankFileName, const DynamicArray<BankObjectEn
 	for(const auto& kv : styleEntries)
 	{
 		StyleObject& style = dynamic_cast<StyleObject&>(*styleEntries[kv.key]->object);
-		SingleTouchSettings& sts = dynamic_cast<SingleTouchSettings&>(*performanceEntries[kv.key]->object);
+		SingleTouchSettings* sts = nullptr;
+		if(performanceEntries.Contains(kv.key))
+			sts = dynamic_cast<SingleTouchSettings*>(performanceEntries[kv.key]->object);
 
-		bank.AddObject(kv.value->name, kv.value->pos, new FullStyle(&style, &sts));
+		bank.AddObject(kv.value->name, kv.value->pos, new FullStyle(&style, sts));
 	}
 	bank.saved = true;
 

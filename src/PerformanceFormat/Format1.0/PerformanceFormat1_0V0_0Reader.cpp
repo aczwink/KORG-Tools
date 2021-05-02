@@ -43,17 +43,17 @@ libKORG::SingleTouchSettings *PerformanceFormat1_0V0_0Reader::TakeSTSResult()
 }
 
 //Protected methods
-ChunkReader &PerformanceFormat1_0V0_0Reader::OnEnteringChunk(const ChunkHeader &chunkHeader)
+ChunkReader* PerformanceFormat1_0V0_0Reader::OnEnteringChunk(const ChunkHeader &chunkHeader)
 {
 	switch(chunkHeader.type)
 	{
 		case 2:
-			return this->accompanimentSettingsReader;
+			return &this->accompanimentSettingsReader;
 		case 10:
 			this->keyboardSettingsReader = new KeyboardSettingsReader(keyboardSettings, perfIndex);
-			return *this->keyboardSettingsReader;
+			return this->keyboardSettingsReader.operator->();
 	}
-	return *this;
+	return this;
 }
 
 void PerformanceFormat1_0V0_0Reader::OnLeavingChunk(const ChunkHeader &chunkHeader)

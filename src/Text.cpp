@@ -98,12 +98,6 @@ uint8 libKORG::ParseStyleBankName(const String& string)
 	return bankNumber;
 }
 
-String libKORG::PerformanceBankNumberToString(uint8 bankNumber)
-{
-	String numberAsString = String::Number(bankNumber + 1, 10, 2);
-	return u8"BANK" + numberAsString;
-}
-
 String libKORG::PitchToString(Pitch pitch)
 {
 	String result;
@@ -148,22 +142,4 @@ String libKORG::PitchToString(Pitch pitch)
 	}
 
 	return result + String::Number(pitch.octave);
-}
-
-String libKORG::StyleBankNumberToString(uint8 bankNumber)
-{
-	String prefix = u8"BANK";
-
-	if(bankNumber >= 20)
-	{
-		bankNumber -= 20;
-		prefix = u8"FAVORITE";
-	}
-	else if(bankNumber >= 17)
-	{
-		bankNumber -= 17;
-		prefix = u8"USER";
-	}
-
-	return prefix + String::Number(bankNumber + 1, 10, 2);
 }

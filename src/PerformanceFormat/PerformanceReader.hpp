@@ -17,8 +17,9 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 //Local
-#include <libkorg/BankObject.hpp>
+#include <libkorg/BankFormat/BankObject.hpp>
 #include "Format1.0/PerformanceFormat1_0V0_0Reader.hpp"
+#include "PerformanceFormatReader.hpp"
 
 class PerformanceReader : public BankFormat::BankObjectReader
 {
@@ -27,21 +28,24 @@ public:
 	BankFormat::BankObject *TakeResult() override
 	{
 		if(this->stylePerformances)
-			return this->choice->TakeSTSResult();
-		return this->choice->TakePerformanceResult();
+			return this->formatReader->TakeSTSResult();
+		return this->formatReader->TakePerformanceResult();
 	}
 
 	//Functions
 	static PerformanceReader* CreateInstance(bool stylePerformances, const ChunkVersion& chunkVersion)
 	{
-		return new PerformanceReader(stylePerformances, chunkVersion);
+		UniquePointer<PerformanceFormatReader> formatReader = CreateFormatReader(chunkVersion);
+		if(formatReader.IsNull())
+			return nullptr;
+		return new PerformanceReader(stylePerformances, Move(formatReader));
 	}
 
 protected:
 	//Methods
-	ChunkReader &OnEnteringChunk(const ChunkHeader &chunkHeader) override
+	ChunkReader* OnEnteringChunk(const ChunkHeader &chunkHeader) override
 	{
-		return *this->choice;
+		return this->formatReader.operator->();
 	}
 
 	void ReadDataChunk(const ChunkHeader &chunkHeader, StdXX::DataReader &dataReader) override
@@ -52,16 +56,22 @@ protected:
 private:
 	//Members
 	bool stylePerformances;
-	PerformanceFormat1_0V0_0Reader* choice;
-	PerformanceFormat1_0V0_0Reader performanceFormat10V00Reader;
+	UniquePointer<PerformanceFormatReader> formatReader;
 
 	//Constructor
-	inline PerformanceReader(bool stylePerformances, const ChunkVersion& chunkVersion) : stylePerformances(stylePerformances)
+	inline PerformanceReader(bool stylePerformances, UniquePointer<PerformanceFormatReader>&& formatReader) : stylePerformances(stylePerformances), formatReader(Move(formatReader))
+	{
+	}
+
+	//Functions
+	static UniquePointer<PerformanceFormatReader> CreateFormatReader(const ChunkVersion& chunkVersion)
 	{
 		switch(chunkVersion.AsUInt16())
 		{
 			case 0x0100:
-				this->choice = &performanceFormat10V00Reader;
+				return new PerformanceFormat1_0V0_0Reader;
 		}
+
+		return nullptr;
 	}
 };

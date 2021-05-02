@@ -19,6 +19,8 @@
 #include <StdXXTest.hpp>
 #include <libkorg.hpp>
 //Namespaces
+using namespace libKORG;
+using namespace libKORG::Style;
 using namespace StdXX;
 
 TEST_SUITE(Var2CV1AndVar3CV1AndVar4CV1HaveSingleDrumNoteTests)

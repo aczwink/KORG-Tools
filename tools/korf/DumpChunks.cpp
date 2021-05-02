@@ -34,7 +34,7 @@ public:
 
 protected:
 	//Methods
-	ChunkReader& OnEnteringChunk(const ChunkHeader &chunkHeader) override
+	ChunkReader* OnEnteringChunk(const ChunkHeader &chunkHeader) override
 	{
 		this->PrintDashes(this->depth);
 		stdOut << u8"Entering chunk " << String::HexNumber(chunkHeader.id, 8) << u8" with size " << chunkHeader.size << endl;
@@ -46,7 +46,7 @@ protected:
 		File dir(this->pathStack.Last());
 		dir.CreateDirectory();
 
-		return *this;
+		return this;
 	}
 
 	void OnLeavingChunk(const ChunkHeader &chunkHeader) override

@@ -2,32 +2,22 @@ add_subdirectory(BankFormat)
 add_subdirectory(ChunkFormat)
 add_subdirectory(Converters)
 add_subdirectory(DataViews)
+add_subdirectory(MultiSamples)
+add_subdirectory(Performance)
+add_subdirectory(Sample)
+add_subdirectory(Sound)
 add_subdirectory(Style)
 
 set(SOURCE_FILES
 	${SOURCE_FILES}
 
-	${CMAKE_CURRENT_SOURCE_DIR}/BankObject.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/EncryptedSample.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/FullStyle.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Model.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/UnknownChunk.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/MultiSample.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/ObjectBank.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Package.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/Pad.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/Performance.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Pitch.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ProgramChangeSequence.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/Sample.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Set.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/SingleTouchSettings.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/SongBookEntry.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/SongBook.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/Sound.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/SoundBankNumber.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/Style.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Text.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/Numbers.hpp
 
 	PARENT_SCOPE)

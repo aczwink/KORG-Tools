@@ -29,8 +29,11 @@ namespace libKORG::BankFormat
 		ObjectTOC = 5,
 		StyleObject = 6,
 		OldSoundDataMaybe = 7,
+		SongBookListData = 8,
 		PerformancesData = 9,
+		PadData = 12,
 		SoundData = 16,
+		MultiSampleData = 17,
 		PCMData = 18,
 		CrossReferenceTable = 0xFE,
 	};
@@ -47,22 +50,6 @@ namespace libKORG::BankFormat
 		SongBookEntry = 11,
 		SongBook = 12,
 	};
-
-	/*
-	 * enum class ChunkId : uint32
-{
-	SongBookListData = 0x080000,
-	SongBookListData1 = 0x080001,
-	PerformanceData02 = 0x090002,
-	PerformanceData03 = 0x090003,
-	PerformanceData20 = 0x090200,
-	PerformanceData21 = 0x090201,
-	PadData = 0x0C0000,
-	SoundData00 = 0x100000,
-	SoundData0 = 0x100100,
-	MultiSampleData = 0x110300,
-};
-	 */
 
 	struct HeaderEntry
 	{

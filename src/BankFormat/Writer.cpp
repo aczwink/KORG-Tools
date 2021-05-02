@@ -19,7 +19,7 @@
 //Class header
 #include "Writer.hpp"
 //Local
-#include "libkorg/Style.hpp"
+#include "libkorg/BankFormat/Style.hpp"
 #include "../Writer/PerformanceWriter.hpp"
 #include "../Writer/StyleWriter.hpp"
 //Namespaces

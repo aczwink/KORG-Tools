@@ -33,11 +33,11 @@ public:
 
 protected:
 	//Methods
-	ChunkReader& OnEnteringChunk(const ChunkHeader &chunkHeader) override
+	ChunkReader* OnEnteringChunk(const ChunkHeader &chunkHeader) override
 	{
 		this->WriteChunkHeader(chunkHeader);
 
-		return *this;
+		return this;
 	}
 
 	void ReadDataChunk(const ChunkHeader &chunkHeader, DataReader &dataReader) override
@@ -72,14 +72,14 @@ protected:
 		dataReader.InputStream().FlushTo(*this->objectsData[&headerEntry].CreateOutputStream());
 	}
 
-	ChunkReader &OnEnteringChunkedResourceChunk(const ChunkHeader &chunkHeader, const BankFormat::HeaderEntry &headerEntry) override
+	ChunkReader* OnEnteringChunkedResourceChunk(const ChunkHeader &chunkHeader, const BankFormat::HeaderEntry &headerEntry) override
 	{
 		switch (BankFormat::ChunkType(chunkHeader.type))
 		{
 			case BankFormat::ChunkType::PerformancesData:
 			case BankFormat::ChunkType::StyleObject:
 				this->chunkSerializer = new ChunkSerializer(this->objectsData[&headerEntry].CreateOutputStream());
-				return *this->chunkSerializer;
+				return this->chunkSerializer.operator->();
 		}
 		return Reader::OnEnteringChunkedResourceChunk(chunkHeader, headerEntry);
 	}
@@ -114,6 +114,9 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 	CommandLine::Group dumpChunks(u8"dump-chunks", u8"Dump chunks into filesystem");
 	commandGroup.AddCommand(dumpChunks);
 
+	CommandLine::Group dumpObject(u8"dump-object", u8"Dump object into filesystem");
+	commandGroup.AddCommand(dumpObject);
+
 	CommandLine::PathArgument inputPathArg(u8"input-path", u8"Path to the input korf file");
 	parser.AddPositionalArgument(inputPathArg);
 
@@ -139,16 +142,19 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 	{
 		if(kv.key->pos == pos)
 		{
+			String name = String::Number((uint8)kv.key->type) + u8"_" + String::HexNumber(kv.key->dataVersion.AsUInt16(), 4) + u8"_" + kv.key->name;
 			if(result.IsActivated(dumpChunks))
 			{
-				String name = String::Number((uint8)kv.key->type) + u8"_" + String::HexNumber(kv.key->dataVersion.AsUInt16(), 4) + u8"_" + kv.key->name;
-
 				stdOut << u8"Dumping chunks of: " << name << endl;
 
 				Path path = FileSystemsManager::Instance().OSFileSystem().GetWorkingDirectory() / name;
 				DumpChunks(path, *kv.value.CreateInputStream());
 
 				stdOut << endl;
+			}
+			else if(result.IsActivated(dumpObject))
+			{
+				kv.value.CreateInputStream()->FlushTo(stdOut);
 			}
 		}
 	}

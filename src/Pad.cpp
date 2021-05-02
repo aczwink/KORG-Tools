@@ -17,7 +17,7 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 //Class header
-#include <libkorg/Pad.hpp>
+#include <libkorg/BankFormat/Pad.hpp>
 //Namespaces
 using namespace libKORG;
 using namespace StdXX;

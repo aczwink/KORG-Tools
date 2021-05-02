@@ -21,6 +21,9 @@
 #include "StyleOutputter.hpp"
 #include "PerformanceOutputter.hpp"
 #include "XMLOutputter.hpp"
+#include "SoundOutputter.hpp"
+#include "MultiSamplesOutputter.hpp"
+#include "SampleOutputter.hpp"
 
 using namespace libKORG;
 
@@ -31,8 +34,8 @@ struct PrintSettings
 	Optional<uint8> posNumber;
 };
 
-template<typename BankType, typename ObjectOutputter>
-void PrintBanks(const PrintSettings& printSettings, const Map<uint8, BankType>& banks, FormattedOutputter& outputter, Function<String(uint8)> bankNumberToString)
+template<typename BankNumberType, typename BankType, typename ObjectOutputter>
+void PrintBanks(const PrintSettings& printSettings, const Map<BankNumberType, BankType>& banks, FormattedOutputter& outputter)
 {
 	uint8 bankNumber = 0;
 	for(const auto& kv : banks)
@@ -40,7 +43,7 @@ void PrintBanks(const PrintSettings& printSettings, const Map<uint8, BankType>& 
 		if(printSettings.bankNumber.HasValue() && (*printSettings.bankNumber != bankNumber++))
 			continue;
 
-		Section bankSection(bankNumberToString(kv.key), outputter);
+		Section bankSection(kv.key.ToString(), outputter);
 
 		uint8 posNumber = 0;
 		for(const auto& kv2 : kv.value.Objects())
@@ -59,35 +62,109 @@ void PrintBanks(const PrintSettings& printSettings, const Map<uint8, BankType>& 
 	}
 }
 
+void PrintMultiSamples(const PrintSettings& printSettings, Set& set, FormattedOutputter& outputter)
+{
+	MultiSamplesOutputter multiSamplesOutputter(outputter);
+	multiSamplesOutputter.Output(set.MultiSamples());
+}
+
 void PrintPerformanceBanks(const PrintSettings& printSettings, Set& set, FormattedOutputter& outputter)
 {
-	PrintBanks<PerformanceBank, PerformanceOutputter>(printSettings, set.PerformanceBanks(), outputter, PerformanceBankNumberToString);
+	PrintBanks<PerformanceBankNumber, PerformanceBank, PerformanceOutputter>(printSettings, set.PerformanceBanks(), outputter); //PerformanceBankNumberToString
+}
+
+void PrintSampleBanks(const PrintSettings& printSettings, Set& set, FormattedOutputter& outputter)
+{
+	PrintBanks<SampleBankNumber, SampleBank, SampleOutputter>(printSettings, set.SampleBanks(), outputter);
+}
+
+void PrintSoundBanks(const PrintSettings& printSettings, Set& set, FormattedOutputter& outputter)
+{
+	PrintBanks<SoundBankNumber, SoundBank, SoundOutputter>(printSettings, set.SoundBanks(), outputter);
 }
 
 void PrintStyleBanks(const PrintSettings& printSettings, Set& set, FormattedOutputter& outputter)
 {
-	PrintBanks<StyleBank, StyleOutputter>(printSettings, set.StyleBanks(), outputter, StyleBankNumberToString);
+	PrintBanks<StyleBankNumber, StyleBank, StyleOutputter>(printSettings, set.StyleBanks(), outputter); //StyleBankNumberToString
 }
+
+enum class ResourceType
+{
+	MultiSamples,
+	Performances,
+	Samples,
+	Sounds,
+	Styles
+};
 
 int32 Main(const String &programName, const FixedArray<String> &args)
 {
-	FileSystem::Path setPath = FileSystem::FileSystemsManager::Instance().OSFileSystem().FromNativePath(args[0]);
+	CommandLine::Parser parser(programName);
+
+	parser.AddHelpOption();
+
+	CommandLine::PathArgument inputPathArg(u8"input-path", u8"Path to the set that should be dumped");
+	parser.AddPositionalArgument(inputPathArg);
+
+	CommandLine::EnumArgument<ResourceType> typeArgument(u8"type", u8"The resource type of the set that should be dumped");
+	typeArgument.AddMapping(u8"multisamples", ResourceType::MultiSamples, u8"Dump multisamples");
+	typeArgument.AddMapping(u8"performances", ResourceType::Performances, u8"Dump performances");
+	typeArgument.AddMapping(u8"samples", ResourceType::Samples, u8"Dump samples");
+	typeArgument.AddMapping(u8"sounds", ResourceType::Sounds, u8"Dump sounds");
+	typeArgument.AddMapping(u8"styles", ResourceType::Styles, u8"Dump styles");
+	parser.AddPositionalArgument(typeArgument);
+
+	CommandLine::OptionWithArgument bankOpt(u8'b', u8"bank-number", u8"Bank number to generate info for");
+	parser.AddOption(bankOpt);
+
+	CommandLine::OptionWithArgument inputPosOpt(u8'p', u8"input-pos", u8"Position of resource within the bank(s)");
+	parser.AddOption(inputPosOpt);
+
+	if(!parser.Parse(args))
+	{
+		parser.PrintHelp();
+		return EXIT_FAILURE;
+	}
+
+	const CommandLine::MatchResult& result = parser.ParseResult();
+
+	FileSystem::Path setPath = inputPathArg.Value(result);
 	Set set(setPath);
 
-	bool showPerformances = false;
-	bool showStyles = true;
+	ResourceType resourceType = typeArgument.Value(result);
 
 	PrintSettings printSettings;
 	printSettings.showObjects = true;
-	printSettings.bankNumber = 0;
-	printSettings.posNumber = 0;
+
+	if(result.IsActivated(bankOpt))
+	{
+		printSettings.bankNumber = result.Value(bankOpt).ToUInt();
+	}
+	if(result.IsActivated(inputPosOpt))
+	{
+		printSettings.posNumber = result.Value(inputPosOpt).ToUInt();
+	}
 
 	UniquePointer<FormattedOutputter> outputter = new XMLOutputter(stdOut);
 
-	if(showPerformances)
-		PrintPerformanceBanks(printSettings, set, *outputter);
-	if(showStyles)
-		PrintStyleBanks(printSettings, set, *outputter);
+	switch(resourceType)
+	{
+		case ResourceType::MultiSamples:
+			PrintMultiSamples(printSettings, set, *outputter);
+			break;
+		case ResourceType::Performances:
+			PrintPerformanceBanks(printSettings, set, *outputter);
+			break;
+		case ResourceType::Samples:
+			PrintSampleBanks(printSettings, set, *outputter);
+			break;
+		case ResourceType::Sounds:
+			PrintSoundBanks(printSettings, set, *outputter);
+			break;
+		case ResourceType::Styles:
+			PrintStyleBanks(printSettings, set, *outputter);
+			break;
+	}
 
 	return EXIT_SUCCESS;
 }
