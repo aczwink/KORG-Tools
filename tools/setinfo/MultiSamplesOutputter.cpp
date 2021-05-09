@@ -37,6 +37,13 @@ void MultiSamplesOutputter::Output(const MultiSamplesObject& multiSamplesObject)
 	}
 
 	{
+		Section sampleEntriesSection(u8"Keyboard zones", this->formattedOutputter);
+
+		for(uint32 i = 0; i < multiSamplesObject.data.keyboardZones.GetNumberOfElements(); i++)
+			this->Output(i, multiSamplesObject.data.keyboardZones[i]);
+	}
+
+	{
 		Section sampleEntriesSection(u8"Multisample entries", this->formattedOutputter);
 
 		for(uint32 i = 0; i < multiSamplesObject.data.multiSampleEntries.GetNumberOfElements(); i++)
@@ -65,8 +72,19 @@ void MultiSamplesOutputter::Output(uint32 index, const MultiSampleEntry& multiSa
 	this->formattedOutputter.OutputProperty(u8"unknown1", multiSampleEntry.unknown1);
 	this->formattedOutputter.OutputProperty(u8"name", multiSampleEntry.name);
 
-	for(uint32 i = 0; i < sizeof(multiSampleEntry.unknown2); i++)
-		this->formattedOutputter.OutputProperty(u8"unknown2 " + String::Number(i), multiSampleEntry.unknown2[i]);
+	this->formattedOutputter.OutputUnknownProperties(multiSampleEntry.unknown2, sizeof(multiSampleEntry.unknown2));
+
+	for(uint8 i = 0; i < 128; i++)
+	{
+		Section subSection(u8"Key entry " + String::Number(i), this->formattedOutputter);
+
+		this->formattedOutputter.OutputProperty(u8"Pitch", Pitch(i));
+		this->formattedOutputter.OutputProperty(u8"keyZoneIndex", multiSampleEntry.keyZoneIndex[i]);
+	}
+
+	this->formattedOutputter.OutputProperty(u8"nKeyZones", multiSampleEntry.nKeyZones);
+	this->formattedOutputter.OutputProperty(u8"unknown3", multiSampleEntry.unknown3);
+	this->formattedOutputter.OutputProperty(u8"id", String::HexNumber(multiSampleEntry.id, 16));
 }
 
 void MultiSamplesOutputter::Output(uint32 index, const SampleEntry& sampleEntry) const
@@ -82,12 +100,25 @@ void MultiSamplesOutputter::Output(uint32 index, const SampleEntry& sampleEntry)
 		this->formattedOutputter.OutputProperty(u8"unknown2 " + String::Number(i), sampleEntry.unknown2[i]);
 
 	this->formattedOutputter.OutputProperty(u8"name", sampleEntry.name);
-
-	for(uint32 i = 0; i < sizeof(sampleEntry.unknown3); i++)
-		this->formattedOutputter.OutputProperty(u8"unknown3 " + String::Number(i), sampleEntry.unknown3[i]);
+	this->formattedOutputter.OutputProperty(u8"ID", String::HexNumber(sampleEntry.id, 16));
 
 	for(uint32 i = 0; i < sizeof(sampleEntry.unknown4); i++)
 		this->formattedOutputter.OutputProperty(u8"unknown4 " + String::Number(i), sampleEntry.unknown4[i]);
 
 	this->formattedOutputter.OutputProperty(u8"originalNote", sampleEntry.originalNote);
+}
+
+void MultiSamplesOutputter::Output(uint32 index, const KeyboardZone& keyboardZone) const
+{
+	Section section(u8"Keyboard zone " + String::Number(index), this->formattedOutputter);
+
+	this->formattedOutputter.OutputProperty(u8"unknown1", keyboardZone.unknown1);
+	this->formattedOutputter.OutputProperty(u8"sampleNumber", keyboardZone.sampleNumber);
+	this->formattedOutputter.OutputProperty(u8"to", keyboardZone.to);
+	this->formattedOutputter.OutputProperty(u8"originalNote", keyboardZone.originalNote);
+	this->formattedOutputter.OutputUnknownProperties(keyboardZone.unknown3, sizeof(keyboardZone.unknown3));
+	this->formattedOutputter.OutputProperty(u8"pitch", keyboardZone.pitch);
+	this->formattedOutputter.OutputProperty(u8"level", keyboardZone.level);
+	this->formattedOutputter.OutputProperty(u8"unknown4", keyboardZone.unknown4);
+	this->formattedOutputter.OutputProperty(u8"unknown5", keyboardZone.unknown5);
 }

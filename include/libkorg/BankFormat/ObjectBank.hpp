@@ -24,6 +24,28 @@
 template <typename ObjectType>
 class ObjectBank
 {
+	struct BankObjectEntry
+	{
+		StdXX::String name;
+		StdXX::SharedPointer<ObjectType> object;
+	};
+
+	struct ObjectEntry : public BankObjectEntry
+	{
+		uint8 pos;
+
+		inline ObjectEntry(uint8 pos, const BankObjectEntry& bankObjectEntry) : pos(pos)
+		{
+			this->name = bankObjectEntry.name;
+			this->object = bankObjectEntry.object;
+		}
+
+		ObjectEntry(const ObjectEntry&) = default;
+		ObjectEntry(ObjectEntry&&) = default;
+
+		ObjectEntry& operator=(const ObjectEntry&) = delete;
+		ObjectEntry& operator=(ObjectEntry&&) = delete;
+	};
 public:
 	//Members
 	bool saved;
@@ -35,9 +57,12 @@ public:
 	}
 
 	//Properties
-	inline const StdXX::Map<uint8, StdXX::Tuple<StdXX::String, StdXX::SharedPointer<ObjectType>>>& Objects() const
+	inline auto Objects() const
 	{
-		return this->objects;
+		return this->objects.Entries() >> StdXX::Map<const StdXX::KeyValuePair<uint8, BankObjectEntry>&, ObjectEntry>([](const auto& kv)
+		{
+			return ObjectEntry(kv.key, kv.value);
+		});
 	}
 
 	//Inline
@@ -49,5 +74,5 @@ public:
 
 private:
 	//Members
-	StdXX::Map<uint8, StdXX::Tuple<StdXX::String, StdXX::SharedPointer<ObjectType>>> objects;
+	StdXX::BinaryTreeMap<uint8, BankObjectEntry> objects;
 };

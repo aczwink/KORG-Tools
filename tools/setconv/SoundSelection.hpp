@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -16,28 +16,24 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#pragma once
-#include <StdXX.hpp>
+#include <libkorg.hpp>
+using namespace libKORG;
+using namespace StdXX;
 
-namespace libKORG
+class SoundSelection
 {
-	class SampleBankNumber : public BankNumber
+public:
+	//Constructor
+	SoundSelection(const Set& set, const DynamicArray<const SoundObject*>& selection);
+
+	//Properties
+	inline const auto& SampleIds() const
 	{
-	public:
-		//Constructor
-		inline SampleBankNumber(uint8 number) : BankNumber(number)
-		{
-		}
+		return this->sampleIds;
+	}
 
-		//Inline
-		inline StdXX::String ToFileName() const
-		{
-			return this->ToString() + u8".PCM";
-		}
-
-		inline StdXX::String ToString() const
-		{
-			return u8"RAM" + StdXX::String::Number(this->Number(), 10, 2);
-		}
-	};
-}
+private:
+	//Members
+	BinaryTreeSet<uint64> multiSampleIds;
+	BinaryTreeSet<uint8> sampleIds;
+};

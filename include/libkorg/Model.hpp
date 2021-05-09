@@ -34,12 +34,25 @@ namespace libKORG
 			uint8 nStylesPerBank;
 		};
 
+		struct SupportedResourceVersions
+		{
+			ChunkVersion maxPCMVersion;
+			ChunkVersion maxPerformanceVersion;
+			ChunkVersion maxSoundVersion;
+		};
+
 		//Abstract
+		virtual bool IsSampleCompressionSupported() const = 0;
 		virtual BankSetup GetBankSetup() const = 0;
 		virtual StdXX::String GetCustomization() const = 0;
 		virtual StdXX::String GetMachId() const = 0;
-		virtual ChunkVersion GetMaximumPerformanceVersion() const = 0;
 		virtual StdXX::String GetName() const = 0;
+		/**
+		 * This means "uncompressed" samples i.e. 16-bit linear PCM.
+		 * @return in MiB (official spec says MB but actually gives figures in MiB).
+		 */
+		virtual uint32 GetSampleRAMSize() const = 0;
+		virtual SupportedResourceVersions GetSupportedResourceVersions() const = 0;
 
 		//Properties
 		inline StdXX::String InternalName() const

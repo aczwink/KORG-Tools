@@ -33,5 +33,11 @@ namespace libKORG
 		inline SampleObject(Sample::SampleData&& data) : data(StdXX::Move(data))
 		{
 		}
+
+		//Methods
+		uint32 GetSize() const override
+		{
+			return this->data.sampleBuffer.Size();
+		}
 	};
 }

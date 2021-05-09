@@ -21,6 +21,8 @@
 #include <libkorg/FullStyle.hpp>
 #include <libkorg/BankFormat/ObjectBank.hpp>
 #include <libkorg/BankFormat/BankFormat.hpp>
+#include <libkorg/BankFormat/SoundObject.hpp>
+#include <libkorg/Model.hpp>
 #include "../Writer/ChunkWriter.hpp"
 //Namespaces
 using namespace StdXX;
@@ -32,22 +34,26 @@ namespace libKORG::BankFormat
 	{
 	public:
 		//Constructor
-		inline Writer(SeekableOutputStream &outputStream) : ChunkWriter(outputStream),
-															fourccWriter(false, outputStream)
+		inline Writer(SeekableOutputStream &outputStream, const Model& model) : ChunkWriter(outputStream),
+															fourccWriter(false, outputStream), model(model)
 		{
 		}
 
 		//Methods
+		void Write(const ObjectBank<AbstractSample> &bank);
 		void Write(const ObjectBank<FullStyle> &bank);
 
 	private:
 		//Members
 		DataWriter fourccWriter;
 		DynamicArray<uint32> crossReferenceObjects;
+		const Model& model;
 
 		//Methods
+		ChunkVersion DeterminePCMVersion(const AbstractSample& sample) const;
 		void WriteCrossReferenceTable();
 		void WriteHeader();
+		void WritePCM(const AbstractSample& sample);
 		void WriteSTS(const SingleTouchSettings &singleTouchSettings);
 		void WriteStyle(const StyleObject &style);
 		void WriteTOCEntry(const String &name, uint8 pos, libKORG::BankFormat::ObjectType objectType, const ChunkVersion& version);

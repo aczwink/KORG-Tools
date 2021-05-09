@@ -20,6 +20,11 @@
 class Pa600 : public libKORG::Model
 {
 public:
+	bool IsSampleCompressionSupported() const override
+	{
+		return false;
+	}
+
 	BankSetup GetBankSetup() const override
 	{
 		return {
@@ -41,14 +46,23 @@ public:
 		return u8"103A";
 	}
 
-	libKORG::ChunkVersion GetMaximumPerformanceVersion() const override
-	{
-		return {1, 0};
-	}
-
 	StdXX::String GetName() const override
 	{
 		return u8"Pa600";
+	}
+
+	uint32 GetSampleRAMSize() const override
+	{
+		return 96;
+	}
+
+	SupportedResourceVersions GetSupportedResourceVersions() const override
+	{
+		return {
+			{0, 0},
+			{1, 0},
+			{3, 0}
+		};
 	}
 };
 

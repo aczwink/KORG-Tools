@@ -16,22 +16,24 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <StdXX.hpp>
-#include <libkorg/MultiSamples/MultiSamplesData.hpp>
+//Class header
+#include "PCMFormat0_0Writer.hpp"
+//Namespaces
+using namespace libKORG::Sample;
 
-class MultiSamplesFormat3_0Reader
+//Public methods
+void PCMFormat0_0Writer::Write(const SampleData &sampleData)
 {
-public:
-	//Members
-	libKORG::MultiSamples::MultiSamplesData data;
+	this->dataWriter.WriteUInt64(sampleData.id);
+	this->dataWriter.WriteByte(1);
+	this->dataWriter.WriteByte(static_cast<byte>(sampleData.sampleFormat));
+	this->dataWriter.WriteUInt32(sampleData.sampleRate);
 
-	//Methods
-	void Read(StdXX::DataReader& dataReader);
+	this->dataWriter.WriteUInt32(sampleData.nSamples);
 
-private:
-	//Methods
-	void ReadDrumSamples(uint16 nDrumSampleEntries, StdXX::DataReader& dataReader);
-	void ReadKeyboardZones(uint16 nEntries, StdXX::DataReader& dataReader);
-	void ReadMultiSamples(uint16 nMultiSampleEntries, StdXX::DataReader& dataReader);
-	void ReadSamples(uint16 nSampleEntries, StdXX::DataReader& dataReader);
-};
+	this->dataWriter.WriteBytes(sampleData.unknown2, sizeof(sampleData.unknown2));
+	this->dataWriter.WriteUInt16(sampleData.loopStart);
+	this->dataWriter.WriteBytes(sampleData.unknown3, sizeof(sampleData.unknown3));
+
+	sampleData.sampleBuffer.CreateInputStream()->FlushTo(this->dataWriter.Stream());
+}

@@ -19,6 +19,12 @@
 
 namespace libKORG::Sound
 {
+	enum class MultiSampleSource
+	{
+		ROM = 0,
+		RAM = 1,
+	};
+
 	enum class Offset
 	{
 		Off = 0,
@@ -30,9 +36,9 @@ namespace libKORG::Sound
 
 	struct OSCMultiSampleSettings
 	{
-		byte unknown1[8];
+		uint64 multiSampleId;
 		uint16 multiSampleNumber;
-		byte unknown2;
+		MultiSampleSource source;
 		uint8 level;
 		bool reversed;
 		Offset offset;

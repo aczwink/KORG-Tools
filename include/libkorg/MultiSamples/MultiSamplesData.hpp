@@ -29,11 +29,28 @@ namespace libKORG::MultiSamples
 		uint8 unknown2[20];
 	};
 
+	struct KeyboardZone
+	{
+		uint8 unknown1;
+		uint8 sampleNumber;
+		Pitch to;
+		Pitch originalNote;
+		uint8 unknown3[2];
+		int8 pitch;
+		int8 level;
+		uint8 unknown4;
+		uint8 unknown5;
+	};
+
 	struct MultiSampleEntry
 	{
 		uint8 unknown1;
 		StdXX::String name;
-		uint8 unknown2[140];
+		uint8 unknown2[2];
+		uint8 keyZoneIndex[128];
+		uint8 nKeyZones;
+		uint8 unknown3;
+		uint64 id;
 	};
 
 	struct SampleEntry
@@ -42,7 +59,7 @@ namespace libKORG::MultiSamples
 		uint8 unknown6; //bits per sample?
 		uint8 unknown2[62];
 		StdXX::String name;
-		uint8 unknown3[8]; //same as the first 8 bytes in the PCM file
+		uint64 id;
 		uint8 unknown4[6];
 		libKORG::Pitch originalNote;
 	};
@@ -51,6 +68,7 @@ namespace libKORG::MultiSamples
 	{
 		StdXX::DynamicArray<SampleEntry> sampleEntries;
 		StdXX::DynamicArray<DrumSampleEntry> drumSampleEntries;
+		StdXX::DynamicArray<KeyboardZone> keyboardZones;
 		StdXX::DynamicArray<MultiSampleEntry> multiSampleEntries;
 	};
 }

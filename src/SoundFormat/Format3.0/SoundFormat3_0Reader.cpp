@@ -158,9 +158,9 @@ void SoundFormat3_0Reader::ReadLayerEntry(LayerEntry& layerEntry, DataReader &da
 
 void SoundFormat3_0Reader::ReadOscillatorData(OSCMultiSampleSettings& oscMultiSampleSettings, DataReader &dataReader)
 {
-	dataReader.ReadBytes(oscMultiSampleSettings.unknown1, sizeof(oscMultiSampleSettings.unknown1));
+	oscMultiSampleSettings.multiSampleId = dataReader.ReadUInt64();
 	oscMultiSampleSettings.multiSampleNumber = dataReader.ReadUInt16();
-	oscMultiSampleSettings.unknown2 = dataReader.ReadByte();
+	oscMultiSampleSettings.source = static_cast<MultiSampleSource>(dataReader.ReadByte());
 	oscMultiSampleSettings.level = dataReader.ReadByte();
 	oscMultiSampleSettings.reversed = this->ReadBool(dataReader);
 	oscMultiSampleSettings.offset = static_cast<Offset>(dataReader.ReadByte());

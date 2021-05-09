@@ -40,4 +40,5 @@ private:
 	void Output(uint32 index, const DrumSampleEntry& sampleEntry) const;
 	void Output(uint32 index, const MultiSampleEntry& multiSampleEntry) const;
 	void Output(uint32 index, const SampleEntry& sampleEntry) const;
+	void Output(uint32 index, const KeyboardZone& keyboardZone) const;
 };

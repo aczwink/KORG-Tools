@@ -71,7 +71,7 @@ private:
 	//Members
 	SeekableInputStream &inputStream;
 	DynamicArray<String> directoryPaths;
-	Map<String, UniquePointer<FileSystem::POSIXPermissions>> directoryPermissions;
+	BinaryTreeMap<String, UniquePointer<FileSystem::POSIXPermissions>> directoryPermissions;
 	DynamicArray<FileData> filesData;
 
 	//Methods

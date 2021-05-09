@@ -20,6 +20,11 @@
 class Pa700 : public libKORG::Model
 {
 public:
+	bool IsSampleCompressionSupported() const override
+	{
+		return true;
+	}
+
 	BankSetup GetBankSetup() const override
 	{
 		return {
@@ -41,14 +46,23 @@ public:
 		return u8"111A";
 	}
 
-	libKORG::ChunkVersion GetMaximumPerformanceVersion() const override
-	{
-		return {2, 1};
-	}
-
 	StdXX::String GetName() const override
 	{
 		return u8"Pa700";
+	}
+
+	uint32 GetSampleRAMSize() const override
+	{
+		return 256;
+	}
+
+	SupportedResourceVersions GetSupportedResourceVersions() const override
+	{
+		return {
+			{0, 0},
+			{2, 1},
+			{3, 0}
+		};
 	}
 };
 

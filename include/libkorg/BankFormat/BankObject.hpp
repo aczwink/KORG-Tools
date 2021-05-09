@@ -42,5 +42,8 @@ namespace libKORG
 {
 	class AbstractSample : public BankFormat::BankObject
 	{
+	public:
+		//Abstract
+		virtual uint32 GetSize() const = 0;
 	};
 }

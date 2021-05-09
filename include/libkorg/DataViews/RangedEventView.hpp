@@ -59,7 +59,7 @@ namespace libKORG
 		{
 			StdXX::DynamicArray<RangedEvent> result;
 
-			StdXX::Map <uint16, StdXX::Tuple<const Style::KORG_MIDI_Event *, uint16>> openNoteEvents;
+			StdXX::BinaryTreeMap<uint16, StdXX::Tuple<const Style::KORG_MIDI_Event *, uint16>> openNoteEvents;
 
 			uint16 t = 0;
 			for (const Style::KORG_MIDI_Event &event : events) {

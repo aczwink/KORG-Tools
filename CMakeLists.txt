@@ -12,6 +12,7 @@ find_package(StdPlusPlus REQUIRED)
 
 add_subdirectory(tools/korf)
 add_subdirectory(tools/ospkg)
+add_subdirectory(tools/setconv)
 add_subdirectory(tools/setinfo)
 add_subdirectory(tools/sndmap)
 add_subdirectory(tools/styconv)

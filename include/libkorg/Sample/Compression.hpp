@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -19,25 +19,7 @@
 #pragma once
 #include <StdXX.hpp>
 
-namespace libKORG
+namespace libKORG::Sample
 {
-	class SampleBankNumber : public BankNumber
-	{
-	public:
-		//Constructor
-		inline SampleBankNumber(uint8 number) : BankNumber(number)
-		{
-		}
-
-		//Inline
-		inline StdXX::String ToFileName() const
-		{
-			return this->ToString() + u8".PCM";
-		}
-
-		inline StdXX::String ToString() const
-		{
-			return u8"RAM" + StdXX::String::Number(this->Number(), 10, 2);
-		}
-	};
+	void Decompress(const uint8* compressedSamples, int16* uncompressedSamples, uint32 nSamples);
 }

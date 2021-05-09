@@ -31,6 +31,12 @@ namespace libKORG
 			inputStream.FlushTo(this->buffer);
 		}
 
+		//Methods
+		uint32 GetSize() const override
+		{
+			return this->buffer.GetSize();
+		}
+
 	private:
 		//Members
 		StdXX::FIFOBuffer buffer;

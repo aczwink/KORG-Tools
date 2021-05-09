@@ -24,17 +24,17 @@
 #include "libkorg/BankFormat/Pad.hpp"
 #include "libkorg/BankFormat/Performance.hpp"
 #include "FullStyle.hpp"
+#include "Model.hpp"
 #include <libkorg/BankFormat/SoundBankNumber.hpp>
 #include <libkorg/BankFormat/PerformanceBankNumber.hpp>
 #include <libkorg/BankFormat/StyleBankNumber.hpp>
 #include <libkorg/BankFormat/SampleBankNumber.hpp>
+#include <libkorg/BankFormat/BankCollection.hpp>
 
 namespace libKORG
 {
 	typedef ObjectBank<Pad> PadBank;
 	typedef ObjectBank<Performance> PerformanceBank;
-	typedef ObjectBank<AbstractSample> SampleBank;
-	typedef ObjectBank<SoundObject> SoundBank;
 	typedef ObjectBank<FullStyle> StyleBank;
 
 	struct BankObjectEntry
@@ -47,6 +47,10 @@ namespace libKORG
 	class Set
 	{
 	public:
+		//Members
+		BankCollection<SampleBankNumber, AbstractSample> sampleBanks;
+		BankCollection<SoundBankNumber, SoundObject> soundBanks;
+
 		//Constructors
 		Set(const StdXX::FileSystem::Path& setPath);
 
@@ -56,33 +60,23 @@ namespace libKORG
 			return *this->multiSamples;
 		}
 
-		inline const StdXX::Map<PerformanceBankNumber, PerformanceBank>& PerformanceBanks() const
+		inline const StdXX::BinaryTreeMap<PerformanceBankNumber, PerformanceBank>& PerformanceBanks() const
 		{
 			return this->performanceBanks;
 		}
 
-		inline const StdXX::Map<SampleBankNumber, SampleBank>& SampleBanks() const
-		{
-			return this->sampleBanks;
-		}
-
-		inline const StdXX::Map<SoundBankNumber, SoundBank>& SoundBanks() const
-		{
-			return this->soundBanks;
-		}
-
-		inline StdXX::Map<StyleBankNumber, StyleBank>& StyleBanks()
+		inline StdXX::BinaryTreeMap<StyleBankNumber, StyleBank>& StyleBanks()
 		{
 			return this->styleBanks;
 		}
 
-		inline const StdXX::Map<StyleBankNumber, StyleBank>& StyleBanks() const
+		inline const StdXX::BinaryTreeMap<StyleBankNumber, StyleBank>& StyleBanks() const
 		{
 			return this->styleBanks;
 		}
 
 		//Methods
-		void Save();
+		void Save(const Model& targetModel);
 
 		//Functions
 		static Set Create(const StdXX::FileSystem::Path& targetPath);
@@ -91,11 +85,9 @@ namespace libKORG
 		//Members
 		StdXX::FileSystem::Path setPath;
 		StdXX::UniquePointer<MultiSamplesObject> multiSamples;
-		StdXX::Map<uint8, PadBank> padBanks;
-		StdXX::Map<PerformanceBankNumber, PerformanceBank> performanceBanks;
-		StdXX::Map<SampleBankNumber, SampleBank> sampleBanks;
-		StdXX::Map<SoundBankNumber, SoundBank> soundBanks;
-		StdXX::Map<StyleBankNumber, StyleBank> styleBanks;
+		StdXX::BinaryTreeMap<uint8, PadBank> padBanks;
+		StdXX::BinaryTreeMap<PerformanceBankNumber, PerformanceBank> performanceBanks;
+		StdXX::BinaryTreeMap<StyleBankNumber, StyleBank> styleBanks;
 
 		//Methods
 		void LoadMultiSamples(const StdXX::String& bankFileName, const StdXX::DynamicArray<BankObjectEntry>& bankEntries);
@@ -107,5 +99,10 @@ namespace libKORG
 		void LoadSounds(const StdXX::String& bankFileName, const StdXX::DynamicArray<BankObjectEntry>& bankEntries);
 		void LoadStyles(const StdXX::String& bankFileName, const StdXX::DynamicArray<BankObjectEntry>& bankEntries);
 		void ReadDirectory(const StdXX::FileSystem::Path& setPath, const StdXX::String& dirName, void (Set::* loader)(const StdXX::String& bankFileName, const StdXX::DynamicArray<BankObjectEntry>&));
+
+		template<typename BankObjectType>
+		void SaveBank(const ObjectBank<BankObjectType>& bank, StdXX::SeekableOutputStream& outputStream, const Model& targetModel);
+		template<typename BankNumberType, typename BankObjectType>
+		void SaveBanks(BankCollection<BankNumberType, BankObjectType>& bankCollection, const StdXX::String& folderName, const Model& targetModel);
 	};
 }

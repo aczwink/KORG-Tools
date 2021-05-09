@@ -54,6 +54,11 @@ namespace libKORG
 		}
 
 		//Inline
+		inline StdXX::String ToFileName() const
+		{
+			return this->ToString() + u8".PCG";
+		}
+
 		inline StdXX::String ToString() const
 		{
 			if(this->IsDrumKit())

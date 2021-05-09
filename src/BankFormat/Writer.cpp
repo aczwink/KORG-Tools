@@ -22,26 +22,51 @@
 #include "libkorg/BankFormat/Style.hpp"
 #include "../Writer/PerformanceWriter.hpp"
 #include "../Writer/StyleWriter.hpp"
+#include "../PCMFormat/PCMFormatWriter.hpp"
+#include "../PCMFormat/PCMWriterFactory.hpp"
+#include <libkorg/BankFormat/EncryptedSample.hpp>
+#include <libkorg/BankFormat/SampleObject.hpp>
 //Namespaces
 using namespace BankFormat;
 
 //Public methods
+void Writer::Write(const ObjectBank<AbstractSample> &bank)
+{
+	this->WriteHeader();
+
+	this->BeginCrossReferencedChunk(ChunkType::ObjectTOC, 0, 0, ChunkHeaderFlags::Leaf);
+	for(const auto& objectEntry : bank.Objects())
+	{
+		this->WriteTOCEntry(objectEntry.name, objectEntry.pos, ObjectType::PCM, this->DeterminePCMVersion(*objectEntry.object));
+	}
+	this->EndChunk();
+
+	for(const auto& objectEntry : bank.Objects())
+	{
+		this->WritePCM(*objectEntry.object);
+	}
+
+	this->WriteCrossReferenceTable();
+
+	this->EndChunk();
+}
+
 void Writer::Write(const ObjectBank<FullStyle> &bank)
 {
 	this->WriteHeader();
 
 	this->BeginCrossReferencedChunk(ChunkType::ObjectTOC, 0, 0, ChunkHeaderFlags::Leaf);
-	for(const auto& kv : bank.Objects())
+	for(const auto& objectEntry : bank.Objects())
 	{
-		this->WriteTOCEntry(kv.value.Get<0>(), kv.key, ObjectType::Style, {0, 0});
-		this->WriteTOCEntry(kv.value.Get<0>(), kv.key, ObjectType::StylePerformances, kv.value.Get<1>()->STS().Version());
+		this->WriteTOCEntry(objectEntry.name, objectEntry.pos, ObjectType::Style, {0, 0});
+		this->WriteTOCEntry(objectEntry.name, objectEntry.pos, ObjectType::StylePerformances, objectEntry.object->STS().Version());
 	}
 	this->EndChunk();
 
-	for(const auto& kv : bank.Objects())
+	for(const auto& objectEntry : bank.Objects())
 	{
-		this->WriteStyle(kv.value.Get<1>()->Style());
-		this->WriteSTS(kv.value.Get<1>()->STS());
+		this->WriteStyle(objectEntry.object->Style());
+		this->WriteSTS(objectEntry.object->STS());
 	}
 
 	this->WriteCrossReferenceTable();
@@ -50,6 +75,15 @@ void Writer::Write(const ObjectBank<FullStyle> &bank)
 }
 
 //Private methods
+ChunkVersion Writer::DeterminePCMVersion(const AbstractSample& sample) const
+{
+	const EncryptedSample* encryptedSample = dynamic_cast<const EncryptedSample *>(&sample);
+	if(encryptedSample)
+		NOT_IMPLEMENTED_ERROR; //TODO: version for encrypted should be saved
+
+	return this->model.GetSupportedResourceVersions().maxPCMVersion;
+}
+
 void Writer::WriteCrossReferenceTable()
 {
 	this->BeginChunk(ChunkType::CrossReferenceTable, 0, 0, ChunkHeaderFlags::Leaf);
@@ -79,12 +113,32 @@ void Writer::WriteHeader()
 	this->EndChunk();
 }
 
+void Writer::WritePCM(const AbstractSample& abstractSample)
+{
+	const EncryptedSample* encryptedSample = dynamic_cast<const EncryptedSample *>(&abstractSample);
+	if(encryptedSample)
+		NOT_IMPLEMENTED_ERROR; //TODO: version for encrypted should be saved
+
+	const auto& sampleObject = dynamic_cast<const SampleObject &>(abstractSample);
+
+	ChunkVersion dataVersion = this->DeterminePCMVersion(abstractSample);
+	this->BeginCrossReferencedChunk(ChunkType::PCMData, dataVersion.major, dataVersion.minor, ChunkHeaderFlags::UnknownAlwaysSetInBankFile);
+
+	BufferedOutputStream bufferedOutputStream(this->outputStream);
+	DataWriter dataWriter(true, bufferedOutputStream);
+	UniquePointer<PCMFormatWriter> bankObjectFormatWriter = CreatePCMWriter(dataWriter, dataVersion);
+	bankObjectFormatWriter->Write(sampleObject.data);
+	bufferedOutputStream.Flush();
+
+	this->EndChunk();
+}
+
 void Writer::WriteSTS(const SingleTouchSettings &singleTouchSettings)
 {
 	DynamicByteBuffer buffer;
 	UniquePointer<SeekableOutputStream> outputStream = buffer.CreateOutputStream();
-	PerformanceWriter performanceWriter(*outputStream);
 
+	PerformanceWriter performanceWriter(*outputStream);
 	performanceWriter.Write(singleTouchSettings);
 
 	this->BeginCrossReferencedChunk(ChunkType::PerformancesData, singleTouchSettings.Version().major, singleTouchSettings.Version().minor, ChunkHeaderFlags::UnknownAlwaysSetInBankFile);

@@ -24,28 +24,28 @@ using namespace StdXX;
 
 void PCMFormat0_0Reader::Read(DataReader& dataReader)
 {
-	dataReader.ReadBytes(this->data.unknown1, sizeof(this->data.unknown1));
-	dataReader.ReadBytes(this->data.id, sizeof(this->data.id));
-	dataReader.ReadBytes(this->data.unknown11, sizeof(this->data.unknown11));
+	this->data.id = dataReader.ReadUInt64();
 
 	ASSERT_EQUALS(1, dataReader.ReadByte()); //maybe number of channels?
 	this->data.sampleFormat = static_cast<SampleFormat>(dataReader.ReadByte());
 	this->data.sampleRate = dataReader.ReadUInt32();
-	uint32 nSamples = dataReader.ReadUInt32();
+	this->data.nSamples = dataReader.ReadUInt32();
 
 	dataReader.ReadBytes(this->data.unknown2, sizeof(this->data.unknown2));
+	this->data.loopStart = dataReader.ReadUInt16();
+	dataReader.ReadBytes(this->data.unknown3, sizeof(this->data.unknown3));
 
 	uint32 samplesSize;
 	switch (this->data.sampleFormat)
 	{
-		case SampleFormat::S16BE:
+		case SampleFormat::Linear_PCM_S16BE:
 			samplesSize = 2;
 			break;
-		case SampleFormat::S8:
+		case SampleFormat::Compressed:
 			samplesSize = 1;
 			break;
 	}
-	samplesSize *= nSamples;
+	samplesSize *= this->data.nSamples;
 
 	dataReader.InputStream().FlushTo(*this->data.sampleBuffer.CreateOutputStream(), samplesSize);
 }

@@ -52,7 +52,7 @@ namespace libKORG
 			{
 				for(const auto& objectEntry : bankEntry.value.Objects())
 				{
-					return objectEntry.value.Get<1>()->STS();
+					return objectEntry.object->STS();
 				}
 			}
 

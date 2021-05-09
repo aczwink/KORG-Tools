@@ -27,6 +27,8 @@
 #include <libkorg/DataViews/RangedEventView.hpp>
 #include <libkorg/DataViews/StyleView.hpp>
 
+#include <libkorg/Sample/Compression.hpp>
+
 #include <libkorg/Model.hpp>
 #include <libkorg/Package.hpp>
 #include <libkorg/Set.hpp>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -17,27 +17,12 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <StdXX.hpp>
+//Local
+#include <libkorg/Sample/SampleData.hpp>
 
-namespace libKORG
+class PCMFormatWriter
 {
-	class SampleBankNumber : public BankNumber
-	{
-	public:
-		//Constructor
-		inline SampleBankNumber(uint8 number) : BankNumber(number)
-		{
-		}
-
-		//Inline
-		inline StdXX::String ToFileName() const
-		{
-			return this->ToString() + u8".PCM";
-		}
-
-		inline StdXX::String ToString() const
-		{
-			return u8"RAM" + StdXX::String::Number(this->Number(), 10, 2);
-		}
-	};
-}
+public:
+	//Abstract
+	virtual void Write(const libKORG::Sample::SampleData& sampleData) = 0;
+};

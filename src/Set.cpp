@@ -45,19 +45,11 @@ Set::Set(const Path &setPath) : setPath(setPath)
 }
 
 //Public methods
-void Set::Save()
+void Set::Save(const Model& targetModel)
 {
-	for(auto& kv : this->StyleBanks())
-	{
-		if(kv.value.saved)
-			continue;
-
-		FileOutputStream fileOutputStream(this->setPath / String(u8"STYLE") / (kv.key.ToString() + u8".STY"), true);
-		BankFormat::Writer styleBankWriter(fileOutputStream);
-		styleBankWriter.Write(kv.value);
-
-		kv.value.saved = true;
-	}
+	this->SaveBanks(this->sampleBanks, u8"PCM", targetModel);
+	//this->SaveBanks(this->soundBanks, u8"SOUND");
+	//this->SaveBanks(this->styleBanks, u8"STYLE");
 }
 
 //Class functions
@@ -65,9 +57,6 @@ Set Set::Create(const Path &targetPath)
 {
 	File dir(targetPath);
 	dir.CreateDirectory();
-
-	File styleDir(targetPath / String(u8"STYLE"));
-	styleDir.CreateDirectory();
 
 	return Set(targetPath);
 }
@@ -125,14 +114,11 @@ void Set::LoadSamples(const String& bankFileName, const DynamicArray<BankObjectE
 	ASSERT(bankFileName.EndsWith(u8".PCM"), u8"???");
 	uint8 bankNumber = bankFileName.SubString(3, 2).ToUInt32() - 1;
 
-	ObjectBank<AbstractSample> bank;
 	for(const BankObjectEntry& bankObjectEntry : bankEntries)
 	{
 		AbstractSample& sample = dynamic_cast<AbstractSample&>(*bankObjectEntry.object);
-		bank.AddObject(bankObjectEntry.name, bankObjectEntry.pos, &sample);
+		this->sampleBanks[bankNumber].AddObject(bankObjectEntry.name, bankObjectEntry.pos, &sample);
 	}
-
-	this->sampleBanks[bankNumber] = Move(bank);
 }
 
 void Set::LoadSongs(const String& bankFileName, const DynamicArray<BankObjectEntry> &bankEntries)
@@ -161,20 +147,17 @@ void Set::LoadSongBook(const Path& setPath)
 
 void Set::LoadSounds(const String &bankFileName, const DynamicArray<BankObjectEntry> &bankEntries)
 {
-	SoundBank bank;
 	for(const BankObjectEntry& bankObjectEntry : bankEntries)
 	{
 		SoundObject& sound = dynamic_cast<SoundObject&>(*bankObjectEntry.object);
-		bank.AddObject(bankObjectEntry.name, bankObjectEntry.pos, &sound);
+		this->soundBanks[SoundBankNumber::FromBankFileName(bankFileName)].AddObject(bankObjectEntry.name, bankObjectEntry.pos, &sound);
 	}
-
-	this->soundBanks[SoundBankNumber::FromBankFileName(bankFileName)] = Move(bank);
 }
 
 void Set::LoadStyles(const String &bankFileName, const DynamicArray<BankObjectEntry> &bankEntries)
 {
-	Map<uint8, const BankObjectEntry*> styleEntries;
-	Map<uint8, const BankObjectEntry*> performanceEntries;
+	BinaryTreeMap<uint8, const BankObjectEntry*> styleEntries;
+	BinaryTreeMap<uint8, const BankObjectEntry*> performanceEntries;
 	for(const BankObjectEntry& bankObjectEntry : bankEntries)
 	{
 		if(IS_INSTANCE_OF(bankObjectEntry.object, StyleObject))
@@ -214,5 +197,42 @@ void Set::ReadDirectory(const Path &setPath, const String &dirName, void (Set::*
 		bankFormatReader.ReadData(fileInputStream);
 
 		(this->*loader)(childEntry.name, bankFormatReader.TakeEntries());
+	}
+}
+
+template<typename BankObjectType>
+void Set::SaveBank(const ObjectBank<BankObjectType>& bank, SeekableOutputStream& outputStream, const Model& targetModel)
+{
+	BankFormat::Writer bankFormatWriter(outputStream, targetModel);
+	bankFormatWriter.Write(bank);
+}
+
+template<typename BankNumberType, typename BankObjectType>
+void Set::SaveBanks(BankCollection<BankNumberType, BankObjectType>& bankCollection, const StdXX::String& folderName, const Model& targetModel)
+{
+	for(const auto& bankEntry : bankCollection.Entries())
+	{
+		if(bankEntry.bank.saved)
+			continue;
+
+		auto dirPath = this->setPath / folderName;
+		auto path = dirPath / bankEntry.bankNumber.ToFileName();
+		if(bankEntry.bank.Objects() >> Any())
+		{
+			File banksDir(dirPath);
+			if(!banksDir.Exists())
+				banksDir.CreateDirectory();
+
+			StdXX::FileOutputStream fileOutputStream(path, true);
+			this->SaveBank(bankEntry.bank, fileOutputStream, targetModel);
+		}
+		else
+		{
+			File bankFile(path);
+			if(bankFile.Exists())
+				bankFile.DeleteFile();
+		}
+
+		bankCollection[bankEntry.bankNumber].saved = true;
 	}
 }

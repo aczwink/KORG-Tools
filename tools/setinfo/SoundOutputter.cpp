@@ -95,13 +95,11 @@ void SoundOutputter::Output(const OscillatorData &oscillatorData) const
 	this->formattedOutputter.OutputUnknownProperties(oscillatorData.unknown5, sizeof(oscillatorData.unknown5));
 }
 
-void SoundOutputter::Output(const OSCMultiSampleSettings &oscMultiSampleSettings) const
+void SoundOutputter::Output(const OSCMultiSampleSettings& oscMultiSampleSettings) const
 {
-	for(uint32 i = 0; i < sizeof(oscMultiSampleSettings.unknown1); i++)
-		this->formattedOutputter.OutputProperty(u8"unknown1 " + String::Number(i), oscMultiSampleSettings.unknown1[i]);
-
+	this->formattedOutputter.OutputProperty(u8"Multisample ID", String::HexNumber(oscMultiSampleSettings.multiSampleId, 16));
 	this->formattedOutputter.OutputProperty(u8"Multisample number", oscMultiSampleSettings.multiSampleNumber);
-	this->formattedOutputter.OutputProperty(u8"unknown2", oscMultiSampleSettings.unknown2);
+	this->formattedOutputter.OutputProperty(u8"source", (uint8)oscMultiSampleSettings.source);
 	this->formattedOutputter.OutputProperty(u8"level", oscMultiSampleSettings.level);
 	this->formattedOutputter.OutputProperty(u8"reversed", oscMultiSampleSettings.reversed);
 	this->formattedOutputter.OutputProperty(u8"offset", (uint8)oscMultiSampleSettings.offset);

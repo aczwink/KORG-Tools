@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -16,28 +16,23 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#pragma once
-#include <StdXX.hpp>
+//Class header
+#include <libkorg/Sample/Compression.hpp>
+//Namespaces
+using namespace libKORG;
 
-namespace libKORG
+void Sample::Decompress(const uint8* compressedSamples, int16* uncompressedSamples, uint32 nSamples)
 {
-	class SampleBankNumber : public BankNumber
+	NOT_IMPLEMENTED_ERROR; //TODO: implement me
+
+	int16 lastSample = 0;
+	for(uint32 i = 0; i < nSamples; i++)
 	{
-	public:
-		//Constructor
-		inline SampleBankNumber(uint8 number) : BankNumber(number)
-		{
-		}
+		int8 v8 = *compressedSamples;
 
-		//Inline
-		inline StdXX::String ToFileName() const
-		{
-			return this->ToString() + u8".PCM";
-		}
-
-		inline StdXX::String ToString() const
-		{
-			return u8"RAM" + StdXX::String::Number(this->Number(), 10, 2);
-		}
-	};
+		lastSample += v8;
+		*uncompressedSamples++ = lastSample;// * 32767.0;
+		//StdXX::stdOut << (i+1) << ". " << *compressedSamples << " " << (int8)*compressedSamples << " -> " << lastSample << StdXX::endl;
+		compressedSamples++;
+	}
 }

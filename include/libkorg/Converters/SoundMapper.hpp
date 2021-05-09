@@ -24,7 +24,7 @@ namespace libKORG
 	{
 	public:
 		//Constructor
-		SoundMapper(StdXX::Map<ProgramChangeSequence, ProgramChangeSequence>&& soundMappings) : soundMappings(StdXX::Move(soundMappings))
+		SoundMapper(StdXX::BinaryTreeMap<ProgramChangeSequence, ProgramChangeSequence>&& soundMappings) : soundMappings(StdXX::Move(soundMappings))
 		{
 		}
 
@@ -71,7 +71,7 @@ namespace libKORG
 
 	private:
 		//Members
-		StdXX::Map<ProgramChangeSequence, ProgramChangeSequence> soundMappings;
+		StdXX::BinaryTreeMap<ProgramChangeSequence, ProgramChangeSequence> soundMappings;
 
 		//Methods
 		void Map(Style::StyleTrackData& styleTrackData) const

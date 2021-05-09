@@ -17,23 +17,25 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
+#include <StdXX.hpp>
 
 namespace libKORG::Sample
 {
 	enum class SampleFormat
 	{
-		S16BE = 16,
-		S8 = 128
+		Linear_PCM_S16BE = 16,
+		Compressed = 128
 	};
 
 	struct SampleData
 	{
-		uint8 unknown1[2];
-		uint8 id[2];
-		uint8 unknown11[4];
+		uint64 id;
 		SampleFormat sampleFormat;
 		uint32 sampleRate;
-		uint8 unknown2[48];
+		uint32 nSamples;
+		uint8 unknown2[34];
+		uint16 loopStart;
+		uint8 unknown3[12];
 		StdXX::DynamicByteBuffer sampleBuffer;
 	};
 }
