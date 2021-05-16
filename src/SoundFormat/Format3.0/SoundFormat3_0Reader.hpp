@@ -19,13 +19,11 @@
 #include <StdXX.hpp>
 //Local
 #include <libkorg/Sound/SoundData.hpp>
+#include "../Format2.0/SoundFormat2_0Reader.hpp"
 
-class SoundFormat3_0Reader
+class SoundFormat3_0Reader : public SoundFormat2_0Reader
 {
 public:
-	//Members
-	libKORG::Sound::SoundData data;
-
 	//Methods
 	void Read(StdXX::DataReader& dataReader);
 
@@ -34,7 +32,6 @@ private:
 	void ReadDrumKitSoundData(libKORG::Sound::DrumKitSoundData& drumKitSoundData, StdXX::DataReader& dataReader);
 	void ReadKeyTableEntry(libKORG::Sound::KeyTableEntry& keyTableEntry, StdXX::DataReader& dataReader);
 	void ReadLayerEntry(libKORG::Sound::LayerEntry& layerEntry, StdXX::DataReader& dataReader);
-	void ReadOscillatorData(libKORG::Sound::OSCMultiSampleSettings& oscMultiSampleSettings, StdXX::DataReader& dataReader);
 
 	//Inline
 	inline bool ReadBool(StdXX::DataReader& dataReader)

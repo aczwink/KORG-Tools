@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -17,28 +17,31 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <StdXX.hpp>
+//Local
+#include <libkorg/Set.hpp>
 
-namespace libKORG::Sample
+namespace libKORG
 {
-	enum class SampleFormat
+	class SetIndex
 	{
-		Linear_PCM_S16BE = 16,
-		Compressed = 128
-	};
+	public:
+		//Constructor
+		SetIndex(const Set& set);
 
-	struct SampleData
-	{
-		uint64 id;
-		SampleFormat sampleFormat;
-		uint32 sampleRate;
-		uint32 nSamples;
-		uint32 unknown1;
-		uint32 unknown2[7];
-		uint32 loopStart;
-		uint32 unknown3;
-		uint32 unknown4;
-		uint32 unknown5;
-		StdXX::DynamicByteBuffer sampleBuffer;
+		//Properties
+		inline const auto& GetSampleLocation(uint64 id) const
+		{
+			return this->sampleLocations.Get(id);
+		}
+
+		inline const auto& GetSoundLocation(const ProgramChangeSequence& programChangeSequence) const
+		{
+			return this->soundLocations.Get(programChangeSequence);
+		}
+
+	private:
+		//Members
+		StdXX::BinaryTreeMap<uint64, StdXX::Tuple<SampleBankNumber, uint8>> sampleLocations;
+		StdXX::BinaryTreeMap<ProgramChangeSequence, StdXX::Tuple<SoundBankNumber, uint8>> soundLocations;
 	};
 }

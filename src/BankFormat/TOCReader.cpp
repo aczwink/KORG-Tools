@@ -85,23 +85,44 @@ void TOCReader::ReadProperty(uint16 propertyType, uint16 propertySize, HeaderEnt
 		case 2:
 			headerEntry.name = textReader.ReadZeroTerminatedStringBySize(propertySize);
 			break;
-		case 3: //unknown
+		case 3:
+		{
 			ASSERT_EQUALS(6, propertySize);
-			dataReader.Skip(6);
-			break;
-		case 4: //unknown
+
+			auto& encInfo = headerEntry.encryptionInformation;
+
+			encInfo.serialNumberType = static_cast<SerialNumberType>(dataReader.ReadByte());
+			ASSERT(encInfo.serialNumberType == BankFormat::SerialNumberType::Machine
+					|| encInfo.serialNumberType == BankFormat::SerialNumberType::FMDriver, String::Number((uint8)encInfo.serialNumberType));
+
+			encInfo.encryptionAlgorithm = static_cast<EncryptionAlgorithm>(dataReader.ReadByte());
+			ASSERT(encInfo.encryptionAlgorithm == BankFormat::EncryptionAlgorithm::Normal
+				   || encInfo.encryptionAlgorithm == BankFormat::EncryptionAlgorithm::DES
+				   || encInfo.encryptionAlgorithm == BankFormat::EncryptionAlgorithm::Mixed
+				   || encInfo.encryptionAlgorithm == BankFormat::EncryptionAlgorithm::Blowfish
+				   , String::Number((uint8)encInfo.encryptionAlgorithm));
+
+			headerEntry.encryptionInformation.vendorId = dataReader.ReadUInt16();
+			headerEntry.encryptionInformation.featureId = dataReader.ReadUInt16();
+		}
+		break;
+		case 4:
+		{
 			ASSERT_EQUALS(8, propertySize);
-			dataReader.Skip(8);
-			break;
+			uint64 id = dataReader.ReadUInt64();
+			stdErr << id << endl;
+		}
+		break;
 		case 5: //unknown
 		{
 			ASSERT_EQUALS(7, propertySize);
 
+			//4 bytes date
 			ASSERT_EQUALS(0x14, dataReader.ReadByte());
-
 			uint8 unknown2 = dataReader.ReadByte();
 			uint8 unknown3 = dataReader.ReadByte();
 			uint8 unknown4 = dataReader.ReadByte();
+			//3 bytes time
 			uint8 unknown5 = dataReader.ReadByte();
 			uint8 unknown6 = dataReader.ReadByte();
 			uint8 unknown7 = dataReader.ReadByte();

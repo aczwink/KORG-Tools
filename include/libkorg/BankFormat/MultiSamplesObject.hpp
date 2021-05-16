@@ -29,7 +29,11 @@ namespace libKORG
 		//Members
 		MultiSamples::MultiSamplesData data;
 
-		//Constructor
+		//Constructors
+		inline MultiSamplesObject()
+		{
+		}
+
 		inline MultiSamplesObject(MultiSamples::MultiSamplesData&& data) : data(StdXX::Move(data))
 		{
 		}

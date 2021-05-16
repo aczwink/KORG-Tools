@@ -28,12 +28,17 @@ void PCMFormat0_0Writer::Write(const SampleData &sampleData)
 	this->dataWriter.WriteByte(1);
 	this->dataWriter.WriteByte(static_cast<byte>(sampleData.sampleFormat));
 	this->dataWriter.WriteUInt32(sampleData.sampleRate);
-
 	this->dataWriter.WriteUInt32(sampleData.nSamples);
 
-	this->dataWriter.WriteBytes(sampleData.unknown2, sizeof(sampleData.unknown2));
-	this->dataWriter.WriteUInt16(sampleData.loopStart);
-	this->dataWriter.WriteBytes(sampleData.unknown3, sizeof(sampleData.unknown3));
+	this->dataWriter.WriteUInt32(sampleData.unknown1);
+	for(uint8 i = 0; i < 7; i++)
+	{
+		this->dataWriter.WriteUInt32(sampleData.unknown2[i]);
+	}
+	this->dataWriter.WriteUInt32(sampleData.loopStart);
+	this->dataWriter.WriteUInt32(sampleData.unknown3);
+	this->dataWriter.WriteUInt32(sampleData.unknown4);
+	this->dataWriter.WriteUInt32(sampleData.unknown5);
 
 	sampleData.sampleBuffer.CreateInputStream()->FlushTo(this->dataWriter.Stream());
 }

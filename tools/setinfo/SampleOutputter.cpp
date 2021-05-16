@@ -35,6 +35,8 @@ void SampleOutputter::Output(const AbstractSample &sampleObject) const
 //Private methods
 void SampleOutputter::Output(const SampleData& sampleData) const
 {
+	NOT_IMPLEMENTED_ERROR; //refix me
+	/*
 	Section section(u8"Sample", this->formattedOutputter);
 
 	this->formattedOutputter.OutputProperty(u8"ID", String::HexNumber(sampleData.id, 16));
@@ -44,4 +46,5 @@ void SampleOutputter::Output(const SampleData& sampleData) const
 	this->formattedOutputter.OutputProperty(u8"Loop start", sampleData.loopStart);
 	this->formattedOutputter.OutputUnknownProperties(sampleData.unknown3, sizeof(sampleData.unknown3));
 	this->formattedOutputter.OutputProperty(u8"Sample buffer size", sampleData.sampleBuffer.Size());
+	 */
 }

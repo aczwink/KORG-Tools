@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -16,29 +16,17 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#pragma once
-#include <StdXX.hpp>
+//Class header
+#include <libkorg/DataViews/MultiSamplesIndex.hpp>
+//Namespaces
+using namespace libKORG;
 
-namespace libKORG::Sample
+//Constructor
+MultiSamplesIndex::MultiSamplesIndex(const MultiSamples::MultiSamplesData &data) : data(data)
 {
-	enum class SampleFormat
-	{
-		Linear_PCM_S16BE = 16,
-		Compressed = 128
-	};
+	for(uint32 i = 0; i < data.multiSampleEntries.GetNumberOfElements(); i++)
+		this->multiSampleIdMap.Insert(data.multiSampleEntries[i].id, i);
 
-	struct SampleData
-	{
-		uint64 id;
-		SampleFormat sampleFormat;
-		uint32 sampleRate;
-		uint32 nSamples;
-		uint32 unknown1;
-		uint32 unknown2[7];
-		uint32 loopStart;
-		uint32 unknown3;
-		uint32 unknown4;
-		uint32 unknown5;
-		StdXX::DynamicByteBuffer sampleBuffer;
-	};
+	for(uint32 i = 0; i < data.sampleEntries.GetNumberOfElements(); i++)
+		this->sampleIdMap.Insert(data.sampleEntries[i].id, i);
 }

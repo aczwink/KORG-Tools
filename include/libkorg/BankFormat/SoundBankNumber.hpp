@@ -63,7 +63,7 @@ namespace libKORG
 		{
 			if(this->IsDrumKit())
 				return u8"USERDK";
-			return u8"USER" + StdXX::String::Number(this->number + 1, 10, 2);
+			return u8"USER" + StdXX::String::Number(this->UserNumber() + 1, 10, 2);
 		}
 
 		//Functions

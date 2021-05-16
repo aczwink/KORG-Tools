@@ -108,14 +108,11 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 
 	for(const auto& bank : set.SoundBanks())
 	{
-		uint8 msb = 121 - bank.key.IsDrumKit();
-		uint8 lsb = 64 + bank.key.UserNumber();
-
 		for(const auto& soundEntry : bank.value.Objects())
 		{
 			String bankName = u8"User";
 			bankName += bank.key.IsDrumKit() ? u8" DK" : u8"";
-			soundMap.Push({ bankName, soundEntry.value.Get<0>(), ProgramChangeSequence(msb, lsb, soundEntry.key) });
+			soundMap.Push({ bankName, soundEntry.value.Get<0>(), Set::CreateRAMSoundProgramChangeSequence(bank.key, soundEntry.) });
 		}
 	}
 

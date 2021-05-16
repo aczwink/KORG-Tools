@@ -56,6 +56,12 @@ public:
 		this->saved = true;
 	}
 
+	//Operators
+	inline const BankObjectEntry& operator[](uint8 pos) const
+	{
+		return this->objects.Get(pos);
+	}
+
 	//Properties
 	inline auto Objects() const
 	{
@@ -70,6 +76,11 @@ public:
 	{
 		this->objects[pos] = { name, object };
 		this->saved = false;
+	}
+
+	inline const auto& GetName(uint8 pos) const
+	{
+		return this->objects.Get(pos).name;
 	}
 
 private:

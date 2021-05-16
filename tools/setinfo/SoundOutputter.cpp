@@ -21,6 +21,8 @@
 
 void SoundOutputter::Output(const SoundObject& soundObject) const
 {
+	NOT_IMPLEMENTED_ERROR; //TODO: refix me
+	/*
 	this->formattedOutputter.OutputProperty(u8"voiceAssignModeFlags", soundObject.data.voiceAssignModeFlags.encodedFlags);
 
 	for(uint32 i = 0; i < sizeof(soundObject.data.unknown1); i++)
@@ -44,6 +46,7 @@ void SoundOutputter::Output(const SoundObject& soundObject) const
 
 	if(soundObject.data.drumKitData.HasValue())
 		this->Output(*soundObject.data.drumKitData);
+	 */
 }
 
 //Private methods

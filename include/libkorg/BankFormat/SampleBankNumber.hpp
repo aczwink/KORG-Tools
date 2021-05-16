@@ -30,6 +30,11 @@ namespace libKORG
 		}
 
 		//Inline
+		inline uint8 PresentatioNumber() const
+		{
+			return this->Number() + 1;
+		}
+
 		inline StdXX::String ToFileName() const
 		{
 			return this->ToString() + u8".PCM";
@@ -37,7 +42,7 @@ namespace libKORG
 
 		inline StdXX::String ToString() const
 		{
-			return u8"RAM" + StdXX::String::Number(this->Number(), 10, 2);
+			return u8"RAM" + StdXX::String::Number(this->PresentatioNumber(), 10, 2);
 		}
 	};
 }

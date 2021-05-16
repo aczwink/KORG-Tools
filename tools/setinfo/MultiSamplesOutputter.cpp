@@ -54,7 +54,8 @@ void MultiSamplesOutputter::Output(const MultiSamplesObject& multiSamplesObject)
 //Private methods
 void MultiSamplesOutputter::Output(uint32 index, const DrumSampleEntry& drumSampleEntry) const
 {
-	Section section(u8"Drum sample entry " + String::Number(index), this->formattedOutputter);
+	NOT_IMPLEMENTED_ERROR; //TODO: implement me
+	/*Section section(u8"Drum sample entry " + String::Number(index), this->formattedOutputter);
 
 	for(uint32 i = 0; i < sizeof(drumSampleEntry.unknown1); i++)
 		this->formattedOutputter.OutputProperty(u8"unknown1 " + String::Number(i), drumSampleEntry.unknown1[i]);
@@ -62,12 +63,14 @@ void MultiSamplesOutputter::Output(uint32 index, const DrumSampleEntry& drumSamp
 	this->formattedOutputter.OutputProperty(u8"name", drumSampleEntry.name);
 
 	for(uint32 i = 0; i < sizeof(drumSampleEntry.unknown2); i++)
-		this->formattedOutputter.OutputProperty(u8"unknown2 " + String::Number(i), drumSampleEntry.unknown2[i]);
+		this->formattedOutputter.OutputProperty(u8"unknown2 " + String::Number(i), drumSampleEntry.unknown2[i]);*/
 }
 
 void MultiSamplesOutputter::Output(uint32 index, const MultiSampleEntry& multiSampleEntry) const
 {
-	Section section(u8"Multisample entry " + String::Number(index), this->formattedOutputter);
+	NOT_IMPLEMENTED_ERROR; //TODO: refix me
+
+	/*Section section(u8"Multisample entry " + String::Number(index), this->formattedOutputter);
 
 	this->formattedOutputter.OutputProperty(u8"unknown1", multiSampleEntry.unknown1);
 	this->formattedOutputter.OutputProperty(u8"name", multiSampleEntry.name);
@@ -84,11 +87,13 @@ void MultiSamplesOutputter::Output(uint32 index, const MultiSampleEntry& multiSa
 
 	this->formattedOutputter.OutputProperty(u8"nKeyZones", multiSampleEntry.nKeyZones);
 	this->formattedOutputter.OutputProperty(u8"unknown3", multiSampleEntry.unknown3);
-	this->formattedOutputter.OutputProperty(u8"id", String::HexNumber(multiSampleEntry.id, 16));
+	this->formattedOutputter.OutputProperty(u8"id", String::HexNumber(multiSampleEntry.id, 16));*/
 }
 
 void MultiSamplesOutputter::Output(uint32 index, const SampleEntry& sampleEntry) const
 {
+	NOT_IMPLEMENTED_ERROR; //TODO: refix me
+	/*
 	Section section(u8"Sample entry " + String::Number(index), this->formattedOutputter);
 
 	for(uint32 i = 0; i < sizeof(sampleEntry.unknown1); i++)
@@ -106,13 +111,14 @@ void MultiSamplesOutputter::Output(uint32 index, const SampleEntry& sampleEntry)
 		this->formattedOutputter.OutputProperty(u8"unknown4 " + String::Number(i), sampleEntry.unknown4[i]);
 
 	this->formattedOutputter.OutputProperty(u8"originalNote", sampleEntry.originalNote);
+	 */
 }
 
 void MultiSamplesOutputter::Output(uint32 index, const KeyboardZone& keyboardZone) const
 {
-	Section section(u8"Keyboard zone " + String::Number(index), this->formattedOutputter);
+	NOT_IMPLEMENTED_ERROR; //TODO: refix me
+	/*Section section(u8"Keyboard zone " + String::Number(index), this->formattedOutputter);
 
-	this->formattedOutputter.OutputProperty(u8"unknown1", keyboardZone.unknown1);
 	this->formattedOutputter.OutputProperty(u8"sampleNumber", keyboardZone.sampleNumber);
 	this->formattedOutputter.OutputProperty(u8"to", keyboardZone.to);
 	this->formattedOutputter.OutputProperty(u8"originalNote", keyboardZone.originalNote);
@@ -120,5 +126,5 @@ void MultiSamplesOutputter::Output(uint32 index, const KeyboardZone& keyboardZon
 	this->formattedOutputter.OutputProperty(u8"pitch", keyboardZone.pitch);
 	this->formattedOutputter.OutputProperty(u8"level", keyboardZone.level);
 	this->formattedOutputter.OutputProperty(u8"unknown4", keyboardZone.unknown4);
-	this->formattedOutputter.OutputProperty(u8"unknown5", keyboardZone.unknown5);
+	this->formattedOutputter.OutputProperty(u8"unknown5", keyboardZone.unknown5);*/
 }

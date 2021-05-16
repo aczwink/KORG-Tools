@@ -24,43 +24,88 @@ namespace libKORG::MultiSamples
 {
 	struct DrumSampleEntry
 	{
-		uint8 unknown1[12];
+		int16 unknown1;
+		int16 unknown2;
+		int16 unknown3;
+		int16 unknown4;
+		uint8 unknown5;
+		int8 unknown6;
+		uint8 unknown7;
+		int8 unknown8;
 		StdXX::String name;
-		uint8 unknown2[20];
+		int8 unknown9;
+		int8 unknown10;
+		int8 unknown11;
+		int8 unknown12;
+		uint64 id;
+	};
+
+	enum class InterpolationMode
+	{
 	};
 
 	struct KeyboardZone
 	{
-		uint8 unknown1;
-		uint8 sampleNumber;
+		int16 sampleNumber;
 		Pitch to;
 		Pitch originalNote;
-		uint8 unknown3[2];
-		int8 pitch;
+		uint8 unknown3;
+		int16 pitch;
 		int8 level;
 		uint8 unknown4;
-		uint8 unknown5;
+		int8 unknown5;
 	};
 
 	struct MultiSampleEntry
 	{
-		uint8 unknown1;
+		uint16 unknown1;
 		StdXX::String name;
-		uint8 unknown2[2];
+		uint16 keyZoneBaseIndex;
 		uint8 keyZoneIndex[128];
 		uint8 nKeyZones;
 		uint8 unknown3;
 		uint64 id;
 	};
 
+	enum class SampleType
+	{
+		Linear_PCM_S16BE = 0,
+		Compressed = 2
+	};
+
+	enum class SampleFlags
+	{
+		PlayBackwards = 0x80,
+		UseLoopPitch = 0x100,
+		OneShot = 0x200,
+		TwelveDbBoost = 0x400,
+		DoNotStream = 0x800,
+	};
+
 	struct SampleEntry
 	{
-		uint8 unknown1[5];
-		uint8 unknown6; //bits per sample?
-		uint8 unknown2[62];
+		int16 unknown1;
+		int16 unknown2;
+
+		SampleType sampleType;
+		InterpolationMode interpolationMode;
+		StdXX::Flags<SampleFlags, uint8> flags;
+
+		uint8 unknown4;
+		uint32 unknown8;
+		uint32 unknown9[8];
+		uint8 unknown5;
+		uint32 unknown10;
+		uint32 unknown11;
+		uint32 unknown12;
+		uint32 unknown13;
+		int16 compressionCoefficients[2];
+		uint32 unknown14;
 		StdXX::String name;
 		uint64 id;
-		uint8 unknown4[6];
+		uint8 unknown15;
+		uint8 unknown16;
+		uint32 unknown17;
 		libKORG::Pitch originalNote;
 	};
 

@@ -34,29 +34,29 @@ struct PrintSettings
 	Optional<uint8> posNumber;
 };
 
-template<typename BankNumberType, typename BankType, typename ObjectOutputter>
-void PrintBanks(const PrintSettings& printSettings, const Map<BankNumberType, BankType>& banks, FormattedOutputter& outputter)
+template<typename BankNumberType, typename BankObjectType, typename ObjectOutputter>
+void PrintBanks(const PrintSettings& printSettings, const BankCollection<BankNumberType, BankObjectType>& banks, FormattedOutputter& outputter)
 {
 	uint8 bankNumber = 0;
-	for(const auto& kv : banks)
+	for(const auto& bankEntry : banks.Entries())
 	{
 		if(printSettings.bankNumber.HasValue() && (*printSettings.bankNumber != bankNumber++))
 			continue;
 
-		Section bankSection(kv.key.ToString(), outputter);
+		Section bankSection(bankEntry.bankNumber.ToString(), outputter);
 
 		uint8 posNumber = 0;
-		for(const auto& kv2 : kv.value.Objects())
+		for(const auto& objectEntry : bankEntry.bank.Objects())
 		{
 			if(printSettings.posNumber.HasValue() && (*printSettings.posNumber != posNumber++))
 				continue;
 
-			Section objectSection(BankPositionToString(kv2.key) + u8" - " + kv2.value.template Get<0>(), outputter);
+			Section objectSection(BankPositionToString(objectEntry.pos) + u8" - " + objectEntry.name, outputter);
 
 			if(printSettings.showObjects)
 			{
 				ObjectOutputter objectOutputter(outputter);
-				objectOutputter.Output(*kv2.value.template Get<1>());
+				objectOutputter.Output(*objectEntry.object);
 			}
 		}
 	}
@@ -70,22 +70,22 @@ void PrintMultiSamples(const PrintSettings& printSettings, Set& set, FormattedOu
 
 void PrintPerformanceBanks(const PrintSettings& printSettings, Set& set, FormattedOutputter& outputter)
 {
-	PrintBanks<PerformanceBankNumber, PerformanceBank, PerformanceOutputter>(printSettings, set.PerformanceBanks(), outputter); //PerformanceBankNumberToString
+	//PrintBanks<PerformanceBankNumber, PerformanceBank, PerformanceOutputter>(printSettings, set.PerformanceBanks(), outputter); //PerformanceBankNumberToString
 }
 
 void PrintSampleBanks(const PrintSettings& printSettings, Set& set, FormattedOutputter& outputter)
 {
-	PrintBanks<SampleBankNumber, SampleBank, SampleOutputter>(printSettings, set.SampleBanks(), outputter);
+	PrintBanks<SampleBankNumber, AbstractSample, SampleOutputter>(printSettings, set.sampleBanks, outputter);
 }
 
 void PrintSoundBanks(const PrintSettings& printSettings, Set& set, FormattedOutputter& outputter)
 {
-	PrintBanks<SoundBankNumber, SoundBank, SoundOutputter>(printSettings, set.SoundBanks(), outputter);
+	PrintBanks<SoundBankNumber, SoundObject, SoundOutputter>(printSettings, set.soundBanks, outputter);
 }
 
 void PrintStyleBanks(const PrintSettings& printSettings, Set& set, FormattedOutputter& outputter)
 {
-	PrintBanks<StyleBankNumber, StyleBank, StyleOutputter>(printSettings, set.StyleBanks(), outputter); //StyleBankNumberToString
+	//PrintBanks<StyleBankNumber, StyleBank, StyleOutputter>(printSettings, set.StyleBanks(), outputter); //StyleBankNumberToString
 }
 
 enum class ResourceType

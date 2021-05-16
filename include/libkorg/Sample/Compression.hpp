@@ -21,5 +21,5 @@
 
 namespace libKORG::Sample
 {
-	void Decompress(const uint8* compressedSamples, int16* uncompressedSamples, uint32 nSamples);
+	void Decompress(const uint8* compressedSamples, int16* uncompressedSamples, uint32 nSamples, int16 coef1, int16 coef2);
 }

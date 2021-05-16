@@ -16,13 +16,33 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-//Class header
-#include <libkorg/Sample/Compression.hpp>
-//Namespaces
-using namespace libKORG;
-using namespace StdXX;
+#pragma once
+//Local
+#include <libkorg/MultiSamples/MultiSamplesData.hpp>
 
-void Sample::Decompress(const uint8* compressedSamples, int16* uncompressedSamples, uint32 nSamples, int16 coef1, int16 coef2)
+namespace libKORG
 {
-	NOT_IMPLEMENTED_ERROR; //TODO: implement me
+	class MultiSamplesIndex
+	{
+	public:
+		//Constructor
+		MultiSamplesIndex(const MultiSamples::MultiSamplesData& data);
+
+		//Inline
+		inline const MultiSamples::MultiSampleEntry& GetMultiSampleEntryById(uint64 id)
+		{
+			return this->data.multiSampleEntries[this->multiSampleIdMap.Get(id)];
+		}
+
+		inline const MultiSamples::SampleEntry& GetSampleEntryById(uint64 id)
+		{
+			return this->data.sampleEntries[this->sampleIdMap.Get(id)];
+		}
+
+	private:
+		//Members
+		const MultiSamples::MultiSamplesData& data;
+		StdXX::BinaryTreeMap<uint64, uint32> multiSampleIdMap;
+		StdXX::BinaryTreeMap<uint64, uint32> sampleIdMap;
+	};
 }

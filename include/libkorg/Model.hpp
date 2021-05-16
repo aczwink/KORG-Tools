@@ -36,6 +36,7 @@ namespace libKORG
 
 		struct SupportedResourceVersions
 		{
+			ChunkVersion maxMultiSamplesVersion;
 			ChunkVersion maxPCMVersion;
 			ChunkVersion maxPerformanceVersion;
 			ChunkVersion maxSoundVersion;

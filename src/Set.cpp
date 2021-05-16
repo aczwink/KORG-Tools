@@ -45,10 +45,23 @@ Set::Set(const Path &setPath) : setPath(setPath)
 }
 
 //Public methods
+uint32 Set::ComputeUsedSampleRAMSize()
+{
+	uint32 sum = 0;
+	for(const auto& bankEntry : this->sampleBanks.Entries())
+	{
+		for(const auto& objectEntry : bankEntry.bank.Objects())
+			sum += objectEntry.object->GetSize();
+	}
+
+	return sum;
+}
+
 void Set::Save(const Model& targetModel)
 {
+	this->SaveMultiSamples(targetModel);
 	this->SaveBanks(this->sampleBanks, u8"PCM", targetModel);
-	//this->SaveBanks(this->soundBanks, u8"SOUND");
+	this->SaveBanks(this->soundBanks, u8"SOUND", targetModel);
 	//this->SaveBanks(this->styleBanks, u8"STYLE");
 }
 
@@ -235,4 +248,19 @@ void Set::SaveBanks(BankCollection<BankNumberType, BankObjectType>& bankCollecti
 
 		bankCollection[bankEntry.bankNumber].saved = true;
 	}
+}
+
+void Set::SaveMultiSamples(const Model &targetModel)
+{
+	auto dirPath = this->setPath / String(u8"MULTISMP");
+	auto path = dirPath / String(u8"RAM.KMP");
+
+	File banksDir(dirPath);
+	if(!banksDir.Exists())
+		banksDir.CreateDirectory();
+
+	StdXX::FileOutputStream fileOutputStream(path, true);
+
+	BankFormat::Writer bankFormatWriter(fileOutputStream, targetModel);
+	bankFormatWriter.Write(*this->multiSamples);
 }

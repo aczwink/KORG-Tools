@@ -45,11 +45,9 @@ Packet* EncodeAudio(Frame& audioFrame, CodingFormatId targetFormatId, Stream& st
 	return encoderContext->GetNextPacket();
 }
 
-void ExportWave(const FileSystem::Path& outPath, const SampleData& sampleData)
+void ExportWave(const FileSystem::Path& outPath, const SampleData& sampleData, const MultiSamples::SampleEntry* multiSamplesSampleEntry)
 {
-	FileOutputStream file(outPath.String() + u8".wav"); //TODO:
-	/*byte buf[10000];
-	BufferOutputStream file(buf, 10000);*/
+	FileOutputStream file(outPath.String() + u8".wav");
 
 	const Format* format = Format::FindByExtension(u8"wav");
 	UniquePointer<Muxer> muxer = format->CreateMuxer(file);
@@ -70,7 +68,7 @@ void ExportWave(const FileSystem::Path& outPath, const SampleData& sampleData)
 		case SampleFormat::Compressed:
 		{
 			AudioBuffer* audioBuffer = new AudioBuffer(sampleData.nSamples, *targetStream->sampleFormat);
-			Sample::Decompress(sampleData.sampleBuffer.Data(), static_cast<int16 *>(audioBuffer->GetPlane(0)), sampleData.nSamples);
+			Sample::Decompress(sampleData.sampleBuffer.Data(), static_cast<int16 *>(audioBuffer->GetPlane(0)), sampleData.nSamples, multiSamplesSampleEntry->compressionCoefficients[0], multiSamplesSampleEntry->compressionCoefficients[1]);
 			audioFrame = new AudioFrame(audioBuffer);
 		}
 		break;
@@ -111,7 +109,7 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 
 		FileSystem::Path bankPath = bankEntry.bankNumber.ToString();
 		FileSystem::File bankDir(bankPath);
-		bankDir.CreateDirectory(); //TODO
+		bankDir.CreateDirectory();
 
 		uint32 i = 0;
 		for(const auto& objectEntry : bankEntry.bank.Objects())
@@ -125,15 +123,24 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 			}
 			else
 			{
+				const SampleObject& sampleObject = dynamic_cast<const SampleObject&>(sample);
+
 				stdOut << u8"Exporting sample: " << sampleName << endl;
 
-				const SampleObject& sampleObject = dynamic_cast<const SampleObject&>(sample);
-				ExportWave(bankPath / (String::Number(i) + u8"_" + sampleName.Trim()), sampleObject.data);
+				const MultiSamples::SampleEntry* sampleEntry = nullptr;
+				for(const auto& multiSampleSampleEntry : set.MultiSamples().data.sampleEntries)
+				{
+					if(multiSampleSampleEntry.id == sampleObject.data.id)
+					{
+						sampleEntry = &multiSampleSampleEntry;
+						break;
+					}
+				}
+
+				ExportWave(bankPath / (String::Number(i) + u8"_" + sampleName.Trim()), sampleObject.data, sampleEntry);
 			}
 			i++;
-			break; //TODO
 		}
-		break; //TODO
 	}
 
 	return EXIT_SUCCESS;

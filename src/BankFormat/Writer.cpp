@@ -24,26 +24,29 @@
 #include "../Writer/StyleWriter.hpp"
 #include "../PCMFormat/PCMFormatWriter.hpp"
 #include "../PCMFormat/PCMWriterFactory.hpp"
+#include "../SoundFormat/SoundWriterFactory.hpp"
+#include "../MultiSamplesFormat/MultiSamplesWriterFactory.hpp"
 #include <libkorg/BankFormat/EncryptedSample.hpp>
 #include <libkorg/BankFormat/SampleObject.hpp>
 //Namespaces
 using namespace BankFormat;
 
 //Public methods
-void Writer::Write(const ObjectBank<AbstractSample> &bank)
+template<typename T>
+void Writer::Write(const ObjectBank<T> &bank)
 {
 	this->WriteHeader();
 
 	this->BeginCrossReferencedChunk(ChunkType::ObjectTOC, 0, 0, ChunkHeaderFlags::Leaf);
 	for(const auto& objectEntry : bank.Objects())
 	{
-		this->WriteTOCEntry(objectEntry.name, objectEntry.pos, ObjectType::PCM, this->DeterminePCMVersion(*objectEntry.object));
+		this->WriteTOCEntries(objectEntry.name, objectEntry.pos, *objectEntry.object);
 	}
 	this->EndChunk();
 
 	for(const auto& objectEntry : bank.Objects())
 	{
-		this->WritePCM(*objectEntry.object);
+		this->WriteObjects(objectEntry.pos, *objectEntry.object);
 	}
 
 	this->WriteCrossReferenceTable();
@@ -51,7 +54,35 @@ void Writer::Write(const ObjectBank<AbstractSample> &bank)
 	this->EndChunk();
 }
 
-void Writer::Write(const ObjectBank<FullStyle> &bank)
+template void Writer::Write(const ObjectBank<AbstractSample> &bank);
+template void Writer::Write(const ObjectBank<SoundObject> &bank);
+
+void Writer::Write(const MultiSamplesObject &multiSamplesObject)
+{
+	this->WriteHeader();
+
+	ChunkVersion dataVersion = this->model.GetSupportedResourceVersions().maxMultiSamplesVersion;
+
+	this->BeginCrossReferencedChunk(ChunkType::ObjectTOC, 0, 0, ChunkHeaderFlags::Leaf);
+	this->WriteTOCEntry(u8"RAM", 0, ObjectType::MultiSample, dataVersion);
+	this->EndChunk();
+
+	this->BeginCrossReferencedChunk(ChunkType::MultiSampleData, dataVersion.major, dataVersion.minor, ChunkHeaderFlags::Leaf);
+
+	BufferedOutputStream bufferedOutputStream(this->outputStream);
+	DataWriter dataWriter(true, bufferedOutputStream);
+	UniquePointer<MultiSamplesFormatWriter> bankObjectFormatWriter = CreateMultiSamplesWriter(dataWriter, dataVersion);
+	bankObjectFormatWriter->Write(multiSamplesObject.data);
+	bufferedOutputStream.Flush();
+
+	this->EndChunk();
+
+	this->WriteCrossReferenceTable();
+
+	this->EndChunk();
+}
+
+/*void Writer::Write(const ObjectBank<FullStyle> &bank)
 {
 	this->WriteHeader();
 
@@ -72,7 +103,7 @@ void Writer::Write(const ObjectBank<FullStyle> &bank)
 	this->WriteCrossReferenceTable();
 
 	this->EndChunk();
-}
+}*/
 
 //Private methods
 ChunkVersion Writer::DeterminePCMVersion(const AbstractSample& sample) const
@@ -113,24 +144,46 @@ void Writer::WriteHeader()
 	this->EndChunk();
 }
 
-void Writer::WritePCM(const AbstractSample& abstractSample)
+void Writer::WriteObjects(uint8 pos, const AbstractSample& sampleObject)
 {
-	const EncryptedSample* encryptedSample = dynamic_cast<const EncryptedSample *>(&abstractSample);
+	ChunkVersion dataVersion = this->objectVersionMap.Get(pos).Get(ObjectType::PCM);
+
+	this->BeginCrossReferencedChunk(ChunkType::PCMData, dataVersion.major, dataVersion.minor, ChunkHeaderFlags::Leaf);
+	this->WritePCMData(sampleObject, dataVersion);
+	this->EndChunk();
+}
+
+void Writer::WriteObjects(uint8 pos, const SoundObject &soundObject)
+{
+	ChunkVersion dataVersion = this->objectVersionMap.Get(pos).Get(ObjectType::Sound);
+
+	this->BeginCrossReferencedChunk(ChunkType::SoundData, dataVersion.major, dataVersion.minor, ChunkHeaderFlags::Leaf);
+	this->WriteSoundData(soundObject, dataVersion);
+	this->EndChunk();
+}
+
+void Writer::WritePCMData(const AbstractSample& abstractSample, const ChunkVersion& dataVersion)
+{
+	const auto* encryptedSample = dynamic_cast<const EncryptedSample *>(&abstractSample);
 	if(encryptedSample)
 		NOT_IMPLEMENTED_ERROR; //TODO: version for encrypted should be saved
 
 	const auto& sampleObject = dynamic_cast<const SampleObject &>(abstractSample);
-
-	ChunkVersion dataVersion = this->DeterminePCMVersion(abstractSample);
-	this->BeginCrossReferencedChunk(ChunkType::PCMData, dataVersion.major, dataVersion.minor, ChunkHeaderFlags::UnknownAlwaysSetInBankFile);
 
 	BufferedOutputStream bufferedOutputStream(this->outputStream);
 	DataWriter dataWriter(true, bufferedOutputStream);
 	UniquePointer<PCMFormatWriter> bankObjectFormatWriter = CreatePCMWriter(dataWriter, dataVersion);
 	bankObjectFormatWriter->Write(sampleObject.data);
 	bufferedOutputStream.Flush();
+}
 
-	this->EndChunk();
+void Writer::WriteSoundData(const SoundObject &soundObject, const ChunkVersion& dataVersion)
+{
+	BufferedOutputStream bufferedOutputStream(this->outputStream);
+	DataWriter dataWriter(true, bufferedOutputStream);
+	UniquePointer<SoundFormatWriter> bankObjectFormatWriter = CreateSoundWriter(dataWriter, dataVersion);
+	bankObjectFormatWriter->Write(soundObject.data);
+	bufferedOutputStream.Flush();
 }
 
 void Writer::WriteSTS(const SingleTouchSettings &singleTouchSettings)
@@ -159,6 +212,16 @@ void Writer::WriteStyle(const StyleObject &style)
 	this->EndChunk();
 }
 
+void Writer::WriteTOCEntries(const String &name, uint8 pos, const AbstractSample &object)
+{
+	this->WriteTOCEntry(name, pos, ObjectType::PCM, this->DeterminePCMVersion(object));
+}
+
+void Writer::WriteTOCEntries(const String &name, uint8 pos, const SoundObject& object)
+{
+	this->WriteTOCEntry(name, pos, ObjectType::Sound, this->model.GetSupportedResourceVersions().maxSoundVersion);
+}
+
 void Writer::WriteTOCEntry(const String& name, uint8 pos, ObjectType objectType, const ChunkVersion& version)
 {
 	TextWriter textWriter(this->outputStream, TextCodecType::ASCII);
@@ -170,4 +233,6 @@ void Writer::WriteTOCEntry(const String& name, uint8 pos, ObjectType objectType,
 	dataWriter.WriteByte(version.major);
 	dataWriter.WriteByte(version.minor);
 	dataWriter.WriteByte(0);
+
+	this->objectVersionMap[pos][objectType] = version;
 }

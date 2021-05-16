@@ -23,6 +23,7 @@
 #include <libkorg/BankFormat/BankFormat.hpp>
 #include <libkorg/BankFormat/SoundObject.hpp>
 #include <libkorg/Model.hpp>
+#include <libkorg/BankFormat/MultiSamplesObject.hpp>
 #include "../Writer/ChunkWriter.hpp"
 //Namespaces
 using namespace StdXX;
@@ -40,22 +41,29 @@ namespace libKORG::BankFormat
 		}
 
 		//Methods
-		void Write(const ObjectBank<AbstractSample> &bank);
-		void Write(const ObjectBank<FullStyle> &bank);
+		template<typename T>
+		void Write(const ObjectBank<T> &bank);
+		void Write(const MultiSamplesObject& multiSamplesObject);
 
 	private:
 		//Members
 		DataWriter fourccWriter;
 		DynamicArray<uint32> crossReferenceObjects;
+		BinaryTreeMap<uint8, BinaryTreeMap<ObjectType, ChunkVersion>> objectVersionMap;
 		const Model& model;
 
 		//Methods
 		ChunkVersion DeterminePCMVersion(const AbstractSample& sample) const;
 		void WriteCrossReferenceTable();
 		void WriteHeader();
-		void WritePCM(const AbstractSample& sample);
+		void WriteObjects(uint8 pos, const AbstractSample& sampleObject);
+		void WriteObjects(uint8 pos, const SoundObject& soundObject);
+		void WritePCMData(const AbstractSample& sample, const ChunkVersion& dataVersion);
+		void WriteSoundData(const SoundObject& soundObject, const ChunkVersion& dataVersion);
 		void WriteSTS(const SingleTouchSettings &singleTouchSettings);
 		void WriteStyle(const StyleObject &style);
+		void WriteTOCEntries(const StdXX::String& name, uint8 pos, const AbstractSample& object);
+		void WriteTOCEntries(const StdXX::String& name, uint8 pos, const SoundObject& object);
 		void WriteTOCEntry(const String &name, uint8 pos, libKORG::BankFormat::ObjectType objectType, const ChunkVersion& version);
 
 		//Inline

@@ -24,7 +24,9 @@
 #include <libkorg/Converters/PerformanceV2ToV1Converter.hpp>
 #include <libkorg/Converters/SoundMapper.hpp>
 
+#include <libkorg/DataViews/MultiSamplesIndex.hpp>
 #include <libkorg/DataViews/RangedEventView.hpp>
+#include <libkorg/DataViews/SetIndex.hpp>
 #include <libkorg/DataViews/StyleView.hpp>
 
 #include <libkorg/Sample/Compression.hpp>

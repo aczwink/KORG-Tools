@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
+#pragma once
 #include <StdXX.hpp>
 //Local
 #include <libkorg/Sound/SoundData.hpp>
@@ -29,12 +30,19 @@ public:
 	//Methods
 	void Read(StdXX::DataReader& dataReader);
 
+protected:
+	//Methods
+	void ReadFlags(StdXX::DataReader& dataReader);
+	void ReadFX(libKORG::Sound::EffectData& effectData, StdXX::DataReader& dataReader);
+	void ReadOscillatorData(libKORG::Sound::OscillatorData& oscillatorData, StdXX::DataReader& dataReader);
+	void ReadUnknownData(StdXX::DataReader& dataReader);
+
 private:
 	//Methods
 	void ReadDrumKitSoundData(libKORG::Sound::DrumKitSoundData& drumKitSoundData, StdXX::DataReader& dataReader);
 	void ReadKeyTableEntry(libKORG::Sound::KeyTableEntry& keyTableEntry, StdXX::DataReader& dataReader);
 	void ReadLayerEntry(libKORG::Sound::LayerEntry& layerEntry, StdXX::DataReader& dataReader);
-	void ReadOscillatorData(libKORG::Sound::OSCMultiSampleSettings& oscMultiSampleSettings, StdXX::DataReader& dataReader);
+	void ReadOscillatorMultiSamplesData(libKORG::Sound::OSCMultiSampleSettings& oscMultiSampleSettings, StdXX::DataReader& dataReader);
 
 	//Inline
 	inline bool ReadBool(StdXX::DataReader& dataReader)

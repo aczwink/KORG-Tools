@@ -51,12 +51,35 @@ namespace libKORG::BankFormat
 		SongBook = 12,
 	};
 
+	enum class SerialNumberType
+	{
+		Machine = 0,
+		FMDriver = 1,
+	};
+
+	enum class EncryptionAlgorithm
+	{
+		Normal = 0,
+		DES = 1,
+		Mixed = 2,
+		Blowfish = 3,
+	};
+
+	struct EncryptionInformation
+	{
+		SerialNumberType serialNumberType;
+		EncryptionAlgorithm encryptionAlgorithm;
+		uint16 vendorId;
+		uint16 featureId;
+	};
+
 	struct HeaderEntry
 	{
 		StdXX::String name;
 		ObjectType type;
 		libKORG::ChunkVersion dataVersion;
 		uint8 pos;
+		EncryptionInformation encryptionInformation;
 	};
 
 	const uint32 HEADERENTRY_NAME_SIZE = 18;

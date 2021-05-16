@@ -26,22 +26,20 @@ using namespace StdXX;
 //Public methods
 void SoundFormat3_0Reader::Read(DataReader& dataReader)
 {
-	uint16 version = dataReader.ReadUInt16();
-	ASSERT_EQUALS(13, version);
+	this->data.multiSampleMap = dataReader.ReadUInt16();
 
-	this->data.voiceAssignModeFlags = dataReader.ReadByte();
+	this->ReadFlags(dataReader);
 
-	dataReader.ReadBytes(this->data.unknown1, sizeof(this->data.unknown1));
+	for(uint8 i = 0; i < 4; i++)
+		this->ReadFX(this->data.effects[i], dataReader);
 
-	this->data.transposeRangeBottomKey = dataReader.ReadByte();
-	this->data.transposeRangeTopKey = dataReader.ReadByte();
-
-	dataReader.ReadBytes(this->data.unknown11, sizeof(this->data.unknown11));
+	dataReader.ReadBytes(this->data.unknown2, sizeof(this->data.unknown2));
+	this->data.unknown3 = dataReader.ReadByte();
 
 	this->data.unknownPacked = dataReader.ReadByte();
 	this->data.lowPriority = dataReader.ReadByte();
 
-	dataReader.ReadBytes(this->data.unknown2, sizeof(this->data.unknown2));
+	this->ReadUnknownData(dataReader);
 
 	this->data.maxTime = dataReader.ReadUInt16();
 	this->data.maxRange = dataReader.ReadByte();
@@ -49,36 +47,7 @@ void SoundFormat3_0Reader::Read(DataReader& dataReader)
 	uint8 nOscillators = this->data.unknownPacked & 0x1F; //at least 0x40 can be set in that bit field. No idea what it is
 	this->data.oscillators.Resize(nOscillators);
 	for(uint8 i = 0; i < nOscillators; i++)
-	{
-		auto& osc = this->data.oscillators[i];
-
-		this->ReadOscillatorData(osc.high, dataReader);
-		this->ReadOscillatorData(osc.low, dataReader);
-		osc.oscTriggerModeDelay = static_cast<OSCTriggerModeDelay>(dataReader.ReadByte());
-		osc.velocityMultiSampleSwitchLowHigh = dataReader.ReadByte();
-		osc.velocityZoneBottom = dataReader.ReadByte();
-		osc.velocityZoneTop = dataReader.ReadByte();
-		osc.keyboardRangeBottomKey = dataReader.ReadByte();
-		osc.keyboardRangeTopKey = dataReader.ReadByte();
-
-		osc.unknown2 = dataReader.ReadByte();
-
-		osc.oscTriggerMode = static_cast<OSCTriggerMode>(dataReader.ReadByte());
-		osc.oscOffWhenSoundControllersAreOn = this->ReadBool(dataReader);
-
-		dataReader.ReadBytes(osc.unknown3, sizeof(osc.unknown3));
-
-		osc.octaveTranspose = dataReader.ReadByte();
-		osc.transpose = dataReader.ReadByte();
-		osc.tune = dataReader.ReadInt16();
-
-		dataReader.ReadBytes(osc.unknown4, sizeof(osc.unknown4));
-
-		osc.scaledVelocityBottom = dataReader.ReadByte();
-		osc.scaledVelocityTop = dataReader.ReadByte();
-
-		dataReader.ReadBytes(osc.unknown5, sizeof(osc.unknown5));
-	}
+		this->ReadOscillatorData(this->data.oscillators[i], dataReader);
 
 	if(this->data.voiceAssignModeFlags.IsSet(libKORG::Sound::VoiceAssignModeFlags::IsDrumKit))
 	{
@@ -154,14 +123,4 @@ void SoundFormat3_0Reader::ReadLayerEntry(LayerEntry& layerEntry, DataReader &da
 	layerEntry.intensity = dataReader.ReadByte();
 
 	dataReader.ReadBytes(layerEntry.unknown22, sizeof(layerEntry.unknown22));
-}
-
-void SoundFormat3_0Reader::ReadOscillatorData(OSCMultiSampleSettings& oscMultiSampleSettings, DataReader &dataReader)
-{
-	oscMultiSampleSettings.multiSampleId = dataReader.ReadUInt64();
-	oscMultiSampleSettings.multiSampleNumber = dataReader.ReadUInt16();
-	oscMultiSampleSettings.source = static_cast<MultiSampleSource>(dataReader.ReadByte());
-	oscMultiSampleSettings.level = dataReader.ReadByte();
-	oscMultiSampleSettings.reversed = this->ReadBool(dataReader);
-	oscMultiSampleSettings.offset = static_cast<Offset>(dataReader.ReadByte());
 }

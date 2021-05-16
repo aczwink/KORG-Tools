@@ -82,16 +82,41 @@ namespace libKORG::Sound
 		StdXX::DynamicArray<LayerEntry> layers;
 	};
 
+	struct EffectData
+	{
+		uint8 unknown1;
+		uint8 unknown2[64];
+		uint8 unknown3;
+		uint8 unknown4;
+	};
+
 	struct SoundData
 	{
+		uint16 multiSampleMap;
 		StdXX::Flags<VoiceAssignModeFlags> voiceAssignModeFlags;
-		uint8 unknown1[5];
+		uint8 unknown1[5]; //single bytes... probably also flags?
 		Pitch transposeRangeBottomKey;
 		Pitch transposeRangeTopKey;
-		byte unknown11[274];
+		EffectData effects[4];
+		byte unknown2[5]; //single bytes...
+		int8 unknown3;
 		uint8 unknownPacked;
 		uint8 lowPriority;
-		byte unknown2[20];
+		byte unknown4[6];
+		int8 unknown5;
+		uint8 unknown6;
+		int8 unknown7;
+		uint8 unknown8;
+		uint8 unknown9;
+		int8 unknown10;
+		uint8 unknown11;
+		int8 unknown12;
+		uint8 unknown13;
+		int8 unknown14;
+		uint8 unknown15;
+		int8 unknown16;
+		uint8 unknown17;
+		uint8 unknown18;
 		uint16 maxTime;
 		uint8 maxRange;
 		StdXX::DynamicArray<OscillatorData> oscillators;

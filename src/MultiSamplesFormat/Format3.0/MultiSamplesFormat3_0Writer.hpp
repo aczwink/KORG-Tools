@@ -16,24 +16,29 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <libkorg.hpp>
-using namespace libKORG;
-using namespace StdXX;
+//Local
+#include <libkorg/MultiSamples/MultiSamplesData.hpp>
+#include "../MultiSamplesFormatWriter.hpp"
 
-class SoundSelection
+class MultiSamplesFormat3_0Writer : public MultiSamplesFormatWriter
 {
 public:
 	//Constructor
-	SoundSelection(const Set& set, const DynamicArray<const SoundObject*>& selection);
-
-	//Properties
-	inline const auto& SampleIds() const
+	inline MultiSamplesFormat3_0Writer(StdXX::DataWriter& dataWriter) : dataWriter(dataWriter), textWriter(dataWriter.Stream(), StdXX::TextCodecType::Latin1)
 	{
-		return this->sampleIds;
 	}
+
+	//Methods
+	void Write(const libKORG::MultiSamples::MultiSamplesData &data) override;
 
 private:
 	//Members
-	BinaryTreeSet<uint64> multiSampleIds;
-	BinaryTreeSet<uint8> sampleIds;
+	StdXX::DataWriter& dataWriter;
+	StdXX::TextWriter textWriter;
+
+	//Methods
+	void Write(const libKORG::MultiSamples::DrumSampleEntry& drumSampleEntry);
+	void Write(const libKORG::MultiSamples::KeyboardZone& keyboardZone);
+	void Write(const libKORG::MultiSamples::MultiSampleEntry& multiSampleEntry);
+	void Write(const libKORG::MultiSamples::SampleEntry& sampleEntry);
 };

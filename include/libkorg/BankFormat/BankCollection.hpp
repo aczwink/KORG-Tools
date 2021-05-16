@@ -44,6 +44,11 @@ namespace libKORG
 			return this->banks[number];
 		}
 
+		inline const ObjectBank<ObjectType>& operator[](BankNumberType number) const
+		{
+			return this->banks[number];
+		}
+
 		//Inline
 		inline auto Entries() const
 		{

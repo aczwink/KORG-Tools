@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -16,29 +16,27 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#pragma once
+//Local
 #include <StdXX.hpp>
+#include <libkorg/Sound/SoundData.hpp>
+#include "../SoundFormatWriter.hpp"
 
-namespace libKORG::Sample
+class SoundFormat3_0Writer : public SoundFormatWriter
 {
-	enum class SampleFormat
+public:
+	//Constructor
+	inline SoundFormat3_0Writer(StdXX::DataWriter& dataWriter) : dataWriter(dataWriter)
 	{
-		Linear_PCM_S16BE = 16,
-		Compressed = 128
-	};
+	}
 
-	struct SampleData
-	{
-		uint64 id;
-		SampleFormat sampleFormat;
-		uint32 sampleRate;
-		uint32 nSamples;
-		uint32 unknown1;
-		uint32 unknown2[7];
-		uint32 loopStart;
-		uint32 unknown3;
-		uint32 unknown4;
-		uint32 unknown5;
-		StdXX::DynamicByteBuffer sampleBuffer;
-	};
-}
+	//Methods
+	void Write(const libKORG::Sound::SoundData& soundData);
+
+private:
+	//Members
+	StdXX::DataWriter& dataWriter;
+
+	//Methods
+	void WriteOscillatorData(const libKORG::Sound::OscillatorData& oscillatorData);
+	void WriteOscillatorMultiSamplesData(const libKORG::Sound::OSCMultiSampleSettings& oscMultiSampleSettings);
+};

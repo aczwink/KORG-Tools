@@ -55,6 +55,13 @@ namespace libKORG
 		Set(const StdXX::FileSystem::Path& setPath);
 
 		//Properties
+		inline MultiSamplesObject& MultiSamples()
+		{
+			if(this->multiSamples.IsNull())
+				this->multiSamples = new MultiSamplesObject();
+			return *this->multiSamples;
+		}
+
 		inline const MultiSamplesObject& MultiSamples() const
 		{
 			return *this->multiSamples;
@@ -76,10 +83,18 @@ namespace libKORG
 		}
 
 		//Methods
+		uint32 ComputeUsedSampleRAMSize();
 		void Save(const Model& targetModel);
 
 		//Functions
 		static Set Create(const StdXX::FileSystem::Path& targetPath);
+
+		inline static ProgramChangeSequence CreateRAMSoundProgramChangeSequence(const SoundBankNumber& soundBankNumber, uint8 pos)
+		{
+			uint8 msb = 121 - soundBankNumber.IsDrumKit();
+			uint8 lsb = 64 + soundBankNumber.UserNumber();
+			return ProgramChangeSequence(msb, lsb, pos);
+		}
 
 	private:
 		//Members
@@ -104,5 +119,6 @@ namespace libKORG
 		void SaveBank(const ObjectBank<BankObjectType>& bank, StdXX::SeekableOutputStream& outputStream, const Model& targetModel);
 		template<typename BankNumberType, typename BankObjectType>
 		void SaveBanks(BankCollection<BankNumberType, BankObjectType>& bankCollection, const StdXX::String& folderName, const Model& targetModel);
+		void SaveMultiSamples(const Model& targetModel);
 	};
 }
