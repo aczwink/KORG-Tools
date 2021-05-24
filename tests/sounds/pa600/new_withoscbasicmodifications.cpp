@@ -29,8 +29,8 @@ TEST_SUITE(NewSoundWithOSCBasicModificationsTests)
 	{
 		FileSystem::Path setPath(u8"testdata/sounds/pa600/new_withoscbasicmodifications.SET");
 		Set set(setPath);
-		const auto& soundEntry = set.SoundBanks().begin().operator*().value.Objects().begin().operator*().value;
-		const auto& soundData = soundEntry.Get<1>()->data;
+		const auto soundEntry = set.soundBanks.Entries().begin().operator*().bank.Objects().begin().operator*();
+		const auto& soundData = soundEntry.object->data;
 
 		ASSERT_EQUALS(1, soundData.oscillators.GetNumberOfElements());
 

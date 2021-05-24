@@ -82,15 +82,54 @@ namespace libKORG::MultiSamples
 		DoNotStream = 0x800,
 	};
 
+	class PackedData
+	{
+	public:
+		//Constructors
+		PackedData() = default;
+
+		inline PackedData(uint16 rawValue) : bitfield(rawValue)
+		{
+		}
+
+		//Properties
+		inline StdXX::Bitfield<uint16> Encoded() const
+		{
+			StdXX::Bitfield<uint16> copy = this->bitfield;
+			copy.SetBit(4, true); //bit (i.e. after the sampleType) -> 1bit is extended (i.e. has uint64 id)
+			return copy;
+		}
+
+		inline StdXX::Flags<enum SampleFlags, uint16> SampleFlags() const
+		{
+			return this->bitfield.Extract(7, 9);
+		}
+
+		inline enum InterpolationMode InterpolationMode() const
+		{
+			return static_cast<enum InterpolationMode>(this->bitfield.Get(5, 2));
+		}
+
+		inline enum SampleType SampleType() const
+		{
+			return static_cast<enum SampleType>(this->bitfield.Get(0, 4));
+		}
+
+		inline void SampleType(enum SampleType newValue)
+		{
+			this->bitfield.Set(0, 4, (uint16)newValue);
+		}
+
+	private:
+		//Members
+		StdXX::Bitfield<uint16> bitfield;
+	};
+
 	struct SampleEntry
 	{
 		int16 unknown1;
 		int16 unknown2;
-
-		SampleType sampleType;
-		InterpolationMode interpolationMode;
-		StdXX::Flags<SampleFlags, uint8> flags;
-
+		PackedData packedData;
 		uint8 unknown4;
 		uint32 unknown8;
 		uint32 unknown9[8];

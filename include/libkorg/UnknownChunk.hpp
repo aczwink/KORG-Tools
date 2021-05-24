@@ -17,6 +17,7 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
+#include <StdXX.hpp>
 //Local
 #include "libkorg/ChunkFormat/ChunkFormat.hpp"
 

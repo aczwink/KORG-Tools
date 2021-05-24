@@ -40,6 +40,7 @@ namespace libKORG
 			ChunkVersion maxPCMVersion;
 			ChunkVersion maxPerformanceVersion;
 			ChunkVersion maxSoundVersion;
+			ChunkVersion maxStyleVersion;
 		};
 
 		//Abstract

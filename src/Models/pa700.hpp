@@ -62,12 +62,13 @@ public:
 			{3, 0},
 			{0, 0},
 			{2, 1},
-			{3, 0}
+			{3, 0},
+			{0, 0}
 		};
 	}
 };
 
-class Pa700OR : public Pa700
+class Pa700ORT : public Pa700
 {
 public:
 	StdXX::String GetCustomization() const override

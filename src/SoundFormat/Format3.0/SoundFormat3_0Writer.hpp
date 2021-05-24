@@ -37,6 +37,7 @@ private:
 	StdXX::DataWriter& dataWriter;
 
 	//Methods
+	void WriteEqualizerData(const libKORG::Sound::EqualizerData& equalizerData);
 	void WriteOscillatorData(const libKORG::Sound::OscillatorData& oscillatorData);
 	void WriteOscillatorMultiSamplesData(const libKORG::Sound::OSCMultiSampleSettings& oscMultiSampleSettings);
 };

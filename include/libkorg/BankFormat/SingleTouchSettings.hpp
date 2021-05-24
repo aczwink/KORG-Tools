@@ -17,7 +17,7 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include "libkorg/BankFormat/Performance.hpp"
+#include "libkorg/BankFormat/PerformanceObject.hpp"
 #include "libkorg/UnknownChunk.hpp"
 
 namespace libKORG
@@ -26,22 +26,16 @@ namespace libKORG
 	{
 	public:
 		//Members
-		StdXX::DynamicArray<libKORG::UnknownChunk> unknownChunksAtBeginning;
-		struct AccompanimentSettings accompanimentSettings;
-		StdXX::StaticArray<libKORG::KeyboardSettings, 4> keyboardSettings;
-		StdXX::DynamicArray<libKORG::UnknownChunk> unknownChunksAtEnd;
+		Performance::GeneralData generalData;
+		StdXX::StaticArray<Performance::KeyboardSettings, 4> keyboardSettings;
 
 		//Constructors
 		inline SingleTouchSettings(const ChunkVersion& max9version,
-				StdXX::DynamicArray<libKORG::UnknownChunk>&& unknownChunksAtBeginning,
-							 struct AccompanimentSettings&& accompanimentSettings,
-							 		StdXX::StaticArray<libKORG::KeyboardSettings, 4>&& keyboardSettings,
-							 		StdXX::DynamicArray<libKORG::UnknownChunk>&& unknownChunksAtEnd)
+								   Performance::GeneralData&& generalData,
+							 		StdXX::StaticArray<Performance::KeyboardSettings, 4>&& keyboardSettings)
 				: max9version(max9version),
-				unknownChunksAtBeginning(StdXX::Move(unknownChunksAtBeginning)),
-				accompanimentSettings(StdXX::Move(accompanimentSettings)),
-				keyboardSettings(Move(keyboardSettings)),
-				  unknownChunksAtEnd(Move(unknownChunksAtEnd))
+				  generalData(StdXX::Move(generalData)),
+				keyboardSettings(Move(keyboardSettings))
 		{
 		}
 

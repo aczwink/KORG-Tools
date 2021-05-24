@@ -20,6 +20,7 @@
 //Local
 #include <libkorg/Pitch.hpp>
 #include "OscillatorData.hpp"
+#include "DrumKit.hpp"
 
 namespace libKORG::Sound
 {
@@ -34,60 +35,12 @@ namespace libKORG::Sound
 		Hold = 0x80,
 	};
 
-	enum class Reversed
-	{
-		No = 0,
-		Yes = 2
-	};
-
-	struct KeyTableEntry
-	{
-		uint8 index;
-		uint8 nLayers;
-		uint8 unknown1[7];
-		uint8 velocitySampleSwitches[5];
-	};
-
-	struct LayerEntry
-	{
-		uint8 unknown1;
-		Reversed reversed;
-		uint8 unknown11;
-		uint8 multiSampleNumber; //is it sample or multisample number?
-		int8 level;
-		int8 transpose;
-		uint8 tune;
-		int8 attack;
-		uint8 decay;
-		int8 cutoff;
-		uint8 resonance;
-		uint8 unknown12[2];
-		struct
-		{
-			bool enable;
-			uint8 trim;
-			int8 lowGainTimes2;
-			uint8 freq;
-			int8 midGainTimes2;
-			int8 highGainTimes2;
-		} drumSampleEqualizer;
-		uint8 unknown21[2];
-		int8 intensity;
-		uint8 unknown22[8];
-	};
-
-	struct DrumKitSoundData
-	{
-		KeyTableEntry keyTable[128];
-		StdXX::DynamicArray<LayerEntry> layers;
-	};
-
 	struct EffectData
 	{
-		uint8 unknown1;
-		uint8 unknown2[64];
-		uint8 unknown3;
-		uint8 unknown4;
+		uint8 unknown1 = 0;
+		uint8 unknown2[64] = {};
+		uint8 unknown3 = 0;
+		uint8 unknown4 = 0;
 	};
 
 	struct SoundData
@@ -95,14 +48,15 @@ namespace libKORG::Sound
 		uint16 multiSampleMap;
 		StdXX::Flags<VoiceAssignModeFlags> voiceAssignModeFlags;
 		uint8 unknown1[5]; //single bytes... probably also flags?
-		Pitch transposeRangeBottomKey;
-		Pitch transposeRangeTopKey;
+		KeyRange transposeRange = {0, 127};
 		EffectData effects[4];
-		byte unknown2[5]; //single bytes...
-		int8 unknown3;
+		byte unknown21[3]; //single bytes...
+		uint8 unknown22 = 0;
+		uint8 unknown23 = 0;
+		int8 unknown3 = -1;
 		uint8 unknownPacked;
 		uint8 lowPriority;
-		byte unknown4[6];
+		byte unknown4[6] = {0, 128, 0, 0, 128, 0};
 		int8 unknown5;
 		uint8 unknown6;
 		int8 unknown7;
@@ -117,8 +71,8 @@ namespace libKORG::Sound
 		int8 unknown16;
 		uint8 unknown17;
 		uint8 unknown18;
-		uint16 maxTime;
-		uint8 maxRange;
+		uint16 maxTime = 15;
+		uint8 maxRange = 5;
 		StdXX::DynamicArray<OscillatorData> oscillators;
 		StdXX::Optional<DrumKitSoundData> drumKitData; //only there for drum kits
 	};

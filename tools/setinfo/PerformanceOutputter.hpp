@@ -18,6 +18,7 @@
  */
 #include <libkorg.hpp>
 using namespace libKORG;
+using namespace libKORG::Performance;
 #include "FormattedOutputter.hpp"
 
 class PerformanceOutputter
@@ -29,7 +30,7 @@ public:
 	}
 
 	//Methods
-	void Output(const Performance& performance);
+	void Output(const PerformanceObject& performance);
 	void Output(const SingleTouchSettings& sts);
 
 private:

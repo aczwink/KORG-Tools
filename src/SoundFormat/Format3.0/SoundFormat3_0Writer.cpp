@@ -28,8 +28,8 @@ void SoundFormat3_0Writer::Write(const Sound::SoundData &soundData)
 
 	this->dataWriter.WriteByte(soundData.voiceAssignModeFlags.encodedFlags);
 	this->dataWriter.WriteBytes(soundData.unknown1, sizeof(soundData.unknown1));
-	this->dataWriter.WriteByte(soundData.transposeRangeBottomKey.Encode());
-	this->dataWriter.WriteByte(soundData.transposeRangeTopKey.Encode());
+	this->dataWriter.WriteByte(soundData.transposeRange.bottomKey.Encode());
+	this->dataWriter.WriteByte(soundData.transposeRange.topKey.Encode());
 
 	for(uint8 i = 0; i < 4; i++)
 	{
@@ -40,7 +40,9 @@ void SoundFormat3_0Writer::Write(const Sound::SoundData &soundData)
 		this->dataWriter.WriteByte(fx.unknown4);
 	}
 
-	this->dataWriter.WriteBytes(soundData.unknown2, sizeof(soundData.unknown2));
+	this->dataWriter.WriteBytes(soundData.unknown21, sizeof(soundData.unknown21));
+	this->dataWriter.WriteByte(soundData.unknown22);
+	this->dataWriter.WriteByte(soundData.unknown23);
 	this->dataWriter.WriteByte(soundData.unknown3);
 	this->dataWriter.WriteByte(soundData.unknownPacked);
 	this->dataWriter.WriteByte(soundData.lowPriority);
@@ -69,6 +71,16 @@ void SoundFormat3_0Writer::Write(const Sound::SoundData &soundData)
 }
 
 //Private methods
+void SoundFormat3_0Writer::WriteEqualizerData(const Sound::EqualizerData &equalizerData)
+{
+	this->dataWriter.WriteByte(equalizerData.enable);
+	this->dataWriter.WriteByte(equalizerData.trim);
+	this->dataWriter.WriteByte(equalizerData.lowGainTimes2);
+	this->dataWriter.WriteByte(equalizerData.freq);
+	this->dataWriter.WriteByte(equalizerData.midGainTimes2);
+	this->dataWriter.WriteByte(equalizerData.highGainTimes2);
+}
+
 void SoundFormat3_0Writer::WriteOscillatorData(const Sound::OscillatorData &oscillatorData)
 {
 	this->WriteOscillatorMultiSamplesData(oscillatorData.high);
@@ -78,13 +90,16 @@ void SoundFormat3_0Writer::WriteOscillatorData(const Sound::OscillatorData &osci
 	this->dataWriter.WriteByte(oscillatorData.velocityMultiSampleSwitchLowHigh);
 	this->dataWriter.WriteByte(oscillatorData.velocityZoneBottom);
 	this->dataWriter.WriteByte(oscillatorData.velocityZoneTop);
-	this->dataWriter.WriteByte(oscillatorData.keyboardRangeBottomKey.Encode());
-	this->dataWriter.WriteByte(oscillatorData.keyboardRangeTopKey.Encode());
+	this->dataWriter.WriteByte(oscillatorData.keyboardRange.bottomKey.Encode());
+	this->dataWriter.WriteByte(oscillatorData.keyboardRange.topKey.Encode());
 	this->dataWriter.WriteByte(oscillatorData.unknown2);
 	this->dataWriter.WriteByte(static_cast<byte>(oscillatorData.oscTriggerMode));
-	this->dataWriter.WriteByte(oscillatorData.oscOffWhenSoundControllersAreOn);
+	this->dataWriter.WriteByte(oscillatorData.scException.encodedFlags);
 
-	this->dataWriter.WriteBytes(oscillatorData.unknown3, sizeof(oscillatorData.unknown3));
+	this->dataWriter.WriteByte(oscillatorData.unknown31);
+	this->dataWriter.WriteByte(oscillatorData.unknown32);
+	this->dataWriter.WriteBytes(oscillatorData.unknown34, sizeof(oscillatorData.unknown34));
+	this->dataWriter.WriteBytes(oscillatorData.unknown35, sizeof(oscillatorData.unknown35));
 
 	this->dataWriter.WriteByte(oscillatorData.octaveTranspose);
 	this->dataWriter.WriteByte(oscillatorData.transpose);
@@ -95,7 +110,9 @@ void SoundFormat3_0Writer::WriteOscillatorData(const Sound::OscillatorData &osci
 	this->dataWriter.WriteByte(oscillatorData.scaledVelocityBottom);
 	this->dataWriter.WriteByte(oscillatorData.scaledVelocityTop);
 
-	this->dataWriter.WriteBytes(oscillatorData.unknown5, sizeof(oscillatorData.unknown5));
+	this->dataWriter.WriteBytes(oscillatorData.unknown51, sizeof(oscillatorData.unknown51));
+	this->WriteEqualizerData(oscillatorData.equalizer);
+	this->dataWriter.WriteBytes(oscillatorData.unknown53, sizeof(oscillatorData.unknown53));
 }
 
 void SoundFormat3_0Writer::WriteOscillatorMultiSamplesData(const Sound::OSCMultiSampleSettings &oscMultiSampleSettings)

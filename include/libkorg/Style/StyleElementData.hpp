@@ -52,6 +52,8 @@ namespace libKORG::Style
 		uint8 b5CVIndex;
 		uint8 dim7CVIndex;
 		byte unknown3;
+
+		StdXX::DynamicByteBuffer unknown;
 	};
 
 	struct GeneralStyleElementData

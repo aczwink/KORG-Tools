@@ -29,8 +29,8 @@ TEST_SUITE(NewSoundTests)
 	{
 		FileSystem::Path setPath(u8"testdata/sounds/pa600/new.SET");
 		Set set(setPath);
-		const auto& soundEntry = set.SoundBanks().begin().operator*().value.Objects().begin().operator*().value;
-		const auto& soundData = soundEntry.Get<1>()->data;
+		const auto soundEntry = set.soundBanks.Entries().begin().operator*().bank.Objects().begin().operator*();
+		const auto& soundData = soundEntry.object->data;
 
 		ASSERT_EQUALS(false, soundData.voiceAssignModeFlags.IsSet(VoiceAssignModeFlags::IsDrumKit));
 		ASSERT_EQUALS(false, soundData.voiceAssignModeFlags.IsSet(VoiceAssignModeFlags::SingleTrigger));

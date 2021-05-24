@@ -105,11 +105,7 @@ void MultiSamplesFormat3_0Writer::Write(const libKORG::MultiSamples::SampleEntry
 	this->dataWriter.WriteInt16(sampleEntry.unknown1);
 	this->dataWriter.WriteInt16(sampleEntry.unknown2);
 
-	this->dataWriter.WriteUInt16(
-			(sampleEntry.flags.encodedFlags << 7)
-			| ((uint16)sampleEntry.interpolationMode << 5)
-			| 0x10 //has uint64 id
-			| (uint16)sampleEntry.sampleType);
+	this->dataWriter.WriteUInt16(sampleEntry.packedData.Encoded().value);
 
 	this->dataWriter.WriteByte(sampleEntry.unknown4);
 	this->dataWriter.WriteUInt32(sampleEntry.unknown8);

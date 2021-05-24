@@ -190,7 +190,7 @@ bool SetConverter::IntegratePCMSample(const MultiSamples::SampleEntry& sampleEnt
 	MultiSamples::SampleEntry mappedSample = sampleEntry;
 	if(!this->targetModel.IsSampleCompressionSupported())
 	{
-		mappedSample.sampleType = MultiSamples::SampleType::Linear_PCM_S16BE;
+		mappedSample.packedData.SampleType(MultiSamples::SampleType::Linear_PCM_S16BE);
 		mappedSample.compressionCoefficients[0] = 0;
 		mappedSample.compressionCoefficients[1] = 0;
 	}

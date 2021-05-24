@@ -35,6 +35,11 @@ namespace libKORG
 		}
 
 		//Methods
+		uint64 GetId() const override
+		{
+			return this->data.id;
+		}
+
 		uint32 GetSize() const override
 		{
 			return this->data.sampleBuffer.Size();

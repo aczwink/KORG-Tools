@@ -62,7 +62,7 @@ void Set::Save(const Model& targetModel)
 	this->SaveMultiSamples(targetModel);
 	this->SaveBanks(this->sampleBanks, u8"PCM", targetModel);
 	this->SaveBanks(this->soundBanks, u8"SOUND", targetModel);
-	//this->SaveBanks(this->styleBanks, u8"STYLE");
+	this->SaveBanks(this->styleBanks, u8"STYLE", targetModel);
 }
 
 //Class functions
@@ -111,10 +111,10 @@ void Set::LoadPerformances(const String &bankFileName, const DynamicArray<BankOb
 	ASSERT(bankFileName.EndsWith(u8".PRF"), u8"???");
 	uint8 bankNumber = bankFileName.SubString(4, 2).ToUInt32() - 1;
 
-	ObjectBank<Performance> bank;
+	ObjectBank<PerformanceObject> bank;
 	for(const BankObjectEntry& bankObjectEntry : bankEntries)
 	{
-		Performance& performance = dynamic_cast<Performance&>(*bankObjectEntry.object);
+		PerformanceObject& performance = dynamic_cast<PerformanceObject&>(*bankObjectEntry.object);
 		bank.AddObject(bankObjectEntry.name, bankObjectEntry.pos, &performance);
 	}
 
@@ -254,6 +254,18 @@ void Set::SaveMultiSamples(const Model &targetModel)
 {
 	auto dirPath = this->setPath / String(u8"MULTISMP");
 	auto path = dirPath / String(u8"RAM.KMP");
+
+	if(this->multiSamples.IsNull())
+	{
+		File kmpFile(path);
+		if(kmpFile.Exists())
+			kmpFile.DeleteFile();
+
+		File multiSamplesPath(dirPath);
+		if(multiSamplesPath.Exists())
+			multiSamplesPath.DeleteFile();
+		return;
+	}
 
 	File banksDir(dirPath);
 	if(!banksDir.Exists())

@@ -109,8 +109,7 @@ void TOCReader::ReadProperty(uint16 propertyType, uint16 propertySize, HeaderEnt
 		case 4:
 		{
 			ASSERT_EQUALS(8, propertySize);
-			uint64 id = dataReader.ReadUInt64();
-			stdErr << id << endl;
+			headerEntry.id = dataReader.ReadUInt64();
 		}
 		break;
 		case 5: //unknown

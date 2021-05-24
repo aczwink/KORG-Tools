@@ -67,8 +67,8 @@ TEST_SUITE(Var2CV1AndVar3CV1HaveSingleDrumNoteTests)
 	{
 		FileSystem::Path setPath(u8"testdata/styles/pa600/var2cv1_and_var3cv1_havesingledrumnote.SET");
 		Set set(setPath);
-		const auto& styleEntry = set.StyleBanks().begin().operator*().value.Objects().begin().operator*().value;
-		const auto& styleData = styleEntry.Get<1>()->Style().data;
+		const auto& fullStyle = set.StyleBanks().begin().operator*().value.Objects().begin().operator*().object.operator*();
+		const auto& styleData = fullStyle.Style().data;
 		StyleView styleView(styleData);
 
 		CheckEnabledStyleElements(styleView);

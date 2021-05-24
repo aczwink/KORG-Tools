@@ -29,8 +29,8 @@ TEST_SUITE(EmptyStyleTests)
 	{
 		FileSystem::Path setPath(u8"testdata/styles/pa600/empty.SET");
 		Set set(setPath);
-		const auto& styleEntry = set.StyleBanks().begin().operator*().value.Objects().begin().operator*().value;
-		const auto& styleData = styleEntry.Get<1>()->Style().data;
+		const auto& fullStyle = set.StyleBanks().begin().operator*().value.Objects().begin().operator*().object.operator*();
+		const auto& styleData = fullStyle.Style().data;
 
 		StyleView styleView(styleData);
 		OnlyVar1ShouldBeEnabled(styleView);

@@ -44,6 +44,7 @@ namespace libKORG
 	{
 	public:
 		//Abstract
+		virtual uint64 GetId() const = 0;
 		virtual uint32 GetSize() const = 0;
 	};
 }

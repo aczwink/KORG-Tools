@@ -42,7 +42,8 @@ private:
 	uint8 currentStyleElementNumber;
 
 	//Methods
-	void ReadChordTable(libKORG::Style::ChordTable& chordTable, StdXX::DataReader& dataReader);
+	void ReadChordTable(const libKORG::ChunkVersion& chunkVersion, libKORG::Style::ChordTable& chordTable, StdXX::DataReader& dataReader);
+	void ReadChordTableV1_1(libKORG::Style::ChordTable& chordTable, StdXX::DataReader& dataReader);
 	void ReadMasterMIDITrack(StdXX::DataReader& dataReader);
 	void ReadMIDITrackMapping(StdXX::DataReader& dataReader);
 	void Read0x1000308Chunk(StdXX::DataReader& dataReader);
@@ -52,7 +53,8 @@ private:
 	void Read0x5010008Chunk(StdXX::DataReader& dataReader);
 	void ReadKORG_MIDIEvents(uint16 dataLength, StdXX::DynamicArray<libKORG::Style::KORG_MIDI_Event>& midiEvents, StdXX::DataReader& dataReader);
 	libKORG::Style::StyleTrackData ReadStyleTrackData(StdXX::DataReader& dataReader);
-	void ReadStyleTrackDataChunk(StdXX::DataReader& dataReader);
+	void ReadStyleTrackDataChunk(const libKORG::ChunkVersion& chunkVersion, StdXX::DataReader& dataReader);
+	void ReadStyleTrackDataChunkV0_3(StdXX::DataReader& dataReader);
 
 	//Inline
 	inline auto& GetCurrentChordVariationData()

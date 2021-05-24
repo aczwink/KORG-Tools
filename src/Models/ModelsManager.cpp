@@ -21,6 +21,7 @@
 //Local
 #include "pa600.hpp"
 #include "pa700.hpp"
+#include "pa4x.hpp"
 //Namespaces
 using namespace libKORG;
 using namespace StdXX;
@@ -31,7 +32,9 @@ void ModelsManager::RegisterModels()
 	this->models.Push(new Pa600());
 	this->models.Push(new Pa600QT());
 	this->models.Push(new Pa700());
-	this->models.Push(new Pa700OR());
+	this->models.Push(new Pa700ORT());
+	this->models.Push(new Pa4X());
+	this->models.Push(new Pa4XORT());
 }
 
 void ModelsManager::Release()

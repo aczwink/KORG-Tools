@@ -17,14 +17,41 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
+//Local
+#include <libkorg/ChunkFormat/ChunkReader.hpp>
+#include <libkorg/BankFormat/PerformanceObject.hpp>
+#include <libkorg/BankFormat/SingleTouchSettings.hpp>
+#include <libkorg/Performance/GeneralData.hpp>
+#include "KeyboardSettingsFormat/KeyboardSettingsReader.hpp"
+#include "AccompanimentSettingsFormat/AccompanimentSettingsReader.hpp"
 
 class PerformanceFormatReader : public libKORG::ChunkReader
 {
 public:
+	//Constructor
+	inline PerformanceFormatReader() : accompanimentSettingsReader(generalPerformanceData.accompanimentSettings, max9version),
+									   keyboardSettingsReader(keyboardSettings)
+	{
+		this->perfIndex = 0;
+		this->max9version.minor = 0;
+		this->max9version.major = 0;
+	}
+
 	//Destructor
 	virtual ~PerformanceFormatReader() = default;
 
 	//Methods
-	virtual libKORG::Performance* TakePerformanceResult() = 0;
-	virtual libKORG::SingleTouchSettings* TakeSTSResult() = 0;
+	libKORG::PerformanceObject* TakePerformanceResult();
+	libKORG::SingleTouchSettings* TakeSTSResult();
+
+protected:
+	//Members
+	uint8 perfIndex;
+	libKORG::ChunkVersion max9version;
+	libKORG::Performance::GeneralData generalPerformanceData;
+	StdXX::StaticArray<libKORG::Performance::KeyboardSettings, 4> keyboardSettings;
+
+	//Subreaders
+	AccompanimentSettingsReader accompanimentSettingsReader;
+	KeyboardSettingsReader keyboardSettingsReader;
 };

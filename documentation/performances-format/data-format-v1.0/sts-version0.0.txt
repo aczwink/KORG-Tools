@@ -1,0 +1,137 @@
+Entering chunk 0x00000000
+-Entering chunk 0x01000000
+--Reading Data chunk 0x04000108 with size 77
+--Entering chunk 0x02000000 with size 2642
+---Entering chunk 0x05000000 with size 2634
+----Reading Data chunk 0x06000008 with size 2
+----Reading Data chunk 0x07000008 with size 78
+----Reading Data chunk 0x07000008 with size 78
+----Reading Data chunk 0x07000008 with size 78
+----Reading Data chunk 0x07000008 with size 78
+----Reading Data chunk 0x07000008 with size 78
+----Reading Data chunk 0x07000008 with size 78
+----Reading Data chunk 0x08000008 with size 19
+----Reading Data chunk 0x08000008 with size 19
+----Reading Data chunk 0x08000008 with size 19
+----Reading Data chunk 0x08000008 with size 19
+----Reading Data chunk 0x09000008 with size 242
+----Reading Data chunk 0x09000008 with size 242
+----Reading Data chunk 0x09000008 with size 242
+----Reading Data chunk 0x09000008 with size 242
+----Reading Data chunk 0x09000008 with size 242
+----Reading Data chunk 0x09000008 with size 242
+----Reading Data chunk 0x09000008 with size 242
+----Reading Data chunk 0x09000008 with size 242
+---Leaving chunk 0x05000000
+--Leaving chunk 0x02000000
+--Entering chunk 0x03000000 with size 1655
+---Entering chunk 0x0A000000 with size 1647
+----Reading Data chunk 0x0F000008 with size 41
+----Reading Data chunk 0x10000008 with size 9
+----Reading Data chunk 0x11000008 with size 2
+----Reading Data chunk 0x12000108 with size 12
+----Reading Data chunk 0x13000008 with size 14
+----Reading Data chunk 0x07000008 with size 78
+----Reading Data chunk 0x07000008 with size 78
+----Reading Data chunk 0x07000008 with size 78
+----Reading Data chunk 0x07000008 with size 78
+----Reading Data chunk 0x14000008 with size 5
+----Reading Data chunk 0x08000008 with size 19
+----Reading Data chunk 0x08000008 with size 19
+----Reading Data chunk 0x08000008 with size 19
+----Reading Data chunk 0x08000008 with size 19
+----Reading Data chunk 0x15000108 with size 8
+----Reading Data chunk 0x15000108 with size 8
+----Reading Data chunk 0x15000108 with size 8
+----Reading Data chunk 0x15000108 with size 8
+----Reading Data chunk 0x09000008 with size 242
+----Reading Data chunk 0x09000008 with size 242
+----Reading Data chunk 0x09000008 with size 242
+----Reading Data chunk 0x09000008 with size 242
+---Leaving chunk 0x0A000000
+--Leaving chunk 0x03000000
+--Entering chunk 0x03000000 with size 1655
+---Entering chunk 0x0A000000 with size 1647
+----Reading Data chunk 0x0F000008 with size 41
+----Reading Data chunk 0x10000008 with size 9
+----Reading Data chunk 0x11000008 with size 2
+----Reading Data chunk 0x12000108 with size 12
+----Reading Data chunk 0x13000008 with size 14
+----Reading Data chunk 0x07000008 with size 78
+----Reading Data chunk 0x07000008 with size 78
+----Reading Data chunk 0x07000008 with size 78
+----Reading Data chunk 0x07000008 with size 78
+----Reading Data chunk 0x14000008 with size 5
+----Reading Data chunk 0x08000008 with size 19
+----Reading Data chunk 0x08000008 with size 19
+----Reading Data chunk 0x08000008 with size 19
+----Reading Data chunk 0x08000008 with size 19
+----Reading Data chunk 0x15000108 with size 8
+----Reading Data chunk 0x15000108 with size 8
+----Reading Data chunk 0x15000108 with size 8
+----Reading Data chunk 0x15000108 with size 8
+----Reading Data chunk 0x09000008 with size 242
+----Reading Data chunk 0x09000008 with size 242
+----Reading Data chunk 0x09000008 with size 242
+----Reading Data chunk 0x09000008 with size 242
+---Leaving chunk 0x0A000000
+--Leaving chunk 0x03000000
+--Entering chunk 0x03000000 with size 1655
+---Entering chunk 0x0A000000 with size 1647
+----Reading Data chunk 0x0F000008 with size 41
+----Reading Data chunk 0x10000008 with size 9
+----Reading Data chunk 0x11000008 with size 2
+----Reading Data chunk 0x12000108 with size 12
+----Reading Data chunk 0x13000008 with size 14
+----Reading Data chunk 0x07000008 with size 78
+----Reading Data chunk 0x07000008 with size 78
+----Reading Data chunk 0x07000008 with size 78
+----Reading Data chunk 0x07000008 with size 78
+----Reading Data chunk 0x14000008 with size 5
+----Reading Data chunk 0x08000008 with size 19
+----Reading Data chunk 0x08000008 with size 19
+----Reading Data chunk 0x08000008 with size 19
+----Reading Data chunk 0x08000008 with size 19
+----Reading Data chunk 0x15000108 with size 8
+----Reading Data chunk 0x15000108 with size 8
+----Reading Data chunk 0x15000108 with size 8
+----Reading Data chunk 0x15000108 with size 8
+----Reading Data chunk 0x09000008 with size 242
+----Reading Data chunk 0x09000008 with size 242
+----Reading Data chunk 0x09000008 with size 242
+----Reading Data chunk 0x09000008 with size 242
+---Leaving chunk 0x0A000000
+--Leaving chunk 0x03000000
+--Entering chunk 0x03000000 with size 1655
+---Entering chunk 0x0A000000 with size 1647
+----Reading Data chunk 0x0F000008 with size 41
+----Reading Data chunk 0x10000008 with size 9
+----Reading Data chunk 0x11000008 with size 2
+----Reading Data chunk 0x12000108 with size 12
+----Reading Data chunk 0x13000008 with size 14
+----Reading Data chunk 0x07000008 with size 78
+----Reading Data chunk 0x07000008 with size 78
+----Reading Data chunk 0x07000008 with size 78
+----Reading Data chunk 0x07000008 with size 78
+----Reading Data chunk 0x14000008 with size 5
+----Reading Data chunk 0x08000008 with size 19
+----Reading Data chunk 0x08000008 with size 19
+----Reading Data chunk 0x08000008 with size 19
+----Reading Data chunk 0x08000008 with size 19
+----Reading Data chunk 0x15000108 with size 8
+----Reading Data chunk 0x15000108 with size 8
+----Reading Data chunk 0x15000108 with size 8
+----Reading Data chunk 0x15000108 with size 8
+----Reading Data chunk 0x09000008 with size 242
+----Reading Data chunk 0x09000008 with size 242
+----Reading Data chunk 0x09000008 with size 242
+----Reading Data chunk 0x09000008 with size 242
+---Leaving chunk 0x0A000000
+--Leaving chunk 0x03000000
+--Entering chunk 0x1C000000 with size 21
+---Reading Data chunk 0x1B000008 with size 3 - ?
+---Reading Data chunk 0x1A000008 with size 2 - ?
+--Leaving chunk 0x1C000000
+-Leaving chunk 0x01000000
+Leaving chunk 0x00000000
+

@@ -1,53 +1,53 @@
 Entering chunk 0x00000000
 -Entering chunk 0x01000000
---Reading Data chunk 0x04000108
---Entering chunk 0x02000000
+--Reading Data chunk 0x04000108 with size 77 - ?
+--Entering chunk 0x02000000 - Accompany
 ---Entering chunk 0x05000000
-----Reading Data chunk 0x06000008
-----Reading Data chunk 0x07000008
-----Reading Data chunk 0x07000008
-----Reading Data chunk 0x07000008
-----Reading Data chunk 0x07000008
-----Reading Data chunk 0x07000008
-----Reading Data chunk 0x07000008
-----Reading Data chunk 0x08000008
-----Reading Data chunk 0x08000008
-----Reading Data chunk 0x08000008
-----Reading Data chunk 0x08000008
-----Reading Data chunk 0x09000008
-----Reading Data chunk 0x09000008
-----Reading Data chunk 0x09000008
-----Reading Data chunk 0x09000008
-----Reading Data chunk 0x09000008
-----Reading Data chunk 0x09000008
-----Reading Data chunk 0x09000008
-----Reading Data chunk 0x09000008
+----Reading Data chunk 0x06000008 with size 2 - ?
+----Reading Data chunk 0x07000008 with size 78 - ?
+----Reading Data chunk 0x07000008 with size 78 - ?
+----Reading Data chunk 0x07000008 with size 78 - ?
+----Reading Data chunk 0x07000008 with size 78 - ?
+----Reading Data chunk 0x07000008 with size 78 - ?
+----Reading Data chunk 0x07000008 with size 78 - ?
+----Reading Data chunk 0x08000008 with size 19 - Pad 1
+----Reading Data chunk 0x08000008 with size 19 - Pad 2
+----Reading Data chunk 0x08000008 with size 19 - Pad 3
+----Reading Data chunk 0x08000008 with size 19 - Pad 4
+----Reading Data chunk 0x09000008 with size 242 - Drum Track
+----Reading Data chunk 0x09000008 with size 242 - Perc Track
+----Reading Data chunk 0x09000008 with size 242 - Bass Track
+----Reading Data chunk 0x09000008 with size 242 - Acc1 Track
+----Reading Data chunk 0x09000008 with size 242 - Acc2 Track
+----Reading Data chunk 0x09000008 with size 242 - Acc3 Track
+----Reading Data chunk 0x09000008 with size 242 - Acc4 Track
+----Reading Data chunk 0x09000008 with size 242 - Acc5 Track
 ---Leaving chunk 0x05000000
 --Leaving chunk 0x02000000
---Entering chunk 0x03000000
+--Entering chunk 0x03000000 - Keyboard
 ---Entering chunk 0x0A000000
-----Reading Data chunk 0x0F000008
-----Reading Data chunk 0x10000008
-----Reading Data chunk 0x11000008
-----Reading Data chunk 0x12000108
-----Reading Data chunk 0x13000008
-----Reading Data chunk 0x07000008
-----Reading Data chunk 0x07000008
-----Reading Data chunk 0x07000008
-----Reading Data chunk 0x07000008
-----Reading Data chunk 0x14000008
-----Reading Data chunk 0x08000008
-----Reading Data chunk 0x08000008
-----Reading Data chunk 0x08000008
-----Reading Data chunk 0x08000008
-----Reading Data chunk 0x15000108
-----Reading Data chunk 0x15000108
-----Reading Data chunk 0x15000108
-----Reading Data chunk 0x15000108
-----Reading Data chunk 0x09000008
-----Reading Data chunk 0x09000008
-----Reading Data chunk 0x09000008
-----Reading Data chunk 0x09000008
+----Reading Data chunk 0x0F000008 with size 41 - ?
+----Reading Data chunk 0x10000008 with size 9 - ?
+----Reading Data chunk 0x11000008 with size 2 - ?
+----Reading Data chunk 0x12000108 with size 12 - ?
+----Reading Data chunk 0x13000008 with size 14 - ?
+----Reading Data chunk 0x07000008 with size 78 - ?
+----Reading Data chunk 0x07000008 with size 78 - ?
+----Reading Data chunk 0x07000008 with size 78 - ?
+----Reading Data chunk 0x07000008 with size 78 - ?
+----Reading Data chunk 0x14000008 with size 5 - ?
+----Reading Data chunk 0x08000008 with size 19 - Pad 1 ?
+----Reading Data chunk 0x08000008 with size 19 - Pad 2 ?
+----Reading Data chunk 0x08000008 with size 19 - Pad 3 ?
+----Reading Data chunk 0x08000008 with size 19 - Pad 4 ?
+----Reading Data chunk 0x15000108 with size 8 - ?
+----Reading Data chunk 0x15000108 with size 8 - ?
+----Reading Data chunk 0x15000108 with size 8 - ?
+----Reading Data chunk 0x15000108 with size 8 - ?
+----Reading Data chunk 0x09000008 with size 242 - Low Track
+----Reading Data chunk 0x09000008 with size 242 - Upper1 Track
+----Reading Data chunk 0x09000008 with size 242 - Upper2 Track
+----Reading Data chunk 0x09000008 with size 242 - Upper3 Track
 ---Leaving chunk 0x0A000000
 --Leaving chunk 0x03000000
 -Leaving chunk 0x01000000

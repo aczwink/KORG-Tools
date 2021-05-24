@@ -17,38 +17,28 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <StdXX.hpp>
 //Local
-#include <libkorg/Sound/SoundData.hpp>
+#include "../Format1.0/SoundFormat1_0Reader.hpp"
 
-class SoundFormat2_0Reader
+class SoundFormat2_0Reader : public SoundFormat1_0Reader
 {
 public:
-	//Members
-	libKORG::Sound::SoundData data;
-
 	//Methods
-	void Read(StdXX::DataReader& dataReader);
+	//void Read(StdXX::DataReader& dataReader);
 
 protected:
 	//Methods
-	void ReadFlags(StdXX::DataReader& dataReader);
-	void ReadFX(libKORG::Sound::EffectData& effectData, StdXX::DataReader& dataReader);
-	void ReadOscillatorData(libKORG::Sound::OscillatorData& oscillatorData, StdXX::DataReader& dataReader);
-	void ReadUnknownData(StdXX::DataReader& dataReader);
+	void ReadEffects(StdXX::DataReader &dataReader) override;
+	void ReadFX(libKORG::Sound::EffectData& effectData, StdXX::DataReader& dataReader) override;
+	void ReadOscillatorEqualizer(libKORG::Sound::OscillatorData &oscillatorData, StdXX::DataReader &dataReader) override;
+	void ReadOscillatorMultiSamplesData(libKORG::Sound::OSCMultiSampleSettings &oscMultiSampleSettings, StdXX::DataReader &dataReader) override;
+	void ReadUnknowns1(StdXX::DataReader &dataReader) override;
+	void ReadUnknowns2(libKORG::Sound::OscillatorData &oscillatorData, StdXX::DataReader &dataReader) override;
+	void ReadUnknowns4(libKORG::Sound::KeyTableEntry &keyTableEntry, StdXX::DataReader &dataReader) override;
+	void ReadLayerEntryDetails(libKORG::Sound::LayerEntry &layerEntry, StdXX::DataReader &dataReader) override;
+	void SkipUnknownKeyTableEntryByte(StdXX::DataReader &dataReader) override;
 
 private:
 	//Methods
-	void ReadDrumKitSoundData(libKORG::Sound::DrumKitSoundData& drumKitSoundData, StdXX::DataReader& dataReader);
-	void ReadKeyTableEntry(libKORG::Sound::KeyTableEntry& keyTableEntry, StdXX::DataReader& dataReader);
-	void ReadLayerEntry(libKORG::Sound::LayerEntry& layerEntry, StdXX::DataReader& dataReader);
-	void ReadOscillatorMultiSamplesData(libKORG::Sound::OSCMultiSampleSettings& oscMultiSampleSettings, StdXX::DataReader& dataReader);
-
-	//Inline
-	inline bool ReadBool(StdXX::DataReader& dataReader)
-	{
-		uint8 value = dataReader.ReadByte();
-		ASSERT(value <= 1, StdXX::String::Number(value));
-		return value == 1;
-	}
+	void ReadEqualizerData(libKORG::Sound::EqualizerData& equalizerData, StdXX::DataReader& dataReader);
 };

@@ -22,6 +22,7 @@
 using namespace libKORG;
 using namespace StdXX;
 
+
 void Sample::Decompress(const uint8* compressedSamples, int16* uncompressedSamples, uint32 nSamples, int16 coef1, int16 coef2)
 {
 	NOT_IMPLEMENTED_ERROR; //TODO: implement me

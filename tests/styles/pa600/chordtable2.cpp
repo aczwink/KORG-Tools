@@ -28,8 +28,8 @@ TEST_SUITE(ChordTable2Tests)
 	{
 		FileSystem::Path setPath(u8"testdata/styles/pa600/chordtable2.SET");
 		Set set(setPath);
-		const auto& styleEntry = set.StyleBanks().begin().operator*().value.Objects().begin().operator*().value;
-		const auto& styleData = styleEntry.Get<1>()->Style().data;
+		const auto& fullStyle = set.StyleBanks().begin().operator*().value.Objects().begin().operator*().object.operator*();
+		const auto& styleData = fullStyle.Style().data;
 
 		const auto& ct = styleData.variation[3].chordTable;
 		ASSERT_EQUALS(5, ct.seven_sharp5CVIndex);

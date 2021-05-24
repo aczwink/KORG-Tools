@@ -51,8 +51,8 @@ TEST_SUITE(Intro1AndIntro3HaveSameAcc3TrackAndIntro2HasDifferentAcc3Track)
 	{
 		FileSystem::Path setPath(u8"testdata/styles/pa600/intro1_and_intro3_have_sameacc3track_and_intro2_hasdifferentacc3track.SET");
 		Set set(setPath);
-		const auto& styleEntry = set.StyleBanks().begin().operator*().value.Objects().begin().operator*().value;
-		const auto& styleData = styleEntry.Get<1>()->Style().data;
+		const auto& fullStyle = set.StyleBanks().begin().operator*().value.Objects().begin().operator*().object.operator*();
+		const auto& styleData = fullStyle.Style().data;
 		StyleView styleView(styleData);
 
 		CheckEnabledStyleElements(styleView);

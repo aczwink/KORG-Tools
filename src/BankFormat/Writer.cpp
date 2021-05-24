@@ -20,12 +20,14 @@
 #include "Writer.hpp"
 //Local
 #include "libkorg/BankFormat/Style.hpp"
-#include "../Writer/PerformanceWriter.hpp"
-#include "../Writer/StyleWriter.hpp"
+#include "../PerformanceFormat/Format1.0/PerformanceWriterV1_0Writer.hpp"
+#include "../StyleFormat/Format0.0/StyleFormat0_0V5_0Writer.hpp"
 #include "../PCMFormat/PCMFormatWriter.hpp"
 #include "../PCMFormat/PCMWriterFactory.hpp"
 #include "../SoundFormat/SoundWriterFactory.hpp"
 #include "../MultiSamplesFormat/MultiSamplesWriterFactory.hpp"
+#include "../PerformanceFormat/PerformanceWriterFactory.hpp"
+#include "../StyleFormat/StyleWriterFactory.hpp"
 #include <libkorg/BankFormat/EncryptedSample.hpp>
 #include <libkorg/BankFormat/SampleObject.hpp>
 //Namespaces
@@ -55,6 +57,7 @@ void Writer::Write(const ObjectBank<T> &bank)
 }
 
 template void Writer::Write(const ObjectBank<AbstractSample> &bank);
+template void Writer::Write(const ObjectBank<FullStyle> &bank);
 template void Writer::Write(const ObjectBank<SoundObject> &bank);
 
 void Writer::Write(const MultiSamplesObject &multiSamplesObject)
@@ -153,6 +156,19 @@ void Writer::WriteObjects(uint8 pos, const AbstractSample& sampleObject)
 	this->EndChunk();
 }
 
+void Writer::WriteObjects(uint8 pos, const FullStyle &fullStyle)
+{
+	ChunkVersion styleDataVersion = this->objectVersionMap.Get(pos).Get(ObjectType::Style);
+	this->BeginCrossReferencedChunk(ChunkType::StyleObject, styleDataVersion.major, styleDataVersion.minor, ChunkHeaderFlags::UnknownAlwaysSetInBankFile);
+	this->WriteStyle(fullStyle.Style(), styleDataVersion);
+	this->EndChunk();
+
+	ChunkVersion stylePerformancesDataVersion = this->objectVersionMap.Get(pos).Get(ObjectType::StylePerformances);
+	this->BeginCrossReferencedChunk(ChunkType::PerformancesData, stylePerformancesDataVersion.major, stylePerformancesDataVersion.minor, ChunkHeaderFlags::UnknownAlwaysSetInBankFile);
+	this->WriteSTS(fullStyle.STS(), stylePerformancesDataVersion);
+	this->EndChunk();
+}
+
 void Writer::WriteObjects(uint8 pos, const SoundObject &soundObject)
 {
 	ChunkVersion dataVersion = this->objectVersionMap.Get(pos).Get(ObjectType::Sound);
@@ -181,40 +197,44 @@ void Writer::WriteSoundData(const SoundObject &soundObject, const ChunkVersion& 
 {
 	BufferedOutputStream bufferedOutputStream(this->outputStream);
 	DataWriter dataWriter(true, bufferedOutputStream);
+
 	UniquePointer<SoundFormatWriter> bankObjectFormatWriter = CreateSoundWriter(dataWriter, dataVersion);
 	bankObjectFormatWriter->Write(soundObject.data);
+
 	bufferedOutputStream.Flush();
 }
 
-void Writer::WriteSTS(const SingleTouchSettings &singleTouchSettings)
+void Writer::WriteSTS(const SingleTouchSettings &singleTouchSettings, const ChunkVersion& dataVersion)
 {
 	DynamicByteBuffer buffer;
 	UniquePointer<SeekableOutputStream> outputStream = buffer.CreateOutputStream();
 
-	PerformanceWriter performanceWriter(*outputStream);
-	performanceWriter.Write(singleTouchSettings);
+	UniquePointer<PerformanceFormatWriter> bankObjectFormatWriter = CreatePerformanceWriter(*outputStream, dataVersion);
+	bankObjectFormatWriter->Write(singleTouchSettings);
 
-	this->BeginCrossReferencedChunk(ChunkType::PerformancesData, singleTouchSettings.Version().major, singleTouchSettings.Version().minor, ChunkHeaderFlags::UnknownAlwaysSetInBankFile);
 	buffer.CreateInputStream()->FlushTo(this->outputStream);
-	this->EndChunk();
 }
 
-void Writer::WriteStyle(const StyleObject &style)
+void Writer::WriteStyle(const StyleObject &style, const ChunkVersion& dataVersion)
 {
 	DynamicByteBuffer buffer;
 	UniquePointer<SeekableOutputStream> outputStream = buffer.CreateOutputStream();
-	StyleWriter styleWriter(*outputStream);
 
-	styleWriter.Write(style);
+	UniquePointer<StyleFormatWriter> bankObjectFormatWriter = CreateStyleWriter(*outputStream, dataVersion);
+	bankObjectFormatWriter->Write(style.data);
 
-	this->BeginCrossReferencedChunk(ChunkType::StyleObject, 0, 0, ChunkHeaderFlags::UnknownAlwaysSetInBankFile);
 	buffer.CreateInputStream()->FlushTo(this->outputStream);
-	this->EndChunk();
 }
 
 void Writer::WriteTOCEntries(const String &name, uint8 pos, const AbstractSample &object)
 {
 	this->WriteTOCEntry(name, pos, ObjectType::PCM, this->DeterminePCMVersion(object));
+}
+
+void Writer::WriteTOCEntries(const String &name, uint8 pos, const FullStyle &object)
+{
+	this->WriteTOCEntry(name, pos, ObjectType::Style, this->model.GetSupportedResourceVersions().maxStyleVersion);
+	this->WriteTOCEntry(name, pos, ObjectType::StylePerformances, this->model.GetSupportedResourceVersions().maxPerformanceVersion);
 }
 
 void Writer::WriteTOCEntries(const String &name, uint8 pos, const SoundObject& object)

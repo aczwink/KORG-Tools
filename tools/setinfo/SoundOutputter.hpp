@@ -38,6 +38,7 @@ private:
 
 	//Methods
 	void Output(const DrumKitSoundData& drumKitSoundData) const;
+	void Output(const EffectData& effectData) const;
 	void Output(const OscillatorData& oscillatorData) const;
 	void Output(const OSCMultiSampleSettings& oscMultiSampleSettings) const;
 	void OutputKeyTable(const DrumKitSoundData& drumKitSoundData) const;

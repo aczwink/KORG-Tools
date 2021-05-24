@@ -32,5 +32,11 @@ namespace libKORG
 
 		//Methods
 		StdXX::String ToString() const;
+
+		//Inline
+		inline StdXX::String ToFileName() const
+		{
+			return this->ToString() + u8".STY";
+		}
 	};
 }

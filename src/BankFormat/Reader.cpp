@@ -27,7 +27,7 @@
 #include "../StyleFormat/StyleReader.hpp"
 #include "../PCMFormat/PCMReader.hpp"
 #include "../SoundFormat/SoundReader.hpp"
-#include "../PerformanceFormat/PerformanceReader.hpp"
+#include "../PerformanceFormat/PerformanceReaderZeroChunkReader.hpp"
 #include "../MultiSamplesFormat/MultiSamplesReader.hpp"
 //Namespaces
 using namespace libKORG;
@@ -46,17 +46,21 @@ void Reader::ReadBankObject(ChunkType chunkType, const ChunkHeader &chunkHeader,
 			object = multiSamplesReader.Read(chunkHeader.version, dataReader);
 		}
 		break;
-		case ChunkType::OldSoundDataMaybe: //TODO: no idea what that is
+		case ChunkType::LegacySoundData:
 		{
-			stdErr << u8"Unknown bank object for chunk " << String::HexNumber(chunkHeader.id, 8) <<  u8": " << headerEntry.name << endl;
-			NullOutputStream nullOutputStream;
-			dataReader.InputStream().FlushTo(nullOutputStream);
+			SoundReader soundReader;
+			object = soundReader.ReadLegacyData(chunkHeader.version, dataReader);
 		}
 		break;
 		case ChunkType::PCMData:
 		{
-			PCMReader pcmReader;
-			object = pcmReader.Read(chunkHeader, dataReader);
+			if(chunkHeader.flags & (uint8)ChunkHeaderFlags::Encrypted)
+				object = new EncryptedSample(*headerEntry.id, dataReader.InputStream());
+			else
+			{
+				PCMReader pcmReader;
+				object = pcmReader.Read(chunkHeader.version, dataReader);
+			}
 		}
 		break;
 		case ChunkType::SoundData:
@@ -96,7 +100,7 @@ ChunkReader* Reader::OnEnteringChunkedResourceChunk(const ChunkHeader &chunkHead
 	{
 		case ChunkType::PerformancesData:
 		{
-			this->objectReader = PerformanceReader::CreateInstance(headerEntry.type == ObjectType::StylePerformances, chunkHeader.version);
+			this->objectReader = PerformanceReaderZeroChunkReader::CreateInstance(headerEntry.type == ObjectType::StylePerformances, chunkHeader.version);
 			return this->objectReader.IsNull() ? nullptr : this->objectReader.operator->();
 		}
 		case ChunkType::StyleObject:
@@ -151,7 +155,7 @@ void Reader::ReadDataChunk(const ChunkHeader& chunkHeader, DataReader &dataReade
 		}
 		break;
 		case ChunkType::MultiSampleData:
-		case ChunkType::OldSoundDataMaybe:
+		case ChunkType::LegacySoundData:
 		case ChunkType::PCMData:
 		case ChunkType::SoundData:
 		{

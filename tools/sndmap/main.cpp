@@ -106,13 +106,13 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 
 	DynamicArray<Tuple<String, String, ProgramChangeSequence>> soundMap = ReadXMLSoundMap(factorySoundMapPath);
 
-	for(const auto& bank : set.SoundBanks())
+	for(const auto& bankEntry : set.soundBanks.Entries())
 	{
-		for(const auto& soundEntry : bank.value.Objects())
+		for(const auto& soundEntry : bankEntry.bank.Objects())
 		{
 			String bankName = u8"User";
-			bankName += bank.key.IsDrumKit() ? u8" DK" : u8"";
-			soundMap.Push({ bankName, soundEntry.value.Get<0>(), Set::CreateRAMSoundProgramChangeSequence(bank.key, soundEntry.) });
+			bankName += bankEntry.bankNumber.IsDrumKit() ? u8" DK" : u8"";
+			soundMap.Push({ bankName, soundEntry.name, Set::CreateRAMSoundProgramChangeSequence(bankEntry.bankNumber, soundEntry.pos) });
 		}
 	}
 

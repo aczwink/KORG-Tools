@@ -22,7 +22,7 @@
 #include "libkorg/BankFormat/MultiSamplesObject.hpp"
 #include <libkorg/BankFormat/SoundObject.hpp>
 #include "libkorg/BankFormat/Pad.hpp"
-#include "libkorg/BankFormat/Performance.hpp"
+#include "libkorg/BankFormat/PerformanceObject.hpp"
 #include "FullStyle.hpp"
 #include "Model.hpp"
 #include <libkorg/BankFormat/SoundBankNumber.hpp>
@@ -34,7 +34,7 @@
 namespace libKORG
 {
 	typedef ObjectBank<Pad> PadBank;
-	typedef ObjectBank<Performance> PerformanceBank;
+	typedef ObjectBank<PerformanceObject> PerformanceBank;
 	typedef ObjectBank<FullStyle> StyleBank;
 
 	struct BankObjectEntry
@@ -50,6 +50,7 @@ namespace libKORG
 		//Members
 		BankCollection<SampleBankNumber, AbstractSample> sampleBanks;
 		BankCollection<SoundBankNumber, SoundObject> soundBanks;
+		BankCollection<StyleBankNumber, FullStyle> styleBanks;
 
 		//Constructors
 		Set(const StdXX::FileSystem::Path& setPath);
@@ -72,16 +73,6 @@ namespace libKORG
 			return this->performanceBanks;
 		}
 
-		inline StdXX::BinaryTreeMap<StyleBankNumber, StyleBank>& StyleBanks()
-		{
-			return this->styleBanks;
-		}
-
-		inline const StdXX::BinaryTreeMap<StyleBankNumber, StyleBank>& StyleBanks() const
-		{
-			return this->styleBanks;
-		}
-
 		//Methods
 		uint32 ComputeUsedSampleRAMSize();
 		void Save(const Model& targetModel);
@@ -102,7 +93,6 @@ namespace libKORG
 		StdXX::UniquePointer<MultiSamplesObject> multiSamples;
 		StdXX::BinaryTreeMap<uint8, PadBank> padBanks;
 		StdXX::BinaryTreeMap<PerformanceBankNumber, PerformanceBank> performanceBanks;
-		StdXX::BinaryTreeMap<StyleBankNumber, StyleBank> styleBanks;
 
 		//Methods
 		void LoadMultiSamples(const StdXX::String& bankFileName, const StdXX::DynamicArray<BankObjectEntry>& bankEntries);

@@ -28,8 +28,8 @@ TEST_SUITE(Var1CV1FilledWithSingleNoteForEachTrackAndTempoChangeForMasterTests)
 	{
 		FileSystem::Path setPath(u8"testdata/styles/pa600/var1cv1_filledwithsinglenoteforeachtrackandtempochangeformaster.SET");
 		Set set(setPath);
-		const auto& styleEntry = set.StyleBanks().begin().operator*().value.Objects().begin().operator*().value;
-		const auto& style = styleEntry.Get<1>()->Style().data;
-		StyleView styleView(style);
+		const auto& fullStyle = set.StyleBanks().begin().operator*().value.Objects().begin().operator*().object.operator*();
+		const auto& styleData = fullStyle.Style().data;
+		StyleView styleView(styleData);
 	}
 }

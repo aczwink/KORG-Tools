@@ -131,11 +131,7 @@ void MultiSamplesFormat3_0Reader::ReadSamples(uint16 nSampleEntries, DataReader&
 
 		sampleEntry.unknown1 = dataReader.ReadInt16();
 		sampleEntry.unknown2 = dataReader.ReadInt16();
-
-		uint16 packedFlags = dataReader.ReadUInt16(); //5 bits SampleFlags - 2 bits interpolation mode - 1bit is extended (i.e. has uint64 id) - 4 bits SampleType <-LSB
-		sampleEntry.sampleType = static_cast<SampleType>(packedFlags & 0xF);
-		sampleEntry.interpolationMode = static_cast<InterpolationMode>((packedFlags >> 5) & 3);
-		sampleEntry.flags = packedFlags >> 7;
+		sampleEntry.packedData = dataReader.ReadUInt16();
 
 		sampleEntry.unknown4 = dataReader.ReadByte();
 		sampleEntry.unknown8 = dataReader.ReadUInt32();

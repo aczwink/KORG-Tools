@@ -45,21 +45,21 @@ TEST_SUITE(Var1CV1FilledWithSingleNoteForEachTrackTests)
 	{
 		FileSystem::Path setPath(u8"testdata/styles/pa600/var1cv1_filledwithsinglenoteforeachtrack.SET");
 		Set set(setPath);
-		const auto& styleEntry = set.StyleBanks().begin().operator*().value.Objects().begin().operator*().value;
-		const auto& style = styleEntry.Get<1>()->Style().data;
+		const auto& fullStyle = set.StyleBanks().begin().operator*().value.Objects().begin().operator*().object.operator*();
+		const auto& styleData = fullStyle.Style().data;
 
-		StyleView styleView(style);
+		StyleView styleView(styleData);
 		OnlyVar1ShouldBeEnabled(styleView);
 
 		//Var1
 		//CV1
-		ShouldHaveSingleNoteEvent(style.midiTracks[0].events, Pitch(OctavePitch::C, -1));
-		ShouldHaveSingleNoteEvent(style.midiTracks[1].events, Pitch(OctavePitch::C_SHARP, -1));
-		ShouldHaveSingleNoteEvent(style.midiTracks[2].events, Pitch(OctavePitch::D, -1));
-		ShouldHaveSingleNoteEvent(style.midiTracks[3].events, Pitch(OctavePitch::D_SHARP, -1));
-		ShouldHaveSingleNoteEvent(style.midiTracks[4].events, Pitch(OctavePitch::E, -1));
-		ShouldHaveSingleNoteEvent(style.midiTracks[5].events, Pitch(OctavePitch::F, -1));
-		ShouldHaveSingleNoteEvent(style.midiTracks[6].events, Pitch(OctavePitch::F_SHARP, -1));
-		ShouldHaveSingleNoteEvent(style.midiTracks[7].events, Pitch(OctavePitch::G, -1));
+		ShouldHaveSingleNoteEvent(styleData.midiTracks[0].events, Pitch(OctavePitch::C, -1));
+		ShouldHaveSingleNoteEvent(styleData.midiTracks[1].events, Pitch(OctavePitch::C_SHARP, -1));
+		ShouldHaveSingleNoteEvent(styleData.midiTracks[2].events, Pitch(OctavePitch::D, -1));
+		ShouldHaveSingleNoteEvent(styleData.midiTracks[3].events, Pitch(OctavePitch::D_SHARP, -1));
+		ShouldHaveSingleNoteEvent(styleData.midiTracks[4].events, Pitch(OctavePitch::E, -1));
+		ShouldHaveSingleNoteEvent(styleData.midiTracks[5].events, Pitch(OctavePitch::F, -1));
+		ShouldHaveSingleNoteEvent(styleData.midiTracks[6].events, Pitch(OctavePitch::F_SHARP, -1));
+		ShouldHaveSingleNoteEvent(styleData.midiTracks[7].events, Pitch(OctavePitch::G, -1));
 	}
 }

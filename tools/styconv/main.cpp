@@ -34,7 +34,7 @@ struct BankSelectionWithModel : BankSelection
 
 UniquePointer<SingleTouchSettings> MapSTS(const SingleTouchSettings& sts, const Set& targetSet, const Model* model)
 {
-	if(model && (sts.Version() > model->GetMaximumPerformanceVersion()))
+	if(model && (sts.Version() > model->GetSupportedResourceVersions().maxPerformanceVersion))
 	{
 		PerformanceV2ToV1Converter converter(targetSet);
 		return new SingleTouchSettings(converter.Convert(sts));
@@ -53,26 +53,23 @@ void ConvertStyleBank(const BankSelection& source, const BankSelectionWithModel&
 		Set::Create(target.setPath);
 	Set targetSet(target.setPath);
 
-	if(!targetSet.StyleBanks().Contains(target.bankNumber))
-		targetSet.StyleBanks().Insert(target.bankNumber, {});
-
-	const auto& entries = sourceSet.StyleBanks()[source.bankNumber].Objects();
-	auto& targetStyleBank = targetSet.StyleBanks()[target.bankNumber];
+	const auto& entries = sourceSet.styleBanks[source.bankNumber].Objects();
+	auto& targetStyleBank = targetSet.styleBanks[target.bankNumber];
 	for(const auto& entry : entries)
 	{
-		const String& styleName = entry.value.Get<0>();
-		const FullStyle& fullStyle = *entry.value.Get<1>();
+		const String& styleName = entry.name;
+		const FullStyle& fullStyle = *entry.object;
 
-		if(source.posOffset > entry.key)
+		if(source.posOffset > entry.pos)
 			continue;
-		uint8 targetPos = entry.key - source.posOffset;
+		uint8 targetPos = entry.pos - source.posOffset;
 		if(target.model and (targetPos >= target.model->GetBankSetup().nStylesPerBank))
 		{
 			stdOut << u8"Skipping style '" << styleName << u8"' because bank can't hold that many styles" << endl;
 			continue;
 		}
 
-		UniquePointer<Style> mappedStyle = new Style(fullStyle.Style());
+		UniquePointer<StyleObject> mappedStyle = new StyleObject(fullStyle.Style());
 		UniquePointer<SingleTouchSettings> mappedSTS = MapSTS(fullStyle.STS(), targetSet, target.model);
 
 		soundMapper.Map(*mappedStyle);
@@ -82,10 +79,10 @@ void ConvertStyleBank(const BankSelection& source, const BankSelectionWithModel&
 
 		targetStyleBank.AddObject(styleName, targetPos, mappedFullStyle);
 	}
-	targetSet.Save();
+	targetSet.Save(*target.model);
 }
 
-static Map<ProgramChangeSequence, ProgramChangeSequence> LoadSoundMapping(const String& pathString)
+static BinaryTreeMap<ProgramChangeSequence, ProgramChangeSequence> LoadSoundMapping(const String& pathString)
 {
 	FileSystem::Path inputPath = FileSystem::FileSystemsManager::Instance().OSFileSystem().FromNativePath(pathString);
 	FileInputStream fileInputStream(inputPath);
@@ -93,7 +90,7 @@ static Map<ProgramChangeSequence, ProgramChangeSequence> LoadSoundMapping(const 
 	TextReader textReader(bufferedInputStream, TextCodecType::UTF8);
 
 	CommonFileFormats::CSVReader csvReader(textReader, CommonFileFormats::csvDialect_excel);
-	Map<ProgramChangeSequence, ProgramChangeSequence> map;
+	BinaryTreeMap<ProgramChangeSequence, ProgramChangeSequence> map;
 
 	csvReader.ReadRow(); //skip column headers
 
@@ -178,8 +175,8 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 		}
 	}
 
-	Map<ProgramChangeSequence, ProgramChangeSequence> soundMappings = result.IsActivated(soundMappingPathOpt) ? LoadSoundMapping(result.Value(soundMappingPathOpt))
-																 : Map<ProgramChangeSequence, ProgramChangeSequence>();
+	BinaryTreeMap<ProgramChangeSequence, ProgramChangeSequence> soundMappings = result.IsActivated(soundMappingPathOpt) ? LoadSoundMapping(result.Value(soundMappingPathOpt))
+																 : BinaryTreeMap<ProgramChangeSequence, ProgramChangeSequence>();
 	SoundMapper soundMapper(Move(soundMappings));
 
 	ConvertStyleBank(source, target, soundMapper);

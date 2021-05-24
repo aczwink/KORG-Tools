@@ -29,7 +29,7 @@ TEST_SUITE(NewSampleTests)
 	{
 		FileSystem::Path setPath(u8"testdata/samples/pa600/new.SET");
 		Set set(setPath);
-		const auto& sampleEntry = set.SampleBanks().begin().operator*().value.Objects().begin().operator*().value;
+		const auto& sampleEntry = set.sampleBanks.Entries().begin().operator*().bank.Objects().begin().operator*().object;
 
 		//TODO: CHECK SAMPLE
 		//TODO: CHECK MULTISAMPLE

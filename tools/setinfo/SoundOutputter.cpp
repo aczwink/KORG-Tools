@@ -23,6 +23,7 @@ void SoundOutputter::Output(const SoundObject& soundObject) const
 {
 	NOT_IMPLEMENTED_ERROR; //TODO: refix me
 	/*
+	this->formattedOutputter.OutputProperty(u8"multiSampleMap", soundObject.data.multiSampleMap);
 	this->formattedOutputter.OutputProperty(u8"voiceAssignModeFlags", soundObject.data.voiceAssignModeFlags.encodedFlags);
 
 	for(uint32 i = 0; i < sizeof(soundObject.data.unknown1); i++)
@@ -31,12 +32,33 @@ void SoundOutputter::Output(const SoundObject& soundObject) const
 	this->formattedOutputter.OutputProperty(u8"transposeRangeBottomKey", soundObject.data.transposeRangeBottomKey);
 	this->formattedOutputter.OutputProperty(u8"transposeRangeTopKey", soundObject.data.transposeRangeTopKey);
 
-	this->formattedOutputter.OutputUnknownProperties(soundObject.data.unknown11, sizeof(soundObject.data.unknown11));
+	for(uint8 i = 0; i < 4; i++)
+	{
+		Section effectSec(u8"Effect " + String::Number(i), this->formattedOutputter);
+		this->Output(soundObject.data.effects[i]);
+	}
 
+	this->formattedOutputter.OutputUnknownProperties(soundObject.data.unknown2, sizeof(soundObject.data.unknown2));
+	this->formattedOutputter.OutputProperty(u8"unknown3", soundObject.data.unknown3);
 	this->formattedOutputter.OutputProperty(u8"oscillator count packed with something additional", soundObject.data.unknownPacked);
 
-	for(uint32 i = 0; i < sizeof(soundObject.data.unknown2); i++)
-		this->formattedOutputter.OutputProperty(u8"unknown2 " + String::Number(i), soundObject.data.unknown2[i]);
+	this->formattedOutputter.OutputProperty(u8"lowPriority", soundObject.data.lowPriority);
+
+	this->formattedOutputter.OutputUnknownProperties(soundObject.data.unknown4, sizeof(soundObject.data.unknown4));
+	this->formattedOutputter.OutputProperty(u8"unknown5", soundObject.data.unknown5);
+	this->formattedOutputter.OutputProperty(u8"unknown6", soundObject.data.unknown6);
+	this->formattedOutputter.OutputProperty(u8"unknown7", soundObject.data.unknown7);
+	this->formattedOutputter.OutputProperty(u8"unknown8", soundObject.data.unknown8);
+	this->formattedOutputter.OutputProperty(u8"unknown9", soundObject.data.unknown9);
+	this->formattedOutputter.OutputProperty(u8"unknown10", soundObject.data.unknown10);
+	this->formattedOutputter.OutputProperty(u8"unknown11", soundObject.data.unknown11);
+	this->formattedOutputter.OutputProperty(u8"unknown12", soundObject.data.unknown12);
+	this->formattedOutputter.OutputProperty(u8"unknown13", soundObject.data.unknown13);
+	this->formattedOutputter.OutputProperty(u8"unknown14", soundObject.data.unknown14);
+	this->formattedOutputter.OutputProperty(u8"unknown15", soundObject.data.unknown15);
+	this->formattedOutputter.OutputProperty(u8"unknown16", soundObject.data.unknown16);
+	this->formattedOutputter.OutputProperty(u8"unknown17", soundObject.data.unknown17);
+	this->formattedOutputter.OutputProperty(u8"unknown18", soundObject.data.unknown18);
 
 	this->formattedOutputter.OutputProperty(u8"maxTime", soundObject.data.maxTime);
 	this->formattedOutputter.OutputProperty(u8"maxRange", soundObject.data.maxRange);
@@ -45,8 +67,7 @@ void SoundOutputter::Output(const SoundObject& soundObject) const
 		this->Output(oscillatorData);
 
 	if(soundObject.data.drumKitData.HasValue())
-		this->Output(*soundObject.data.drumKitData);
-	 */
+		this->Output(*soundObject.data.drumKitData);*/
 }
 
 //Private methods
@@ -58,9 +79,20 @@ void SoundOutputter::Output(const DrumKitSoundData &drumKitSoundData) const
 	this->OutputLayers(drumKitSoundData);
 }
 
+void SoundOutputter::Output(const EffectData& effectData) const
+{
+	this->formattedOutputter.OutputProperty(u8"unknown1", effectData.unknown1);
+
+	this->formattedOutputter.OutputUnknownProperties(effectData.unknown2, sizeof(effectData.unknown2));
+
+	this->formattedOutputter.OutputProperty(u8"unknown3", effectData.unknown3);
+	this->formattedOutputter.OutputProperty(u8"unknown4", effectData.unknown4);
+}
+
 void SoundOutputter::Output(const OscillatorData &oscillatorData) const
 {
-	Section section(u8"Oscillator", this->formattedOutputter);
+	NOT_IMPLEMENTED_ERROR; //TODO: refix me
+	/*Section section(u8"Oscillator", this->formattedOutputter);
 
 	{
 		Section subSection(u8"OSC multisample high", this->formattedOutputter);
@@ -95,7 +127,7 @@ void SoundOutputter::Output(const OscillatorData &oscillatorData) const
 	this->formattedOutputter.OutputProperty(u8"scaledVelocityBottom", oscillatorData.scaledVelocityBottom);
 	this->formattedOutputter.OutputProperty(u8"scaledVelocityTop", oscillatorData.scaledVelocityTop);
 
-	this->formattedOutputter.OutputUnknownProperties(oscillatorData.unknown5, sizeof(oscillatorData.unknown5));
+	this->formattedOutputter.OutputUnknownProperties(oscillatorData.unknown5, sizeof(oscillatorData.unknown5));*/
 }
 
 void SoundOutputter::Output(const OSCMultiSampleSettings& oscMultiSampleSettings) const
@@ -110,7 +142,8 @@ void SoundOutputter::Output(const OSCMultiSampleSettings& oscMultiSampleSettings
 
 void SoundOutputter::OutputKeyTable(const DrumKitSoundData &drumKitSoundData) const
 {
-	Section section(u8"Key table", this->formattedOutputter);
+	NOT_IMPLEMENTED_ERROR; //TODO: refix me
+	/*Section section(u8"Key table", this->formattedOutputter);
 
 	for(uint8 i = 0; i < 128; i++)
 	{
@@ -125,12 +158,13 @@ void SoundOutputter::OutputKeyTable(const DrumKitSoundData &drumKitSoundData) co
 
 		for(uint8 j = 0; j < 5; j++)
 			this->formattedOutputter.OutputProperty(u8"velocity sample switch " + String::Number(j), entry.velocitySampleSwitches[j]);
-	}
+	}*/
 }
 
 void SoundOutputter::OutputLayers(const DrumKitSoundData &drumKitSoundData) const
 {
-	Section section(u8"Layers", this->formattedOutputter);
+	NOT_IMPLEMENTED_ERROR; //TODO: refix me
+	/*Section section(u8"Layers", this->formattedOutputter);
 
 	for(const auto& layer : drumKitSoundData.layers)
 	{
@@ -139,8 +173,6 @@ void SoundOutputter::OutputLayers(const DrumKitSoundData &drumKitSoundData) cons
 		this->formattedOutputter.OutputProperty(u8"unknown1", layer.unknown1);
 
 		this->formattedOutputter.OutputProperty(u8"reversed", (uint8)layer.reversed);
-		this->formattedOutputter.OutputProperty(u8"unknown11", layer.unknown11);
-
 		this->formattedOutputter.OutputProperty(u8"multiSampleNumber", layer.multiSampleNumber);
 		this->formattedOutputter.OutputProperty(u8"level", layer.level);
 		this->formattedOutputter.OutputProperty(u8"transpose", layer.transpose);
@@ -166,7 +198,6 @@ void SoundOutputter::OutputLayers(const DrumKitSoundData &drumKitSoundData) cons
 		this->formattedOutputter.OutputUnknownProperties(layer.unknown21, sizeof(layer.unknown21));
 
 		this->formattedOutputter.OutputProperty(u8"intensity", layer.intensity);
-
-		this->formattedOutputter.OutputUnknownProperties(layer.unknown22, sizeof(layer.unknown22));
-	}
+		this->formattedOutputter.OutputProperty(u8"ID", String::HexNumber(layer.id, 16));
+	}*/
 }

@@ -26,12 +26,18 @@ namespace libKORG
 	{
 	public:
 		//Constructor
-		inline EncryptedSample(StdXX::InputStream& inputStream)
+		inline EncryptedSample(uint64 id, StdXX::InputStream& inputStream)
 		{
+			this->id = id;
 			inputStream.FlushTo(this->buffer);
 		}
 
 		//Methods
+		uint64 GetId() const override
+		{
+			return this->id;
+		}
+
 		uint32 GetSize() const override
 		{
 			return this->buffer.GetSize();
@@ -39,6 +45,7 @@ namespace libKORG
 
 	private:
 		//Members
+		uint64 id;
 		StdXX::FIFOBuffer buffer;
 	};
 }

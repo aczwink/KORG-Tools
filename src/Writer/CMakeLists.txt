@@ -2,9 +2,5 @@ set(SOURCE_FILES
 	${SOURCE_FILES}
 
 	${CMAKE_CURRENT_SOURCE_DIR}/ChunkWriter.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/PerformanceWriter.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/PerformanceWriter.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/StyleWriter.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/StyleWriter.hpp
 
 	PARENT_SCOPE)

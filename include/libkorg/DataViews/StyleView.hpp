@@ -19,7 +19,7 @@
 #pragma once
 #include <StdXX.hpp>
 #include <libkorg/BankFormat/Style.hpp>
-#include <libkorg/BankFormat/Performance.hpp>
+#include <libkorg/BankFormat/PerformanceObject.hpp>
 #include <libkorg/Style/StyleElementNumber.hpp>
 
 namespace libKORG

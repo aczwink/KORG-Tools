@@ -1,6 +1,12 @@
 set(SOURCE_FILES
 	${SOURCE_FILES}
 
+	${CMAKE_CURRENT_SOURCE_DIR}/AccompanimentSettings.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/FX.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GeneralData.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GeneralPerformanceSettings.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/KeyboardSettings.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Numbers.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/TrackProperties.hpp
 
 	PARENT_SCOPE)

@@ -36,7 +36,7 @@ namespace libKORG
 			SingleTouchSettings result = this->baseSTS;
 			for(uint8 i = 0; i < 4; i++)
 				this->MapKeyboardSettings(result.keyboardSettings[i], source.keyboardSettings[i]);
-			this->MapAccompanimentSettings(result.accompanimentSettings, source.accompanimentSettings);
+			this->MapAccompanimentSettings(result.generalData.accompanimentSettings, source.generalData.accompanimentSettings);
 
 			return result;
 		}
@@ -48,9 +48,9 @@ namespace libKORG
 		//Methods
 		const SingleTouchSettings& FindFirstSTS(const Set& set)
 		{
-			for(const auto& bankEntry : set.StyleBanks())
+			for(const auto& bankEntry : set.styleBanks.Entries())
 			{
-				for(const auto& objectEntry : bankEntry.value.Objects())
+				for(const auto& objectEntry : bankEntry.bank.Objects())
 				{
 					return objectEntry.object->STS();
 				}
@@ -59,20 +59,20 @@ namespace libKORG
 			NOT_IMPLEMENTED_ERROR; //TODO: implement me
 		}
 
-		void MapAccompanimentSettings(AccompanimentSettings& target, const AccompanimentSettings& source) const
+		void MapAccompanimentSettings(Performance::AccompanimentSettings& target, const Performance::AccompanimentSettings& source) const
 		{
 			for(uint8 i = 0; i < 8; i++)
 				this->MapTrackProperties(target.trackProperties[i], source.trackProperties[i]);
 		}
 
-		void MapKeyboardSettings(KeyboardSettings& target, const KeyboardSettings& source) const
+		void MapKeyboardSettings(Performance::KeyboardSettings& target, const Performance::KeyboardSettings& source) const
 		{
 			target.name = source.name;
 			for(uint8 i = 0; i < 4; i++)
 				this->MapTrackProperties(target.trackProperties[i], source.trackProperties[i]);
 		}
 
-		void MapTrackProperties(TrackProperties& target, const TrackProperties& source) const
+		void MapTrackProperties(Performance::TrackProperties& target, const Performance::TrackProperties& source) const
 		{
 			target.soundProgramChangeSeq = source.soundProgramChangeSeq;
 			target.highGainTimes2 = source.highGainTimes2;

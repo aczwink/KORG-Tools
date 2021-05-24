@@ -24,12 +24,9 @@
 class PCMReader
 {
 public:
-	AbstractSample *Read(const libKORG::ChunkHeader& chunkHeader, StdXX::DataReader& dataReader)
+	AbstractSample *Read(const libKORG::ChunkVersion& chunkVersion, StdXX::DataReader& dataReader)
 	{
-		if(chunkHeader.flags & (uint8)ChunkHeaderFlags::Encrypted)
-			return new EncryptedSample(dataReader.InputStream());
-
-		switch(chunkHeader.version.AsUInt16())
+		switch(chunkVersion.AsUInt16())
 		{
 			case 0x0000:
 			{
@@ -40,7 +37,7 @@ public:
 			break;
 			default:
 			{
-				StdXX::stdErr << u8"Unknown PCM version: " << StdXX::String::HexNumber(chunkHeader.version.AsUInt16(), 4) << u8" skipping..." << StdXX::endl;
+				StdXX::stdErr << u8"Unknown PCM version: " << chunkVersion.major << u8"." << chunkVersion.minor << u8" skipping..." << StdXX::endl;
 				StdXX::NullOutputStream nullOutputStream;
 				dataReader.InputStream().FlushTo(nullOutputStream);
 			}

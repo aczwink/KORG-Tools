@@ -51,6 +51,8 @@ def BankDistance(b1, b2):
 	
 	if(l1 == "Drum & SFX" and l2 == "User DK"):
 		d = 1;
+	elif(l1 == "Drum & SFX" and l2 == "User"):
+		d = 1000;
 	elif(l2 == "User"):
 		d = 1;
 	else:

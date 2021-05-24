@@ -45,12 +45,10 @@ void StyleFormat0_0V5_0Reader::ReadDataChunk(const ChunkHeader& chunkHeader, Dat
 		switch(chunkHeader.type)
 		{
 			case 1:
-				ASSERT_EQUALS(0x0101, chunkHeader.version.AsUInt16());
-				this->ReadChordTable(this->GetCurrentStyleElementData().chordTable, dataReader);
+				this->ReadChordTable(chunkHeader.version, this->GetCurrentStyleElementData().chordTable, dataReader);
 				break;
 			case 2:
-				ASSERT_EQUALS(0x0003, chunkHeader.version.AsUInt16());
-				this->ReadStyleTrackDataChunk(dataReader);
+				this->ReadStyleTrackDataChunk(chunkHeader.version, dataReader);
 				break;
 			case 3:
 				ASSERT_EQUALS(0, chunkHeader.version.AsUInt16());
@@ -105,7 +103,22 @@ void StyleFormat0_0V5_0Reader::OnLeavingChunk(const ChunkHeader& chunkHeader)
 }
 
 //Private methods
-void StyleFormat0_0V5_0Reader::ReadChordTable(ChordTable& chordTable, DataReader &dataReader)
+void StyleFormat0_0V5_0Reader::ReadChordTable(const ChunkVersion &chunkVersion, ChordTable &chordTable, DataReader &dataReader)
+{
+	switch(chunkVersion.AsUInt16())
+	{
+		case 0x0101:
+			this->ReadChordTableV1_1(chordTable, dataReader);
+			break;
+		case 0x0102:
+		case 0x0103:
+			this->ReadChordTableV1_1(chordTable, dataReader);
+			dataReader.InputStream().FlushTo(*chordTable.unknown.CreateOutputStream());
+			break;
+	}
+}
+
+void StyleFormat0_0V5_0Reader::ReadChordTableV1_1(ChordTable& chordTable, DataReader &dataReader)
 {
 	chordTable.unknown1 = dataReader.ReadByte();
 	chordTable.unknown2 = dataReader.ReadByte();
@@ -480,7 +493,18 @@ StyleTrackData StyleFormat0_0V5_0Reader::ReadStyleTrackData(DataReader &dataRead
 	return styleTrackData;
 }
 
-void StyleFormat0_0V5_0Reader::ReadStyleTrackDataChunk(DataReader &dataReader)
+void StyleFormat0_0V5_0Reader::ReadStyleTrackDataChunk(const ChunkVersion &chunkVersion, DataReader &dataReader)
+{
+	switch (chunkVersion.AsUInt16())
+	{
+		case 0x0003:
+		case 0x0004:
+			this->ReadStyleTrackDataChunkV0_3(dataReader);
+			break;
+	}
+}
+
+void StyleFormat0_0V5_0Reader::ReadStyleTrackDataChunkV0_3(DataReader &dataReader)
 {
 	auto& styleElementData = this->GetCurrentStyleElementData();
 

@@ -18,7 +18,7 @@
  */
 #pragma once
 #include <StdXX.hpp>
-#include "libkorg/BankFormat/Performance.hpp"
+#include "libkorg/BankFormat/PerformanceObject.hpp"
 #include "libkorg/BankFormat/Style.hpp"
 
 namespace libKORG

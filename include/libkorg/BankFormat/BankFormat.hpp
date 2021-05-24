@@ -28,7 +28,7 @@ namespace libKORG::BankFormat
 		KorgFile = 2,
 		ObjectTOC = 5,
 		StyleObject = 6,
-		OldSoundDataMaybe = 7,
+		LegacySoundData = 7,
 		SongBookListData = 8,
 		PerformancesData = 9,
 		PadData = 12,
@@ -80,6 +80,7 @@ namespace libKORG::BankFormat
 		libKORG::ChunkVersion dataVersion;
 		uint8 pos;
 		EncryptionInformation encryptionInformation;
+		StdXX::Optional<uint64> id;
 	};
 
 	const uint32 HEADERENTRY_NAME_SIZE = 18;

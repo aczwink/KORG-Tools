@@ -23,21 +23,6 @@
 
 class SoundFormat3_0Reader : public SoundFormat2_0Reader
 {
-public:
-	//Methods
-	void Read(StdXX::DataReader& dataReader);
-
-private:
-	//Methods
-	void ReadDrumKitSoundData(libKORG::Sound::DrumKitSoundData& drumKitSoundData, StdXX::DataReader& dataReader);
-	void ReadKeyTableEntry(libKORG::Sound::KeyTableEntry& keyTableEntry, StdXX::DataReader& dataReader);
-	void ReadLayerEntry(libKORG::Sound::LayerEntry& layerEntry, StdXX::DataReader& dataReader);
-
-	//Inline
-	inline bool ReadBool(StdXX::DataReader& dataReader)
-	{
-		uint8 value = dataReader.ReadByte();
-		ASSERT(value <= 1, StdXX::String::Number(value));
-		return value == 1;
-	}
+protected:
+	void ReadName(StdXX::DataReader &dataReader) override;
 };

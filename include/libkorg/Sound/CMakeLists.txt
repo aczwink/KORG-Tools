@@ -1,6 +1,9 @@
 set(SOURCE_FILES
 	${SOURCE_FILES}
 
+	${CMAKE_CURRENT_SOURCE_DIR}/DrumKit.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/EqualizerData.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/KeyRange.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/OscillatorData.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/SoundData.hpp
 

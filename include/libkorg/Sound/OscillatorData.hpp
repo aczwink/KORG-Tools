@@ -17,6 +17,9 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "EqualizerData.hpp"
+#include "KeyRange.hpp"
+
 namespace libKORG::Sound
 {
 	enum class MultiSampleSource
@@ -40,8 +43,8 @@ namespace libKORG::Sound
 		uint16 multiSampleNumber;
 		MultiSampleSource source;
 		uint8 level;
-		bool reversed;
-		Offset offset;
+		bool reversed = false;
+		Offset offset = Offset::Off;
 	};
 
 	enum class OSCTriggerMode
@@ -63,6 +66,12 @@ namespace libKORG::Sound
 		//TODO: KeyOff, KeyRel, NatRel
 	};
 
+	enum class OSCTriggerSoundControllerException : uint8
+	{
+		OffWhenSoundControllersAreOn = 1,
+		Unknown = 4,
+	};
+
 	struct OscillatorData
 	{
 		OSCMultiSampleSettings high;
@@ -71,18 +80,22 @@ namespace libKORG::Sound
 		uint8 velocityMultiSampleSwitchLowHigh;
 		uint8 velocityZoneBottom;
 		uint8 velocityZoneTop;
-		Pitch keyboardRangeBottomKey;
-		Pitch keyboardRangeTopKey;
-		uint8 unknown2;
-		OSCTriggerMode oscTriggerMode;
-		bool oscOffWhenSoundControllersAreOn;
-		byte unknown3[26];
+		KeyRange keyboardRange = {1, 127};
+		uint8 unknown2 = 128;
+		OSCTriggerMode oscTriggerMode = OSCTriggerMode::Normal;
+		StdXX::Flags<OSCTriggerSoundControllerException> scException = 0;
+		uint8 unknown31 = 15;
+		int8 unknown32 = 0;
+		byte unknown34[4] = {0, 0, 0, 100};
+		byte unknown35[20];
 		int8 octaveTranspose;
 		uint8 transpose;
 		int16 tune;
 		byte unknown4[90];
 		uint8 scaledVelocityBottom;
 		uint8 scaledVelocityTop;
-		uint8 unknown5[32];
+		uint8 unknown51[22];
+		EqualizerData equalizer;
+		uint8 unknown53[4];
 	};
 }

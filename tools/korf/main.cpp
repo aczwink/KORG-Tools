@@ -64,7 +64,7 @@ class ObjectTrackingReader : public BankFormat::Reader
 {
 public:
 	//Members
-	Map<const BankFormat::HeaderEntry*, DynamicByteBuffer> objectsData;
+	BinaryTreeMap<const BankFormat::HeaderEntry*, DynamicByteBuffer> objectsData;
 
 protected:
 	void ReadBankObject(BankFormat::ChunkType chunkType, const ChunkHeader &chunkHeader, const BankFormat::HeaderEntry &headerEntry, DataReader &dataReader) override
