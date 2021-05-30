@@ -39,8 +39,8 @@ TEST_SUITE(AllValuesSetTests)
 		ASSERT_EQUALS(false, soundData.voiceAssignModeFlags.IsSet(VoiceAssignModeFlags::LastPriority));
 		ASSERT_EQUALS(true, soundData.voiceAssignModeFlags.IsSet(VoiceAssignModeFlags::Hold));
 
-		ASSERT_EQUALS(Pitch(OctavePitch::D_SHARP, 9), soundData.transposeRangeTopKey);
-		ASSERT_EQUALS(Pitch(OctavePitch::F, -1), soundData.transposeRangeBottomKey);
+		ASSERT_EQUALS(Pitch(OctavePitch::D_SHARP, 9), soundData.transposeRange.topKey);
+		ASSERT_EQUALS(Pitch(OctavePitch::F, -1), soundData.transposeRange.bottomKey);
 
 		ASSERT_EQUALS(1, soundData.lowPriority);
 
@@ -55,11 +55,11 @@ TEST_SUITE(AllValuesSetTests)
 		ASSERT_EQUALS(OSCTriggerModeDelay::MS5000, soundData.oscillators[0].oscTriggerModeDelay);
 		ASSERT_EQUALS(72, soundData.oscillators[0].velocityZoneBottom);
 		ASSERT_EQUALS(114, soundData.oscillators[0].velocityZoneTop);
-		ASSERT_EQUALS(Pitch(OctavePitch::A_SHARP, 4), soundData.oscillators[0].keyboardRangeBottomKey);
-		ASSERT_EQUALS(Pitch(OctavePitch::A_SHARP, 8), soundData.oscillators[0].keyboardRangeTopKey);
+		ASSERT_EQUALS(Pitch(OctavePitch::A_SHARP, 4), soundData.oscillators[0].keyboardRange.bottomKey);
+		ASSERT_EQUALS(Pitch(OctavePitch::A_SHARP, 8), soundData.oscillators[0].keyboardRange.topKey);
 
 		ASSERT_EQUALS(OSCTriggerMode::Random, soundData.oscillators[0].oscTriggerMode);
-		ASSERT_EQUALS(true, soundData.oscillators[0].oscOffWhenSoundControllersAreOn);
+		ASSERT_EQUALS(true, soundData.oscillators[0].scException.IsSet(OSCTriggerSoundControllerException::OffWhenSoundControllersAreOn));
 
 		ASSERT_EQUALS(-414, soundData.oscillators[0].tune);
 

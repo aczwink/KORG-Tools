@@ -18,16 +18,37 @@
  */
 //Class header
 #include "SetConverter.hpp"
+//Local
+#include "ResourceSelector.hpp"
+#include "BankAllocator.hpp"
 
 void SetConverter::Convert()
 {
+	stdOut << u8"Selecting resources..." << endl;
+	ResourceSelector selector(this->sourceSet, this->targetSet, this->setIndex, this->multiSamplesIndex);
+	selector.Select();
+	selector.PrintResults();
+
+	stdOut << u8"Mapping resources to bank locations..." << endl;
+	BankAllocator bankAllocator(this->sourceSet, this->targetSet);
+	bankAllocator.Compute(selector.Selection());
+
+	stdOut << u8"Converting resources..." << endl;
+
+	this->IntegratePerformances(bankAllocator.Allocation().performanceAllocation);
+
+	stdOut << u8"Saving..." << endl;
+	this->targetSet.Save();
+
+	stdOut << u8"Done." << endl;
+
+	NOT_IMPLEMENTED_ERROR; //TODO: implement me
+
 	this->IntegrateSounds();
 	this->IntegrateMultiSamples();
 	this->IntegratePCM();
 
-	this->targetSet.Save(this->targetModel);
-
-	stdOut << u8"Done. Sample RAM usage: " << String::FormatBinaryPrefixed(this->targetSet.ComputeUsedSampleRAMSize()) << endl;
+	NOT_IMPLEMENTED_ERROR; //TODO: implement me
 }
 
 //Private methods
@@ -38,7 +59,8 @@ uint32 SetConverter::ComputeSampleSize(const Sample::SampleData& sampleData)
 
 Sample::SampleData SetConverter::ConvertSampleIfRequired(const Sample::SampleData& sampleData)
 {
-	if ((sampleData.sampleFormat == Sample::SampleFormat::Compressed) and !targetModel.IsSampleCompressionSupported())
+	NOT_IMPLEMENTED_ERROR; //TODO: implement me
+	//if ((sampleData.sampleFormat == Sample::SampleFormat::Compressed) and !targetModel.IsSampleCompressionSupported())
 	{
 		Sample::SampleData convertedData = sampleData;
 		convertedData.sampleFormat = Sample::SampleFormat::Linear_PCM_S16BE;
@@ -46,7 +68,7 @@ Sample::SampleData SetConverter::ConvertSampleIfRequired(const Sample::SampleDat
 		const auto& entry = this->multiSamplesIndex.GetSampleEntryById(sampleData.id);
 
 		Multimedia::AudioBuffer* audioBuffer = new Multimedia::AudioBuffer(sampleData.nSamples, Multimedia::AudioSampleFormat(1, Multimedia::AudioSampleType::S16, false));
-		Sample::Decompress(sampleData.sampleBuffer.Data(), static_cast<int16 *>(audioBuffer->GetPlane(0)), sampleData.nSamples, entry.compressionCoefficients[0], entry.compressionCoefficients[1]);
+		Sample::Decompress(sampleData.sampleBuffer.Data(), static_cast<int16 *>(audioBuffer->GetPlane(0)), sampleData.nSamples, entry->compressionCoefficients[0], entry->compressionCoefficients[1]);
 		Multimedia::AudioFrame frame(audioBuffer);
 		UniquePointer<Multimedia::Packet> packet = this->EncodeAudio(frame, Multimedia::CodingFormatId::PCM_S16BE, sampleData.sampleRate);
 
@@ -97,22 +119,6 @@ bool SetConverter::IntegrateMultiSample(const MultiSamples::MultiSampleEntry& mu
 	if(this->mapped.integratedMultiSampleIds.Contains(multiSampleEntry.id))
 		return true;
 
-	for(uint8 relativeIndex : multiSampleEntry.keyZoneIndex)
-	{
-		if(relativeIndex == Unsigned<uint8>::Max())
-			continue;
-
-		int16 sampleNumber = this->sourceSet.MultiSamples().data.keyboardZones[multiSampleEntry.keyZoneBaseIndex + relativeIndex].sampleNumber;
-		if(sampleNumber == -1)
-			continue;
-
-		if(!this->IntegratePCMSample(this->sourceSet.MultiSamples().data.sampleEntries[sampleNumber].id))
-		{
-			stdOut << u8"Can't integrate sample with id '" << this->sourceSet.MultiSamples().data.sampleEntries[sampleNumber].id << u8"' because of missing PCM samples." << endl;
-			return false;
-		}
-	}
-
 	//integrate it
 	MultiSamples::MultiSampleEntry newMultiSampleEntry = multiSampleEntry;
 	newMultiSampleEntry.keyZoneBaseIndex = this->targetSet.MultiSamples().data.keyboardZones.GetNumberOfElements();
@@ -145,8 +151,16 @@ void SetConverter::IntegrateMultiSamples()
 	{
 		this->IntegrateMultiSample(ms);
 	}
+}
 
-	//ASSERT_EQUALS(0, this->sourceSet.MultiSamples().data.drumSampleEntries.GetNumberOfElements()); //TODO: implement drum samples
+void SetConverter::IntegratePerformances(const BinaryTreeMap<const PerformanceObject *, Tuple<PerformanceBankNumber, uint8, String>> &performanceAllocation)
+{
+	for(const auto& kv : performanceAllocation)
+	{
+		PerformanceConverter converter;
+		PerformanceObject converted = converter.Convert(*kv.key, this->targetSet.model.GetSupportedResourceVersions().maxPerformanceVersion.major);
+		this->targetSet.performanceBanks[kv.value.Get<0>()].AddObject(kv.value.Get<2>(), kv.value.Get<1>(), new PerformanceObject(Move(converted)));
+	}
 }
 
 void SetConverter::IntegratePCM()
@@ -158,7 +172,9 @@ void SetConverter::IntegratePCM()
 			const AbstractSample& sample = *objectEntry.object;
 			const auto& sampleObject = dynamic_cast<const SampleObject&>(sample);
 
-			this->IntegratePCMSample(this->multiSamplesIndex.GetSampleEntryById(sampleObject.data.id));
+			auto entry = this->multiSamplesIndex.GetSampleEntryById(sampleObject.data.id);
+			if(entry)
+				this->IntegratePCMSample(*entry);
 		}
 	}
 }
@@ -169,8 +185,14 @@ bool SetConverter::IntegratePCMSample(const MultiSamples::SampleEntry& sampleEnt
 		return true;
 
 	const auto& location = this->setIndex.GetSampleLocation(sampleEntry.id);
-	const auto& bankNumber = location.Get<0>();
-	uint8 pos = location.Get<1>();
+	if(!location.HasValue())
+	{
+		stdOut << u8"Free PCM data for entry: " << sampleEntry.id << u8" (" << sampleEntry.name << u8")" << endl;
+		return false;
+	}
+
+	const auto& bankNumber = location->Get<0>();
+	uint8 pos = location->Get<1>();
 	const auto& entry = this->sourceSet.sampleBanks[bankNumber][pos];
 
 	const AbstractSample& sample = *entry.object;
@@ -178,14 +200,9 @@ bool SetConverter::IntegratePCMSample(const MultiSamples::SampleEntry& sampleEnt
 
 	Sample::SampleData convertedSampleData = this->ConvertSampleIfRequired(sampleObject.data);
 
-	uint32 targetSampleRAMSize = this->targetModel.GetSampleRAMSize() * MiB;
-	if(this->targetSet.ComputeUsedSampleRAMSize() + this->ComputeSampleSize(convertedSampleData) > targetSampleRAMSize)
-	{
-		stdOut << u8"Can't integrate sample '" << sampleEntry.name << u8"'. Sample RAM is full." << endl;
-		return false;
-	}
-
-	this->targetSet.sampleBanks[bankNumber].AddObject(entry.name, pos, new SampleObject(Move(convertedSampleData)));
+	NOT_IMPLEMENTED_ERROR; //TODO: implement me
+	/*
+	this->targetSet.sampleBanks[bankId].AddObject(entry.name, pos, new SampleObject(Move(convertedSampleData)));
 
 	MultiSamples::SampleEntry mappedSample = sampleEntry;
 	if(!this->targetModel.IsSampleCompressionSupported())
@@ -194,7 +211,7 @@ bool SetConverter::IntegratePCMSample(const MultiSamples::SampleEntry& sampleEnt
 		mappedSample.compressionCoefficients[0] = 0;
 		mappedSample.compressionCoefficients[1] = 0;
 	}
-	this->targetSet.MultiSamples().data.sampleEntries.Push(mappedSample);
+	this->targetSet.MultiSamples().data.sampleEntries.Push(mappedSample);*/
 
 	this->mapped.integratedSampleIds.Insert(sampleEntry.id);
 
@@ -203,23 +220,19 @@ bool SetConverter::IntegratePCMSample(const MultiSamples::SampleEntry& sampleEnt
 
 bool SetConverter::IntegrateSound(const ProgramChangeSequence& programChangeSequence)
 {
-	const auto& location = this->setIndex.GetSoundLocation(programChangeSequence);
-	const auto& bankNumber = location.Get<0>();
-	uint8 pos = location.Get<1>();
-	const auto& entry = this->sourceSet.soundBanks[bankNumber][pos];
-	const auto& soundData = entry.object->data;
-
+	NOT_IMPLEMENTED_ERROR;
+	/*
 	for(const auto& osc : soundData.oscillators)
 	{
 		if((osc.high.source == libKORG::Sound::MultiSampleSource::RAM) && !this->IntegrateMultiSample(osc.high.multiSampleId))
 		{
-			stdOut << u8"Can't integrate multisample with id '" << this->multiSamplesIndex.GetMultiSampleEntryById(osc.high.multiSampleId).name << u8"' because of missing PCM samples." << endl;
+			this->ShowMultiSampleErrorMessage(osc.high.multiSampleId);
 			return false;
 		}
 
 		if((osc.low.source == libKORG::Sound::MultiSampleSource::RAM) && !this->IntegrateMultiSample(osc.low.multiSampleId))
 		{
-			stdOut << u8"Can't integrate multisample with id '" << this->multiSamplesIndex.GetMultiSampleEntryById(osc.low.multiSampleId).name << u8"' because of missing PCM samples." << endl;
+			this->ShowMultiSampleErrorMessage(osc.low.multiSampleId);
 			return false;
 		}
 	}
@@ -233,8 +246,8 @@ bool SetConverter::IntegrateSound(const ProgramChangeSequence& programChangeSequ
 			osc.low.multiSampleNumber = this->mapped.integratedMultiSampleIds.Get(osc.low.multiSampleId);
 	}
 
-	this->targetSet.soundBanks[bankNumber].AddObject(entry.name, pos, new SoundObject(Move(newSound)));
-
+	this->targetSet.soundBanks[bankId].AddObject(entry.name, pos, new SoundObject(Move(newSound)));
+*/
 	return true;
 }
 

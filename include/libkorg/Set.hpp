@@ -34,8 +34,6 @@
 namespace libKORG
 {
 	typedef ObjectBank<Pad> PadBank;
-	typedef ObjectBank<PerformanceObject> PerformanceBank;
-	typedef ObjectBank<FullStyle> StyleBank;
 
 	struct BankObjectEntry
 	{
@@ -48,12 +46,15 @@ namespace libKORG
 	{
 	public:
 		//Members
+		const Model& model;
+		BankCollection<PerformanceBankNumber, PerformanceObject> performanceBanks;
 		BankCollection<SampleBankNumber, AbstractSample> sampleBanks;
 		BankCollection<SoundBankNumber, SoundObject> soundBanks;
 		BankCollection<StyleBankNumber, FullStyle> styleBanks;
 
 		//Constructors
 		Set(const StdXX::FileSystem::Path& setPath);
+		Set(const StdXX::FileSystem::Path& setPath, const Model& model);
 
 		//Properties
 		inline MultiSamplesObject& MultiSamples()
@@ -68,17 +69,12 @@ namespace libKORG
 			return *this->multiSamples;
 		}
 
-		inline const StdXX::BinaryTreeMap<PerformanceBankNumber, PerformanceBank>& PerformanceBanks() const
-		{
-			return this->performanceBanks;
-		}
-
 		//Methods
 		uint32 ComputeUsedSampleRAMSize();
-		void Save(const Model& targetModel);
+		void Save();
 
 		//Functions
-		static Set Create(const StdXX::FileSystem::Path& targetPath);
+		static Set Create(const StdXX::FileSystem::Path& targetPath, const Model& targetModel);
 
 		inline static ProgramChangeSequence CreateRAMSoundProgramChangeSequence(const SoundBankNumber& soundBankNumber, uint8 pos)
 		{
@@ -87,12 +83,18 @@ namespace libKORG
 			return ProgramChangeSequence(msb, lsb, pos);
 		}
 
+		inline static bool IsRAMSound(const ProgramChangeSequence& programChangeSequence, const Model& model)
+		{
+			if(StdXX::Math::IsValueInInterval(programChangeSequence.BankSelectMSB(), (uint8)120, (uint8)121) && StdXX::Math::IsValueInInterval(programChangeSequence.BankSelectLSB(), (uint8)64, (uint8)67))
+				return true;
+			return false;
+		}
+
 	private:
 		//Members
 		StdXX::FileSystem::Path setPath;
 		StdXX::UniquePointer<MultiSamplesObject> multiSamples;
 		StdXX::BinaryTreeMap<uint8, PadBank> padBanks;
-		StdXX::BinaryTreeMap<PerformanceBankNumber, PerformanceBank> performanceBanks;
 
 		//Methods
 		void LoadMultiSamples(const StdXX::String& bankFileName, const StdXX::DynamicArray<BankObjectEntry>& bankEntries);
@@ -103,12 +105,12 @@ namespace libKORG
 		void LoadSongBook(const StdXX::FileSystem::Path& setPath);
 		void LoadSounds(const StdXX::String& bankFileName, const StdXX::DynamicArray<BankObjectEntry>& bankEntries);
 		void LoadStyles(const StdXX::String& bankFileName, const StdXX::DynamicArray<BankObjectEntry>& bankEntries);
-		void ReadDirectory(const StdXX::FileSystem::Path& setPath, const StdXX::String& dirName, void (Set::* loader)(const StdXX::String& bankFileName, const StdXX::DynamicArray<BankObjectEntry>&));
+		bool ReadDirectory(const StdXX::FileSystem::Path& setPath, const StdXX::String& dirName, void (Set::* loader)(const StdXX::String& bankFileName, const StdXX::DynamicArray<BankObjectEntry>&));
 
 		template<typename BankObjectType>
-		void SaveBank(const ObjectBank<BankObjectType>& bank, StdXX::SeekableOutputStream& outputStream, const Model& targetModel);
+		void SaveBank(const ObjectBank<BankObjectType>& bank, StdXX::SeekableOutputStream& outputStream);
 		template<typename BankNumberType, typename BankObjectType>
-		void SaveBanks(BankCollection<BankNumberType, BankObjectType>& bankCollection, const StdXX::String& folderName, const Model& targetModel);
-		void SaveMultiSamples(const Model& targetModel);
+		void SaveBanks(BankCollection<BankNumberType, BankObjectType>& bankCollection, const StdXX::String& folderName);
+		void SaveMultiSamples();
 	};
 }

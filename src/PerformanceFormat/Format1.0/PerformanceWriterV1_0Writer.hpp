@@ -19,10 +19,10 @@
 #include <StdXX.hpp>
 //Local
 #include <libkorg/BankFormat/SingleTouchSettings.hpp>
-#include "../../Writer/ChunkWriter.hpp"
+#include "libkorg/ChunkFormat/ChunkWriter.hpp"
 #include "../PerformanceFormatWriter.hpp"
 
-class PerformanceWriterV1_0Writer : public ChunkWriter, public PerformanceFormatWriter
+class PerformanceWriterV1_0Writer : public libKORG::ChunkWriter, public PerformanceFormatWriter
 {
 public:
 	//Constructor
@@ -30,11 +30,13 @@ public:
 	{
 	}
 
+	//Methods
+	void Write(const libKORG::PerformanceObject &performanceObject) override;
 	void Write(const libKORG::SingleTouchSettings &settings) override;
 
 private:
 	//Methods
-	void Write0x2000000Chunk(const libKORG::Performance::AccompanimentSettings& settings, const libKORG::ChunkVersion& performanceVersion);
-	void Write0x3000000Chunk(const libKORG::Performance::KeyboardSettings& keyboardSettings, uint8 number, const libKORG::ChunkVersion& performanceVersion);
-	void WriteTrackProperties(uint32 trackNumber, const libKORG::Performance::TrackProperties& trackProperties, const libKORG::ChunkVersion& performanceVersion);
+	void Write0x2000000Chunk(const libKORG::Performance::V1::AccompanimentSettings& settings, const libKORG::ChunkVersion& performanceVersion);
+	void Write0x3000000Chunk(const libKORG::Performance::V1::KeyboardSettings& keyboardSettings, uint8 number, const libKORG::ChunkVersion& performanceVersion);
+	void WriteTrackProperties(uint32 trackNumber, const libKORG::Performance::V1::TrackSettings& trackSettings, const libKORG::ChunkVersion& performanceVersion);
 };

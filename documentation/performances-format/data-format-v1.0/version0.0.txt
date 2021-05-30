@@ -30,7 +30,7 @@ Entering chunk 0x00000000
 ----Reading Data chunk 0x10000008 with size 9 - ?
 ----Reading Data chunk 0x11000008 with size 2 - ?
 ----Reading Data chunk 0x12000108 with size 12 - ?
-----Reading Data chunk 0x13000008 with size 14 - ?
+----Reading Data chunk 0x13000008 with size 14 - Scale
 ----Reading Data chunk 0x07000008 with size 78 - ?
 ----Reading Data chunk 0x07000008 with size 78 - ?
 ----Reading Data chunk 0x07000008 with size 78 - ?

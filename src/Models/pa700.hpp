@@ -27,12 +27,21 @@ public:
 
 	BankSetup GetBankSetup() const override
 	{
+		NOT_IMPLEMENTED_ERROR; //TODO: implement me
 		return {
-			.factoryBankIds = {1, 12},
-			.userBankIds = {13, 24},
-			.favoriteBankIds = {},
-			.localBankIds = {},
-			.nStylesPerBank = 48,
+			{
+				.factoryBankIds = {0, 0} //TOOD: check this
+			},
+			{
+				.nUserBanks = 4
+			},
+			{
+				.factoryBankIds = {1, 12},
+				.userBankIds = {13, 24},
+				.favoriteBankIds = {},
+				.localBankIds = {},
+				.nStylesPerBank = 48,
+			}
 		};
 	}
 

@@ -29,7 +29,7 @@ namespace libKORG
 		}
 
 		//Methods
-		void Map(Performance::TrackProperties& trackProperties) const
+		void Map(Performance::V1::TrackSettings& trackProperties) const
 		{
 			this->MapSound(trackProperties.soundProgramChangeSeq);
 		}
@@ -55,14 +55,14 @@ namespace libKORG
 
 		void Map(SingleTouchSettings& sts) const
 		{
-			for(Performance::TrackProperties& trackProperties : sts.generalData.accompanimentSettings.trackProperties)
+			for(Performance::V1::TrackSettings& trackProperties : sts.V1Data().accompanimentSettings.trackSettings)
 			{
 				this->Map(trackProperties);
 			}
 
-			for(Performance::KeyboardSettings& keyboardSettings : sts.keyboardSettings)
+			for(Performance::V1::KeyboardSettings& keyboardSettings : sts.V1Data().keyboardSettings)
 			{
-				for(Performance::TrackProperties& trackProperties : keyboardSettings.trackProperties)
+				for(Performance::V1::TrackSettings& trackProperties : keyboardSettings.trackSettings)
 				{
 					this->Map(trackProperties);
 				}

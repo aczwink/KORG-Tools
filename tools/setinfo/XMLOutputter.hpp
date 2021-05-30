@@ -42,7 +42,7 @@ public:
 		this->xmlSerializer << Serialization::Binding(this->CreateValidName(name), value);
 	}
 
-	void OutputProperty(const String &name, int16 value) override
+	void OutputProperty(const String &name, int32 value) override
 	{
 		this->OutputProperty(name, String::Number(value));
 	}

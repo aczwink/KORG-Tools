@@ -76,28 +76,6 @@ String libKORG::KeyboardTrackNumberToAbbreviatedString(KeyboardTrackNumber keybo
 	RAISE(ErrorHandling::IllegalCodePathError);
 }
 
-uint8 libKORG::ParseStyleBankFileName(const String &bankFileName)
-{
-	ASSERT(bankFileName.EndsWith(u8".STY"), u8"???");
-	return ParseStyleBankName(bankFileName.SubString(0, bankFileName.GetLength() - 4));
-}
-
-uint8 libKORG::ParseStyleBankName(const String& string)
-{
-	if(string.StartsWith(u8"FAVORITE"))
-		return string.SubString(8).ToUInt32() - 1 + 20;
-	else if(string.StartsWith(u8"LOCAL"))
-		return string.SubString(5).ToUInt32() - 1 + 100;
-	else if(string.StartsWith(u8"USER"))
-		return string.SubString(4).ToUInt32() - 1 + 17;
-
-	ASSERT(string.StartsWith(u8"BANK"), u8"???");
-	String bankPart = string.SubString(4);
-	uint32 bankNumber = bankPart.ToUInt32() - 1;
-
-	return bankNumber;
-}
-
 String libKORG::PitchToString(Pitch pitch)
 {
 	String result;

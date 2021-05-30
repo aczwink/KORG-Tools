@@ -18,6 +18,7 @@
  */
 #include <StdXXTest.hpp>
 #include <libkorg.hpp>
+#include "../../Shared.hpp"
 //Namespaces
 using namespace libKORG;
 using namespace libKORG::Style;
@@ -67,7 +68,7 @@ TEST_SUITE(Var2CV1AndVar3CV1AndVar4CV1HaveSingleDrumNoteTests)
 	{
 		FileSystem::Path setPath(u8"testdata/styles/pa600/var2cv1_and_var3cv1_and_var4cv1_havesingledrumnote.SET");
 		Set set(setPath);
-		const auto& fullStyle = set.StyleBanks().begin().operator*().value.Objects().begin().operator*().object.operator*();
+		const auto& fullStyle = ExtractFirstStyle(set);
 		const auto& styleData = fullStyle.Style().data;
 		StyleView styleView(styleData);
 

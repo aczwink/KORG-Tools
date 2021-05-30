@@ -89,7 +89,7 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 
 	parser.AddHelpOption();
 
-	CommandLine::PathArgument setPathArg(u8"set-path", u8"Path to the set");
+	CommandLine::PathArgument setPathArg(u8"sourceSet-path", u8"Path to the sourceSet");
 	parser.AddPositionalArgument(setPathArg);
 
 	if(!parser.Parse(args))

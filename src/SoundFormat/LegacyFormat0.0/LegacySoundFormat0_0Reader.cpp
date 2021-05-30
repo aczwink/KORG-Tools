@@ -43,7 +43,7 @@ void LegacySoundFormat0_0Reader::Read(DataReader &dataReader)
 
 	this->ReadMaxTimeAndRange(dataReader);
 
-	uint8 nOscillators = this->data.unknownPacked & 0x3F; //at least 0x40 can be set in that bit field. No idea what it is
+	uint8 nOscillators = this->data.unknownPacked & 0x3F; //at least 0x40 can be sourceSet in that bit field. No idea what it is
 	this->data.oscillators.Resize(nOscillators);
 	for(uint8 i = 0; i < nOscillators; i++)
 		this->ReadOscillatorData(this->data.oscillators[i], dataReader);

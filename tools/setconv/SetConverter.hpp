@@ -29,8 +29,7 @@ public:
 		: sourceSet(sourceSetPath),
 		  multiSamplesIndex(sourceSet.MultiSamples().data),
 		  setIndex(sourceSet),
-		  targetSet(Set::Create(targetSetPath)),
-		  targetModel(targetModel)
+		  targetSet(Set::Create(targetSetPath, targetModel))
 	{
 	}
 
@@ -43,7 +42,6 @@ private:
 	MultiSamplesIndex multiSamplesIndex;
 	SetIndex setIndex;
 	Set targetSet;
-	const Model& targetModel;
 
 	struct {
 		BinaryTreeMap<uint64, uint32> integratedMultiSampleIds;
@@ -57,19 +55,18 @@ private:
 	MultiSamples::KeyboardZone MapKeyboardZone(const MultiSamples::KeyboardZone& keyboardZone) const;
 	bool IntegrateMultiSample(const MultiSamples::MultiSampleEntry& multiSampleEntry);
 	void IntegrateMultiSamples();
+	void IntegratePerformances(const BinaryTreeMap<const PerformanceObject*, Tuple<PerformanceBankNumber, uint8, String>>& performanceAllocation);
 	void IntegratePCM();
 	bool IntegratePCMSample(const MultiSamples::SampleEntry& sampleEntry);
 	bool IntegrateSound(const ProgramChangeSequence& programChangeSequence);
 	void IntegrateSounds();
 
 	//Inline
-	inline bool IntegrateMultiSample(uint64 id)
+	inline void ShowMultiSampleErrorMessage(uint64 multiSampleId)
 	{
-		return this->IntegrateMultiSample(this->multiSamplesIndex.GetMultiSampleEntryById(id));
-	}
-
-	inline bool IntegratePCMSample(uint64 id)
-	{
-		return this->IntegratePCMSample(this->multiSamplesIndex.GetSampleEntryById(id));
+		auto entry = this->multiSamplesIndex.GetMultiSampleEntryById(multiSampleId);
+		String id = String::HexNumber(multiSampleId, 16);
+		String name = (entry == nullptr) ? (id + u8" (unknown)") : (id + u8" (" + entry->name + u8")");
+		stdOut << u8"Can't integrate multisample with id '" << name << u8"' because of missing PCM samples." << endl;
 	}
 };

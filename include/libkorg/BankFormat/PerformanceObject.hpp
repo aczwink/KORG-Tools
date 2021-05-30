@@ -17,28 +17,61 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <StdXX.hpp>
-#include <libkorg/Performance/GeneralData.hpp>
-#include <libkorg/Performance/AccompanimentSettings.hpp>
-#include <libkorg/Performance/KeyboardSettings.hpp>
-#include "libkorg/BankFormat/BankObject.hpp"
-#include "libkorg/ProgramChangeSequence.hpp"
-#include "libkorg/UnknownChunk.hpp"
+#include <libkorg/BankFormat/BankObject.hpp>
+#include <libkorg/Performance/Version2/Data.hpp>
+#include <libkorg/Performance/Version1/Data.hpp>
+#include <libkorg/Performance/Version0/Data.hpp>
 
 namespace libKORG
 {
 	class PerformanceObject : public BankFormat::BankObject
 	{
 	public:
-		//Members
-		Performance::GeneralData generalData;
-		Performance::KeyboardSettings keyboardSettings;
-
-		//Constructor
-		inline PerformanceObject(Performance::GeneralData&& generalData, Performance::KeyboardSettings&& keyboardSettings)
-				: generalData(StdXX::Move(generalData)),
-				keyboardSettings(StdXX::Move(keyboardSettings))
+		//Constructors
+		inline PerformanceObject(StdXX::UniquePointer<Performance::V0::PerformanceData>&& v0data) : v0data(StdXX::Move(v0data))
 		{
+			this->version = 0;
 		}
+
+		inline PerformanceObject(StdXX::UniquePointer<Performance::V1::PerformanceData>&& v1data) : v1data(StdXX::Move(v1data))
+		{
+			this->version = 1;
+		}
+
+		inline PerformanceObject(StdXX::UniquePointer<Performance::V2::PerformanceData>&& v2data) : v2data(StdXX::Move(v2data))
+		{
+			this->version = 2;
+		}
+
+		//Properties
+		inline const Performance::V0::PerformanceData& V0Data() const
+		{
+			ASSERT_EQUALS(0, this->version);
+			return *this->v0data;
+		}
+
+		inline const Performance::V1::PerformanceData& V1Data() const
+		{
+			ASSERT_EQUALS(1, this->version);
+			return *this->v1data;
+		}
+
+		inline const Performance::V2::PerformanceData& V2Data() const
+		{
+			ASSERT_EQUALS(2, this->version);
+			return *this->v2data;
+		}
+
+		inline uint8 Version() const
+		{
+			return this->version;
+		}
+
+	private:
+		//Members
+		uint8 version;
+		StdXX::UniquePointer<Performance::V0::PerformanceData> v0data;
+		StdXX::UniquePointer<Performance::V1::PerformanceData> v1data;
+		StdXX::UniquePointer<Performance::V2::PerformanceData> v2data;
 	};
 }

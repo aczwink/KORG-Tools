@@ -17,12 +17,9 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-
+//Local
+#include <libkorg/BankFormat/BankObject.hpp>
 #include <libkorg/Style/StyleData.hpp>
-#include "libkorg/BankFormat/BankObject.hpp"
-#include "libkorg/ProgramChangeSequence.hpp"
-#include "libkorg/UnknownChunk.hpp"
-#include "libkorg/Performance/Numbers.hpp"
 
 namespace libKORG
 {

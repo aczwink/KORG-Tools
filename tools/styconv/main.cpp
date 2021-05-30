@@ -45,10 +45,10 @@ UniquePointer<SingleTouchSettings> MapSTS(const SingleTouchSettings& sts, const 
 
 void ConvertStyleBank(const BankSelection& source, const BankSelectionWithModel& target, const SoundMapper& soundMapper)
 {
-	stdOut << u8"Loading source set..." << endl;
+	stdOut << u8"Loading source sourceSet..." << endl;
 	Set sourceSet(source.setPath);
 
-	stdOut << u8"Loading target set..." << endl;
+	stdOut << u8"Loading target sourceSet..." << endl;
 	if(!FileSystem::File(target.setPath).Exists())
 		Set::Create(target.setPath);
 	Set targetSet(target.setPath);
@@ -127,19 +127,19 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 
 	parser.AddHelpOption();
 
-	CommandLine::PathArgument sourceSetPathArg(u8"source-set-path", u8"Path to the source set");
+	CommandLine::PathArgument sourceSetPathArg(u8"source-sourceSet-path", u8"Path to the source sourceSet");
 	parser.AddPositionalArgument(sourceSetPathArg);
 
 	CommandLine::StringArgument sourceBankArg(u8"source-bank", u8"Source bank name");
 	parser.AddPositionalArgument(sourceBankArg);
 
-	CommandLine::PathArgument targetSetPathArg(u8"target-set-path", u8"Path to the target set");
+	CommandLine::PathArgument targetSetPathArg(u8"target-sourceSet-path", u8"Path to the target sourceSet");
 	parser.AddPositionalArgument(targetSetPathArg);
 
 	CommandLine::StringArgument targetBankArg(u8"target-bank", u8"Target bank name");
 	parser.AddPositionalArgument(targetBankArg);
 
-	CommandLine::OptionWithArgument targetModelOpt(u8'm', u8"target-model", u8"The model that the target set is for");
+	CommandLine::OptionWithArgument targetModelOpt(u8'm', u8"target-model", u8"The model that the target sourceSet is for");
 	parser.AddOption(targetModelOpt);
 
 	CommandLine::OptionWithArgument offsetOpt(u8'o', u8"offset", u8"The first position number in the bank that should be converted. Lower numbers are skipped.");

@@ -18,28 +18,47 @@
  */
 #pragma once
 //Local
-#include "UnknownAdditionalReader.hpp"
-#include "../Format1.0/PerformanceFormat1_0VReader.hpp"
+#include <libkorg/BankFormat/BankObject.hpp>
+#include <libkorg/Performance/Version2/Data.hpp>
+#include "../Format1.0/AccompanimentSettingsReader.hpp"
+#include "../Format1.0/KeyboardSettingsReader.hpp"
+#include "AccompanimentSettingsV1_0Reader.hpp"
+#include "KeyboardSettingsV1_0Reader.hpp"
+#include "UnknownAdditionalReaderV2.hpp"
 
-class PerformanceFormat2_0VReader : public PerformanceFormat1_0VReader
+class PerformanceFormat2_0VReader : public libKORG::BankFormat::BankObjectReader
 {
 public:
 	//Constructor
-	inline PerformanceFormat2_0VReader() : unknownAdditionalReader(generalPerformanceData)
+	inline PerformanceFormat2_0VReader() : accompanimentSettingsReader(generalData.accompanimentSettings),
+										   keyboardSettingsReader(keyboardSettings),
+										   unknownAdditionalReader(generalData)
 	{
+		this->perfIndex = 0;
 	}
+
+	//Methods
+	libKORG::BankFormat::BankObject *TakeResult() override;
 
 protected:
 	//Members
-	UnknownAdditionalReader unknownAdditionalReader;
+	libKORG::Performance::V2::GeneralData generalData;
 
 	//Methods
 	ChunkReader *OnEnteringChunk(const libKORG::ChunkHeader &chunkHeader) override;
+	void OnLeavingChunk(const libKORG::ChunkHeader &chunkHeader) override;
 	void ReadDataChunk(const libKORG::ChunkHeader &chunkHeader, StdXX::DataReader &dataReader) override;
 
 private:
+	//Members
+	uint8 perfIndex;
+	StdXX::StaticArray<libKORG::Performance::V2::KeyboardSettings, 4> keyboardSettings;
+	AccompanimentSettingsReader<libKORG::Performance::V2::AccompanimentSettings, AccompanimentSettingsV1_0Reader, 0x0100> accompanimentSettingsReader;
+	KeyboardSettingsReader<libKORG::Performance::V2::KeyboardSettings, KeyboardSettingsV1_0Reader, 0x0100> keyboardSettingsReader;
+	UnknownAdditionalReaderV2 unknownAdditionalReader;
+
 	//Methods
 	void Read0x04020008Chunk(StdXX::DataReader& dataReader);
 	void Read0x20000008Chunk(StdXX::DataReader& dataReader);
-	void ReadUnknownSubChunk(libKORG::Performance::UnknownSubChunk& chunk, StdXX::DataReader& dataReader);
+	void ReadUnknownSubChunk(libKORG::Performance::V2::UnknownSubChunk& chunk, StdXX::DataReader& dataReader);
 };

@@ -16,10 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
+//Local
 #include <libkorg.hpp>
-using namespace libKORG;
-using namespace libKORG::Performance;
 #include "FormattedOutputter.hpp"
+using namespace libKORG;
+
 
 class PerformanceOutputter
 {
@@ -30,17 +31,10 @@ public:
 	}
 
 	//Methods
-	void Output(const PerformanceObject& performance);
+	void Output(const PerformanceObject& performanceObject);
 	void Output(const SingleTouchSettings& sts);
 
 private:
 	//Members
 	FormattedOutputter& formattedOutputter;
-
-	//Methods
-	void Output(const AccompanimentSettings& accompanimentSettings);
-	void Output(const StdXX::StaticArray<struct TrackProperties, 4>& keyboardTrackProperties);
-	void Output(const StdXX::StaticArray<struct TrackProperties, 8>& accompanimentTrackProperties);
-	void Output(const KeyboardSettings& keyboardSettings);
-	void Output(const TrackProperties& trackProperties);
 };

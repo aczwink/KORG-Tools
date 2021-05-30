@@ -27,11 +27,25 @@ namespace libKORG
 	public:
 		struct BankSetup
 		{
-			StdXX::Math::Range<uint8> factoryBankIds;
-			StdXX::Math::Range<uint8> userBankIds;
-			StdXX::Optional<StdXX::Math::Range<uint8>> favoriteBankIds;
-			StdXX::Optional<StdXX::Math::Range<uint8>> localBankIds;
-			uint8 nStylesPerBank;
+			struct
+			{
+				StdXX::Math::Range<uint8> factoryBankIds;
+				StdXX::Optional<StdXX::Math::Range<uint8>> localBankIds;
+			} performanceBanks;
+
+			struct
+			{
+				uint8 nUserBanks;
+			} soundBanks;
+
+			struct
+			{
+				StdXX::Math::Range<uint8> factoryBankIds;
+				StdXX::Math::Range<uint8> userBankIds;
+				StdXX::Optional<StdXX::Math::Range<uint8>> favoriteBankIds;
+				StdXX::Optional<StdXX::Math::Range<uint8>> localBankIds;
+				uint8 nStylesPerBank;
+			} styleBanks;
 		};
 
 		struct SupportedResourceVersions

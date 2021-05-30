@@ -18,42 +18,68 @@
  */
 #pragma once
 #include "libkorg/BankFormat/PerformanceObject.hpp"
-#include "libkorg/UnknownChunk.hpp"
 
 namespace libKORG
 {
 	class SingleTouchSettings : public BankFormat::BankObject
 	{
 	public:
-		//Members
-		Performance::GeneralData generalData;
-		StdXX::StaticArray<Performance::KeyboardSettings, 4> keyboardSettings;
-
 		//Constructors
-		inline SingleTouchSettings(const ChunkVersion& max9version,
-								   Performance::GeneralData&& generalData,
-							 		StdXX::StaticArray<Performance::KeyboardSettings, 4>&& keyboardSettings)
-				: max9version(max9version),
-				  generalData(StdXX::Move(generalData)),
-				keyboardSettings(Move(keyboardSettings))
+		inline SingleTouchSettings(StdXX::UniquePointer<Performance::V0::STSData>&& v0data) : v0data(StdXX::Move(v0data))
 		{
+			this->version = 1;
 		}
 
-		SingleTouchSettings(const SingleTouchSettings& singleTouchSettings) = default;
+		inline SingleTouchSettings(StdXX::UniquePointer<Performance::V1::STSData>&& v1data) : v1data(StdXX::Move(v1data))
+		{
+			this->version = 1;
+		}
+
+		inline SingleTouchSettings(StdXX::UniquePointer<Performance::V2::STSData>&& v2data) : v2data(StdXX::Move(v2data))
+		{
+			this->version = 2;
+		}
+
+		inline SingleTouchSettings(const SingleTouchSettings& sts)
+		{
+			this->version = sts.version;
+			if(!sts.v0data.IsNull())
+				this->v0data = new Performance::V0::STSData(*sts.v0data);
+			if(!sts.v1data.IsNull())
+				this->v1data = new Performance::V1::STSData(*sts.v1data);
+			if(!sts.v2data.IsNull())
+				this->v2data = new Performance::V2::STSData(*sts.v2data);
+		}
 
 		//Properties
-		inline const ChunkVersion& Max9Version() const
+		inline Performance::V1::STSData& V1Data()
 		{
-			return this->max9version;
+			ASSERT_EQUALS(1, this->version);
+			return *this->v1data;
 		}
 
-		inline ChunkVersion Version() const
+		inline const Performance::V1::STSData& V1Data() const
 		{
-			return {static_cast<uint8>(this->max9version.major + 1), this->max9version.minor};
+			ASSERT_EQUALS(1, this->version);
+			return *this->v1data;
+		}
+
+		inline const Performance::V2::STSData& V2Data() const
+		{
+			ASSERT_EQUALS(2, this->version);
+			return *this->v2data;
+		}
+
+		inline uint8 Version() const
+		{
+			return this->version;
 		}
 
 	private:
 		//Members
-		ChunkVersion max9version;
+		uint8 version;
+		StdXX::UniquePointer<Performance::V0::STSData> v0data;
+		StdXX::UniquePointer<Performance::V1::STSData> v1data;
+		StdXX::UniquePointer<Performance::V2::STSData> v2data;
 	};
 }

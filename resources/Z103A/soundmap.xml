@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <SoundMap>
   <SoundSet name="Factory">
-    <Bank name="Piano" bankNumber="01">
+    <Bank name="Piano" bankId="01">
       <SoundEntry name="Grand Piano RX" bankSelectMSB="121" bankSelectLSB="10" programChange="0"/>
       <SoundEntry name="Grand Piano" bankSelectMSB="121" bankSelectLSB="3" programChange="0"/>
       <SoundEntry name="G.Piano Stack 1" bankSelectMSB="121" bankSelectLSB="8" programChange="2"/>
@@ -22,7 +22,7 @@
       <SoundEntry name="Piano &amp; Vibes" bankSelectMSB="121" bankSelectLSB="6" programChange="0"/>
       <SoundEntry name="Grand RX DEMO" bankSelectMSB="121" bankSelectLSB="11" programChange="0"/>
     </Bank>
-    <Bank name="E. Piano" bankNumber="02">
+    <Bank name="E. Piano" bankId="02">
       <SoundEntry name="Digi E. Piano" bankSelectMSB="121" bankSelectLSB="14" programChange="5"/>
       <SoundEntry name="Classic Tines" bankSelectMSB="121" bankSelectLSB="9" programChange="5"/>
       <SoundEntry name="DW8000 EP" bankSelectMSB="121" bankSelectLSB="11" programChange="5"/>
@@ -48,7 +48,7 @@
       <SoundEntry name="Bell E. Piano 1" bankSelectMSB="121" bankSelectLSB="23" programChange="4"/>
       <SoundEntry name="Bell E. Piano 2" bankSelectMSB="121" bankSelectLSB="24" programChange="4"/>
     </Bank>
-    <Bank name="Mallet &amp; Bell" bankNumber="03">
+    <Bank name="Mallet &amp; Bell" bankId="03">
       <SoundEntry name="Vibraphone 1" bankSelectMSB="121" bankSelectLSB="2" programChange="11"/>
       <SoundEntry name="Marimba" bankSelectMSB="121" bankSelectLSB="7" programChange="12"/>
       <SoundEntry name="Marimba Key Off" bankSelectMSB="121" bankSelectLSB="2" programChange="12"/>
@@ -68,7 +68,7 @@
       <SoundEntry name="Santur" bankSelectMSB="121" bankSelectLSB="1" programChange="15"/>
       <SoundEntry name="Mallet Clock" bankSelectMSB="121" bankSelectLSB="5" programChange="12"/>
     </Bank>
-    <Bank name="Accor-dion" bankNumber="04">
+    <Bank name="Accor-dion" bankId="04">
       <SoundEntry name="Harmonica DNC" bankSelectMSB="121" bankSelectLSB="5" programChange="22"/>
       <SoundEntry name="Cassotto 16'" bankSelectMSB="121" bankSelectLSB="12" programChange="21"/>
       <SoundEntry name="Cassotto" bankSelectMSB="121" bankSelectLSB="9" programChange="21"/>
@@ -104,7 +104,7 @@
       <SoundEntry name="Steirisch.Akk.4" bankSelectMSB="121" bankSelectLSB="28" programChange="21"/>
       <SoundEntry name="Acc.Voice Change" bankSelectMSB="121" bankSelectLSB="6" programChange="23"/>
     </Bank>
-    <Bank name="Organ" bankNumber="05">
+    <Bank name="Organ" bankId="05">
       <SoundEntry name="Jimmy Organ DNC" bankSelectMSB="121" bankSelectLSB="13" programChange="18"/>
       <SoundEntry name="Perc. Organ 1" bankSelectMSB="121" bankSelectLSB="10" programChange="17"/>
       <SoundEntry name="Perc. Organ 2V." bankSelectMSB="121" bankSelectLSB="9" programChange="17"/>
@@ -144,7 +144,7 @@
       <SoundEntry name="Small Pipe" bankSelectMSB="121" bankSelectLSB="2" programChange="20"/>
       <SoundEntry name="Positive Organ" bankSelectMSB="121" bankSelectLSB="7" programChange="19"/>
     </Bank>
-    <Bank name="Guitar" bankNumber="06">
+    <Bank name="Guitar" bankId="06">
       <SoundEntry name="RealNylon Gtr ST" bankSelectMSB="121" bankSelectLSB="16" programChange="24"/>
       <SoundEntry name="Real Nylon Gtr" bankSelectMSB="121" bankSelectLSB="17" programChange="24"/>
       <SoundEntry name="Crunch Gtr DNC" bankSelectMSB="121" bankSelectLSB="3" programChange="29"/>
@@ -228,7 +228,7 @@
       <SoundEntry name="Clean Guitar RX5" bankSelectMSB="121" bankSelectLSB="18" programChange="28"/>
       <SoundEntry name="Clean Guitar RX6" bankSelectMSB="121" bankSelectLSB="20" programChange="28"/>
     </Bank>
-    <Bank name="Strings &amp; Vocal" bankNumber="07">
+    <Bank name="Strings &amp; Vocal" bankId="07">
       <SoundEntry name="Movie Str.1 DNC" bankSelectMSB="121" bankSelectLSB="7" programChange="49"/>
       <SoundEntry name="Movie Str.2 DNC" bankSelectMSB="121" bankSelectLSB="8" programChange="49"/>
       <SoundEntry name="Violin Expr. 1" bankSelectMSB="121" bankSelectLSB="2" programChange="40"/>
@@ -285,7 +285,7 @@
       <SoundEntry name="Heaven" bankSelectMSB="121" bankSelectLSB="3" programChange="91"/>
       <SoundEntry name="Airways" bankSelectMSB="121" bankSelectLSB="3" programChange="53"/>
     </Bank>
-    <Bank name="Trumpet &amp; Trbn." bankNumber="08">
+    <Bank name="Trumpet &amp; Trbn." bankId="08">
       <SoundEntry name="Jazz Trumpet DNC" bankSelectMSB="121" bankSelectLSB="24" programChange="56"/>
       <SoundEntry name="Jazz Cornet DNC" bankSelectMSB="121" bankSelectLSB="25" programChange="56"/>
       <SoundEntry name="Trombone DNC" bankSelectMSB="121" bankSelectLSB="13" programChange="57"/>
@@ -319,7 +319,7 @@
       <SoundEntry name="Tuba Gold" bankSelectMSB="121" bankSelectLSB="2" programChange="58"/>
       <SoundEntry name="Oberkr. Tuba" bankSelectMSB="121" bankSelectLSB="1" programChange="58"/>
     </Bank>
-    <Bank name="Brass" bankNumber="09">
+    <Bank name="Brass" bankId="09">
       <SoundEntry name="Big Band Brass 1" bankSelectMSB="121" bankSelectLSB="32" programChange="61"/>
       <SoundEntry name="Big Band Brass 2" bankSelectMSB="121" bankSelectLSB="4" programChange="61"/>
       <SoundEntry name="Tight Brass 1" bankSelectMSB="121" bankSelectLSB="27" programChange="61"/>
@@ -355,7 +355,7 @@
       <SoundEntry name="Brass Impact" bankSelectMSB="121" bankSelectLSB="4" programChange="55"/>
       <SoundEntry name="Brass Hit" bankSelectMSB="121" bankSelectLSB="25" programChange="61"/>
     </Bank>
-    <Bank name="Sax" bankNumber="10">
+    <Bank name="Sax" bankId="10">
       <SoundEntry name="Alto Sax DNC" bankSelectMSB="121" bankSelectLSB="12" programChange="65"/>
       <SoundEntry name="Tenor Sax DNC" bankSelectMSB="121" bankSelectLSB="12" programChange="66"/>
       <SoundEntry name="Alto Sax Expr." bankSelectMSB="121" bankSelectLSB="9" programChange="65"/>
@@ -381,7 +381,7 @@
       <SoundEntry name="Sax Ensemble" bankSelectMSB="121" bankSelectLSB="2" programChange="65"/>
       <SoundEntry name="Reed of Power" bankSelectMSB="121" bankSelectLSB="11" programChange="66"/>
     </Bank>
-    <Bank name="Wood-wind" bankNumber="11">
+    <Bank name="Wood-wind" bankId="11">
       <SoundEntry name="Clarinet DNC" bankSelectMSB="121" bankSelectLSB="13" programChange="71"/>
       <SoundEntry name="Flute DNC" bankSelectMSB="121" bankSelectLSB="11" programChange="73"/>
       <SoundEntry name="Whistle DNC" bankSelectMSB="121" bankSelectLSB="5" programChange="78"/>
@@ -410,7 +410,7 @@
       <SoundEntry name="Section Winds 2" bankSelectMSB="121" bankSelectLSB="4" programChange="71"/>
       <SoundEntry name="Reeds &amp; Saxes" bankSelectMSB="121" bankSelectLSB="10" programChange="71"/>
     </Bank>
-    <Bank name="Synth Pad" bankNumber="12">
+    <Bank name="Synth Pad" bankId="12">
       <SoundEntry name="Warm Pad" bankSelectMSB="121" bankSelectLSB="15" programChange="89"/>
       <SoundEntry name="Deep Noise" bankSelectMSB="121" bankSelectLSB="4" programChange="127"/>
       <SoundEntry name="The Pad" bankSelectMSB="121" bankSelectLSB="4" programChange="89"/>
@@ -450,7 +450,7 @@
       <SoundEntry name="80's Pop Synth" bankSelectMSB="121" bankSelectLSB="2" programChange="93"/>
       <SoundEntry name="Wave Cycle DNC" bankSelectMSB="121" bankSelectLSB="3" programChange="96"/>
     </Bank>
-    <Bank name="Synth Lead" bankNumber="13">
+    <Bank name="Synth Lead" bankId="13">
       <SoundEntry name="Bass Phat Saw" bankSelectMSB="121" bankSelectLSB="12" programChange="87"/>
       <SoundEntry name="Old Portamento" bankSelectMSB="121" bankSelectLSB="3" programChange="80"/>
       <SoundEntry name="Power Saw" bankSelectMSB="121" bankSelectLSB="5" programChange="81"/>
@@ -486,7 +486,7 @@
       <SoundEntry name="2VCO Planet Lead" bankSelectMSB="121" bankSelectLSB="13" programChange="80"/>
       <SoundEntry name="VCF Modulation" bankSelectMSB="121" bankSelectLSB="3" programChange="101"/>
     </Bank>
-    <Bank name="Ethnic" bankNumber="14">
+    <Bank name="Ethnic" bankId="14">
       <SoundEntry name="Sitar" bankSelectMSB="121" bankSelectLSB="8" programChange="104"/>
       <SoundEntry name="Fiddle" bankSelectMSB="121" bankSelectLSB="1" programChange="110"/>
       <SoundEntry name="Mandolin Trem." bankSelectMSB="121" bankSelectLSB="11" programChange="25"/>
@@ -522,7 +522,7 @@
       <SoundEntry name="Ac. Baglama 2" bankSelectMSB="121" bankSelectLSB="8" programChange="107"/>
       <SoundEntry name="Ac. Baglama Grp." bankSelectMSB="121" bankSelectLSB="9" programChange="107"/>
     </Bank>
-    <Bank name="Bass" bankNumber="15">
+    <Bank name="Bass" bankId="15">
       <SoundEntry name="Finger Bass DNC" bankSelectMSB="121" bankSelectLSB="16" programChange="33"/>
       <SoundEntry name="Acous. Bass Pro1" bankSelectMSB="121" bankSelectLSB="3" programChange="32"/>
       <SoundEntry name="Acous. Bass Pro2" bankSelectMSB="121" bankSelectLSB="4" programChange="32"/>
@@ -576,7 +576,7 @@
       <SoundEntry name="SlapPick Bass RX" bankSelectMSB="121" bankSelectLSB="5" programChange="36"/>
       <SoundEntry name="FunkSlap Bass RX" bankSelectMSB="121" bankSelectLSB="3" programChange="36"/>
     </Bank>
-    <Bank name="Drum &amp; SFX" bankNumber="16">
+    <Bank name="Drum &amp; SFX" bankId="16">
       <SoundEntry name="Standard Kit RX1" bankSelectMSB="120" bankSelectLSB="0" programChange="5"/>
       <SoundEntry name="Standard Kit RX2" bankSelectMSB="120" bankSelectLSB="0" programChange="1"/>
       <SoundEntry name="Standard Kit RX3" bankSelectMSB="120" bankSelectLSB="0" programChange="2"/>
@@ -624,7 +624,7 @@
     </Bank>
   </SoundSet>
   <SoundSet name="Legacy">
-    <Bank name="Piano" bankNumber="01">
+    <Bank name="Piano" bankId="01">
       <SoundEntry name="M1 Piano" bankSelectMSB="121" bankSelectLSB="2" programChange="2"/>
       <SoundEntry name="Piano Pad 1" bankSelectMSB="121" bankSelectLSB="2" programChange="1"/>
       <SoundEntry name="Piano Pad 2" bankSelectMSB="121" bankSelectLSB="3" programChange="1"/>
@@ -637,7 +637,7 @@
       <SoundEntry name="Sticky Clav" bankSelectMSB="121" bankSelectLSB="4" programChange="7"/>
       <SoundEntry name="Honky-Tonk" bankSelectMSB="121" bankSelectLSB="4" programChange="3"/>
     </Bank>
-    <Bank name="E. Piano" bankNumber="02">
+    <Bank name="E. Piano" bankId="02">
       <SoundEntry name="Vintage EP" bankSelectMSB="121" bankSelectLSB="4" programChange="4"/>
       <SoundEntry name="Stereo Dig. EP" bankSelectMSB="121" bankSelectLSB="6" programChange="5"/>
       <SoundEntry name="FM Stack EP" bankSelectMSB="121" bankSelectLSB="16" programChange="5"/>
@@ -650,13 +650,13 @@
       <SoundEntry name="Classic Dig. EP" bankSelectMSB="121" bankSelectLSB="7" programChange="5"/>
       <SoundEntry name="Syn Piano X" bankSelectMSB="121" bankSelectLSB="5" programChange="5"/>
     </Bank>
-    <Bank name="Mallet &amp; Bell" bankNumber="03">
+    <Bank name="Mallet &amp; Bell" bankId="03">
       <SoundEntry name="Vibraphone 2" bankSelectMSB="121" bankSelectLSB="3" programChange="11"/>
       <SoundEntry name="Monkey Skuls" bankSelectMSB="121" bankSelectLSB="3" programChange="12"/>
       <SoundEntry name="Digi Bell" bankSelectMSB="121" bankSelectLSB="4" programChange="98"/>
       <SoundEntry name="Krystal Bell" bankSelectMSB="121" bankSelectLSB="3" programChange="98"/>
     </Bank>
-    <Bank name="Accor-dion" bankNumber="04">
+    <Bank name="Accor-dion" bankId="04">
       <SoundEntry name="Sweet Harmonica" bankSelectMSB="121" bankSelectLSB="1" programChange="22"/>
       <SoundEntry name="Akordeon" bankSelectMSB="121" bankSelectLSB="2" programChange="21"/>
       <SoundEntry name="Cassotto NorTune" bankSelectMSB="121" bankSelectLSB="14" programChange="21"/>
@@ -666,7 +666,7 @@
       <SoundEntry name="Musette Clar." bankSelectMSB="121" bankSelectLSB="5" programChange="21"/>
       <SoundEntry name="Arabic Accordion" bankSelectMSB="121" bankSelectLSB="10" programChange="21"/>
     </Bank>
-    <Bank name="Organ" bankNumber="05">
+    <Bank name="Organ" bankId="05">
       <SoundEntry name="Classic Click" bankSelectMSB="121" bankSelectLSB="4" programChange="18"/>
       <SoundEntry name="Perc.Short Decay" bankSelectMSB="121" bankSelectLSB="8" programChange="18"/>
       <SoundEntry name="Rock Organ 2" bankSelectMSB="121" bankSelectLSB="11" programChange="18"/>
@@ -693,7 +693,7 @@
       <SoundEntry name="Tibia Vox Glock" bankSelectMSB="121" bankSelectLSB="32" programChange="16"/>
       <SoundEntry name="Techno Org.Bass" bankSelectMSB="121" bankSelectLSB="6" programChange="17"/>
     </Bank>
-    <Bank name="Guitar" bankNumber="06">
+    <Bank name="Guitar" bankId="06">
       <SoundEntry name="Nylon Bossa" bankSelectMSB="121" bankSelectLSB="4" programChange="24"/>
       <SoundEntry name="Nylon Vel. Harm." bankSelectMSB="121" bankSelectLSB="10" programChange="24"/>
       <SoundEntry name="Spanish Guitar" bankSelectMSB="121" bankSelectLSB="6" programChange="24"/>
@@ -724,7 +724,7 @@
       <SoundEntry name="Dist. Steel Gtr" bankSelectMSB="121" bankSelectLSB="12" programChange="30"/>
       <SoundEntry name="Joystick Gtr Y-" bankSelectMSB="121" bankSelectLSB="3" programChange="30"/>
     </Bank>
-    <Bank name="Strings &amp; Vocal" bankNumber="07">
+    <Bank name="Strings &amp; Vocal" bankId="07">
       <SoundEntry name="Strings Ens. 1" bankSelectMSB="121" bankSelectLSB="21" programChange="48"/>
       <SoundEntry name="Strings Ens. 2" bankSelectMSB="121" bankSelectLSB="3" programChange="49"/>
       <SoundEntry name="i3 Strings" bankSelectMSB="121" bankSelectLSB="5" programChange="48"/>
@@ -750,7 +750,7 @@
       <SoundEntry name="Classic Vox" bankSelectMSB="121" bankSelectLSB="4" programChange="54"/>
       <SoundEntry name="Doolally" bankSelectMSB="121" bankSelectLSB="2" programChange="53"/>
     </Bank>
-    <Bank name="Trumpet &amp; Trbn." bankNumber="08">
+    <Bank name="Trumpet &amp; Trbn." bankId="08">
       <SoundEntry name="Mono Trumpet" bankSelectMSB="121" bankSelectLSB="3" programChange="56"/>
       <SoundEntry name="Warm Flugel" bankSelectMSB="121" bankSelectLSB="8" programChange="56"/>
       <SoundEntry name="Pitch Trombone" bankSelectMSB="121" bankSelectLSB="5" programChange="57"/>
@@ -762,7 +762,7 @@
       <SoundEntry name="Ob.Tuba&amp;E.Bass 1" bankSelectMSB="121" bankSelectLSB="4" programChange="58"/>
       <SoundEntry name="Ob.Tuba&amp;E.Bass 2" bankSelectMSB="121" bankSelectLSB="5" programChange="58"/>
     </Bank>
-    <Bank name="Brass" bankNumber="09">
+    <Bank name="Brass" bankId="09">
       <SoundEntry name="Attack Brass" bankSelectMSB="121" bankSelectLSB="8" programChange="61"/>
       <SoundEntry name="Big BandShake Y+" bankSelectMSB="121" bankSelectLSB="33" programChange="61"/>
       <SoundEntry name="Trumpet Ens1 Y+" bankSelectMSB="121" bankSelectLSB="35" programChange="61"/>
@@ -777,7 +777,7 @@
       <SoundEntry name="Brass Pad" bankSelectMSB="121" bankSelectLSB="3" programChange="63"/>
       <SoundEntry name="Netherland Hit" bankSelectMSB="121" bankSelectLSB="8" programChange="55"/>
     </Bank>
-    <Bank name="Sax" bankNumber="10">
+    <Bank name="Sax" bankId="10">
       <SoundEntry name="Folk Sax" bankSelectMSB="121" bankSelectLSB="5" programChange="66"/>
       <SoundEntry name="Breathy Baritone" bankSelectMSB="121" bankSelectLSB="2" programChange="67"/>
       <SoundEntry name="Alto Breath" bankSelectMSB="121" bankSelectLSB="1" programChange="65"/>
@@ -787,7 +787,7 @@
       <SoundEntry name="Soft Tenor" bankSelectMSB="121" bankSelectLSB="2" programChange="66"/>
       <SoundEntry name="Tenor Growl" bankSelectMSB="121" bankSelectLSB="4" programChange="66"/>
     </Bank>
-    <Bank name="Wood-wind" bankNumber="11">
+    <Bank name="Wood-wind" bankId="11">
       <SoundEntry name="Folk Clarinet" bankSelectMSB="121" bankSelectLSB="7" programChange="71"/>
       <SoundEntry name="Flute" bankSelectMSB="121" bankSelectLSB="9" programChange="73"/>
       <SoundEntry name="Wooden Flute" bankSelectMSB="121" bankSelectLSB="7" programChange="73"/>
@@ -796,7 +796,7 @@
       <SoundEntry name="Recorder 1" bankSelectMSB="121" bankSelectLSB="1" programChange="74"/>
       <SoundEntry name="Recorder 2" bankSelectMSB="121" bankSelectLSB="2" programChange="74"/>
     </Bank>
-    <Bank name="Synth Pad" bankNumber="12">
+    <Bank name="Synth Pad" bankId="12">
       <SoundEntry name="Sky Watcher" bankSelectMSB="121" bankSelectLSB="2" programChange="90"/>
       <SoundEntry name="Vintage Pad" bankSelectMSB="121" bankSelectLSB="11" programChange="89"/>
       <SoundEntry name="You Decide" bankSelectMSB="121" bankSelectLSB="8" programChange="95"/>
@@ -815,7 +815,7 @@
       <SoundEntry name="Dance ReMix" bankSelectMSB="121" bankSelectLSB="10" programChange="91"/>
       <SoundEntry name="Elastick Pad" bankSelectMSB="121" bankSelectLSB="7" programChange="97"/>
     </Bank>
-    <Bank name="Synth Lead" bankNumber="13">
+    <Bank name="Synth Lead" bankId="13">
       <SoundEntry name="Motion Raver" bankSelectMSB="121" bankSelectLSB="1" programChange="101"/>
       <SoundEntry name="Synchro City" bankSelectMSB="121" bankSelectLSB="2" programChange="84"/>
       <SoundEntry name="Wild Arp" bankSelectMSB="121" bankSelectLSB="6" programChange="55"/>
@@ -837,7 +837,7 @@
       <SoundEntry name="Arp Twins" bankSelectMSB="121" bankSelectLSB="6" programChange="84"/>
       <SoundEntry name="LoFi Ethnic" bankSelectMSB="121" bankSelectLSB="7" programChange="84"/>
     </Bank>
-    <Bank name="Ethnic" bankNumber="14">
+    <Bank name="Ethnic" bankId="14">
       <SoundEntry name="Shakuhachi" bankSelectMSB="121" bankSelectLSB="2" programChange="77"/>
       <SoundEntry name="Mandolin Key Off" bankSelectMSB="121" bankSelectLSB="10" programChange="25"/>
       <SoundEntry name="War Pipes" bankSelectMSB="121" bankSelectLSB="1" programChange="109"/>
@@ -848,7 +848,7 @@
       <SoundEntry name="Bali Gamelan" bankSelectMSB="121" bankSelectLSB="2" programChange="112"/>
       <SoundEntry name="Ukulele Gtr" bankSelectMSB="121" bankSelectLSB="26" programChange="24"/>
     </Bank>
-    <Bank name="Bass" bankNumber="15">
+    <Bank name="Bass" bankId="15">
       <SoundEntry name="Ac. Bass Buzz" bankSelectMSB="121" bankSelectLSB="1" programChange="32"/>
       <SoundEntry name="Slap Bass 1" bankSelectMSB="121" bankSelectLSB="6" programChange="36"/>
       <SoundEntry name="Slap Bass 2" bankSelectMSB="121" bankSelectLSB="6" programChange="37"/>
@@ -880,7 +880,7 @@
       <SoundEntry name="Blind As A Bat" bankSelectMSB="121" bankSelectLSB="12" programChange="38"/>
       <SoundEntry name="Poinker Bass" bankSelectMSB="121" bankSelectLSB="8" programChange="39"/>
     </Bank>
-    <Bank name="Drum &amp; SFX" bankNumber="16">
+    <Bank name="Drum &amp; SFX" bankId="16">
       <SoundEntry name="Standard Kit" bankSelectMSB="120" bankSelectLSB="0" programChange="7"/>
       <SoundEntry name="Bdrum&amp;Sdrum Kit" bankSelectMSB="120" bankSelectLSB="0" programChange="50"/>
       <SoundEntry name="Room Kit 2" bankSelectMSB="120" bankSelectLSB="0" programChange="12"/>
@@ -908,7 +908,7 @@
     </Bank>
   </SoundSet>
   <SoundSet name="GM">
-    <Bank name="Piano" bankNumber="01">
+    <Bank name="Piano" bankId="01">
       <SoundEntry name="AcousticPiano GM" bankSelectMSB="121" bankSelectLSB="0" programChange="0"/>
       <SoundEntry name="Ac. Piano Wide" bankSelectMSB="121" bankSelectLSB="1" programChange="0"/>
       <SoundEntry name="Ac. Piano Dark" bankSelectMSB="121" bankSelectLSB="2" programChange="0"/>
@@ -934,7 +934,7 @@
       <SoundEntry name="Clav GM" bankSelectMSB="121" bankSelectLSB="0" programChange="7"/>
       <SoundEntry name="Pulse Clav" bankSelectMSB="121" bankSelectLSB="1" programChange="7"/>
     </Bank>
-    <Bank name="Chrom. Perc." bankNumber="02">
+    <Bank name="Chrom. Perc." bankId="02">
       <SoundEntry name="Celesta GM" bankSelectMSB="121" bankSelectLSB="0" programChange="8"/>
       <SoundEntry name="Glockenspiel GM" bankSelectMSB="121" bankSelectLSB="0" programChange="9"/>
       <SoundEntry name="Music Box GM" bankSelectMSB="121" bankSelectLSB="0" programChange="10"/>
@@ -948,7 +948,7 @@
       <SoundEntry name="Carillon" bankSelectMSB="121" bankSelectLSB="2" programChange="14"/>
       <SoundEntry name="Dulcimer GM" bankSelectMSB="121" bankSelectLSB="0" programChange="15"/>
     </Bank>
-    <Bank name="Organ" bankNumber="03">
+    <Bank name="Organ" bankId="03">
       <SoundEntry name="Drawbar Org GM" bankSelectMSB="121" bankSelectLSB="0" programChange="16"/>
       <SoundEntry name="Det. Drawbar Org" bankSelectMSB="121" bankSelectLSB="1" programChange="16"/>
       <SoundEntry name="It. 60's Organ" bankSelectMSB="121" bankSelectLSB="2" programChange="16"/>
@@ -967,7 +967,7 @@
       <SoundEntry name="Harmonica GM" bankSelectMSB="121" bankSelectLSB="0" programChange="22"/>
       <SoundEntry name="Tango Accord.GM" bankSelectMSB="121" bankSelectLSB="0" programChange="23"/>
     </Bank>
-    <Bank name="Guitar" bankNumber="04">
+    <Bank name="Guitar" bankId="04">
       <SoundEntry name="Nylon Guitar GM" bankSelectMSB="121" bankSelectLSB="0" programChange="24"/>
       <SoundEntry name="Ukulele" bankSelectMSB="121" bankSelectLSB="1" programChange="24"/>
       <SoundEntry name="Nylon Key Off" bankSelectMSB="121" bankSelectLSB="2" programChange="24"/>
@@ -993,7 +993,7 @@
       <SoundEntry name="Gtr Harmonic GM" bankSelectMSB="121" bankSelectLSB="0" programChange="31"/>
       <SoundEntry name="Guitar Feedback" bankSelectMSB="121" bankSelectLSB="1" programChange="31"/>
     </Bank>
-    <Bank name="Bass" bankNumber="05">
+    <Bank name="Bass" bankId="05">
       <SoundEntry name="Acoustic Bass GM" bankSelectMSB="121" bankSelectLSB="0" programChange="32"/>
       <SoundEntry name="Finger Bass GM" bankSelectMSB="121" bankSelectLSB="0" programChange="33"/>
       <SoundEntry name="Finger Slap Bass" bankSelectMSB="121" bankSelectLSB="1" programChange="33"/>
@@ -1011,7 +1011,7 @@
       <SoundEntry name="SynthBass Rubber" bankSelectMSB="121" bankSelectLSB="2" programChange="39"/>
       <SoundEntry name="Attack Pulse" bankSelectMSB="121" bankSelectLSB="3" programChange="39"/>
     </Bank>
-    <Bank name="Strings" bankNumber="06">
+    <Bank name="Strings" bankId="06">
       <SoundEntry name="Violin GM" bankSelectMSB="121" bankSelectLSB="0" programChange="40"/>
       <SoundEntry name="Slow Att. Violin" bankSelectMSB="121" bankSelectLSB="1" programChange="40"/>
       <SoundEntry name="Viola GM" bankSelectMSB="121" bankSelectLSB="0" programChange="41"/>
@@ -1023,7 +1023,7 @@
       <SoundEntry name="Yang Chin" bankSelectMSB="121" bankSelectLSB="1" programChange="46"/>
       <SoundEntry name="Timpani GM" bankSelectMSB="121" bankSelectLSB="0" programChange="47"/>
     </Bank>
-    <Bank name="Ensemble" bankNumber="07">
+    <Bank name="Ensemble" bankId="07">
       <SoundEntry name="Strings Ens.1 GM" bankSelectMSB="121" bankSelectLSB="0" programChange="48"/>
       <SoundEntry name="Strings &amp; Brass" bankSelectMSB="121" bankSelectLSB="1" programChange="48"/>
       <SoundEntry name="60's Strings" bankSelectMSB="121" bankSelectLSB="2" programChange="48"/>
@@ -1042,7 +1042,7 @@
       <SoundEntry name="6th Hit" bankSelectMSB="121" bankSelectLSB="2" programChange="55"/>
       <SoundEntry name="Euro Hit" bankSelectMSB="121" bankSelectLSB="3" programChange="55"/>
     </Bank>
-    <Bank name="Brass" bankNumber="08">
+    <Bank name="Brass" bankId="08">
       <SoundEntry name="Trumpet GM" bankSelectMSB="121" bankSelectLSB="0" programChange="56"/>
       <SoundEntry name="Dark Trumpet" bankSelectMSB="121" bankSelectLSB="1" programChange="56"/>
       <SoundEntry name="Trombone GM" bankSelectMSB="121" bankSelectLSB="0" programChange="57"/>
@@ -1063,7 +1063,7 @@
       <SoundEntry name="Synth Brass 4" bankSelectMSB="121" bankSelectLSB="1" programChange="63"/>
       <SoundEntry name="Analog Brass 2" bankSelectMSB="121" bankSelectLSB="2" programChange="63"/>
     </Bank>
-    <Bank name="Reed" bankNumber="09">
+    <Bank name="Reed" bankId="09">
       <SoundEntry name="Soprano Sax GM" bankSelectMSB="121" bankSelectLSB="0" programChange="64"/>
       <SoundEntry name="Alto Sax GM" bankSelectMSB="121" bankSelectLSB="0" programChange="65"/>
       <SoundEntry name="Tenor Sax GM" bankSelectMSB="121" bankSelectLSB="0" programChange="66"/>
@@ -1073,7 +1073,7 @@
       <SoundEntry name="Bassoon GM" bankSelectMSB="121" bankSelectLSB="0" programChange="70"/>
       <SoundEntry name="Clarinet GM" bankSelectMSB="121" bankSelectLSB="0" programChange="71"/>
     </Bank>
-    <Bank name="Pipe" bankNumber="10">
+    <Bank name="Pipe" bankId="10">
       <SoundEntry name="Piccolo GM" bankSelectMSB="121" bankSelectLSB="0" programChange="72"/>
       <SoundEntry name="Flute GM" bankSelectMSB="121" bankSelectLSB="0" programChange="73"/>
       <SoundEntry name="Recorder GM" bankSelectMSB="121" bankSelectLSB="0" programChange="74"/>
@@ -1083,7 +1083,7 @@
       <SoundEntry name="Whistle GM" bankSelectMSB="121" bankSelectLSB="0" programChange="78"/>
       <SoundEntry name="Ocarina GM" bankSelectMSB="121" bankSelectLSB="0" programChange="79"/>
     </Bank>
-    <Bank name="Syn Lead Syn Pad" bankNumber="11">
+    <Bank name="Syn Lead Syn Pad" bankId="11">
       <SoundEntry name="Lead Square GM" bankSelectMSB="121" bankSelectLSB="0" programChange="80"/>
       <SoundEntry name="Lead Square 2" bankSelectMSB="121" bankSelectLSB="1" programChange="80"/>
       <SoundEntry name="Lead Sine" bankSelectMSB="121" bankSelectLSB="2" programChange="80"/>
@@ -1111,7 +1111,7 @@
       <SoundEntry name="Halo Pad GM" bankSelectMSB="121" bankSelectLSB="0" programChange="94"/>
       <SoundEntry name="Sweep Pad GM" bankSelectMSB="121" bankSelectLSB="0" programChange="95"/>
     </Bank>
-    <Bank name="Synth SFX" bankNumber="12">
+    <Bank name="Synth SFX" bankId="12">
       <SoundEntry name="Ice Rain GM" bankSelectMSB="121" bankSelectLSB="0" programChange="96"/>
       <SoundEntry name="Soundtrack GM" bankSelectMSB="121" bankSelectLSB="0" programChange="97"/>
       <SoundEntry name="Crystal GM" bankSelectMSB="121" bankSelectLSB="0" programChange="98"/>
@@ -1124,7 +1124,7 @@
       <SoundEntry name="Echo Pan" bankSelectMSB="121" bankSelectLSB="2" programChange="102"/>
       <SoundEntry name="Star Theme GM" bankSelectMSB="121" bankSelectLSB="0" programChange="103"/>
     </Bank>
-    <Bank name="Ethnic" bankNumber="13">
+    <Bank name="Ethnic" bankId="13">
       <SoundEntry name="Sitar GM" bankSelectMSB="121" bankSelectLSB="0" programChange="104"/>
       <SoundEntry name="Sitar 2" bankSelectMSB="121" bankSelectLSB="1" programChange="104"/>
       <SoundEntry name="Banjo GM" bankSelectMSB="121" bankSelectLSB="0" programChange="105"/>
@@ -1136,7 +1136,7 @@
       <SoundEntry name="Fiddle GM" bankSelectMSB="121" bankSelectLSB="0" programChange="110"/>
       <SoundEntry name="Shanai GM" bankSelectMSB="121" bankSelectLSB="0" programChange="111"/>
     </Bank>
-    <Bank name="Percus-sive" bankNumber="14">
+    <Bank name="Percus-sive" bankId="14">
       <SoundEntry name="Tinkle Bell GM" bankSelectMSB="121" bankSelectLSB="0" programChange="112"/>
       <SoundEntry name="Agogo GM" bankSelectMSB="121" bankSelectLSB="0" programChange="113"/>
       <SoundEntry name="Steel Drums GM" bankSelectMSB="121" bankSelectLSB="0" programChange="114"/>
@@ -1151,7 +1151,7 @@
       <SoundEntry name="Electric Drum" bankSelectMSB="121" bankSelectLSB="2" programChange="118"/>
       <SoundEntry name="ReverseCymbalGM" bankSelectMSB="121" bankSelectLSB="0" programChange="119"/>
     </Bank>
-    <Bank name="SFX" bankNumber="15">
+    <Bank name="SFX" bankId="15">
       <SoundEntry name="Gtr FretNoise GM" bankSelectMSB="121" bankSelectLSB="0" programChange="120"/>
       <SoundEntry name="Guitar Cut Noise" bankSelectMSB="121" bankSelectLSB="1" programChange="120"/>
       <SoundEntry name="Ac. Bass String" bankSelectMSB="121" bankSelectLSB="2" programChange="120"/>
@@ -1194,7 +1194,7 @@
       <SoundEntry name="Laser Gun" bankSelectMSB="121" bankSelectLSB="2" programChange="127"/>
       <SoundEntry name="Explosion" bankSelectMSB="121" bankSelectLSB="3" programChange="127"/>
     </Bank>
-    <Bank name="Drum" bankNumber="16">
+    <Bank name="Drum" bankId="16">
       <SoundEntry name="Standard Kit GM" bankSelectMSB="120" bankSelectLSB="0" programChange="0"/>
       <SoundEntry name="Room Kit GM" bankSelectMSB="120" bankSelectLSB="0" programChange="8"/>
       <SoundEntry name="Power Kit GM" bankSelectMSB="120" bankSelectLSB="0" programChange="16"/>

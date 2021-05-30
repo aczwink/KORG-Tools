@@ -21,6 +21,7 @@
 //Namespaces
 using namespace libKORG;
 using namespace libKORG::Style;
+using namespace StdXX;
 
 //Public methods
 void StyleFormat0_0V5_0Writer::Write(const StyleData &styleData)

@@ -19,6 +19,7 @@
 #include <StdXXTest.hpp>
 #include <libkorg.hpp>
 #include "../EventComparison.hpp"
+#include "../../Shared.hpp"
 //Namespaces
 using namespace StdXX;
 
@@ -51,7 +52,7 @@ TEST_SUITE(Fill1AndFill4HaveSameBassTrackAndFill3HasDifferentBassTrack)
 	{
 		FileSystem::Path setPath(u8"testdata/styles/pa600/fill1_and_fill4_havesamebasstrack_and_fill3_hasdifferentbasstrack.SET");
 		Set set(setPath);
-		const auto& fullStyle = set.StyleBanks().begin().operator*().value.Objects().begin().operator*().object.operator*();
+		const auto& fullStyle = ExtractFirstStyle(set);
 		const auto& styleData = fullStyle.Style().data;
 		StyleView styleView(styleData);
 

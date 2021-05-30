@@ -19,10 +19,10 @@
 #include <StdXX.hpp>
 //Local
 #include <libkorg/BankFormat/Style.hpp>
-#include "../../Writer/ChunkWriter.hpp"
+#include "libkorg/ChunkFormat/ChunkWriter.hpp"
 #include "../StyleFormatWriter.hpp"
 
-class StyleFormat0_0V5_0Writer : public ChunkWriter, public StyleFormatWriter
+class StyleFormat0_0V5_0Writer : public libKORG::ChunkWriter, public StyleFormatWriter
 {
 public:
 	//Constructor

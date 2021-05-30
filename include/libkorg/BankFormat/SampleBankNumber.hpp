@@ -30,7 +30,7 @@ namespace libKORG
 		}
 
 		//Inline
-		inline uint8 PresentatioNumber() const
+		inline uint8 PresentationNumber() const
 		{
 			return this->Number() + 1;
 		}
@@ -42,7 +42,21 @@ namespace libKORG
 
 		inline StdXX::String ToString() const
 		{
-			return u8"RAM" + StdXX::String::Number(this->PresentatioNumber(), 10, 2);
+			return u8"RAM" + StdXX::String::Number(this->PresentationNumber(), 10, 2);
+		}
+
+		//Functions
+		static SampleBankNumber FromBankName(const StdXX::String& bankName)
+		{
+			ASSERT(bankName.StartsWith(u8"RAM"), u8"???");
+			uint8 bankNumber = bankName.SubString(3).ToUInt32() - 1;
+			return bankNumber;
+		}
+
+		static SampleBankNumber FromBankFileName(const StdXX::String& bankFileName)
+		{
+			ASSERT(bankFileName.EndsWith(u8".PCM"), u8"???");
+			return SampleBankNumber::FromBankName(bankFileName.SubString(0, bankFileName.GetLength() - 4));
 		}
 	};
 }

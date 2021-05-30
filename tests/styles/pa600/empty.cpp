@@ -29,11 +29,14 @@ TEST_SUITE(EmptyStyleTests)
 	{
 		FileSystem::Path setPath(u8"testdata/styles/pa600/empty.SET");
 		Set set(setPath);
-		const auto& fullStyle = set.StyleBanks().begin().operator*().value.Objects().begin().operator*().object.operator*();
+		const auto& fullStyle = set.styleBanks.Entries().begin().operator*().bank.Objects().begin().operator*().object.operator*();
+		const auto& stsData = fullStyle.STS().V1Data();
 		const auto& styleData = fullStyle.Style().data;
 
 		StyleView styleView(styleData);
 		OnlyVar1ShouldBeEnabled(styleView);
+
+		ASSERT_EQUALS(120, stsData._0x04000108_data.metronomeTempo);
 
 		for(const auto& track : styleData.midiTracks)
 			ShouldHaveNoEvents(track.events);

@@ -30,6 +30,11 @@ namespace libKORG
 		}
 
 		//Properties
+		inline uint8 Id() const
+		{
+			return this->number + 1;
+		}
+
 		inline uint8 Number() const
 		{
 			return this->number;

@@ -19,10 +19,10 @@
 //Local
 #include <libkorg/BankFormat/BankObject.hpp>
 #include "Format1.0/PerformanceFormat1_0VReader.hpp"
-#include "PerformanceFormatReader.hpp"
 #include "Format2.1/PerformanceFormat2_1VReader.hpp"
 #include "Format2.0/PerformanceFormat2_0VReader.hpp"
 #include "Format0.3/PerformanceFormatV0_3Reader.hpp"
+#include "Format0.2/PerformanceFormatV0_2Reader.hpp"
 
 class PerformanceReaderZeroChunkReader : public BankFormat::BankObjectReader
 {
@@ -30,9 +30,7 @@ public:
 	//Methods
 	BankFormat::BankObject *TakeResult() override
 	{
-		if(this->stylePerformances)
-			return this->formatReader->TakeSTSResult();
-		return this->formatReader->TakePerformanceResult();
+		return this->formatReader->TakeResult();
 	}
 
 	//Functions
@@ -40,11 +38,13 @@ public:
 	{
 		switch (chunkVersion.AsUInt16())
 		{
+			case 0x0002:
+				return new PerformanceFormatV0_2Reader(stylePerformances);
 			case 0x0003:
 				return new PerformanceFormatV0_3Reader(stylePerformances);
 		}
 
-		UniquePointer<PerformanceFormatReader> formatReader = CreateFormatReader(chunkVersion);
+		UniquePointer<BankFormat::BankObjectReader> formatReader = CreateFormatReader(chunkVersion);
 		if(formatReader.IsNull())
 			return nullptr;
 		return new PerformanceReaderZeroChunkReader(stylePerformances, Move(formatReader));
@@ -66,15 +66,15 @@ protected:
 private:
 	//Members
 	bool stylePerformances;
-	UniquePointer<PerformanceFormatReader> formatReader;
+	UniquePointer<BankFormat::BankObjectReader> formatReader;
 
 	//Constructor
-	inline PerformanceReaderZeroChunkReader(bool stylePerformances, UniquePointer<PerformanceFormatReader>&& formatReader) : stylePerformances(stylePerformances), formatReader(Move(formatReader))
+	inline PerformanceReaderZeroChunkReader(bool stylePerformances, UniquePointer<BankFormat::BankObjectReader>&& formatReader) : stylePerformances(stylePerformances), formatReader(Move(formatReader))
 	{
 	}
 
 	//Functions
-	static UniquePointer<PerformanceFormatReader> CreateFormatReader(const ChunkVersion& chunkVersion)
+	static UniquePointer<BankFormat::BankObjectReader> CreateFormatReader(const ChunkVersion& chunkVersion)
 	{
 		switch(chunkVersion.AsUInt16())
 		{

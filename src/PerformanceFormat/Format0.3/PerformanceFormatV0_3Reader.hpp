@@ -17,31 +17,18 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 //Local
-#include "../PerformanceFormatReader.hpp"
+#include "../Format0.2/PerformanceFormatV0_2Reader.hpp"
 
-class PerformanceFormatV0_3Reader : public PerformanceFormatReader, public libKORG::BankFormat::BankObjectReader
+class PerformanceFormatV0_3Reader : public PerformanceFormatV0_2Reader
 {
 public:
 	//Constructor
-	inline PerformanceFormatV0_3Reader(bool stylePerformances) : stylePerformances(stylePerformances)
+	inline PerformanceFormatV0_3Reader(bool stylePerformances) : PerformanceFormatV0_2Reader(stylePerformances)
 	{
 	}
-
-	//Methods
-	libKORG::BankFormat::BankObject *TakeResult() override;
-
 protected:
 	//Methods
 	ChunkReader *OnEnteringChunk(const libKORG::ChunkHeader &chunkHeader) override;
 	void ReadDataChunk(const libKORG::ChunkHeader& chunkHeader, StdXX::DataReader &dataReader) override;
-
-private:
-	//Members
-	bool stylePerformances;
-
-	//Methods
-	void Read0x00010008Chunk(StdXX::DataReader &dataReader);
-	void Read0x02000108Chunk(StdXX::DataReader &dataReader);
-	void ReadEffectGroup(StdXX::DataReader &dataReader);
-	void ReadTrackParams(StdXX::DataReader &dataReader);
+	void ReadFX(libKORG::Performance::V0::FX &fx, StdXX::DataReader &dataReader) override;
 };

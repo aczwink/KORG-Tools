@@ -8,7 +8,6 @@ add_subdirectory(PerformanceFormat)
 add_subdirectory(Reading)
 add_subdirectory(SoundFormat)
 add_subdirectory(StyleFormat)
-add_subdirectory(Writer)
 
 set(SOURCE_FILES
 	${SOURCE_FILES}

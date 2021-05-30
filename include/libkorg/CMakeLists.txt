@@ -13,7 +13,6 @@ set(SOURCE_FILES
 
 	${CMAKE_CURRENT_SOURCE_DIR}/FullStyle.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Model.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/UnknownChunk.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Package.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Pitch.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ProgramChangeSequence.hpp

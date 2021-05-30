@@ -29,14 +29,18 @@ namespace libKORG
 		MultiSamplesIndex(const MultiSamples::MultiSamplesData& data);
 
 		//Inline
-		inline const MultiSamples::MultiSampleEntry& GetMultiSampleEntryById(uint64 id)
+		inline const MultiSamples::MultiSampleEntry* GetMultiSampleEntryById(uint64 id) const
 		{
-			return this->data.multiSampleEntries[this->multiSampleIdMap.Get(id)];
+			if(this->multiSampleIdMap.Contains(id))
+				return &this->data.multiSampleEntries[this->multiSampleIdMap.Get(id)];
+			return nullptr;
 		}
 
-		inline const MultiSamples::SampleEntry& GetSampleEntryById(uint64 id)
+		inline const MultiSamples::SampleEntry* GetSampleEntryById(uint64 id) const
 		{
-			return this->data.sampleEntries[this->sampleIdMap.Get(id)];
+			if(this->sampleIdMap.Contains(id))
+				return &this->data.sampleEntries[this->sampleIdMap.Get(id)];
+			return nullptr;
 		}
 
 	private:

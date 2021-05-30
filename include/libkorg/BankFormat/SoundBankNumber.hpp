@@ -17,40 +17,39 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <StdXX.hpp>
+#include "BankNumber.hpp"
 
 namespace libKORG
 {
-	class SoundBankNumber
+	class SoundBankNumber : public BankNumber
 	{
 	public:
 		//Constructor
-		inline SoundBankNumber(uint8 number) : number(number)
+		inline SoundBankNumber(uint8 number) : BankNumber(number)
 		{
+			ASSERT(StdXX::Math::IsValueInInterval((int)number, 9, 13), StdXX::String::Number(number));
 		}
 
 		//Properties
 		inline bool IsDrumKit() const
 		{
-			return this->number == 11;
+			return this->Number() == 11;
 		}
 
 		inline uint8 UserNumber() const
 		{
 			if(this->IsDrumKit())
 				return 0;
-			return this->number - 9;
-		}
-
-		//Operators
-		inline bool operator<(const SoundBankNumber& rhs) const
-		{
-			return this->number < rhs.number;
-		}
-
-		inline bool operator>(const SoundBankNumber& rhs) const
-		{
-			return this->number > rhs.number;
+			switch(this->Number())
+			{
+				case 9:
+				case 10:
+					return this->Number() - 9;
+				case 12:
+				case 13:
+					return this->Number() - 12 + 2;
+			}
+			RAISE(StdXX::ErrorHandling::IllegalCodePathError);
 		}
 
 		//Inline
@@ -76,7 +75,13 @@ namespace libKORG
 			if(bankPart == u8"DK")
 				bankNumber = 11;
 			else
-				bankNumber = 9 + bankPart.ToUInt32() - 1;
+			{
+				uint32 bankPartAsNumber = bankPart.ToUInt32();
+				if(bankPartAsNumber <= 2)
+					bankNumber = 9 + bankPartAsNumber - 1;
+				else
+					bankNumber = 12 + bankPartAsNumber - 3;
+			}
 
 			return {bankNumber};
 		}
@@ -86,9 +91,5 @@ namespace libKORG
 			ASSERT(bankFileName.EndsWith(u8".PCG"), u8"???");
 			return SoundBankNumber::FromBankName(bankFileName.SubString(0, bankFileName.GetLength() - 4));
 		}
-
-	private:
-		//Members
-		uint8 number;
 	};
 }

@@ -3,5 +3,6 @@ set(SOURCE_FILES
 
 	${CMAKE_CURRENT_SOURCE_DIR}/ChunkFormat.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ChunkReader.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/ChunkWriter.hpp
 
 	PARENT_SCOPE)

@@ -18,6 +18,7 @@
  */
 #include <StdXXTest.hpp>
 #include <libkorg.hpp>
+#include "../../Shared.hpp"
 //Namespaces
 using namespace libKORG;
 using namespace libKORG::Sound;
@@ -29,8 +30,8 @@ TEST_SUITE(NewSoundTests)
 	{
 		FileSystem::Path setPath(u8"testdata/sounds/pa600/new.SET");
 		Set set(setPath);
-		const auto soundEntry = set.soundBanks.Entries().begin().operator*().bank.Objects().begin().operator*();
-		const auto& soundData = soundEntry.object->data;
+		const auto soundEntry = ExtractFirstSound(set);
+		const auto& soundData = soundEntry.data;
 
 		ASSERT_EQUALS(false, soundData.voiceAssignModeFlags.IsSet(VoiceAssignModeFlags::IsDrumKit));
 		ASSERT_EQUALS(false, soundData.voiceAssignModeFlags.IsSet(VoiceAssignModeFlags::SingleTrigger));
@@ -40,8 +41,8 @@ TEST_SUITE(NewSoundTests)
 		ASSERT_EQUALS(false, soundData.voiceAssignModeFlags.IsSet(VoiceAssignModeFlags::LastPriority));
 		ASSERT_EQUALS(false, soundData.voiceAssignModeFlags.IsSet(VoiceAssignModeFlags::Hold));
 
-		ASSERT_EQUALS(Pitch(OctavePitch::G, 9), soundData.transposeRangeTopKey);
-		ASSERT_EQUALS(Pitch(OctavePitch::C, -1), soundData.transposeRangeBottomKey);
+		ASSERT_EQUALS(Pitch(OctavePitch::G, 9), soundData.transposeRange.topKey);
+		ASSERT_EQUALS(Pitch(OctavePitch::C, -1), soundData.transposeRange.bottomKey);
 
 		ASSERT_EQUALS(0, soundData.lowPriority);
 
@@ -61,11 +62,11 @@ TEST_SUITE(NewSoundTests)
 		ASSERT_EQUALS(1, soundData.oscillators[0].velocityMultiSampleSwitchLowHigh);
 		ASSERT_EQUALS(1, soundData.oscillators[0].velocityZoneBottom);
 		ASSERT_EQUALS(127, soundData.oscillators[0].velocityZoneTop);
-		ASSERT_EQUALS(Pitch(OctavePitch::C, -1), soundData.oscillators[0].keyboardRangeBottomKey);
-		ASSERT_EQUALS(Pitch(OctavePitch::G, 9), soundData.oscillators[0].keyboardRangeTopKey);
+		ASSERT_EQUALS(Pitch(OctavePitch::C, -1), soundData.oscillators[0].keyboardRange.bottomKey);
+		ASSERT_EQUALS(Pitch(OctavePitch::G, 9), soundData.oscillators[0].keyboardRange.topKey);
 
 		ASSERT_EQUALS(OSCTriggerMode::Normal, soundData.oscillators[0].oscTriggerMode);
-		ASSERT_EQUALS(false, soundData.oscillators[0].oscOffWhenSoundControllersAreOn);
+		ASSERT_EQUALS(false, soundData.oscillators[0].scException.IsSet(libKORG::Sound::OSCTriggerSoundControllerException::OffWhenSoundControllersAreOn));
 
 		ASSERT_EQUALS(1, soundData.oscillators[0].scaledVelocityBottom);
 		ASSERT_EQUALS(127, soundData.oscillators[0].scaledVelocityTop);

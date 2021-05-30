@@ -28,11 +28,19 @@ public:
 	BankSetup GetBankSetup() const override
 	{
 		return {
-			.factoryBankIds = {1, 15},
-			.userBankIds = {18, 20},
-			.favoriteBankIds = {{21, 32}},
-			.localBankIds = {},
-			.nStylesPerBank = 40,
+			{
+				.factoryBankIds = {1, 8}
+			},
+			{
+				.nUserBanks =2
+			},
+			{
+				.factoryBankIds = {1, 15},
+				.userBankIds = {18, 20},
+				.favoriteBankIds = {{21, 32}},
+				.localBankIds = {},
+				.nStylesPerBank = 40,
+			}
 		};
 	}
 

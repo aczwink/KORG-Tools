@@ -37,6 +37,10 @@ SetIndex::SetIndex(const Set& set)
 			{
 				this->sampleLocations.Insert(sampleObject->data.id, {bankEntry.bankNumber, objectEntry.pos});
 			}
+			else
+			{
+				NOT_IMPLEMENTED_ERROR;
+			}
 		}
 	}
 

@@ -18,20 +18,53 @@
  */
 //Class header
 #include "PerformanceFormat2_0VReader.hpp"
+//Local
+#include <libkorg/BankFormat/PerformanceObject.hpp>
+#include <libkorg/BankFormat/SingleTouchSettings.hpp>
 //Namespaces
 using namespace libKORG;
 using namespace StdXX;
+
+//Public methods
+BankFormat::BankObject *PerformanceFormat2_0VReader::TakeResult()
+{
+	switch(this->perfIndex)
+	{
+		case 1:
+			return new PerformanceObject(new Performance::V2::PerformanceData(Move(this->generalData), Move(this->keyboardSettings[0])));
+		case 4:
+			return new SingleTouchSettings(new Performance::V2::STSData(Move(this->generalData), Move(this->keyboardSettings)));
+	}
+	return nullptr;
+}
 
 //Protected methods
 ChunkReader *PerformanceFormat2_0VReader::OnEnteringChunk(const ChunkHeader &chunkHeader)
 {
 	switch (chunkHeader.id)
 	{
+		case 0x01000000:
+			return this;
+		case 0x02000000:
+			return &this->accompanimentSettingsReader;
+		case 0x03000000:
+			return &this->keyboardSettingsReader;
 		case 0x1C000000:
 			return &this->unknownAdditionalReader;
 	}
 
-	return PerformanceFormat1_0VReader::OnEnteringChunk(chunkHeader);
+	return nullptr;
+}
+
+void PerformanceFormat2_0VReader::OnLeavingChunk(const ChunkHeader &chunkHeader)
+{
+	if(chunkHeader.type == 3)
+	{
+		this->perfIndex++;
+		this->keyboardSettingsReader.PerfIndex(this->perfIndex);
+	}
+
+	ChunkReader::OnLeavingChunk(chunkHeader);
 }
 
 void PerformanceFormat2_0VReader::ReadDataChunk(const libKORG::ChunkHeader &chunkHeader, StdXX::DataReader &dataReader)
@@ -50,13 +83,17 @@ void PerformanceFormat2_0VReader::ReadDataChunk(const libKORG::ChunkHeader &chun
 //Private methods
 void PerformanceFormat2_0VReader::Read0x04020008Chunk(DataReader &dataReader)
 {
-	auto& chunk = this->generalPerformanceData._0x04020008;
+	auto& chunk = this->generalData._0x04020008_data;
 
 	chunk.unknown1 = dataReader.ReadInt32();
 
 	this->ReadUnknownSubChunk(chunk.subChunk, dataReader);
 
-	dataReader.ReadBytes(chunk.unknown8, sizeof(chunk.unknown8));
+	chunk.unknown81 = dataReader.ReadByte();
+
+	chunk.metronomeTempo = dataReader.ReadByte();
+
+	dataReader.ReadBytes(chunk.unknown83, sizeof(chunk.unknown83));
 	dataReader.ReadBytes(chunk.unknown9, sizeof(chunk.unknown9));
 	dataReader.ReadBytes(chunk.unknown10, sizeof(chunk.unknown10));
 	dataReader.ReadBytes(chunk.unknown11, sizeof(chunk.unknown11));
@@ -65,7 +102,7 @@ void PerformanceFormat2_0VReader::Read0x04020008Chunk(DataReader &dataReader)
 
 void PerformanceFormat2_0VReader::Read0x20000008Chunk(DataReader &dataReader)
 {
-	auto& chunk = this->generalPerformanceData._0x20000008;
+	auto& chunk = this->generalData._0x20000008_data;
 
 	chunk.unknown1 = dataReader.ReadInt32();
 
@@ -81,7 +118,7 @@ void PerformanceFormat2_0VReader::Read0x20000008Chunk(DataReader &dataReader)
 	dataReader.ReadBytes(chunk.unknown12, sizeof(chunk.unknown12));
 }
 
-void PerformanceFormat2_0VReader::ReadUnknownSubChunk(Performance::UnknownSubChunk& chunk, DataReader &dataReader)
+void PerformanceFormat2_0VReader::ReadUnknownSubChunk(Performance::V2::UnknownSubChunk& chunk, DataReader &dataReader)
 {
 	TextReader textReader(dataReader.InputStream(), TextCodecType::ASCII);
 

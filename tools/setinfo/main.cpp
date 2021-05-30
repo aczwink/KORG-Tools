@@ -19,28 +19,32 @@
 #include <libkorg.hpp>
 #include "HumanReadableOutputter.hpp"
 #include "StyleOutputter.hpp"
-#include "PerformanceOutputter.hpp"
+#include "PerformanceV1Outputter.hpp"
 #include "XMLOutputter.hpp"
 #include "SoundOutputter.hpp"
 #include "MultiSamplesOutputter.hpp"
 #include "SampleOutputter.hpp"
+#include "PerformanceOutputter.hpp"
 
 using namespace libKORG;
 
 struct PrintSettings
 {
 	bool showObjects;
-	Optional<uint8> bankNumber;
+	Optional<String> bankName;
 	Optional<uint8> posNumber;
 };
 
 template<typename BankNumberType, typename BankObjectType, typename ObjectOutputter>
 void PrintBanks(const PrintSettings& printSettings, const BankCollection<BankNumberType, BankObjectType>& banks, FormattedOutputter& outputter)
 {
-	uint8 bankNumber = 0;
+	uint8 bankNumber;
+	if(printSettings.bankName.HasValue())
+		bankNumber = BankNumberType::FromBankName(*printSettings.bankName).Number();
+
 	for(const auto& bankEntry : banks.Entries())
 	{
-		if(printSettings.bankNumber.HasValue() && (*printSettings.bankNumber != bankNumber++))
+		if(printSettings.bankName.HasValue() && (bankNumber != bankEntry.bankNumber.Number()))
 			continue;
 
 		Section bankSection(bankEntry.bankNumber.ToString(), outputter);
@@ -70,7 +74,7 @@ void PrintMultiSamples(const PrintSettings& printSettings, Set& set, FormattedOu
 
 void PrintPerformanceBanks(const PrintSettings& printSettings, Set& set, FormattedOutputter& outputter)
 {
-	//PrintBanks<PerformanceBankNumber, PerformanceBank, PerformanceOutputter>(printSettings, set.PerformanceBanks(), outputter); //PerformanceBankNumberToString
+	PrintBanks<PerformanceBankNumber, PerformanceObject, PerformanceOutputter>(printSettings, set.performanceBanks, outputter); //PerformanceBankNumberToString
 }
 
 void PrintSampleBanks(const PrintSettings& printSettings, Set& set, FormattedOutputter& outputter)
@@ -85,7 +89,7 @@ void PrintSoundBanks(const PrintSettings& printSettings, Set& set, FormattedOutp
 
 void PrintStyleBanks(const PrintSettings& printSettings, Set& set, FormattedOutputter& outputter)
 {
-	//PrintBanks<StyleBankNumber, StyleBank, StyleOutputter>(printSettings, set.StyleBanks(), outputter); //StyleBankNumberToString
+	PrintBanks<StyleBankNumber, FullStyle, StyleOutputter>(printSettings, set.styleBanks, outputter); //StyleBankNumberToString
 }
 
 enum class ResourceType
@@ -103,10 +107,7 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 
 	parser.AddHelpOption();
 
-	CommandLine::PathArgument inputPathArg(u8"input-path", u8"Path to the set that should be dumped");
-	parser.AddPositionalArgument(inputPathArg);
-
-	CommandLine::EnumArgument<ResourceType> typeArgument(u8"type", u8"The resource type of the set that should be dumped");
+	CommandLine::EnumArgument<ResourceType> typeArgument(u8"type", u8"The resource type of the sourceSet that should be dumped");
 	typeArgument.AddMapping(u8"multisamples", ResourceType::MultiSamples, u8"Dump multisamples");
 	typeArgument.AddMapping(u8"performances", ResourceType::Performances, u8"Dump performances");
 	typeArgument.AddMapping(u8"samples", ResourceType::Samples, u8"Dump samples");
@@ -114,7 +115,10 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 	typeArgument.AddMapping(u8"styles", ResourceType::Styles, u8"Dump styles");
 	parser.AddPositionalArgument(typeArgument);
 
-	CommandLine::OptionWithArgument bankOpt(u8'b', u8"bank-number", u8"Bank number to generate info for");
+	CommandLine::PathArgument inputPathArg(u8"input-path", u8"Path to the sourceSet that should be dumped");
+	parser.AddPositionalArgument(inputPathArg);
+
+	CommandLine::OptionWithArgument bankOpt(u8'b', u8"bank", u8"Bank name to generate info for");
 	parser.AddOption(bankOpt);
 
 	CommandLine::OptionWithArgument inputPosOpt(u8'p', u8"input-pos", u8"Position of resource within the bank(s)");
@@ -134,11 +138,11 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 	ResourceType resourceType = typeArgument.Value(result);
 
 	PrintSettings printSettings;
-	printSettings.showObjects = true;
+	printSettings.showObjects = result.IsActivated(inputPosOpt);
 
 	if(result.IsActivated(bankOpt))
 	{
-		printSettings.bankNumber = result.Value(bankOpt).ToUInt();
+		printSettings.bankName = result.Value(bankOpt);
 	}
 	if(result.IsActivated(inputPosOpt))
 	{

@@ -28,13 +28,13 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 
 	parser.AddHelpOption();
 
-	CommandLine::PathArgument inputSetPathArg(u8"input-set-path", u8"Path to the set that should be converted");
+	CommandLine::PathArgument inputSetPathArg(u8"input-sourceSet-path", u8"Path to the sourceSet that should be converted");
 	parser.AddPositionalArgument(inputSetPathArg);
 
-	CommandLine::PathArgument targetSetPathArg(u8"target-set-path", u8"Path to the converted set. The directory must not exist");
+	CommandLine::PathArgument targetSetPathArg(u8"target-sourceSet-path", u8"Path to the converted sourceSet. The directory must not exist");
 	parser.AddPositionalArgument(targetSetPathArg);
 
-	CommandLine::StringArgument modelArg(u8"target-model", u8"The target model for the set to be converted");
+	CommandLine::StringArgument modelArg(u8"target-model", u8"The target model for the sourceSet to be converted");
 	parser.AddPositionalArgument(modelArg);
 
 	if(!parser.Parse(args))

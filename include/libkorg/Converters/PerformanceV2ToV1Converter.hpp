@@ -34,10 +34,7 @@ namespace libKORG
 		SingleTouchSettings Convert(const SingleTouchSettings& source) const
 		{
 			SingleTouchSettings result = this->baseSTS;
-			for(uint8 i = 0; i < 4; i++)
-				this->MapKeyboardSettings(result.keyboardSettings[i], source.keyboardSettings[i]);
-			this->MapAccompanimentSettings(result.generalData.accompanimentSettings, source.generalData.accompanimentSettings);
-
+			this->Convert(source.V2Data(), result.V1Data());
 			return result;
 		}
 
@@ -46,6 +43,21 @@ namespace libKORG
 		const SingleTouchSettings& baseSTS;
 
 		//Methods
+		void Convert(const Performance::V2::STSData& source, Performance::V1::STSData& target) const
+		{
+			this->ConvertGeneralData(source, target);
+
+			for(uint8 i = 0; i < 4; i++)
+				this->MapKeyboardSettings(target.keyboardSettings[i], source.keyboardSettings[i]);
+		}
+
+		void ConvertGeneralData(const Performance::V2::GeneralData& source, Performance::V1::GeneralData& target) const
+		{
+			this->Map04Chunk(source._0x04020008_data, target._0x04000108_data);
+
+			this->MapAccompanimentSettings(target.accompanimentSettings, source.accompanimentSettings);
+		}
+
 		const SingleTouchSettings& FindFirstSTS(const Set& set)
 		{
 			for(const auto& bankEntry : set.styleBanks.Entries())
@@ -59,20 +71,25 @@ namespace libKORG
 			NOT_IMPLEMENTED_ERROR; //TODO: implement me
 		}
 
-		void MapAccompanimentSettings(Performance::AccompanimentSettings& target, const Performance::AccompanimentSettings& source) const
+		void Map04Chunk(const Performance::V2::_0x04020008_chunk& source, Performance::V1::_0x04000108_chunk& target) const
 		{
-			for(uint8 i = 0; i < 8; i++)
-				this->MapTrackProperties(target.trackProperties[i], source.trackProperties[i]);
+			target.metronomeTempo = source.metronomeTempo;
 		}
 
-		void MapKeyboardSettings(Performance::KeyboardSettings& target, const Performance::KeyboardSettings& source) const
+		void MapAccompanimentSettings(Performance::V1::AccompanimentSettings& target, const Performance::V2::AccompanimentSettings& source) const
+		{
+			for(uint8 i = 0; i < 8; i++)
+				this->MapTrackProperties(target.trackSettings[i], source.trackSettings[i]);
+		}
+
+		void MapKeyboardSettings(Performance::V1::KeyboardSettings& target, const Performance::V2::KeyboardSettings& source) const
 		{
 			target.name = source.name;
 			for(uint8 i = 0; i < 4; i++)
-				this->MapTrackProperties(target.trackProperties[i], source.trackProperties[i]);
+				this->MapTrackProperties(target.trackSettings[i], source.trackSettings[i]);
 		}
 
-		void MapTrackProperties(Performance::TrackProperties& target, const Performance::TrackProperties& source) const
+		void MapTrackProperties(Performance::V1::TrackSettings& target, const Performance::V2::TrackSettings& source) const
 		{
 			target.soundProgramChangeSeq = source.soundProgramChangeSeq;
 			target.highGainTimes2 = source.highGainTimes2;

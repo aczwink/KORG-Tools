@@ -22,14 +22,73 @@
 #include <libkorg/BankFormat/SingleTouchSettings.hpp>
 #include <libkorg/Text.hpp>
 #include <libkorg/BankFormat/Reader.hpp>
-#include "BankFormat/Writer.hpp"
+#include "BankFormat/ObjectBankWriter.hpp"
 //Namespaces
 using namespace libKORG;
 using namespace StdXX;
 using namespace StdXX::FileSystem;
 
-//Constructor
-Set::Set(const Path &setPath) : setPath(setPath)
+static class UnknownModel : public Model
+{
+public:
+	bool IsSampleCompressionSupported() const override
+	{
+		NOT_IMPLEMENTED_ERROR; //TODO: implement me
+	}
+
+	BankSetup GetBankSetup() const override
+	{
+		return {
+			.performanceBanks = {
+				.factoryBankIds = {1, 16}, //PA3X
+				.localBankIds = {{23, 25}}, //PA700 Oriental
+			},
+			.soundBanks = {
+				.nUserBanks = 4, //PA4X
+			},
+			.styleBanks = {
+				.factoryBankIds = {1, 15}, //PA600
+				.userBankIds = {0, 0}, //TODO:
+				.favoriteBankIds = {}, //TODO:
+				.localBankIds = {{101, 105}}, //PA700 Oriental
+				.nStylesPerBank = {}, //TODO:
+			}
+		};
+	}
+
+	String GetCustomization() const override
+	{
+		NOT_IMPLEMENTED_ERROR; //TODO: implement me
+	}
+
+	String GetMachId() const override
+	{
+		NOT_IMPLEMENTED_ERROR; //TODO: implement me
+	}
+
+	String GetName() const override
+	{
+		NOT_IMPLEMENTED_ERROR; //TODO: implement me
+	}
+
+	uint32 GetSampleRAMSize() const override
+	{
+		NOT_IMPLEMENTED_ERROR; //TODO: implement me
+	}
+
+	SupportedResourceVersions GetSupportedResourceVersions() const override
+	{
+		NOT_IMPLEMENTED_ERROR; //TODO: implement me
+	}
+} unknownModel;
+
+//Constructors
+Set::Set(const Path &setPath) : Set(setPath, unknownModel)
+{
+}
+
+Set::Set(const Path &setPath, const Model& model) : setPath(setPath), model(model),
+	sampleBanks(model), soundBanks(model), performanceBanks(model), styleBanks(model)
 {
 	File setDir(setPath);
 	ASSERT(setDir.Exists(), u8"Set does not exist");
@@ -38,7 +97,8 @@ Set::Set(const Path &setPath) : setPath(setPath)
 	this->ReadDirectory(setPath, u8"MULTISMP", &Set::LoadMultiSamples);
 	//this->ReadDirectory(setPath, u8"PAD", &Set::LoadPads);
 	this->ReadDirectory(setPath, u8"PCM", &Set::LoadSamples);
-	this->ReadDirectory(setPath, u8"PERFORM", &Set::LoadPerformances);
+	if(!this->ReadDirectory(setPath, u8"KEYBOARDSET", &Set::LoadPerformances))
+		this->ReadDirectory(setPath, u8"PERFORM", &Set::LoadPerformances);
 	//this->LoadSongBook(setPath);
 	this->ReadDirectory(setPath, u8"SOUND", &Set::LoadSounds);
 	this->ReadDirectory(setPath, u8"STYLE", &Set::LoadStyles);
@@ -57,21 +117,22 @@ uint32 Set::ComputeUsedSampleRAMSize()
 	return sum;
 }
 
-void Set::Save(const Model& targetModel)
+void Set::Save()
 {
-	this->SaveMultiSamples(targetModel);
-	this->SaveBanks(this->sampleBanks, u8"PCM", targetModel);
-	this->SaveBanks(this->soundBanks, u8"SOUND", targetModel);
-	this->SaveBanks(this->styleBanks, u8"STYLE", targetModel);
+	this->SaveMultiSamples();
+	this->SaveBanks(this->sampleBanks, u8"PCM");
+	this->SaveBanks(this->performanceBanks, this->model.GetSupportedResourceVersions().maxPerformanceVersion.major > 1 ? u8"KEYBOARDSET" : u8"PERFORM");
+	this->SaveBanks(this->soundBanks, u8"SOUND");
+	this->SaveBanks(this->styleBanks, u8"STYLE");
 }
 
 //Class functions
-Set Set::Create(const Path &targetPath)
+Set Set::Create(const Path &targetPath, const Model& targetModel)
 {
 	File dir(targetPath);
 	dir.CreateDirectory();
 
-	return Set(targetPath);
+	return Set(targetPath, targetModel);
 }
 
 //Private methods
@@ -101,15 +162,14 @@ void Set::LoadPads(const String &bankFileName, const DynamicArray<BankObjectEntr
 		Pad& pad = dynamic_cast<Pad&>(*bankObjectEntry.object);
 		bank.AddObject(bankObjectEntry.name, bankObjectEntry.pos, &pad);
 	}
+	bank.saved = true;
 
 	this->padBanks[bankNumber] = Move(bank);
 }
 
 void Set::LoadPerformances(const String &bankFileName, const DynamicArray<BankObjectEntry> &bankEntries)
 {
-	ASSERT(bankFileName.StartsWith(u8"BANK"), u8"???");
-	ASSERT(bankFileName.EndsWith(u8".PRF"), u8"???");
-	uint8 bankNumber = bankFileName.SubString(4, 2).ToUInt32() - 1;
+	PerformanceBankNumber bankNumber = PerformanceBankNumber::FromBankFileName(bankFileName);
 
 	ObjectBank<PerformanceObject> bank;
 	for(const BankObjectEntry& bankObjectEntry : bankEntries)
@@ -117,21 +177,20 @@ void Set::LoadPerformances(const String &bankFileName, const DynamicArray<BankOb
 		PerformanceObject& performance = dynamic_cast<PerformanceObject&>(*bankObjectEntry.object);
 		bank.AddObject(bankObjectEntry.name, bankObjectEntry.pos, &performance);
 	}
+	bank.saved = true;
 
 	this->performanceBanks[bankNumber] = Move(bank);
 }
 
 void Set::LoadSamples(const String& bankFileName, const DynamicArray<BankObjectEntry>& bankEntries)
 {
-	ASSERT(bankFileName.StartsWith(u8"RAM"), u8"???");
-	ASSERT(bankFileName.EndsWith(u8".PCM"), u8"???");
-	uint8 bankNumber = bankFileName.SubString(3, 2).ToUInt32() - 1;
-
+	auto bankNumber = SampleBankNumber::FromBankFileName(bankFileName);
 	for(const BankObjectEntry& bankObjectEntry : bankEntries)
 	{
 		AbstractSample& sample = dynamic_cast<AbstractSample&>(*bankObjectEntry.object);
 		this->sampleBanks[bankNumber].AddObject(bankObjectEntry.name, bankObjectEntry.pos, &sample);
 	}
+	this->sampleBanks[bankNumber].saved = true;
 }
 
 void Set::LoadSongs(const String& bankFileName, const DynamicArray<BankObjectEntry> &bankEntries)
@@ -160,11 +219,13 @@ void Set::LoadSongBook(const Path& setPath)
 
 void Set::LoadSounds(const String &bankFileName, const DynamicArray<BankObjectEntry> &bankEntries)
 {
+	SoundBankNumber bankNumber = SoundBankNumber::FromBankFileName(bankFileName);
 	for(const BankObjectEntry& bankObjectEntry : bankEntries)
 	{
 		SoundObject& sound = dynamic_cast<SoundObject&>(*bankObjectEntry.object);
-		this->soundBanks[SoundBankNumber::FromBankFileName(bankFileName)].AddObject(bankObjectEntry.name, bankObjectEntry.pos, &sound);
+		this->soundBanks[bankNumber].AddObject(bankObjectEntry.name, bankObjectEntry.pos, &sound);
 	}
+	this->soundBanks[bankNumber].saved = true;
 }
 
 void Set::LoadStyles(const String &bankFileName, const DynamicArray<BankObjectEntry> &bankEntries)
@@ -179,29 +240,27 @@ void Set::LoadStyles(const String &bankFileName, const DynamicArray<BankObjectEn
 			performanceEntries[bankObjectEntry.pos] = &bankObjectEntry;
 	}
 
-	StyleBank bank;
+	auto bankNumber = StyleBankNumber::FromBankFileName(bankFileName);
+
 	for(const auto& kv : styleEntries)
 	{
+		auto stsObject = performanceEntries[kv.key]->object;
+
 		StyleObject& style = dynamic_cast<StyleObject&>(*styleEntries[kv.key]->object);
-		SingleTouchSettings* sts = nullptr;
-		if(performanceEntries.Contains(kv.key))
-			sts = dynamic_cast<SingleTouchSettings*>(performanceEntries[kv.key]->object);
+		SingleTouchSettings* sts = dynamic_cast<SingleTouchSettings*>(stsObject);
 
-		bank.AddObject(kv.value->name, kv.value->pos, new FullStyle(&style, sts));
+		this->styleBanks[bankNumber].AddObject(kv.value->name, kv.value->pos, new FullStyle(&style, sts));
 	}
-	bank.saved = true;
-
-	uint8 bankNumber = ParseStyleBankFileName(bankFileName);
-	this->styleBanks[bankNumber] = Move(bank);
+	this->styleBanks[bankNumber].saved = true;
 }
 
-void Set::ReadDirectory(const Path &setPath, const String &dirName, void (Set::* loader)(const String& bankFileName, const DynamicArray<BankObjectEntry>&))
+bool Set::ReadDirectory(const Path &setPath, const String &dirName, void (Set::* loader)(const String& bankFileName, const DynamicArray<BankObjectEntry>&))
 {
 	Path dirPath = setPath / dirName;
 
 	File directory(dirPath);
 	if(!directory.Exists())
-		return;
+		return false;
 	for (const DirectoryEntry& childEntry : directory)
 	{
 		FileInputStream fileInputStream(dirPath / childEntry.name);
@@ -211,17 +270,19 @@ void Set::ReadDirectory(const Path &setPath, const String &dirName, void (Set::*
 
 		(this->*loader)(childEntry.name, bankFormatReader.TakeEntries());
 	}
+
+	return true;
 }
 
 template<typename BankObjectType>
-void Set::SaveBank(const ObjectBank<BankObjectType>& bank, SeekableOutputStream& outputStream, const Model& targetModel)
+void Set::SaveBank(const ObjectBank<BankObjectType>& bank, SeekableOutputStream& outputStream)
 {
-	BankFormat::Writer bankFormatWriter(outputStream, targetModel);
+	BankFormat::ObjectBankWriter bankFormatWriter(outputStream, this->model);
 	bankFormatWriter.Write(bank);
 }
 
 template<typename BankNumberType, typename BankObjectType>
-void Set::SaveBanks(BankCollection<BankNumberType, BankObjectType>& bankCollection, const StdXX::String& folderName, const Model& targetModel)
+void Set::SaveBanks(BankCollection<BankNumberType, BankObjectType>& bankCollection, const StdXX::String& folderName)
 {
 	for(const auto& bankEntry : bankCollection.Entries())
 	{
@@ -237,7 +298,7 @@ void Set::SaveBanks(BankCollection<BankNumberType, BankObjectType>& bankCollecti
 				banksDir.CreateDirectory();
 
 			StdXX::FileOutputStream fileOutputStream(path, true);
-			this->SaveBank(bankEntry.bank, fileOutputStream, targetModel);
+			this->SaveBank(bankEntry.bank, fileOutputStream);
 		}
 		else
 		{
@@ -250,7 +311,7 @@ void Set::SaveBanks(BankCollection<BankNumberType, BankObjectType>& bankCollecti
 	}
 }
 
-void Set::SaveMultiSamples(const Model &targetModel)
+void Set::SaveMultiSamples()
 {
 	auto dirPath = this->setPath / String(u8"MULTISMP");
 	auto path = dirPath / String(u8"RAM.KMP");
@@ -273,6 +334,6 @@ void Set::SaveMultiSamples(const Model &targetModel)
 
 	StdXX::FileOutputStream fileOutputStream(path, true);
 
-	BankFormat::Writer bankFormatWriter(fileOutputStream, targetModel);
+	BankFormat::ObjectBankWriter bankFormatWriter(fileOutputStream, this->model);
 	bankFormatWriter.Write(*this->multiSamples);
 }

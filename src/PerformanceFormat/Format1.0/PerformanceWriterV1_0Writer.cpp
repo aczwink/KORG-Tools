@@ -22,9 +22,14 @@
 #include "../../Reading/PerformanceDataFormat.hpp"
 //Namespaces
 using namespace libKORG;
-using namespace libKORG::Performance;
+using namespace libKORG::Performance::V1;
 
 //Public methods
+void PerformanceWriterV1_0Writer::Write(const PerformanceObject &performanceObject)
+{
+	NOT_IMPLEMENTED_ERROR; //TODO: implement me
+}
+
 void PerformanceWriterV1_0Writer::Write(const SingleTouchSettings &settings)
 {
 	NOT_IMPLEMENTED_ERROR; //TODO: refix me
@@ -103,7 +108,7 @@ void PerformanceWriterV1_0Writer::Write0x3000000Chunk(const KeyboardSettings &ke
 	this->EndChunk();*/
 }
 
-void PerformanceWriterV1_0Writer::WriteTrackProperties(uint32 trackNumber, const TrackProperties &trackProperties, const libKORG::ChunkVersion& performanceVersion)
+void PerformanceWriterV1_0Writer::WriteTrackProperties(uint32 trackNumber, const TrackSettings &trackSettings, const libKORG::ChunkVersion& performanceVersion)
 {
 	NOT_IMPLEMENTED_ERROR; //TODO: refix me
 	/*

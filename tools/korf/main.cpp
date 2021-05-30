@@ -111,17 +111,25 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 	CommandLine::SubCommandArgument commandGroup(u8"command", u8"The command to be executed");
 	parser.AddPositionalArgument(commandGroup);
 
+	CommandLine::UnsignedArgument inputPosArg(u8"input-pos", u8"Position of resource within the input korf file");
+
 	CommandLine::Group dumpChunks(u8"dump-chunks", u8"Dump chunks into filesystem");
+	dumpChunks.AddPositionalArgument(inputPosArg);
 	commandGroup.AddCommand(dumpChunks);
 
 	CommandLine::Group dumpObject(u8"dump-object", u8"Dump object into filesystem");
+	dumpObject.AddPositionalArgument(inputPosArg);
 	commandGroup.AddCommand(dumpObject);
+
+	CommandLine::Group listContents(u8"list-contents", u8"List the contents of the input file");
+	commandGroup.AddCommand(listContents);
+
+	CommandLine::Group repackObject(u8"repack-object", u8"Repack a single object into a new bank file");
+	repackObject.AddPositionalArgument(inputPosArg);
+	commandGroup.AddCommand(repackObject);
 
 	CommandLine::PathArgument inputPathArg(u8"input-path", u8"Path to the input korf file");
 	parser.AddPositionalArgument(inputPathArg);
-
-	CommandLine::UnsignedArgument inputPosArg(u8"input-pos", u8"Position of resource within the input korf file");
-	parser.AddPositionalArgument(inputPosArg);
 
 	if(!parser.Parse(args))
 	{
@@ -132,29 +140,93 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 	const CommandLine::MatchResult& result = parser.ParseResult();
 
 	Path inputPath = inputPathArg.Value(result);
-	uint8 pos = inputPosArg.Value(result);
 
 	FileInputStream fileInputStream(inputPath);
 	ObjectTrackingReader bankFormatReader;
 	bankFormatReader.ReadData(fileInputStream);
 
-	for (const auto& kv: bankFormatReader.objectsData)
+	if(result.IsActivated(listContents))
 	{
-		if(kv.key->pos == pos)
+		stdOut << u8"Position: Type Version Name" << endl;
+		for (const auto& kv: bankFormatReader.objectsData)
 		{
-			String name = String::Number((uint8)kv.key->type) + u8"_" + String::HexNumber(kv.key->dataVersion.AsUInt16(), 4) + u8"_" + kv.key->name;
-			if(result.IsActivated(dumpChunks))
+			stdOut << String::Number(kv.key->pos, 10, 2) << u8": ";
+			switch(kv.key->type)
 			{
-				stdOut << u8"Dumping chunks of: " << name << endl;
-
-				Path path = FileSystemsManager::Instance().OSFileSystem().GetWorkingDirectory() / name;
-				DumpChunks(path, *kv.value.CreateInputStream());
-
-				stdOut << endl;
+				case BankFormat::ObjectType::Performance:
+					stdOut << u8"Performance";
+					break;
+				case BankFormat::ObjectType::Style:
+					stdOut << u8"Style";
+					break;
+				case BankFormat::ObjectType::Sound:
+					stdOut << u8"Sound";
+					break;
+				case BankFormat::ObjectType::MultiSample:
+					stdOut << u8"MultiSamples";
+					break;
+				case BankFormat::ObjectType::PCM:
+					stdOut << u8"PCM";
+					break;
+				case BankFormat::ObjectType::StylePerformances:
+					stdOut << u8"Style performances";
+					break;
+				case BankFormat::ObjectType::PAD:
+					stdOut << u8"Pad";
+					break;
+				case BankFormat::ObjectType::SongBookEntry:
+					stdOut << u8"Songbook entry";
+					break;
+				case BankFormat::ObjectType::SongBook:
+					stdOut << u8"Songbook";
+					break;
 			}
-			else if(result.IsActivated(dumpObject))
+
+			stdOut << u8" " << kv.key->dataVersion.major << u8"." << kv.key->dataVersion.minor << u8" " << kv.key->name << endl;
+		}
+	}
+	else
+	{
+		uint8 pos = inputPosArg.Value(result);
+
+		for (const auto& kv: bankFormatReader.objectsData)
+		{
+			if(kv.key->pos == pos)
 			{
-				kv.value.CreateInputStream()->FlushTo(stdOut);
+				String name = String::Number((uint8)kv.key->type) + u8"_" + String::HexNumber(kv.key->dataVersion.AsUInt16(), 4) + u8"_" + kv.key->name;
+				if(result.IsActivated(dumpChunks))
+				{
+					stdOut << u8"Dumping chunks of: " << name << endl;
+
+					Path path = FileSystemsManager::Instance().OSFileSystem().GetWorkingDirectory() / name;
+					DumpChunks(path, *kv.value.CreateInputStream());
+
+					stdOut << endl;
+				}
+				else if(result.IsActivated(dumpObject))
+				{
+					kv.value.CreateInputStream()->FlushTo(stdOut);
+				}
+				else if(result.IsActivated(repackObject))
+				{
+					DynamicByteBuffer buffer;
+					auto outputStream = buffer.CreateOutputStream();
+					BankFormat::Writer writer(*outputStream);
+
+					writer.WriteHeader();
+
+					writer.BeginWritingIndex();
+					writer.WriteIndexEntry(*kv.key);
+					writer.EndIndex();
+
+					auto& objectOutputStream = writer.BeginWritingObjectData();
+					kv.value.CreateInputStream()->FlushTo(objectOutputStream);
+					writer.EndWritingObject();
+
+					writer.Finalize();
+
+					buffer.CreateInputStream()->FlushTo(stdOut);
+				}
 			}
 		}
 	}

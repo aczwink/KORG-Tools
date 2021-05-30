@@ -18,9 +18,20 @@
  */
 //Local
 #include "../Format2.0/PerformanceFormat2_0VReader.hpp"
+#include "UnknownAdditionalReaderV2_1.hpp"
 
 class PerformanceFormat2_1VReader : public PerformanceFormat2_0VReader
 {
+public:
+	//Constructor
+	inline PerformanceFormat2_1VReader() : unknownAdditionalReader(generalData)
+	{
+	}
+
 protected:
 	ChunkReader *OnEnteringChunk(const libKORG::ChunkHeader &chunkHeader) override;
+
+private:
+	//Members
+	UnknownAdditionalReaderV2_1 unknownAdditionalReader;
 };

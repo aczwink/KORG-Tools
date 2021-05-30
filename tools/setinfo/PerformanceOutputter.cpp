@@ -18,111 +18,61 @@
  */
 //Class header
 #include "PerformanceOutputter.hpp"
+//Local
+#include "PerformanceV1Outputter.hpp"
+#include "PerformanceV0Outputter.hpp"
+#include "PerformanceV2Outputter.hpp"
 
 //Public methods
-void PerformanceOutputter::Output(const PerformanceObject &performance)
+void PerformanceOutputter::Output(const PerformanceObject &performanceObject)
 {
-	NOT_IMPLEMENTED_ERROR; //TODO: refix me
-	/*
-	this->Output(performance.generalData);
-	this->Output(performance.accompanimentSettings);
-	this->Output(performance.keyboardSettings);
-	 */
+	switch(performanceObject.Version())
+	{
+		case 0:
+		{
+			PerformanceV0Outputter performanceV0Outputter(this->formattedOutputter);
+			performanceV0Outputter.Output(performanceObject.V0Data());
+		}
+		break;
+		case 1:
+		{
+			PerformanceV1Outputter performanceV1Outputter(this->formattedOutputter);
+			performanceV1Outputter.Output(performanceObject.V1Data());
+		}
+		break;
+		case 2:
+		{
+			PerformanceV2Outputter performanceV2Outputter(this->formattedOutputter);
+			performanceV2Outputter.Output(performanceObject.V2Data());
+		}
+		break;
+	}
 }
 
 void PerformanceOutputter::Output(const SingleTouchSettings &sts)
 {
-	NOT_IMPLEMENTED_ERROR; //TODO: refix me
-	/*
 	Section section(u8"Single Touch Settings", this->formattedOutputter);
 
-	for(const auto& unknownChunk : sts.unknownChunksAtBeginning)
-		this->formattedOutputter.OutputUnknownChunk(unknownChunk);
-
-	this->Output(sts.accompanimentSettings);
-
-	for(uint8 i = 0; i < 4; i++)
+	switch(sts.Version())
 	{
-		const auto& stsi = sts.keyboardSettings[i];
-
-		Section stsSection(u8"STS" + String::Number(i+1), this->formattedOutputter);
-
-		this->Output(stsi);
+		case 0:
+		{
+			NOT_IMPLEMENTED_ERROR; //TODO: implement me
+			//PerformanceV0Outputter performanceV0Outputter(this->formattedOutputter);
+			//performanceV0Outputter.Output(sts.V0Data());
+		}
+		break;
+		case 1:
+		{
+			PerformanceV1Outputter performanceV1Outputter(this->formattedOutputter);
+			performanceV1Outputter.Output(sts.V1Data());
+		}
+			break;
+		case 2:
+		{
+			PerformanceV2Outputter performanceV2Outputter(this->formattedOutputter);
+			performanceV2Outputter.Output(sts.V2Data());
+		}
+			break;
 	}
-
-	for(const auto& unknownChunk : sts.unknownChunksAtEnd)
-		this->formattedOutputter.OutputUnknownChunk(unknownChunk);*/
-}
-
-//Private methods
-void PerformanceOutputter::Output(const AccompanimentSettings &accompanimentSettings)
-{
-	NOT_IMPLEMENTED_ERROR; //TODO: refix me
-	/*
-	for(const auto& chunk : accompanimentSettings.unknownChunksBefore9)
-		this->formattedOutputter.OutputUnknownChunk(chunk);
-
-	this->Output(accompanimentSettings.trackProperties);
-
-	for(const auto& chunk : accompanimentSettings.unknownChunksAfter9)
-		this->formattedOutputter.OutputUnknownChunk(chunk);*/
-}
-
-void PerformanceOutputter::Output(const StaticArray<struct TrackProperties, 4> &keyboardTrackProperties)
-{
-	for(KeyboardTrackNumber keyboardTrackNumber : KeyboardTrackNumbers)
-	{
-		Section acc(KeyboardTrackNumberToAbbreviatedString(keyboardTrackNumber) + u8" Track", this->formattedOutputter);
-
-		this->Output(keyboardTrackProperties[static_cast<uint32>(keyboardTrackNumber)]);
-	}
-}
-
-void PerformanceOutputter::Output(const StdXX::StaticArray<struct TrackProperties, 8>& accompanimentTrackProperties)
-{
-	for(AccompanimentTrackNumber accompanimentTrackNumber : AccompanimentTrackNumbers)
-	{
-		Section acc(AccompanimentTrackNumberToAbbreviatedString(accompanimentTrackNumber) + u8" Track", this->formattedOutputter);
-
-		this->Output(accompanimentTrackProperties[static_cast<uint32>(accompanimentTrackNumber)]);
-	}
-}
-
-void PerformanceOutputter::Output(const KeyboardSettings &keyboardSettings)
-{
-	NOT_IMPLEMENTED_ERROR; //TODO: refix me
-	/*
-	this->formattedOutputter.OutputProperty(u8"Name", keyboardSettings.name);
-
-	for(const auto& chunk : keyboardSettings.unknownChunksBeforeTracks)
-		this->formattedOutputter.OutputUnknownChunk(chunk);
-
-	this->Output(keyboardSettings.trackProperties);
-
-	for(const auto& chunk : keyboardSettings.unknownChunksAfterTracks)
-		this->formattedOutputter.OutputUnknownChunk(chunk);*/
-}
-
-void PerformanceOutputter::Output(const TrackProperties &trackProperties)
-{
-	NOT_IMPLEMENTED_ERROR; //TODO: refix me
-	/*this->formattedOutputter.OutputUnknownProperties(trackProperties.unknown1);
-	this->formattedOutputter.OutputProperty(u8"Sound program change sequence", trackProperties.soundProgramChangeSeq.ToString());
-	this->formattedOutputter.OutputProperty(u8"volume", trackProperties.volume);
-	this->formattedOutputter.OutputProperty(u8"pan", trackProperties.pan);
-	this->formattedOutputter.OutputProperty(u8"detune", trackProperties.detune);
-	this->formattedOutputter.OutputProperty(u8"octaveTranspose", trackProperties.octaveTranspose);
-	this->formattedOutputter.OutputUnknownProperties(trackProperties.unknown2);
-	this->formattedOutputter.OutputProperty(u8"fxMaster1", trackProperties.fxMaster1);
-	this->formattedOutputter.OutputProperty(u8"fxMaster2", trackProperties.fxMaster2);
-	this->formattedOutputter.OutputProperty(u8"dry", trackProperties.dry);
-	this->formattedOutputter.OutputProperty(u8"unknown12", trackProperties.unknown12);
-	this->formattedOutputter.OutputProperty(u8"unknown13", trackProperties.unknown13);
-	this->formattedOutputter.OutputProperty(u8"pbSensitivity", trackProperties.pbSensitivity);
-	this->formattedOutputter.OutputProperty(u8"unknown182", trackProperties.unknown182);
-	this->formattedOutputter.OutputProperty(u8"unknown181", trackProperties.unknown181);
-	this->formattedOutputter.OutputProperty(u8"lowGainTimes2", trackProperties.lowGainTimes2);
-	this->formattedOutputter.OutputProperty(u8"midGainTimes2", trackProperties.midGainTimes2);
-	this->formattedOutputter.OutputProperty(u8"highGainTimes2", trackProperties.highGainTimes2);
-	this->formattedOutputter.OutputUnknownProperties(trackProperties.unknown3);*/
 }

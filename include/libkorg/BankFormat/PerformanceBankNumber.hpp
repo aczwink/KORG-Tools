@@ -31,10 +31,43 @@ namespace libKORG
 		}
 
 		//Inline
+		inline StdXX::String ToFileName() const
+		{
+			return this->ToString() + u8".PRF";
+		}
+
 		inline StdXX::String ToString() const
 		{
 			StdXX::String numberAsString = StdXX::String::Number(this->Number() + 1, 10, 2);
 			return u8"BANK" + numberAsString;
+		}
+
+		//Functions
+		static PerformanceBankNumber FromBankName(const StdXX::String& bankName)
+		{
+			uint8 shift;
+			StdXX::String bankPart;
+			if(bankName.StartsWith(u8"LOCAL"))
+			{
+				bankPart = bankName.SubString(5);
+				shift = 22;
+			}
+			else
+			{
+				ASSERT(bankName.StartsWith(u8"BANK"), u8"???");
+				bankPart = bankName.SubString(4);
+				shift = 0;
+			}
+
+			uint8 bankNumber = bankPart.ToUInt32() + shift - 1;
+
+			return {bankNumber};
+		}
+
+		static PerformanceBankNumber FromBankFileName(const StdXX::String& bankFileName)
+		{
+			ASSERT(bankFileName.EndsWith(u8".PRF"), u8"???");
+			return PerformanceBankNumber::FromBankName(bankFileName.SubString(0, bankFileName.GetLength() - 4));
 		}
 	};
 }

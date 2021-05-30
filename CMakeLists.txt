@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.6)
 project(KORG-Tools)
 find_package(XP-CMake REQUIRED) #we need advanced cmake modules
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 XPC_AutoBuildType()
 XPC_OptForHost()

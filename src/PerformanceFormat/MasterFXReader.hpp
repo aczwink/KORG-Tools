@@ -22,7 +22,7 @@ class MasterFXReader
 {
 public:
 	//Constructor
-	inline MasterFXReader(StdXX::StaticArray<libKORG::Performance::MasterFXSettings, N>& masterFxSettings) : masterFxSettings(masterFxSettings)
+	inline MasterFXReader(StdXX::StaticArray<libKORG::Performance::V2::MasterFXSettings, N>& masterFxSettings) : masterFxSettings(masterFxSettings)
 	{
 	}
 
@@ -42,5 +42,5 @@ public:
 
 private:
 	//Members
-	StdXX::StaticArray<libKORG::Performance::MasterFXSettings, N>& masterFxSettings;
+	StdXX::StaticArray<libKORG::Performance::V2::MasterFXSettings, N>& masterFxSettings;
 };

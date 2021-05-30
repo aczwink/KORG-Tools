@@ -19,12 +19,27 @@
 #pragma once
 //Local
 #include <libkorg/BankFormat/SingleTouchSettings.hpp>
-#include <libkorg/UnknownChunk.hpp>
 #include <libkorg/ChunkFormat/ChunkReader.hpp>
-#include "../PerformanceFormatReader.hpp"
+#include "AccompanimentSettingsReader.hpp"
+#include "KeyboardSettingsReader.hpp"
+#include "KeyboardSettingsV0_0Reader.hpp"
+#include "UnknownAdditionalReader.hpp"
 
-class PerformanceFormat1_0VReader : public PerformanceFormatReader
+class PerformanceFormat1_0VReader : public libKORG::BankFormat::BankObjectReader
 {
+public:
+	//Constructor
+	inline PerformanceFormat1_0VReader()
+		: accompanimentSettingsReader(generalData.accompanimentSettings),
+		  keyboardSettingsReader(keyboardSettings),
+		  unknownAdditionalReader(generalData)
+	{
+		this->perfIndex = 0;
+	}
+
+	//Public methods
+	libKORG::BankFormat::BankObject *TakeResult() override;
+
 protected:
 	//Methods
 	ChunkReader *OnEnteringChunk(const libKORG::ChunkHeader &chunkHeader) override;
@@ -32,6 +47,14 @@ protected:
 	void ReadDataChunk(const libKORG::ChunkHeader& chunkHeader, StdXX::DataReader &dataReader) override;
 
 private:
+	//Members
+	uint8 perfIndex;
+	AccompanimentSettingsReader<libKORG::Performance::V1::AccompanimentSettings, AccompanimentSettingsV0_0Reader, 0x0000> accompanimentSettingsReader;
+	KeyboardSettingsReader<libKORG::Performance::V1::KeyboardSettings, KeyboardSettingsV0_0Reader, 0x0000> keyboardSettingsReader;
+	UnknownAdditionalReader unknownAdditionalReader;
+	libKORG::Performance::V1::GeneralData generalData;
+	StdXX::StaticArray<libKORG::Performance::V1::KeyboardSettings, 4> keyboardSettings;
+
 	//Methods
 	void Read0x04000108Chunk(StdXX::DataReader& dataReader);
 };

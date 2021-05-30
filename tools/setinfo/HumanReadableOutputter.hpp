@@ -45,7 +45,7 @@ public:
 		this->output << name << u8": " << value << endl;
 	}
 
-	void OutputProperty(const String &name, int16 value) override
+	void OutputProperty(const String &name, int32 value) override
 	{
 		this->OutputProperty(name, String::Number(value));
 	}

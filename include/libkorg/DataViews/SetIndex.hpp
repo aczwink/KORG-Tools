@@ -29,14 +29,18 @@ namespace libKORG
 		SetIndex(const Set& set);
 
 		//Properties
-		inline const auto& GetSampleLocation(uint64 id) const
+		inline StdXX::Optional<StdXX::Tuple<SampleBankNumber, uint8>> GetSampleLocation(uint64 id) const
 		{
-			return this->sampleLocations.Get(id);
+			if(this->sampleLocations.Contains(id))
+				return this->sampleLocations.Get(id);
+			return {};
 		}
 
-		inline const auto& GetSoundLocation(const ProgramChangeSequence& programChangeSequence) const
+		inline StdXX::Optional<StdXX::Tuple<SoundBankNumber, uint8>> GetSoundLocation(const ProgramChangeSequence& programChangeSequence) const
 		{
-			return this->soundLocations.Get(programChangeSequence);
+			if(this->soundLocations.Contains(programChangeSequence))
+				return this->soundLocations.Get(programChangeSequence);
+			return {};
 		}
 
 	private:

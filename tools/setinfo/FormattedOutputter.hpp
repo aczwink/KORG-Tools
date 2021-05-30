@@ -33,7 +33,7 @@ public:
 	//Abstract
 	virtual void BeginSection(const String& name) = 0;
 	virtual void EndSection() = 0;
-	virtual void OutputProperty(const String& name, int16 value) = 0;
+	virtual void OutputProperty(const String& name, int32 value) = 0;
 	virtual void OutputProperty(const String& name, const String& value) = 0;
 
 	//Inline
@@ -46,6 +46,11 @@ public:
 	inline void OutputProperty(const String& name, int8 value)
 	{
 		this->OutputProperty(name, int16(value));
+	}
+
+	inline void OutputProperty(const String& name, int16 value)
+	{
+		this->OutputProperty(name, int32(value));
 	}
 
 	inline void OutputProperty(const String& name, uint8 value)
@@ -69,15 +74,6 @@ public:
 	inline void OutputProperty(const String& name, const libKORG::Pitch& value)
 	{
 		this->OutputProperty(name, PitchToString(value));
-	}
-
-	inline void OutputUnknownChunk(const libKORG::UnknownChunk& chunk)
-	{
-		this->BeginSection(u8"unknown chunk " + String::HexNumber(chunk.Header().id));
-		this->OutputProperty(u8"size", uint16(chunk.Header().size));
-		for(uint32 i = 0; i < chunk.Buffer().Size(); i++)
-			this->OutputProperty(u8"unknown" + String::Number(i), chunk.Buffer()[i]);
-		this->EndSection();
 	}
 
 	inline void OutputUnknownProperties(const DynamicByteBuffer& buffer)

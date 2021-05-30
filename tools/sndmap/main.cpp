@@ -88,7 +88,7 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 	CommandLine::PathArgument factorySoundMapPathArg(u8"factory-sound-map-path", u8"Path to the factory sound map");
 	parser.AddPositionalArgument(factorySoundMapPathArg);
 
-	CommandLine::PathArgument sourceSetPathArg(u8"source-set-path", u8"Path to the source set");
+	CommandLine::PathArgument sourceSetPathArg(u8"source-sourceSet-path", u8"Path to the source sourceSet");
 	parser.AddPositionalArgument(sourceSetPathArg);
 
 	if(!parser.Parse(args))
@@ -117,7 +117,7 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 	}
 
 	CommonFileFormats::CSVWriter csvWriter(stdOut, CommonFileFormats::csvDialect_excel);
-	csvWriter << u8"Bank name" << u8"Sound name" << u8"Program change sequence" << u8"Sound set" << endl;
+	csvWriter << u8"Bank name" << u8"Sound name" << u8"Program change sequence" << u8"Sound sourceSet" << endl;
 	for(const auto& tuple : soundMap)
 	{
 		csvWriter << tuple.Get<0>()

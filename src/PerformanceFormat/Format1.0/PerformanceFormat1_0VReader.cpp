@@ -25,6 +25,19 @@
 using namespace libKORG;
 using namespace StdXX;
 
+//Public methods
+BankFormat::BankObject *PerformanceFormat1_0VReader::TakeResult()
+{
+	switch(this->perfIndex)
+	{
+		case 1:
+			return new PerformanceObject(new Performance::V1::PerformanceData(Move(this->generalData), Move(this->keyboardSettings[0])));
+		case 4:
+			return new SingleTouchSettings(new Performance::V1::STSData(Move(this->generalData), Move(this->keyboardSettings)));
+	}
+	return nullptr;
+}
+
 //Protected methods
 ChunkReader *PerformanceFormat1_0VReader::OnEnteringChunk(const ChunkHeader &chunkHeader)
 {
@@ -36,6 +49,8 @@ ChunkReader *PerformanceFormat1_0VReader::OnEnteringChunk(const ChunkHeader &chu
 			return &this->accompanimentSettingsReader;
 		case 0x03000000:
 			return &this->keyboardSettingsReader;
+		case 0x1C000000:
+			return &this->unknownAdditionalReader;
 	}
 
 	return nullptr;
@@ -65,23 +80,18 @@ void PerformanceFormat1_0VReader::ReadDataChunk(const ChunkHeader& chunkHeader, 
 //Private methods
 void PerformanceFormat1_0VReader::Read0x04000108Chunk(DataReader &dataReader)
 {
-	//TODO: convert
-	int32 unknown1 = dataReader.ReadInt32();
-	uint8 unknown2 = dataReader.ReadByte();
-	uint8 unknown3 = dataReader.ReadByte();
+	auto& chunk = this->generalData._0x04000108_data;
 
-	uint8 unknown4[10];
-	dataReader.ReadBytes(unknown4, sizeof(unknown4));
+	int32 fifteen = dataReader.ReadInt32();
+	ASSERT_EQUALS(0xF, fifteen);
 
-	uint8 unknown5[8];
-	dataReader.ReadBytes(unknown5, sizeof(unknown5));
-
-	uint8 unknown6[8];
-	dataReader.ReadBytes(unknown6, sizeof(unknown6));
-
-	uint8 unknown7[3];
-	dataReader.ReadBytes(unknown7, sizeof(unknown7));
-
-	uint8 unknown8[14*3];
-	dataReader.ReadBytes(unknown8, sizeof(unknown8));
+	chunk.unknown2 = dataReader.ReadByte();
+	chunk.unknown3 = dataReader.ReadByte();
+	chunk.unknown4 = dataReader.ReadByte();
+	chunk.metronomeTempo = dataReader.ReadByte();
+	dataReader.ReadBytes(chunk.unknown41, sizeof(chunk.unknown41));
+	dataReader.ReadBytes(chunk.unknown5, sizeof(chunk.unknown5));
+	dataReader.ReadBytes(chunk.unknown6, sizeof(chunk.unknown6));
+	dataReader.ReadBytes(chunk.unknown7, sizeof(chunk.unknown7));
+	dataReader.ReadBytes(chunk.unknown8, sizeof(chunk.unknown8));
 }

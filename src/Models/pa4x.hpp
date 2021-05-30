@@ -27,7 +27,21 @@ public:
 
 	BankSetup GetBankSetup() const override
 	{
-		NOT_IMPLEMENTED_ERROR; //TODO: implement me
+		return {
+			.performanceBanks = {
+				.factoryBankIds = {1, 11}
+			},
+			.soundBanks = {
+				.nUserBanks = 0 //TODO:
+			},
+			.styleBanks = {
+				.factoryBankIds = {0, 0}, //TODO:
+				.userBankIds = {0, 0}, //TODO:
+				.favoriteBankIds = {}, //TODO:
+				.localBankIds = {}, //TODO:
+				.nStylesPerBank = {}, //TODO:
+			}
+		};
 	}
 
 	StdXX::String GetCustomization() const override
@@ -47,14 +61,17 @@ public:
 
 	uint32 GetSampleRAMSize() const override
 	{
-		NOT_IMPLEMENTED_ERROR; //TODO: implement me
-		return 0;
+		return 1024 * 3 / 2; //"1,5 GB" is reported by KORG
 	}
 
 	SupportedResourceVersions GetSupportedResourceVersions() const override
 	{
-		NOT_IMPLEMENTED_ERROR; //TODO: implement me
 		return {
+			{3, 0},
+			{0, 0},
+			{2, 1},
+			{3, 0},
+			{0, 0}
 		};
 	}
 };

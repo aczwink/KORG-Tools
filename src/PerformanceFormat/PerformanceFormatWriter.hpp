@@ -25,5 +25,6 @@ public:
 	virtual ~PerformanceFormatWriter() = default;
 
 	//Abstract
+	virtual void Write(const libKORG::PerformanceObject& performanceObject) = 0;
 	virtual void Write(const libKORG::SingleTouchSettings& singleTouchSettings) = 0;
 };

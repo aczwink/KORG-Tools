@@ -56,6 +56,8 @@ namespace libKORG
 		}
 
 		//Operators
+		bool operator==(const ProgramChangeSequence&) const = default;
+
 		inline bool operator<(const ProgramChangeSequence& rhs) const
 		{
 			if(this->soundSetType == rhs.soundSetType)
@@ -108,6 +110,20 @@ namespace libKORG
 		inline StdXX::String ToString() const
 		{
 			return StdXX::String::Number(this->bankSelectMSB) + u8"." + this->ZeroFill(this->bankSelectLSB) + u8"." + this->ZeroFill(this->programChange);
+		}
+
+		//Functions
+		static ProgramChangeSequence FromUInt32(uint32 encoded)
+		{
+			uint8 msb = encoded >> 24;
+			uint8 lsb = (encoded >> 16) & 0xFF;
+			uint8 soundSetType = (encoded >> 8) & 0xFF;
+			uint8 pc = encoded & 0xFF;
+
+			ASSERT(
+					(soundSetType == (uint8)SoundSetType::KORG)
+					|| (soundSetType == (uint8)SoundSetType::XG), StdXX::String::Number(soundSetType));
+			return ProgramChangeSequence(static_cast<enum SoundSetType>(soundSetType), msb, lsb, pc);
 		}
 
 	private:

@@ -38,14 +38,21 @@ namespace libKORG
 			BankEntry& operator=(BankEntry&&) = delete;
 		};
 	public:
+		//Constructor
+		inline BankCollection(const Model& model) : model(model)
+		{
+		}
+
 		//Operators
 		inline ObjectBank<ObjectType>& operator[](BankNumberType number)
 		{
+			ASSERT_EQUALS(true, this->HasBank(number));
 			return this->banks[number];
 		}
 
 		inline const ObjectBank<ObjectType>& operator[](BankNumberType number) const
 		{
+			ASSERT_EQUALS(true, this->HasBank(number));
 			return this->banks[number];
 		}
 
@@ -58,8 +65,57 @@ namespace libKORG
 			});
 		}
 
+		inline bool HasBank(const BankNumberType& bankNumberType) const
+		{
+			return this->template HasBankImpl(bankNumberType);
+		}
+
 	private:
 		//Members
+		const Model& model;
 		StdXX::BinaryTreeMap<BankNumberType, ObjectBank<ObjectType>> banks;
+
+		//Inline
+		template<typename T = BankNumberType>
+		inline StdXX::Type::EnableIf_t< StdXX::Type::IsSameType<T, PerformanceBankNumber>::value, bool>
+		        HasBankImpl(const BankNumberType& bankNumber) const
+		{
+			const auto performanceBanks = this->model.GetBankSetup().performanceBanks;
+			if(performanceBanks.factoryBankIds.ContainsEndInclusive(bankNumber.Id()))
+				return true;
+			if(performanceBanks.localBankIds.HasValue() and performanceBanks.localBankIds->ContainsEndInclusive(bankNumber.Id()))
+				return true;
+			return false;
+		}
+
+		template<typename T = BankNumberType>
+		inline StdXX::Type::EnableIf_t< StdXX::Type::IsSameType<T, SampleBankNumber>::value, bool>
+		        HasBankImpl(const BankNumberType& bankNumber) const
+		{
+			return StdXX::Math::Range<int32>(1, 99).ContainsEndInclusive(bankNumber.Id());
+		}
+
+		template<typename T = BankNumberType>
+		inline StdXX::Type::EnableIf_t< StdXX::Type::IsSameType<T, SoundBankNumber>::value, bool>
+		        HasBankImpl(const BankNumberType& bankNumber) const
+		{
+			return bankNumber.UserNumber() < this->model.GetBankSetup().soundBanks.nUserBanks;
+		}
+
+		template<typename T = BankNumberType>
+		inline StdXX::Type::EnableIf_t< StdXX::Type::IsSameType<T, StyleBankNumber>::value, bool>
+		HasBankImpl(const BankNumberType& bankNumber) const
+		{
+			const auto styleBanks = this->model.GetBankSetup().styleBanks;
+			if(styleBanks.factoryBankIds.ContainsEndInclusive(bankNumber.Id()))
+				return true;
+			if(styleBanks.userBankIds.ContainsEndInclusive(bankNumber.Id()))
+				return true;
+			if(styleBanks.favoriteBankIds.HasValue() and styleBanks.favoriteBankIds->ContainsEndInclusive(bankNumber.Id()))
+				return true;
+			if(styleBanks.localBankIds.HasValue() and styleBanks.localBankIds->ContainsEndInclusive(bankNumber.Id()))
+				return true;
+			return false;
+		}
 	};
 }

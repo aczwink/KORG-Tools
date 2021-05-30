@@ -26,7 +26,5 @@ namespace libKORG
 	StdXX::String AccompanimentTrackNumberToAbbreviatedString(AccompanimentTrackNumber accompanimentTrackNumber);
 	StdXX::String BankPositionToString(uint8 bankPosition);
 	StdXX::String KeyboardTrackNumberToAbbreviatedString(KeyboardTrackNumber keyboardTrackNumber);
-	uint8 ParseStyleBankFileName(const StdXX::String& bankFileName);
-	uint8 ParseStyleBankName(const StdXX::String& string);
 	StdXX::String PitchToString(Pitch pitch);
 }
