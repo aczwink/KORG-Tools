@@ -80,8 +80,7 @@ namespace libKORG
 					case Style::KORG_MIDI_EventType::NoteOn:
 						openNoteEvents[event.value1] = {&event, t};
 						break;
-					case Style::KORG_MIDI_EventType::EndOfTrack:
-					case Style::KORG_MIDI_EventType::Unknown:
+					case Style::KORG_MIDI_EventType::MetaEvent:
 						break;
 					default:
 						RAISE(StdXX::ErrorHandling::IllegalCodePathError);

@@ -32,9 +32,9 @@ namespace libKORG::Performance::V0
 
 	struct ScaleSettings
 	{
-		ScaleType scaleType;
-		OctavePitch key;
-		int8 pitchTune[12];
+		ScaleType scaleType = ScaleType::Equal;
+		OctavePitch key = OctavePitch::C;
+		int8 pitchTune[12] = {};
 
 		//Operators
 		bool operator==(const ScaleSettings&) const = default;

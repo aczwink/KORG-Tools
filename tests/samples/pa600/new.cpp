@@ -18,6 +18,7 @@
  */
 #include <StdXXTest.hpp>
 #include <libkorg.hpp>
+#include "../../Shared.hpp"
 //Namespaces
 using namespace libKORG;
 using namespace libKORG::Sound;
@@ -29,7 +30,10 @@ TEST_SUITE(NewSampleTests)
 	{
 		FileSystem::Path setPath(u8"testdata/samples/pa600/new.SET");
 		Set set(setPath);
-		const auto& sampleEntry = set.sampleBanks.Entries().begin().operator*().bank.Objects().begin().operator*().object;
+		const auto& sampleEntry = ExtractFirstSample(set);
+
+		ASSERT_EQUALS(set.MultiSamples().data.sampleEntries[0].id, sampleEntry.GetId());
+		ASSERT(set.MultiSamples().data.drumSampleEntries[0].id != sampleEntry.GetId(), u8"The drumsample id is somehow different");
 
 		//TODO: CHECK SAMPLE
 		//TODO: CHECK MULTISAMPLE

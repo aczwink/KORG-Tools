@@ -29,13 +29,17 @@ public:
 	{
 		NOT_IMPLEMENTED_ERROR; //TODO: implement me
 		return {
-			{
-				.factoryBankIds = {0, 0} //TOOD: check this
+			.padBanks = {
+				.factoryBankIds = {255, 255}, //TODO: check this
+				.userBankIds = {255, 255} //TODO: check this
 			},
-			{
+			.performanceBanks = {
+				.factoryBankIds = {0, 0} //TODO: check this
+			},
+			.soundBanks = {
 				.nUserBanks = 4
 			},
-			{
+			.styleBanks = {
 				.factoryBankIds = {1, 12},
 				.userBankIds = {13, 24},
 				.favoriteBankIds = {},

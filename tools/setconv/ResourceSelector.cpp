@@ -186,9 +186,7 @@ bool ResourceSelector::SelectSound(const ProgramChangeSequence &programChangeSeq
 	if(!this->HasAvailableSoundSlot())
 		return false;
 
-	const auto& bankNumber = location->Get<0>();
-	uint8 pos = location->Get<1>();
-	const auto& entry = this->sourceSet.soundBanks[bankNumber][pos];
+	const auto& entry = this->sourceSet.soundBanks[location->bankNumber][location->pos];
 	const auto& soundData = entry.object->data;
 
 	ASSERT_EQUALS(false, soundData.drumKitData.HasValue()); //TODO: implement integrating drum samples and drum kit data
@@ -208,7 +206,7 @@ bool ResourceSelector::SelectSound(const ProgramChangeSequence &programChangeSeq
 uint32 ResourceSelector::ComputeTargetSampleSize(uint64 sampleId) const
 {
 	auto location = this->setIndex.GetSampleLocation(sampleId);
-	uint32 sampleSize = this->sourceSet.sampleBanks[location->Get<0>()][location->Get<1>()].object->GetSize();
+	uint32 sampleSize = this->sourceSet.sampleBanks[location->bankNumber][location->pos].object->GetSize();
 	if((this->multiSamplesIndex.GetSampleEntryById(sampleId)->packedData.SampleType() == libKORG::MultiSamples::SampleType::Compressed) and !this->targetSet.model.IsSampleCompressionSupported())
 		sampleSize *= 2;
 	return sampleSize;

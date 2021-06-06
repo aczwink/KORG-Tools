@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -16,16 +16,36 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#pragma once
 #include <StdXX.hpp>
-#include <libkorg/ChunkFormat/ChunkReader.hpp>
-#include "libkorg/BankFormat/BankObject.hpp"
 
 namespace libKORG
 {
-	class Pad : public AbstractSample, public ChunkReader
+	class OC31Compressor : public StdXX::Compressor
 	{
-	protected:
-		void ReadDataChunk(const ChunkHeader& chunkHeader, StdXX::DataReader &dataReader) override;
+	public:
+		//Constructor
+		OC31Compressor(StdXX::UniquePointer<StdXX::SeekableOutputStream>&& baseStream);
+
+		//Methods
+		void Finalize() override;
+		void Flush() override;
+		uint32 WriteBytes(const void *source, uint32 size) override;
+
+	private:
+		//Members
+		uint8 checkValue;
+		uint32 uncompressedSize;
+		uint64 uncompressedSizeOffset;
+		StdXX::UniquePointer<StdXX::SeekableOutputStream> baseStream;
+		StdXX::SlidingDictionary dictionary;
+
+		//Methods
+		void WriteUncompressedBlock(const uint8* data, uint16 length);
+
+		//Inline
+		inline void WriteByte(uint8 byte)
+		{
+			this->baseStream->WriteBytes(&byte, 1);
+		}
 	};
 }

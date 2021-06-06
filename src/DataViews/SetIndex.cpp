@@ -30,17 +30,9 @@ SetIndex::SetIndex(const Set& set)
 	{
 		for(const auto& objectEntry : bankEntry.bank.Objects())
 		{
-			const AbstractSample* sample = objectEntry.object.operator->();
-			const auto* sampleObject = dynamic_cast<const SampleObject*>(sample);
+			const AbstractSample& sample = *objectEntry.object;
 
-			if(sampleObject)
-			{
-				this->sampleLocations.Insert(sampleObject->data.id, {bankEntry.bankNumber, objectEntry.pos});
-			}
-			else
-			{
-				NOT_IMPLEMENTED_ERROR;
-			}
+			this->sampleLocations.Insert(sample.GetId(), {bankEntry.bankNumber, objectEntry.pos});
 		}
 	}
 

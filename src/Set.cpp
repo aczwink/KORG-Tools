@@ -39,17 +39,23 @@ public:
 	BankSetup GetBankSetup() const override
 	{
 		return {
+			.padBanks = {
+				.factoryBankIds = {1, 20}, //PA600
+				.localBankIds = {{31, 40}}, //PA4X
+				.userBankIds = {21, 30}, //PA600
+			},
 			.performanceBanks = {
 				.factoryBankIds = {1, 16}, //PA3X
 				.localBankIds = {{23, 25}}, //PA700 Oriental
+				.userBankIds = {{11, 17}} //PA4X
 			},
 			.soundBanks = {
 				.nUserBanks = 4, //PA4X
 			},
 			.styleBanks = {
 				.factoryBankIds = {1, 15}, //PA600
-				.userBankIds = {0, 0}, //TODO:
-				.favoriteBankIds = {}, //TODO:
+				.userBankIds = {18, 20}, //PA600
+				.favoriteBankIds = {{21, 32}}, //PA600
 				.localBankIds = {{101, 105}}, //PA700 Oriental
 				.nStylesPerBank = {}, //TODO:
 			}
@@ -88,17 +94,17 @@ Set::Set(const Path &setPath) : Set(setPath, unknownModel)
 }
 
 Set::Set(const Path &setPath, const Model& model) : setPath(setPath), model(model),
-	sampleBanks(model), soundBanks(model), performanceBanks(model), styleBanks(model)
+	sampleBanks(model), soundBanks(model), performanceBanks(model), styleBanks(model), padBanks(model)
 {
 	File setDir(setPath);
 	ASSERT(setDir.Exists(), u8"Set does not exist");
 
 	//TODO: GLOBAL
-	this->ReadDirectory(setPath, u8"MULTISMP", &Set::LoadMultiSamples);
-	//this->ReadDirectory(setPath, u8"PAD", &Set::LoadPads);
-	this->ReadDirectory(setPath, u8"PCM", &Set::LoadSamples);
 	if(!this->ReadDirectory(setPath, u8"KEYBOARDSET", &Set::LoadPerformances))
 		this->ReadDirectory(setPath, u8"PERFORM", &Set::LoadPerformances);
+	this->ReadDirectory(setPath, u8"MULTISMP", &Set::LoadMultiSamples);
+	this->ReadDirectory(setPath, u8"PAD", &Set::LoadPads);
+	this->ReadDirectory(setPath, u8"PCM", &Set::LoadSamples);
 	//this->LoadSongBook(setPath);
 	this->ReadDirectory(setPath, u8"SOUND", &Set::LoadSounds);
 	this->ReadDirectory(setPath, u8"STYLE", &Set::LoadStyles);
@@ -147,39 +153,26 @@ void Set::LoadMultiSamples(const String &bankFileName, const DynamicArray<BankOb
 
 void Set::LoadPads(const String &bankFileName, const DynamicArray<BankObjectEntry> &bankEntries)
 {
-	bool isUser = bankFileName.StartsWith(u8"USER");
-	ASSERT(bankFileName.StartsWith(u8"BANK") || isUser, u8"???");
-	ASSERT(bankFileName.EndsWith(u8".PAD"), u8"???");
-	String bankPart = bankFileName.SubString(4, 2);
+	PadBankNumber padBankNumber = PadBankNumber::FromBankFileName(bankFileName);
 
-	uint32 bankNumber = bankPart.ToUInt32() - 1;
-	if(isUser)
-		bankNumber += 20;
-
-	PadBank bank;
 	for(const BankObjectEntry& bankObjectEntry : bankEntries)
 	{
-		Pad& pad = dynamic_cast<Pad&>(*bankObjectEntry.object);
-		bank.AddObject(bankObjectEntry.name, bankObjectEntry.pos, &pad);
+		StyleObject& styleObject = dynamic_cast<StyleObject&>(*bankObjectEntry.object);
+		this->padBanks[padBankNumber].AddObject(bankObjectEntry.name, bankObjectEntry.pos, &styleObject);
 	}
-	bank.saved = true;
-
-	this->padBanks[bankNumber] = Move(bank);
+	this->padBanks[padBankNumber].saved = true;
 }
 
 void Set::LoadPerformances(const String &bankFileName, const DynamicArray<BankObjectEntry> &bankEntries)
 {
 	PerformanceBankNumber bankNumber = PerformanceBankNumber::FromBankFileName(bankFileName);
 
-	ObjectBank<PerformanceObject> bank;
 	for(const BankObjectEntry& bankObjectEntry : bankEntries)
 	{
 		PerformanceObject& performance = dynamic_cast<PerformanceObject&>(*bankObjectEntry.object);
-		bank.AddObject(bankObjectEntry.name, bankObjectEntry.pos, &performance);
+		this->performanceBanks[bankNumber].AddObject(bankObjectEntry.name, bankObjectEntry.pos, &performance);
 	}
-	bank.saved = true;
-
-	this->performanceBanks[bankNumber] = Move(bank);
+	this->performanceBanks[bankNumber].saved = true;
 }
 
 void Set::LoadSamples(const String& bankFileName, const DynamicArray<BankObjectEntry>& bankEntries)

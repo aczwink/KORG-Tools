@@ -52,7 +52,7 @@ namespace libKORG::BankFormat
 		const Model& model;
 
 		//Methods
-		ChunkVersion DeterminePCMVersion(const AbstractSample& sample) const;
+		ChunkVersion DeterminePerformanceVersion(uint8 majorVersion) const;
 		void WriteObjects(uint8 pos, const AbstractSample& sampleObject);
 		void WriteObjects(uint8 pos, const FullStyle& fullStyle);
 		void WriteObjects(uint8 pos, const PerformanceObject& performanceObject);

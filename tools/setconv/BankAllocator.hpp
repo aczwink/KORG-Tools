@@ -22,6 +22,7 @@
 struct BankAllocation
 {
 	BinaryTreeMap<const PerformanceObject*, Tuple<PerformanceBankNumber, uint8, String>> performanceAllocation;
+	BinaryTreeMap<ProgramChangeSequence, Tuple<SoundBankNumber, uint8, String>> soundAllocation;
 };
 
 class BankAllocator
@@ -47,14 +48,22 @@ private:
 	const Set& targetSet;
 	BankAllocation bankAllocation;
 	BinaryTreeSet<Tuple<PerformanceBankNumber, uint8>> occupiedPerformancePositions;
+	BinaryTreeSet<Tuple<SoundBankNumber, uint8>> occupiedSoundsPositions;
 
 	//Methods
 	void LayoutPerformances(const BinaryTreeSet<const PerformanceObject*>& performances);
+	void LayoutSounds(const BinaryTreeSet<ProgramChangeSequence>& sounds);
 
 	//Inline
 	inline void PlacePerformance(const PerformanceObject* performanceObject, const PerformanceBankNumber& performanceBankNumber, uint8 pos, const String& name)
 	{
 		this->bankAllocation.performanceAllocation.Insert(performanceObject, {performanceBankNumber, pos, name});
 		this->occupiedPerformancePositions.Insert({performanceBankNumber, pos});
+	}
+
+	inline void PlaceSound(const ProgramChangeSequence& programChangeSequence, const SoundBankNumber& bankNumber, uint8 pos, const String& name)
+	{
+		this->bankAllocation.soundAllocation.Insert(programChangeSequence, {bankNumber, pos, name});
+		this->occupiedSoundsPositions.Insert({bankNumber, pos});
 	}
 };

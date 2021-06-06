@@ -168,7 +168,10 @@ void PerformanceV2Outputter::Output(const KeyboardSettings &keyboardSettings)
 	}
 
 	performanceV1Outputter.Output(keyboardSettings._0x14000008_data);
-	performanceV1Outputter.Output(keyboardSettings._0x15000108_data);
+	for(uint8 i = 0; i < 4; i++)
+	{
+		performanceV1Outputter.Output(keyboardSettings._0x15000108_data[i]);
+	}
 
 	for(KeyboardTrackNumber keyboardTrackNumber : KeyboardTrackNumbers)
 	{

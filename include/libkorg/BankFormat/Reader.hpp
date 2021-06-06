@@ -90,7 +90,7 @@ namespace libKORG::BankFormat
 				case ChunkType::SoundData:
 					ASSERT_EQUALS(ObjectType::Sound, headerEntry.type);
 					break;
-				case ChunkType::StyleObject:
+				case ChunkType::StyleData:
 					ASSERT_EQUALS(ObjectType::Style, headerEntry.type);
 					break;
 			}

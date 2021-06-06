@@ -85,7 +85,7 @@ void PerformanceFormat1_0VReader::Read0x04000108Chunk(DataReader &dataReader)
 	int32 fifteen = dataReader.ReadInt32();
 	ASSERT_EQUALS(0xF, fifteen);
 
-	chunk.unknown2 = dataReader.ReadByte();
+	chunk.memoryBankNumber = dataReader.ReadByte();
 	chunk.unknown3 = dataReader.ReadByte();
 	chunk.unknown4 = dataReader.ReadByte();
 	chunk.metronomeTempo = dataReader.ReadByte();

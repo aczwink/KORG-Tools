@@ -17,6 +17,8 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
+//Local
+#include <libkorg/BankFormat/SingleTouchSettings.hpp>
 
 class PerformanceFormatWriter
 {

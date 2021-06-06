@@ -23,6 +23,7 @@
 void BankAllocator::Compute(const ResourceSelection &selection)
 {
 	this->LayoutPerformances(selection.performances);
+	this->LayoutSounds(selection.sounds);
 }
 
 //Private methods
@@ -63,6 +64,50 @@ void BankAllocator::LayoutPerformances(const BinaryTreeSet<const PerformanceObje
 				}
 
 				this->PlacePerformance(objectEntry.object.operator->(), bankNumber, pos, objectEntry.name);
+			}
+		}
+	}
+}
+
+void BankAllocator::LayoutSounds(const BinaryTreeSet<ProgramChangeSequence> &sounds)
+{
+	//first all that can be mapped directly to a position
+	for(const auto& bankEntry : this->sourceSet.soundBanks.Entries())
+	{
+		for(const auto& objectEntry : bankEntry.bank.Objects())
+		{
+			ProgramChangeSequence programChangeSequence = Set::CreateRAMSoundProgramChangeSequence(bankEntry.bankNumber, objectEntry.pos);
+			if(sounds.Contains(programChangeSequence))
+			{
+				if(this->targetSet.soundBanks.HasBank(bankEntry.bankNumber))
+				{
+					this->PlaceSound(programChangeSequence, bankEntry.bankNumber, objectEntry.pos, objectEntry.name);
+				}
+			}
+		}
+	}
+
+	//map remaining sounds
+	SoundBankNumber bankNumber = 9;
+	uint8 pos = 0;
+	for(const auto& bankEntry : this->sourceSet.soundBanks.Entries())
+	{
+		for(const auto& objectEntry : bankEntry.bank.Objects())
+		{
+			ProgramChangeSequence programChangeSequence = Set::CreateRAMSoundProgramChangeSequence(bankEntry.bankNumber, objectEntry.pos);
+			if(sounds.Contains(programChangeSequence) and !this->bankAllocation.soundAllocation.Contains(programChangeSequence))
+			{
+				while(this->occupiedSoundsPositions.Contains({bankNumber, pos}))
+				{
+					pos++;
+					if(pos == 16*8)
+					{
+						pos = 0;
+						bankNumber = bankNumber.Number() + 1;
+					}
+				}
+
+				this->PlaceSound(programChangeSequence, bankNumber, pos, objectEntry.name);
 			}
 		}
 	}

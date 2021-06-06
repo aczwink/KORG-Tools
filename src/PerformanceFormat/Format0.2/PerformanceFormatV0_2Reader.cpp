@@ -74,7 +74,7 @@ void PerformanceFormatV0_2Reader::Read0x02Chunk(uint8 versionMinor, DataReader &
 	chunk.unknown02 = dataReader.ReadUInt32();
 	chunk.unknown03 = dataReader.ReadUInt32();
 	chunk.unknown04 = dataReader.ReadUInt32();
-	uint8 nKeyboardSettings = dataReader.ReadByte();
+	chunk.nKeyboardSettings = dataReader.ReadByte();
 	chunk.unknown06 = dataReader.ReadByte();
 
 	chunk.unknownPart11.unknown10 = dataReader.ReadByte();
@@ -111,8 +111,8 @@ void PerformanceFormatV0_2Reader::Read0x02Chunk(uint8 versionMinor, DataReader &
 			this->ReadPadSettings(chunk.unknownPart15[i], dataReader);
 	}
 
-	ASSERT(nKeyboardSettings <= 4, String::Number(nKeyboardSettings));
-	for(uint8 i = 0; i < nKeyboardSettings; i++)
+	ASSERT(chunk.nKeyboardSettings <= 4, String::Number(chunk.nKeyboardSettings));
+	for(uint8 i = 0; i < chunk.nKeyboardSettings; i++)
 	{
 		auto& subChunk = chunk.unknownPart16[i];
 
@@ -196,9 +196,9 @@ void PerformanceFormatV0_2Reader::ReadEffectGroup(FXGroup& fxGroup, DataReader &
 	fxGroup.unknown14 = dataReader.ReadByte();
 }
 
-void PerformanceFormatV0_2Reader::ReadKeyboardSettings(KeyboardSettings &unknownPart2, DataReader &dataReader)
+void PerformanceFormatV0_2Reader::ReadKeyboardSettings(KeyboardSettings& keyboardSettings, DataReader &dataReader)
 {
-	auto& sec = unknownPart2;
+	auto& sec = keyboardSettings;
 	sec.unknown31 = dataReader.ReadByte();
 	sec.unknown32 = dataReader.ReadByte();
 	sec.unknown33 = dataReader.ReadByte();

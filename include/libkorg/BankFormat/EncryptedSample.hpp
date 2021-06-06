@@ -19,6 +19,7 @@
 #pragma once
 #include <StdXX.hpp>
 #include "libkorg/BankFormat/BankObject.hpp"
+#include "BankFormat.hpp"
 
 namespace libKORG
 {
@@ -26,10 +27,23 @@ namespace libKORG
 	{
 	public:
 		//Constructor
-		inline EncryptedSample(uint64 id, StdXX::InputStream& inputStream)
+		inline EncryptedSample(uint64 id, const ChunkVersion& dataVersion, const BankFormat::EncryptionInformation& encryptionInformation, StdXX::InputStream& inputStream)
 		{
 			this->id = id;
-			inputStream.FlushTo(this->buffer);
+			this->dataVersion = dataVersion;
+			this->encryptionInformation = encryptionInformation;
+			inputStream.FlushTo(*this->buffer.CreateOutputStream());
+		}
+
+		//Properties
+		inline const BankFormat::EncryptionInformation& EncryptionInfo() const
+		{
+			return this->encryptionInformation;
+		}
+
+		inline const ChunkVersion& DataVersion() const
+		{
+			return this->dataVersion;
 		}
 
 		//Methods
@@ -40,12 +54,20 @@ namespace libKORG
 
 		uint32 GetSize() const override
 		{
-			return this->buffer.GetSize();
+			return this->buffer.Size();
+		}
+
+		//Inline
+		inline StdXX::UniquePointer<StdXX::InputStream> Read() const
+		{
+			return this->buffer.CreateInputStream();
 		}
 
 	private:
 		//Members
 		uint64 id;
-		StdXX::FIFOBuffer buffer;
+		ChunkVersion dataVersion;
+		BankFormat::EncryptionInformation encryptionInformation;
+		StdXX::DynamicByteBuffer buffer;
 	};
 }

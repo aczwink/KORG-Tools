@@ -199,6 +199,7 @@ namespace libKORG::Performance::V0
 		uint32 unknown02;
 		uint32 unknown03;
 		uint32 unknown04;
+		uint8 nKeyboardSettings;
 		uint8 unknown06;
 		UnknownPart11 unknownPart11;
 		UnknownPart13 unknownPart13;

@@ -82,11 +82,10 @@ void StyleFormat0_0V5_0Writer::Write0x1000308Chunk(const StyleData& styleData)
 	this->dataWriter.WriteByte(data.unknown12);
 	this->dataWriter.WriteByte(data.unknown13);
 	this->dataWriter.WriteByte(data.unknown14);
-
-	this->dataWriter.WriteByte(0);
-	this->dataWriter.WriteByte(0);
-	this->dataWriter.WriteByte(0x7F);
-	this->dataWriter.WriteByte(0xFF);
+	this->dataWriter.WriteByte(data.unknown15);
+	this->dataWriter.WriteByte(data.unknown16);
+	this->dataWriter.WriteByte(data.unknown17);
+	this->dataWriter.WriteByte(data.unknown18);
 
 	this->EndChunk();
 }
@@ -200,53 +199,51 @@ void StyleFormat0_0V5_0Writer::WriteMIDIEvent(const KORG_MIDI_Event &event)
 	switch(event.type)
 	{
 		case KORG_MIDI_EventType::NoteOff:
-			this->dataWriter.WriteByte(0);
-			this->dataWriter.WriteByte(event.value1);
-			this->dataWriter.WriteByte(event.value2 | 0x80);
-			break;
 		case KORG_MIDI_EventType::NoteOn:
-			this->dataWriter.WriteByte(1);
-			this->dataWriter.WriteByte(event.value1);
-			this->dataWriter.WriteByte(event.value2 | 0x80);
-			break;
 		case KORG_MIDI_EventType::ControlChange:
-			this->dataWriter.WriteByte(3);
+		case KORG_MIDI_EventType::RXnoiseOff:
+		case KORG_MIDI_EventType::RXnoiseOn:
+		{
+			if(event.unknownAdditional.HasValue())
+			{
+				this->dataWriter.WriteByte(static_cast<byte>(event.type) | 0x40);
+				this->dataWriter.WriteByte(*event.unknownAdditional);
+			}
+			else
+				this->dataWriter.WriteByte(static_cast<byte>(event.type));
+
 			this->dataWriter.WriteByte(event.value1);
 			this->dataWriter.WriteByte(event.value2 | 0x80);
-			break;
+		}
+		break;
 		case KORG_MIDI_EventType::Aftertouch:
 			this->dataWriter.WriteByte(5);
 			this->dataWriter.WriteByte(event.value1 | 0x80);
 			break;
 		case KORG_MIDI_EventType::Bend:
 		{
-			this->dataWriter.WriteByte(6);
+			if(event.unknownAdditional.HasValue())
+			{
+				this->dataWriter.WriteByte(6 | 0x40);
+				this->dataWriter.WriteByte(*event.unknownAdditional);
+			}
+			else
+				this->dataWriter.WriteByte(6);
+
 			uint16 value1 = int16(event.value1) + 8192;
 			this->dataWriter.WriteByte(value1 & 0x7F);
 			this->dataWriter.WriteByte((value1 >> 7) | 0x80);
 		}
 		break;
-		case KORG_MIDI_EventType::RXnoiseOff:
-			this->dataWriter.WriteByte(12);
-			this->dataWriter.WriteByte(event.value1);
-			this->dataWriter.WriteByte(event.value2 | 0x80);
-			break;
-		case KORG_MIDI_EventType::RXnoiseOn:
-			this->dataWriter.WriteByte(13);
-			this->dataWriter.WriteByte(event.value1);
-			this->dataWriter.WriteByte(event.value2 | 0x80);
-			break;
-		case KORG_MIDI_EventType::EndOfTrack:
+		case KORG_MIDI_EventType::MetaEvent:
+		{
 			this->dataWriter.WriteByte(9);
-			this->dataWriter.WriteByte(0x2F);
-			this->dataWriter.WriteUInt16(0);
-			break;
-		case KORG_MIDI_EventType::Unknown:
-			this->dataWriter.WriteByte(9);
-			this->dataWriter.WriteByte(0x7E);
-			this->dataWriter.WriteUInt16(event.value1);
-			this->dataWriter.WriteBytes(&event.additional9Bytes[0], event.value1);
-			break;
+			this->dataWriter.WriteByte(static_cast<byte>(event.metaEvent.type));
+			this->dataWriter.WriteByte(event.metaEvent.dataLength >> 7);
+			this->dataWriter.WriteByte(event.metaEvent.dataLength & 0x7F);
+			this->dataWriter.WriteBytes(event.metaEvent.data, event.metaEvent.dataLength);
+		}
+		break;
 		case KORG_MIDI_EventType::DeltaTime:
 		{
 			uint16 v = event.value1;

@@ -23,16 +23,16 @@ namespace libKORG::Performance::V1
 {
 	struct FXData
 	{
-		int8 unknown2;
-		int8 unknown3;
-		uint8 unknown4;
-		uint8 unknown5;
-		int8 unknown6;
-		uint8 unknown7;
-		uint8 unknown8;
-		uint8 unknown9;
-		int16 unknown10;
-		uint8 unknown11[64];
+		int8 unknown2 = -1;
+		int8 unknown3 = -1;
+		uint8 unknown4 = 0;
+		uint8 unknown5 = StdXX::Unsigned<uint8>::Max();
+		int8 unknown6 = 0;
+		uint8 unknown7 = StdXX::Unsigned<uint8>::Max();
+		uint8 unknown8 = StdXX::Unsigned<uint8>::Max();
+		uint8 unknown9 = 0;
+		int16 unknown10 = 0;
+		uint8 unknown11[64] = {};
 
 		//Operators
 		bool operator==(const FXData&) const = default;

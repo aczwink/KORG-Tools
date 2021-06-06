@@ -51,6 +51,7 @@ private:
 	void Read0x3000008Chunk(StdXX::DataReader& dataReader);
 	void Read0x4000008Chunk(StdXX::DataReader& dataReader);
 	void Read0x5010008Chunk(StdXX::DataReader& dataReader);
+	void ReadKORG_MetaEvent(libKORG::Style::KORG_MIDI_Event& event, StdXX::DataReader& dataReader);
 	void ReadKORG_MIDIEvents(uint16 dataLength, StdXX::DynamicArray<libKORG::Style::KORG_MIDI_Event>& midiEvents, StdXX::DataReader& dataReader);
 	libKORG::Style::StyleTrackData ReadStyleTrackData(StdXX::DataReader& dataReader);
 	void ReadStyleTrackDataChunk(const libKORG::ChunkVersion& chunkVersion, StdXX::DataReader& dataReader);
@@ -81,5 +82,13 @@ private:
 	{
 		this->data.midiTracks.Push({});
 		return this->data.midiTracks.Last();
+	}
+
+	inline uint16 ReadLength(StdXX::DataReader& dataReader)
+	{
+		uint8 b1 = dataReader.ReadByte();
+		uint8 b2 = dataReader.ReadByte();
+
+		return (b1 << 7) | (b2 & 0x7F);
 	}
 };

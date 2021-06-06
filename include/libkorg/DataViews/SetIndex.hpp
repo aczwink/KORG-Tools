@@ -29,14 +29,14 @@ namespace libKORG
 		SetIndex(const Set& set);
 
 		//Properties
-		inline StdXX::Optional<StdXX::Tuple<SampleBankNumber, uint8>> GetSampleLocation(uint64 id) const
+		inline StdXX::Optional<BankSlot<SampleBankNumber>> GetSampleLocation(uint64 id) const
 		{
 			if(this->sampleLocations.Contains(id))
 				return this->sampleLocations.Get(id);
 			return {};
 		}
 
-		inline StdXX::Optional<StdXX::Tuple<SoundBankNumber, uint8>> GetSoundLocation(const ProgramChangeSequence& programChangeSequence) const
+		inline StdXX::Optional<BankSlot<SoundBankNumber>> GetSoundLocation(const ProgramChangeSequence& programChangeSequence) const
 		{
 			if(this->soundLocations.Contains(programChangeSequence))
 				return this->soundLocations.Get(programChangeSequence);
@@ -45,7 +45,7 @@ namespace libKORG
 
 	private:
 		//Members
-		StdXX::BinaryTreeMap<uint64, StdXX::Tuple<SampleBankNumber, uint8>> sampleLocations;
-		StdXX::BinaryTreeMap<ProgramChangeSequence, StdXX::Tuple<SoundBankNumber, uint8>> soundLocations;
+		StdXX::BinaryTreeMap<uint64, BankSlot<SampleBankNumber>> sampleLocations;
+		StdXX::BinaryTreeMap<ProgramChangeSequence, BankSlot<SoundBankNumber>> soundLocations;
 	};
 }

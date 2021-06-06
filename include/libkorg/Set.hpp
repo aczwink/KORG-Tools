@@ -21,7 +21,6 @@
 #include "libkorg/BankFormat/ObjectBank.hpp"
 #include "libkorg/BankFormat/MultiSamplesObject.hpp"
 #include <libkorg/BankFormat/SoundObject.hpp>
-#include "libkorg/BankFormat/Pad.hpp"
 #include "libkorg/BankFormat/PerformanceObject.hpp"
 #include "FullStyle.hpp"
 #include "Model.hpp"
@@ -30,11 +29,10 @@
 #include <libkorg/BankFormat/StyleBankNumber.hpp>
 #include <libkorg/BankFormat/SampleBankNumber.hpp>
 #include <libkorg/BankFormat/BankCollection.hpp>
+#include <libkorg/BankFormat/PadBankNumber.hpp>
 
 namespace libKORG
 {
-	typedef ObjectBank<Pad> PadBank;
-
 	struct BankObjectEntry
 	{
 		StdXX::String name;
@@ -47,6 +45,7 @@ namespace libKORG
 	public:
 		//Members
 		const Model& model;
+		BankCollection<PadBankNumber, StyleObject> padBanks;
 		BankCollection<PerformanceBankNumber, PerformanceObject> performanceBanks;
 		BankCollection<SampleBankNumber, AbstractSample> sampleBanks;
 		BankCollection<SoundBankNumber, SoundObject> soundBanks;
@@ -94,7 +93,6 @@ namespace libKORG
 		//Members
 		StdXX::FileSystem::Path setPath;
 		StdXX::UniquePointer<MultiSamplesObject> multiSamples;
-		StdXX::BinaryTreeMap<uint8, PadBank> padBanks;
 
 		//Methods
 		void LoadMultiSamples(const StdXX::String& bankFileName, const StdXX::DynamicArray<BankObjectEntry>& bankEntries);

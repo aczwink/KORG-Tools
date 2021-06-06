@@ -49,7 +49,7 @@ ObjectType TOCReader::ReadObjectType(DataReader& dataReader)
 {
 	uint8 type = dataReader.ReadByte();
 	ASSERT(type == (uint8)ObjectType::MultiSample
-		   || type == (uint8)ObjectType::PAD
+		   || type == (uint8)ObjectType::Pad
 		   || type == (uint8)ObjectType::PCM
 		   || type == (uint8)ObjectType::Performance
 		   || type == (uint8)ObjectType::SongBookEntry
@@ -83,7 +83,7 @@ void TOCReader::ReadProperty(uint16 propertyType, uint16 propertySize, HeaderEnt
 		}
 		break;
 		case 2:
-			headerEntry.name = textReader.ReadZeroTerminatedStringBySize(propertySize);
+			headerEntry.name = textReader.ReadStringBySize(propertySize);
 			break;
 		case 3:
 		{

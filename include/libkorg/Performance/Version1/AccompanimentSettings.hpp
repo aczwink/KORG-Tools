@@ -26,8 +26,8 @@ namespace libKORG::Performance::V1
 {
 	struct _0x06000008_chunk
 	{
-		int8 unknown1;
-		int8 unknown2;
+		int8 unknown1 = 0;
+		int8 unknown2 = 0;
 
 		//Operators
 		bool operator==(const _0x06000008_chunk&) const = default;

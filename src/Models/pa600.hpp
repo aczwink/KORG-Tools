@@ -28,13 +28,17 @@ public:
 	BankSetup GetBankSetup() const override
 	{
 		return {
-			{
+			.padBanks = {
+				.factoryBankIds = {1, 20},
+				.userBankIds = {21, 30},
+			},
+			.performanceBanks = {
 				.factoryBankIds = {1, 8}
 			},
-			{
+			.soundBanks = {
 				.nUserBanks =2
 			},
-			{
+			.styleBanks = {
 				.factoryBankIds = {1, 15},
 				.userBankIds = {18, 20},
 				.favoriteBankIds = {{21, 32}},

@@ -31,6 +31,7 @@ public:
 
 	//Methods
 	void Output(const FullStyle& fullStyle);
+	void Output(const StyleObject& style);
 
 private:
 	//Members
@@ -38,7 +39,6 @@ private:
 
 	//Methods
 	void Output(const ChordTable& chordTable);
-	void Output(const StyleObject& style);
 	void Output(const StyleData& styleData);
 	void Output(const MasterMIDI_Track& midiTrack);
 	void Output(const MIDI_Track& midiTrack);

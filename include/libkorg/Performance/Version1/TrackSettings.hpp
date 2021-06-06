@@ -22,29 +22,37 @@
 
 namespace libKORG::Performance::V1
 {
+	struct UnknownBlock
+	{
+		uint8 unknown[22] = {127, 0, 64, 64, 64, 64, 64, 64, 64, 64, 0, 64, 64, 0, 0, 0, 90, 64, 64, 64, 64, 64};
+
+		//Operators
+		bool operator==(const UnknownBlock&) const = default;
+	};
+
 	struct TrackSettings
 	{
-		uint32 unknown1;
-		uint8 unknown2[4];
+		uint32 unknown1 = 768;
+		uint8 unknown2[4] = {0, 127, 0, 127};
 		ProgramChangeSequence soundProgramChangeSeq;
-		uint8 volume;
-		int8 pan;
-		int8 detune;
-		int8 octaveTranspose;
-		uint8 unknown3[11];
-		uint8 fxMaster1;
-		uint8 fxMaster2;
-		uint8 dry;
-		uint32 unknown12;
-		uint8 pbSensitivity;
-		uint8 unknown182;
-		int8 unknown181;
-		int8 lowGainTimes2;
-		int8 midGainTimes2;
-		int8 highGainTimes2;
-		uint8 unknown6[4];
-		uint32 unknown4[4];
-		uint8 unknown5[8][22];
+		uint8 volume = 127;
+		int8 pan = 0;
+		int8 detune = 0;
+		int8 octaveTranspose = 0;
+		uint8 unknown3[11] = {64, 64, 64, 64, 64, 64, 64, 64, 1, 0, 0};
+		uint8 fxMaster1 = 127;
+		uint8 fxMaster2 = 127;
+		uint8 dry = 0;
+		uint32 unknown12 = 16647;
+		uint8 pbSensitivity = 2;
+		uint8 unknown182 = 0;
+		int8 unknown181 = 0;
+		int8 lowGainTimes2 = 0;
+		int8 midGainTimes2 = 0;
+		int8 highGainTimes2 = 0;
+		uint8 unknown6[4] = {90, 0, 0, 0};
+		uint32 unknown4[4] = { StdXX::Unsigned<uint32>::Max(), StdXX::Unsigned<uint32>::Max(), StdXX::Unsigned<uint32>::Max(), StdXX::Unsigned<uint32>::Max() };
+		UnknownBlock unknown5[8];
 
 		//Operators
 		bool operator==(const TrackSettings&) const = default;

@@ -25,15 +25,15 @@ namespace libKORG::Performance::V1
 {
 	struct _0x04000108_chunk
 	{
-		uint8 unknown2;
-		uint8 unknown3;
-		uint8 unknown4;
-		uint8 metronomeTempo;
-		uint8 unknown41[8];
-		uint8 unknown5[8];
-		uint8 unknown6[8];
-		uint8 unknown7[3];
-		uint8 unknown8[14*3];
+		uint8 memoryBankNumber = 0;
+		uint8 unknown3 = 0;
+		uint8 unknown4 = 0;
+		uint8 metronomeTempo = 120;
+		uint8 unknown41[8] = {};
+		uint8 unknown5[8] = {8, 8, 8, 8, 8, 8, 8, 8};
+		uint8 unknown6[8] = {1, 1, 1, 1, 1, 1, 1, 1};
+		uint8 unknown7[3] = {};
+		uint8 unknown8[14*3] = {};
 
 		//Operators
 		bool operator==(const _0x04000108_chunk&) const = default;
@@ -41,9 +41,9 @@ namespace libKORG::Performance::V1
 
 	struct _0x1B000008_chunk
 	{
-		uint8 unknown1;
-		uint8 unknown2;
-		uint8 unknown3;
+		uint8 unknown1 = 1;
+		uint8 unknown2 = 0;
+		uint8 unknown3 = 0;
 
 		//Operators
 		bool operator==(const _0x1B000008_chunk&) const = default;
@@ -51,8 +51,8 @@ namespace libKORG::Performance::V1
 
 	struct _0x1A000008_chunk
 	{
-		uint8 unknown1;
-		uint8 unknown2;
+		uint8 unknown1 = 1;
+		uint8 unknown2 = 60;
 
 		//Operators
 		bool operator==(const _0x1A000008_chunk&) const = default;
@@ -96,6 +96,8 @@ namespace libKORG::Performance::V1
 		StdXX::StaticArray<KeyboardSettings, 4> keyboardSettings;
 
 		//Constructors
+		STSData() = default;
+
 		inline STSData(GeneralData&& generalData, StdXX::StaticArray<KeyboardSettings, 4>&& keyboardSettings)
 		: GeneralData(StdXX::Move(generalData)),
 		keyboardSettings(StdXX::Move(keyboardSettings))

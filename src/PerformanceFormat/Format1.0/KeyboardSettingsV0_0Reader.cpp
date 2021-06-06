@@ -97,8 +97,8 @@ void KeyboardSettingsV0_0Reader::ReadDataChunk(const libKORG::ChunkHeader &chunk
 		case 0x15000008:
 		case 0x15000108:
 		{
-			int32 perfIndex = dataReader.ReadInt32();
-			this->keyboardSettings[perfIndex]._0x15000108_data.unknown = dataReader.ReadInt32();
+			int32 trackIndex = dataReader.ReadInt32();
+			this->keyboardSettings[this->perfIndex]._0x15000108_data[trackIndex].unknown = dataReader.ReadInt32();
 		}
 		break;
 		case 0x18000008:

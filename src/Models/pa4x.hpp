@@ -28,8 +28,14 @@ public:
 	BankSetup GetBankSetup() const override
 	{
 		return {
+			.padBanks = {
+				.factoryBankIds = {255, 255}, //TODO: check this
+				.localBankIds = {{31, 40}},
+				.userBankIds = {255, 255} //TODO: check this
+			},
 			.performanceBanks = {
-				.factoryBankIds = {1, 11}
+				.factoryBankIds = {1, 11},
+				.userBankIds = {{11, 17}}
 			},
 			.soundBanks = {
 				.nUserBanks = 0 //TODO:

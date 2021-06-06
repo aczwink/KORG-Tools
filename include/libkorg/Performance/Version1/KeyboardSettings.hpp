@@ -28,47 +28,65 @@ namespace libKORG::Performance::V1
 {
 	struct _0x10000008_chunk
 	{
-		uint8 unknown1;
-		uint8 unknown2;
-		uint8 unknown3;
-		uint8 unknown4;
-		int32 unknown5;
-		uint8 unknown6;
+		uint8 unknown1 = 2;
+		uint8 unknown2 = 1;
+		uint8 unknown3 = 0;
+		uint8 unknown4 = 60;
+		int32 unknown5 = 0;
+		uint8 unknown6 = 0;
+
+		//Operators
+		bool operator==(const _0x10000008_chunk&) const = default;
 	};
 
 	struct _0x11000008_chunk
 	{
-		uint8 unknown1;
-		uint8 unknown2;
+		uint8 unknown1 = 0;
+		uint8 unknown2 = 0;
+
+		//Operators
+		bool operator==(const _0x11000008_chunk&) const = default;
 	};
 
 	struct _0x12000108_chunk
 	{
-		uint8 unknown1[3];
-		int8 unknown2[2];
-		uint8 unknown3[7];
+		uint8 unknown1[3] = {0, 222, 0};
+		int8 unknown2[2] = {-2, 4};
+		uint8 unknown3[7] = {2, 0, 2, 1, 0, 2, 0};
+
+		//Operators
+		bool operator==(const _0x12000108_chunk&) const = default;
 	};
 
 	struct _0x14000008_chunk
 	{
-		uint8 unknown[5];
+		uint8 unknown[5] = {};
+
+		//Operators
+		bool operator==(const _0x14000008_chunk&) const = default;
 	};
 
 	struct _0x15000108_chunk
 	{
-		int32 unknown;
+		int32 unknown = 0;
+
+		//Operators
+		bool operator==(const _0x15000108_chunk&) const = default;
 	};
 
 	struct _0x18000008_chunk
 	{
-		uint16 unknown1[9];
-		uint8 unknown2[12];
+		uint16 unknown1[9] = {8, 8, 8, 5, 0, 0, 0, 0, 0};
+		uint8 unknown2[12] = {1, 84, 64, 0, 1, 35, 0, 1, 1, 54, 1, 25};
+
+		//Operators
+		bool operator==(const _0x18000008_chunk&) const = default;
 	};
 
 	struct KeyboardSettings : public GeneralTracksSettings
 	{
 		StdXX::String name;
-		uint32 unknown1;
+		uint32 unknown1 = 0;
 
 		_0x10000008_chunk _0x10000008_data;
 		_0x11000008_chunk _0x11000008_data;
@@ -76,7 +94,7 @@ namespace libKORG::Performance::V1
 		V0::ScaleSettings scaleSettings;
 		_0x14000008_chunk _0x14000008_data;
 		StdXX::StaticArray<FXData, 4> fx;
-		_0x15000108_chunk _0x15000108_data;
+		StdXX::StaticArray<_0x15000108_chunk, 4> _0x15000108_data;
 		StdXX::StaticArray<TrackSettings, 4> trackSettings;
 		_0x18000008_chunk _0x18000008_data;
 	};

@@ -57,7 +57,7 @@ void MultiSamplesOutputter::Output(uint32 index, const DrumSampleEntry& drumSamp
 	Section section(u8"Drum sample entry " + String::Number(index), this->formattedOutputter);
 
 	this->formattedOutputter.OutputProperty(u8"unknown1", drumSampleEntry.unknown1);
-	this->formattedOutputter.OutputProperty(u8"unknown2", drumSampleEntry.unknown2);
+	this->formattedOutputter.OutputProperty(u8"memoryBankNumber", drumSampleEntry.unknown2);
 	this->formattedOutputter.OutputProperty(u8"unknown3", drumSampleEntry.unknown3);
 	this->formattedOutputter.OutputProperty(u8"unknown4", drumSampleEntry.unknown4);
 	this->formattedOutputter.OutputProperty(u8"unknown5", drumSampleEntry.unknown5);
@@ -103,7 +103,7 @@ void MultiSamplesOutputter::Output(uint32 index, const SampleEntry& sampleEntry)
 	Section section(u8"Sample entry " + String::Number(index), this->formattedOutputter);
 
 	this->formattedOutputter.OutputProperty(u8"unknown1", sampleEntry.unknown1);
-	this->formattedOutputter.OutputProperty(u8"unknown2", sampleEntry.unknown2);
+	this->formattedOutputter.OutputProperty(u8"memoryBankNumber", sampleEntry.memoryBankNumber);
 
 	this->formattedOutputter.OutputProperty(u8"sampleType", (uint8)sampleEntry.sampleType);
 	this->formattedOutputter.OutputProperty(u8"interpolationMode", (uint8)sampleEntry.interpolationMode);

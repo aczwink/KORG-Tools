@@ -27,7 +27,7 @@ namespace libKORG::BankFormat
 		Container = 1,
 		KorgFile = 2,
 		ObjectTOC = 5,
-		StyleObject = 6,
+		StyleData = 6,
 		LegacySoundData = 7,
 		SongBookListData = 8,
 		PerformancesData = 9,
@@ -46,7 +46,7 @@ namespace libKORG::BankFormat
 		MultiSample = 5,
 		PCM = 6,
 		StylePerformances = 7,
-		PAD = 9,
+		Pad = 9,
 		SongBookEntry = 11,
 		SongBook = 12,
 	};

@@ -66,28 +66,33 @@ void PrintBanks(const PrintSettings& printSettings, const BankCollection<BankNum
 	}
 }
 
-void PrintMultiSamples(const PrintSettings& printSettings, Set& set, FormattedOutputter& outputter)
+void PrintMultiSamples(const PrintSettings& printSettings, const Set& set, FormattedOutputter& outputter)
 {
 	MultiSamplesOutputter multiSamplesOutputter(outputter);
 	multiSamplesOutputter.Output(set.MultiSamples());
 }
 
-void PrintPerformanceBanks(const PrintSettings& printSettings, Set& set, FormattedOutputter& outputter)
+void PrintPadBanks(const PrintSettings& printSettings, const Set& set, FormattedOutputter& outputter)
+{
+	PrintBanks<PadBankNumber, StyleObject, StyleOutputter>(printSettings, set.padBanks, outputter);
+}
+
+void PrintPerformanceBanks(const PrintSettings& printSettings, const Set& set, FormattedOutputter& outputter)
 {
 	PrintBanks<PerformanceBankNumber, PerformanceObject, PerformanceOutputter>(printSettings, set.performanceBanks, outputter); //PerformanceBankNumberToString
 }
 
-void PrintSampleBanks(const PrintSettings& printSettings, Set& set, FormattedOutputter& outputter)
+void PrintSampleBanks(const PrintSettings& printSettings, const Set& set, FormattedOutputter& outputter)
 {
 	PrintBanks<SampleBankNumber, AbstractSample, SampleOutputter>(printSettings, set.sampleBanks, outputter);
 }
 
-void PrintSoundBanks(const PrintSettings& printSettings, Set& set, FormattedOutputter& outputter)
+void PrintSoundBanks(const PrintSettings& printSettings, const Set& set, FormattedOutputter& outputter)
 {
 	PrintBanks<SoundBankNumber, SoundObject, SoundOutputter>(printSettings, set.soundBanks, outputter);
 }
 
-void PrintStyleBanks(const PrintSettings& printSettings, Set& set, FormattedOutputter& outputter)
+void PrintStyleBanks(const PrintSettings& printSettings, const Set& set, FormattedOutputter& outputter)
 {
 	PrintBanks<StyleBankNumber, FullStyle, StyleOutputter>(printSettings, set.styleBanks, outputter); //StyleBankNumberToString
 }
@@ -95,6 +100,7 @@ void PrintStyleBanks(const PrintSettings& printSettings, Set& set, FormattedOutp
 enum class ResourceType
 {
 	MultiSamples,
+	Pads,
 	Performances,
 	Samples,
 	Sounds,
@@ -109,6 +115,7 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 
 	CommandLine::EnumArgument<ResourceType> typeArgument(u8"type", u8"The resource type of the sourceSet that should be dumped");
 	typeArgument.AddMapping(u8"multisamples", ResourceType::MultiSamples, u8"Dump multisamples");
+	typeArgument.AddMapping(u8"pads", ResourceType::Pads, u8"Dump pads");
 	typeArgument.AddMapping(u8"performances", ResourceType::Performances, u8"Dump performances");
 	typeArgument.AddMapping(u8"samples", ResourceType::Samples, u8"Dump samples");
 	typeArgument.AddMapping(u8"sounds", ResourceType::Sounds, u8"Dump sounds");
@@ -155,6 +162,9 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 	{
 		case ResourceType::MultiSamples:
 			PrintMultiSamples(printSettings, set, *outputter);
+			break;
+		case ResourceType::Pads:
+			PrintPadBanks(printSettings, set, *outputter);
 			break;
 		case ResourceType::Performances:
 			PrintPerformanceBanks(printSettings, set, *outputter);

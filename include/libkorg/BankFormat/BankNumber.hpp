@@ -46,9 +46,21 @@ namespace libKORG
 			return this->number < rhs.number;
 		}
 
+		inline bool operator<=(const BankNumber& rhs) const
+		{
+			return this->number <= rhs.number;
+		}
+
 		inline bool operator>(const BankNumber& rhs) const
 		{
 			return this->number > rhs.number;
+		}
+
+	protected:
+		//Functions
+		inline static uint8 IdToNumber(uint8 id)
+		{
+			return id - 1;
 		}
 
 	private:

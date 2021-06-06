@@ -26,11 +26,16 @@ namespace libKORG::Style
 		ControlChange = 3,
 		Aftertouch = 5,
 		Bend = 6,
+		MetaEvent = 9,
 		RXnoiseOff = 12,
 		RXnoiseOn = 13,
-		EndOfTrack = 0x92F,
-		Unknown = 0x97E,
 		DeltaTime
+	};
+
+	enum class KORG_MIDI_MetaEventType
+	{
+		EndOfTrack = 0x2F,
+		UnknownMaster = 0x7E,
 	};
 
 	struct KORG_MIDI_Event
@@ -38,7 +43,14 @@ namespace libKORG::Style
 		KORG_MIDI_EventType type;
 		uint16 value1;
 		uint8 value2;
-		StdXX::DynamicArray<uint8> additional9Bytes;
+		StdXX::Optional<uint8> unknownAdditional;
+
+		struct
+		{
+			KORG_MIDI_MetaEventType type;
+			uint16 dataLength;
+			byte data[4];
+		} metaEvent;
 	};
 
 	struct MIDI_Track

@@ -23,12 +23,12 @@ namespace libKORG::Performance::V1
 {
 	struct PadSettings
 	{
-		uint32 unknown2;
-		uint8 unknown3;
-		int8 unknown4;
-		uint8 unknown5[4];
-		int8 unknown6[4];
-		uint8 unknown7;
+		uint32 unknown2 = 0xFFFF00FF;
+		uint8 unknown3 = 100;
+		int8 unknown4 = 64;
+		uint8 unknown5[4] = {127, 127, 0, 0};
+		int8 unknown6[4] = {};
+		uint8 unknown7 = 90;
 
 		//Operators
 		bool operator==(const PadSettings&) const = default;

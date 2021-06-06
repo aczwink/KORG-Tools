@@ -46,6 +46,7 @@ private:
 	struct {
 		BinaryTreeMap<uint64, uint32> integratedMultiSampleIds;
 		BinaryTreeSet<uint64> integratedSampleIds;
+		BinaryTreeMap<ProgramChangeSequence, ProgramChangeSequence> integratedSounds;
 	} mapped;
 
 	//Methods
@@ -58,10 +59,14 @@ private:
 	void IntegratePerformances(const BinaryTreeMap<const PerformanceObject*, Tuple<PerformanceBankNumber, uint8, String>>& performanceAllocation);
 	void IntegratePCM();
 	bool IntegratePCMSample(const MultiSamples::SampleEntry& sampleEntry);
-	bool IntegrateSound(const ProgramChangeSequence& programChangeSequence);
-	void IntegrateSounds();
+	void IntegrateSounds(const BinaryTreeMap<ProgramChangeSequence, Tuple<SoundBankNumber, uint8, String>>& soundAllocation);
 
 	//Inline
+	inline uint32 MapMultiSampleIdToIndex(uint64 id)
+	{
+		return this->mapped.integratedMultiSampleIds.Get(id);
+	}
+
 	inline void ShowMultiSampleErrorMessage(uint64 multiSampleId)
 	{
 		auto entry = this->multiSamplesIndex.GetMultiSampleEntryById(multiSampleId);

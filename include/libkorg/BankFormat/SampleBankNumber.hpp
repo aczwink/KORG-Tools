@@ -58,5 +58,10 @@ namespace libKORG
 			ASSERT(bankFileName.EndsWith(u8".PCM"), u8"???");
 			return SampleBankNumber::FromBankName(bankFileName.SubString(0, bankFileName.GetLength() - 4));
 		}
+
+		static SampleBankNumber FromId(uint8 id)
+		{
+			return {BankNumber::IdToNumber(id)};
+		}
 	};
 }

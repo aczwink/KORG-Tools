@@ -41,7 +41,7 @@ namespace libKORG::Performance::V2
 		V0::ScaleSettings scaleSettings;
 		StdXX::StaticArray<MasterFXSettings, 2> masterFxSettings;
 		V1::_0x14000008_chunk _0x14000008_data;
-		V1::_0x15000108_chunk _0x15000108_data;
+		StdXX::StaticArray<V1::_0x15000108_chunk, 4> _0x15000108_data;
 		StdXX::StaticArray<TrackSettings, 4> trackSettings;
 		_0x22000008_chunk _0x22000008_data;
 		V1::_0x18000008_chunk _0x18000008_data;

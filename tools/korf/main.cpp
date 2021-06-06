@@ -76,8 +76,9 @@ protected:
 	{
 		switch (BankFormat::ChunkType(chunkHeader.type))
 		{
+			case BankFormat::ChunkType::PadData:
 			case BankFormat::ChunkType::PerformancesData:
-			case BankFormat::ChunkType::StyleObject:
+			case BankFormat::ChunkType::StyleData:
 				this->chunkSerializer = new ChunkSerializer(this->objectsData[&headerEntry].CreateOutputStream());
 				return this->chunkSerializer.operator->();
 		}
@@ -88,8 +89,9 @@ protected:
 	{
 		switch (BankFormat::ChunkType(chunkHeader.type))
 		{
+			case BankFormat::ChunkType::PadData:
 			case BankFormat::ChunkType::PerformancesData:
-			case BankFormat::ChunkType::StyleObject:
+			case BankFormat::ChunkType::StyleData:
 				this->Next();
 				break;
 			default:
@@ -171,7 +173,7 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 				case BankFormat::ObjectType::StylePerformances:
 					stdOut << u8"Style performances";
 					break;
-				case BankFormat::ObjectType::PAD:
+				case BankFormat::ObjectType::Pad:
 					stdOut << u8"Pad";
 					break;
 				case BankFormat::ObjectType::SongBookEntry:

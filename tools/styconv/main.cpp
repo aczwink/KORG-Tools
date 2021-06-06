@@ -23,7 +23,7 @@ using namespace StdXX;
 struct BankSelection
 {
 	FileSystem::Path setPath;
-	uint8 bankNumber;
+	StyleBankNumber bankNumber = 0;
 	uint8 posOffset;
 };
 
@@ -32,11 +32,11 @@ struct BankSelectionWithModel : BankSelection
 	const Model* model;
 };
 
-UniquePointer<SingleTouchSettings> MapSTS(const SingleTouchSettings& sts, const Set& targetSet, const Model* model)
+UniquePointer<SingleTouchSettings> MapSTS(const SingleTouchSettings& sts, const Model* model)
 {
-	if(model && (sts.Version() > model->GetSupportedResourceVersions().maxPerformanceVersion))
+	if(model && (sts.Version() > model->GetSupportedResourceVersions().maxPerformanceVersion.major))
 	{
-		PerformanceV2ToV1Converter converter(targetSet);
+		PerformanceV2ToV1Converter converter;
 		return new SingleTouchSettings(converter.Convert(sts));
 	}
 
@@ -45,13 +45,13 @@ UniquePointer<SingleTouchSettings> MapSTS(const SingleTouchSettings& sts, const 
 
 void ConvertStyleBank(const BankSelection& source, const BankSelectionWithModel& target, const SoundMapper& soundMapper)
 {
-	stdOut << u8"Loading source sourceSet..." << endl;
+	stdOut << u8"Loading source set..." << endl;
 	Set sourceSet(source.setPath);
 
-	stdOut << u8"Loading target sourceSet..." << endl;
+	stdOut << u8"Loading target set..." << endl;
 	if(!FileSystem::File(target.setPath).Exists())
-		Set::Create(target.setPath);
-	Set targetSet(target.setPath);
+		Set::Create(target.setPath, *target.model);
+	Set targetSet(target.setPath, *target.model);
 
 	const auto& entries = sourceSet.styleBanks[source.bankNumber].Objects();
 	auto& targetStyleBank = targetSet.styleBanks[target.bankNumber];
@@ -63,14 +63,14 @@ void ConvertStyleBank(const BankSelection& source, const BankSelectionWithModel&
 		if(source.posOffset > entry.pos)
 			continue;
 		uint8 targetPos = entry.pos - source.posOffset;
-		if(target.model and (targetPos >= target.model->GetBankSetup().nStylesPerBank))
+		if(target.model and (targetPos >= target.model->GetBankSetup().styleBanks.nStylesPerBank))
 		{
 			stdOut << u8"Skipping style '" << styleName << u8"' because bank can't hold that many styles" << endl;
 			continue;
 		}
 
 		UniquePointer<StyleObject> mappedStyle = new StyleObject(fullStyle.Style());
-		UniquePointer<SingleTouchSettings> mappedSTS = MapSTS(fullStyle.STS(), targetSet, target.model);
+		UniquePointer<SingleTouchSettings> mappedSTS = MapSTS(fullStyle.STS(), target.model);
 
 		soundMapper.Map(*mappedStyle);
 		soundMapper.Map(*mappedSTS);
@@ -79,7 +79,7 @@ void ConvertStyleBank(const BankSelection& source, const BankSelectionWithModel&
 
 		targetStyleBank.AddObject(styleName, targetPos, mappedFullStyle);
 	}
-	targetSet.Save(*target.model);
+	targetSet.Save();
 }
 
 static BinaryTreeMap<ProgramChangeSequence, ProgramChangeSequence> LoadSoundMapping(const String& pathString)
@@ -158,19 +158,19 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 
 	BankSelection source;
 	source.setPath = sourceSetPathArg.Value(result);
-	source.bankNumber = ParseStyleBankName(sourceBankArg.Value(result));
+	source.bankNumber = StyleBankNumber::FromBankName(sourceBankArg.Value(result));
 	source.posOffset = result.IsActivated(offsetOpt) ? result.Value(offsetOpt).ToUInt32() : 0;
 
 	BankSelectionWithModel target;
 	target.setPath = targetSetPathArg.Value(result);
-	target.bankNumber = ParseStyleBankName(targetBankArg.Value(result));
+	target.bankNumber = StyleBankNumber::FromBankName(targetBankArg.Value(result));
 	target.model = nullptr;
 	if(result.IsActivated(targetModelOpt))
 	{
 		target.model = FindModel(result.Value(targetModelOpt));
 		if(target.model == nullptr)
 		{
-			stdErr << u8"Unknown model: " << result.Value(targetModelOpt) << endl;
+			stdErr << u8"UnknownMaster model: " << result.Value(targetModelOpt) << endl;
 			return EXIT_FAILURE;
 		}
 	}

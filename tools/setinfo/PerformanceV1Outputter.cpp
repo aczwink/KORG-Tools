@@ -158,7 +158,7 @@ void PerformanceV1Outputter::Output(const _0x04000108_chunk& chunk)
 {
 	Section section(u8"_0x04000108_chunk", this->formattedOutputter);
 
-	this->formattedOutputter.OutputProperty(u8"unknown2", chunk.unknown2);
+	this->formattedOutputter.OutputProperty(u8"memoryBankNumber", chunk.memoryBankNumber);
 	this->formattedOutputter.OutputProperty(u8"unknown3", chunk.unknown3);
 	this->formattedOutputter.OutputProperty(u8"unknown4", chunk.unknown4);
 	this->formattedOutputter.OutputProperty(u8"metronomeTempo", chunk.metronomeTempo);
@@ -230,7 +230,10 @@ void PerformanceV1Outputter::Output(const KeyboardSettings &keyboardSettings)
 		this->Output(keyboardSettings.fx[i]);
 	}
 
-	this->Output(keyboardSettings._0x15000108_data);
+	for(uint8 i = 0; i < 4; i++)
+	{
+		this->Output(keyboardSettings._0x15000108_data[i]);
+	}
 
 	for(KeyboardTrackNumber keyboardTrackNumber : KeyboardTrackNumbers)
 	{

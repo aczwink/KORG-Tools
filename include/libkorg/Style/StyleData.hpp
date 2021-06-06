@@ -38,6 +38,10 @@ namespace libKORG::Style
 			uint8 unknown12;
 			uint8 unknown13;
 			uint8 unknown14;
+			uint8 unknown15;
+			uint8 unknown16;
+			uint8 unknown17;
+			uint8 unknown18;
 		} _0x1000308_chunk;
 
 		StdXX::DynamicArray<uint16> oneBasedMIDITrackMappingIndices;

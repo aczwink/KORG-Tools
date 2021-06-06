@@ -25,23 +25,15 @@ namespace libKORG
 	class PerformanceV2ToV1Converter
 	{
 	public:
-		//Constructor
-		inline PerformanceV2ToV1Converter(const Set& targetSet) : baseSTS(this->FindFirstSTS(targetSet))
-		{
-		}
-
 		//Methods
 		SingleTouchSettings Convert(const SingleTouchSettings& source) const
 		{
-			SingleTouchSettings result = this->baseSTS;
-			this->Convert(source.V2Data(), result.V1Data());
-			return result;
+			StdXX::UniquePointer<Performance::V1::STSData> stsData = new Performance::V1::STSData;
+			this->Convert(source.V2Data(), *stsData);
+			return stsData;
 		}
 
 	private:
-		//Members
-		const SingleTouchSettings& baseSTS;
-
 		//Methods
 		void Convert(const Performance::V2::STSData& source, Performance::V1::STSData& target) const
 		{
@@ -54,30 +46,22 @@ namespace libKORG
 		void ConvertGeneralData(const Performance::V2::GeneralData& source, Performance::V1::GeneralData& target) const
 		{
 			this->Map04Chunk(source._0x04020008_data, target._0x04000108_data);
-
 			this->MapAccompanimentSettings(target.accompanimentSettings, source.accompanimentSettings);
-		}
-
-		const SingleTouchSettings& FindFirstSTS(const Set& set)
-		{
-			for(const auto& bankEntry : set.styleBanks.Entries())
-			{
-				for(const auto& objectEntry : bankEntry.bank.Objects())
-				{
-					return objectEntry.object->STS();
-				}
-			}
-
-			NOT_IMPLEMENTED_ERROR; //TODO: implement me
+			target._0x1B000008_data = source._0x1B000008_data;
+			target._0x1A000008_data = source._0x1A000008_data;
 		}
 
 		void Map04Chunk(const Performance::V2::_0x04020008_chunk& source, Performance::V1::_0x04000108_chunk& target) const
 		{
 			target.metronomeTempo = source.metronomeTempo;
+			//TODO: check whats compatible here
 		}
 
 		void MapAccompanimentSettings(Performance::V1::AccompanimentSettings& target, const Performance::V2::AccompanimentSettings& source) const
 		{
+			target._0x06000008_data = source._0x06000008_data;
+			target.padSettings = source.padSettings;
+
 			for(uint8 i = 0; i < 8; i++)
 				this->MapTrackProperties(target.trackSettings[i], source.trackSettings[i]);
 		}
@@ -85,24 +69,25 @@ namespace libKORG
 		void MapKeyboardSettings(Performance::V1::KeyboardSettings& target, const Performance::V2::KeyboardSettings& source) const
 		{
 			target.name = source.name;
+			target.unknown1 = source.unknown1;
+			target._0x10000008_data = source._0x10000008_data;
+			target._0x11000008_data = source._0x11000008_data;
+			target._0x12000108_data = source._0x12000108_data;
+			target.scaleSettings = source.scaleSettings;
+			target._0x14000008_data = source._0x14000008_data;
+			target._0x15000108_data = source._0x15000108_data;
+
+			//TODO: fx
+
 			for(uint8 i = 0; i < 4; i++)
 				this->MapTrackProperties(target.trackSettings[i], source.trackSettings[i]);
+
+			target._0x18000008_data = source._0x18000008_data;
 		}
 
 		void MapTrackProperties(Performance::V1::TrackSettings& target, const Performance::V2::TrackSettings& source) const
 		{
-			target.soundProgramChangeSeq = source.soundProgramChangeSeq;
-			target.highGainTimes2 = source.highGainTimes2;
-			target.midGainTimes2 = source.midGainTimes2;
-			target.lowGainTimes2 = source.lowGainTimes2;
-			target.pbSensitivity = source.pbSensitivity;
-			target.dry = source.dry;
-			target.fxMaster1 = source.fxMaster1;
-			target.fxMaster2 = source.fxMaster2;
-			target.octaveTranspose = source.octaveTranspose;
-			target.detune = source.detune;
-			target.pan = source.pan;
-			target.volume = source.volume;
+			target = source; //slicing is desired here
 		}
 	};
 }

@@ -31,6 +31,13 @@ namespace libKORG
 			{
 				StdXX::Math::Range<uint8> factoryBankIds;
 				StdXX::Optional<StdXX::Math::Range<uint8>> localBankIds;
+				StdXX::Math::Range<uint8> userBankIds;
+			} padBanks;
+			struct
+			{
+				StdXX::Math::Range<uint8> factoryBankIds;
+				StdXX::Optional<StdXX::Math::Range<uint8>> localBankIds;
+				StdXX::Optional<StdXX::Math::Range<uint8>> userBankIds;
 			} performanceBanks;
 
 			struct
@@ -74,6 +81,12 @@ namespace libKORG
 		inline StdXX::String InternalName() const
 		{
 			return u8"Z" + this->GetMachId() + this->GetCustomization();
+		}
+
+		//Operators
+		inline bool operator==(const Model& rhs) const
+		{
+			return this == &rhs;
 		}
 	};
 

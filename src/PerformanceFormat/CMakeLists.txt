@@ -5,6 +5,8 @@ set(SOURCE_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/Format0.2/PerformanceFormatV0_2Reader.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Format0.2/ScaleSettingsReader.hpp
 
+	${CMAKE_CURRENT_SOURCE_DIR}/Format0.3/PerformanceFormatV0_3Writer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Format0.3/PerformanceFormatV0_3Writer.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Format0.3/PerformanceFormatV0_3Reader.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Format0.3/PerformanceFormatV0_3Reader.hpp
 

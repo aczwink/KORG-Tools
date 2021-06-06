@@ -45,6 +45,9 @@ namespace libKORG::Sound
 		uint8 level;
 		bool reversed = false;
 		Offset offset = Offset::Off;
+
+		//Operators
+		bool operator==(const OSCMultiSampleSettings&) const = default;
 	};
 
 	enum class OSCTriggerMode
@@ -97,5 +100,9 @@ namespace libKORG::Sound
 		uint8 unknown51[22];
 		EqualizerData equalizer;
 		uint8 unknown53[4];
+
+		//Operators
+		bool operator==(const OscillatorData&) const = default;
+		bool operator!=(const OscillatorData&) const = default;
 	};
 }

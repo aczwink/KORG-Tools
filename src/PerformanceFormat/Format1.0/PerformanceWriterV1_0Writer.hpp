@@ -18,7 +18,6 @@
  */
 #include <StdXX.hpp>
 //Local
-#include <libkorg/BankFormat/SingleTouchSettings.hpp>
 #include "libkorg/ChunkFormat/ChunkWriter.hpp"
 #include "../PerformanceFormatWriter.hpp"
 
@@ -36,7 +35,22 @@ public:
 
 private:
 	//Methods
-	void Write0x2000000Chunk(const libKORG::Performance::V1::AccompanimentSettings& settings, const libKORG::ChunkVersion& performanceVersion);
-	void Write0x3000000Chunk(const libKORG::Performance::V1::KeyboardSettings& keyboardSettings, uint8 number, const libKORG::ChunkVersion& performanceVersion);
-	void WriteTrackProperties(uint32 trackNumber, const libKORG::Performance::V1::TrackSettings& trackSettings, const libKORG::ChunkVersion& performanceVersion);
+	void Write0x02000000Chunk(const libKORG::Performance::V1::AccompanimentSettings& settings);
+	void Write0x03000000Chunk(const libKORG::Performance::V1::KeyboardSettings& keyboardSettings, uint8 number);
+	void Write0x04000108Chunk(const libKORG::Performance::V1::_0x04000108_chunk& _0x04000108_data);
+	void Write0x06000008Chunk(const libKORG::Performance::V1::_0x06000008_chunk& chunk);
+	void Write0x07000008Chunk(int32 index, const libKORG::Performance::V1::FXData& fxData);
+	void Write0x08000008Chunk(int32 index, const libKORG::Performance::V1::PadSettings& padSettings);
+	void Write0x09000008Chunk(int32 index, const libKORG::Performance::V1::TrackSettings& trackSettings);
+	void Write0x10000008Chunk(const libKORG::Performance::V1::_0x10000008_chunk& chunk);
+	void Write0x11000008Chunk(const libKORG::Performance::V1::_0x11000008_chunk& chunk);
+	void Write0x12000108Chunk(const libKORG::Performance::V1::_0x12000108_chunk& chunk);
+	void Write0x13000008Chunk(const libKORG::Performance::V0::ScaleSettings& scaleSettings);
+	void Write0x14000008Chunk(const libKORG::Performance::V1::_0x14000008_chunk& chunk);
+	void Write0x15000108Chunk(int32 index, const libKORG::Performance::V1::_0x15000108_chunk& chunk);
+	void Write0x18000008Chunk(const libKORG::Performance::V1::_0x18000008_chunk& chunk);
+	void Write0x1A000008Chunk(const libKORG::Performance::V1::_0x1A000008_chunk& chunk);
+	void Write0x1B000008Chunk(const libKORG::Performance::V1::_0x1B000008_chunk& chunk);
+	void WriteGeneralEnd(const libKORG::Performance::V1::GeneralData& generalData);
+	void WriteGeneralStart(const libKORG::Performance::V1::GeneralData& generalData);
 };

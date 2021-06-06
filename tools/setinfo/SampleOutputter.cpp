@@ -42,7 +42,7 @@ void SampleOutputter::Output(const SampleData& sampleData) const
 	this->formattedOutputter.OutputProperty(u8"ID", String::HexNumber(sampleData.id, 16));
 	this->formattedOutputter.OutputProperty(u8"Sample format", (uint8)sampleData.sampleFormat);
 	this->formattedOutputter.OutputProperty(u8"Sample rate", sampleData.sampleRate);
-	this->formattedOutputter.OutputUnknownProperties(sampleData.unknown2, sizeof(sampleData.unknown2));
+	this->formattedOutputter.OutputUnknownProperties(sampleData.memoryBankNumber, sizeof(sampleData.memoryBankNumber));
 	this->formattedOutputter.OutputProperty(u8"Loop start", sampleData.loopStart);
 	this->formattedOutputter.OutputUnknownProperties(sampleData.unknown3, sizeof(sampleData.unknown3));
 	this->formattedOutputter.OutputProperty(u8"Sample buffer size", sampleData.sampleBuffer.Size());

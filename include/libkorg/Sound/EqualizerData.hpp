@@ -27,5 +27,8 @@ namespace libKORG::Sound
 		uint8 freq = 90;
 		int8 midGainTimes2 = 0;
 		int8 highGainTimes2 = 0;
+
+		//Operators
+		bool operator==(const EqualizerData&) const = default;
 	};
 }

@@ -30,6 +30,12 @@ void StyleOutputter::Output(const FullStyle &fullStyle)
 	performanceOutputter.Output(fullStyle.STS());
 }
 
+void StyleOutputter::Output(const StyleObject &style)
+{
+	Section section(u8"Style Data", this->formattedOutputter);
+	this->Output(style.data);
+}
+
 //Private methods
 void StyleOutputter::Output(const ChordTable &chordTable)
 {
@@ -64,12 +70,6 @@ void StyleOutputter::Output(const ChordTable &chordTable)
 	this->formattedOutputter.OutputProperty(u8"unknown3", chordTable.unknown3);
 }
 
-void StyleOutputter::Output(const StyleObject &style)
-{
-	Section section(u8"Style Data", this->formattedOutputter);
-	this->Output(style.data);
-}
-
 void StyleOutputter::Output(const StyleData &styleData)
 {
 	{
@@ -90,6 +90,10 @@ void StyleOutputter::Output(const StyleData &styleData)
 		this->formattedOutputter.OutputProperty(u8"unknown12", data.unknown12);
 		this->formattedOutputter.OutputProperty(u8"unknown13", data.unknown13);
 		this->formattedOutputter.OutputProperty(u8"unknown14", data.unknown14);
+		this->formattedOutputter.OutputProperty(u8"unknown15", data.unknown15);
+		this->formattedOutputter.OutputProperty(u8"unknown16", data.unknown16);
+		this->formattedOutputter.OutputProperty(u8"unknown17", data.unknown17);
+		this->formattedOutputter.OutputProperty(u8"unknown18", data.unknown18);
 	}
 
 	{
@@ -185,16 +189,19 @@ void StyleOutputter::Output(uint32 index, const KORG_MIDI_Event &event)
 			this->formattedOutputter.OutputProperty(u8"type", u8"note off");
 			this->formattedOutputter.OutputProperty(u8"pitch", PitchToString(Pitch(event.value1)));
 			this->formattedOutputter.OutputProperty(u8"velocity", event.value2);
+			this->formattedOutputter.OutputProperty(u8"unknownAdditional", event.unknownAdditional.HasValue() ? String::Number(event.unknownAdditional.Value()) : u8"N/A");
 			break;
 		case KORG_MIDI_EventType::NoteOn:
 			this->formattedOutputter.OutputProperty(u8"type", u8"note on");
 			this->formattedOutputter.OutputProperty(u8"pitch", PitchToString(Pitch(event.value1)));
 			this->formattedOutputter.OutputProperty(u8"velocity", event.value2);
+			this->formattedOutputter.OutputProperty(u8"unknownAdditional", event.unknownAdditional.HasValue() ? String::Number(event.unknownAdditional.Value()) : u8"N/A");
 			break;
 		case KORG_MIDI_EventType::ControlChange:
 			this->formattedOutputter.OutputProperty(u8"type", u8"control change");
 			this->formattedOutputter.OutputProperty(u8"number", event.value1);
 			this->formattedOutputter.OutputProperty(u8"value", event.value2);
+			this->formattedOutputter.OutputProperty(u8"unknownAdditional", event.unknownAdditional.HasValue() ? String::Number(event.unknownAdditional.Value()) : u8"N/A");
 			break;
 		case KORG_MIDI_EventType::Aftertouch:
 			this->formattedOutputter.OutputProperty(u8"type", u8"aftertouch");
@@ -203,6 +210,7 @@ void StyleOutputter::Output(uint32 index, const KORG_MIDI_Event &event)
 		case KORG_MIDI_EventType::Bend:
 			this->formattedOutputter.OutputProperty(u8"type", u8"bend");
 			this->formattedOutputter.OutputProperty(u8"velocity", (int16)event.value1);
+			this->formattedOutputter.OutputProperty(u8"unknownAdditional", event.unknownAdditional.HasValue() ? String::Number(event.unknownAdditional.Value()) : u8"N/A");
 			break;
 		case KORG_MIDI_EventType::RXnoiseOff:
 			this->formattedOutputter.OutputProperty(u8"type", u8"rxnoise off");
@@ -214,16 +222,14 @@ void StyleOutputter::Output(uint32 index, const KORG_MIDI_Event &event)
 			this->formattedOutputter.OutputProperty(u8"pitch", PitchToString(Pitch(event.value1)));
 			this->formattedOutputter.OutputProperty(u8"velocity", event.value2);
 			break;
-		case KORG_MIDI_EventType::EndOfTrack:
-			this->formattedOutputter.OutputProperty(u8"type", u8"end of track");
-			break;
-		case KORG_MIDI_EventType::Unknown:
-			this->formattedOutputter.OutputProperty(u8"type", u8"unknown");
-			this->formattedOutputter.OutputProperty(u8"nBytes", event.value1);
+		case KORG_MIDI_EventType::MetaEvent:
+			this->formattedOutputter.OutputProperty(u8"type", u8"meta");
+			this->formattedOutputter.OutputProperty(u8"meta event type", (uint8)event.metaEvent.type);
+			this->formattedOutputter.OutputProperty(u8"meta dataLength", (uint8)event.metaEvent.dataLength);
 			{
-				Section section(u8"Unknown bytes", this->formattedOutputter);
-				for(uint8 byte : event.additional9Bytes)
-					this->formattedOutputter.OutputProperty(u8"byte", byte);
+				Section section(u8"data", this->formattedOutputter);
+				for(uint8 i = 0; i < event.metaEvent.dataLength; i++)
+					this->formattedOutputter.OutputProperty(u8"byte", event.metaEvent.data[i]);
 			}
 			break;
 		case KORG_MIDI_EventType::DeltaTime:

@@ -16,6 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
+//Local
+#include "PadBankNumber.hpp"
+#include "BankSlot.hpp"
 
 namespace libKORG
 {
@@ -44,16 +47,34 @@ namespace libKORG
 		}
 
 		//Operators
-		inline ObjectBank<ObjectType>& operator[](BankNumberType number)
+		inline ObjectBank<ObjectType>& operator[](BankNumberType number) const
 		{
 			ASSERT_EQUALS(true, this->HasBank(number));
-			return this->banks[number];
+			if(!this->banks.Contains(number))
+				this->banks.Insert(number, ObjectBank<ObjectType>(this->model));
+			return this->banks.Get(number);
 		}
 
-		inline const ObjectBank<ObjectType>& operator[](BankNumberType number) const
+		//Methods
+		StdXX::Optional<BankSlot<BankNumberType>> FindFreeSlot(BankNumberType startBankNumber = 0, uint8 startPos = 0) const
 		{
-			ASSERT_EQUALS(true, this->HasBank(number));
-			return this->banks[number];
+			uint8 bankNumber = startBankNumber.Number();
+			uint8 pos = startPos;
+			do
+			{
+				if(this->HasBank(bankNumber))
+				{
+					auto result = this->operator[](bankNumber).FindFreeSlot(pos);
+					if(result.HasValue())
+						return {{bankNumber, *result}};
+				}
+
+				bankNumber = (bankNumber + 1) % 99; //sample banks are the largest ones with 99 banks
+				pos = 0;
+			}
+			while( !( (bankNumber == startBankNumber.Number()) and (pos == startPos) ) );
+
+			return {};
 		}
 
 		//Inline
@@ -65,6 +86,11 @@ namespace libKORG
 			});
 		}
 
+		inline StdXX::Optional<BankSlot<BankNumberType>> FindFreeSlot(const BankSlot<BankNumberType>& startSlot) const
+		{
+			return this->FindFreeSlot(startSlot.bankNumber, startSlot.pos);
+		}
+
 		inline bool HasBank(const BankNumberType& bankNumberType) const
 		{
 			return this->template HasBankImpl(bankNumberType);
@@ -73,9 +99,23 @@ namespace libKORG
 	private:
 		//Members
 		const Model& model;
-		StdXX::BinaryTreeMap<BankNumberType, ObjectBank<ObjectType>> banks;
+		mutable StdXX::BinaryTreeMap<BankNumberType, ObjectBank<ObjectType>> banks;
 
 		//Inline
+		template<typename T = BankNumberType>
+		inline StdXX::Type::EnableIf_t< StdXX::Type::IsSameType<T, PadBankNumber>::value, bool>
+			HasBankImpl(const BankNumberType& bankNumber) const
+		{
+			const auto padBanks = this->model.GetBankSetup().padBanks;
+			if(padBanks.factoryBankIds.ContainsEndInclusive(bankNumber.Id()))
+				return true;
+			if(padBanks.localBankIds.HasValue() and padBanks.localBankIds->ContainsEndInclusive(bankNumber.Id()))
+				return true;
+			if(padBanks.userBankIds.ContainsEndInclusive(bankNumber.Id()))
+				return true;
+			return false;
+		}
+
 		template<typename T = BankNumberType>
 		inline StdXX::Type::EnableIf_t< StdXX::Type::IsSameType<T, PerformanceBankNumber>::value, bool>
 		        HasBankImpl(const BankNumberType& bankNumber) const
@@ -84,6 +124,8 @@ namespace libKORG
 			if(performanceBanks.factoryBankIds.ContainsEndInclusive(bankNumber.Id()))
 				return true;
 			if(performanceBanks.localBankIds.HasValue() and performanceBanks.localBankIds->ContainsEndInclusive(bankNumber.Id()))
+				return true;
+			if(performanceBanks.userBankIds.HasValue() and performanceBanks.userBankIds->ContainsEndInclusive(bankNumber.Id()))
 				return true;
 			return false;
 		}

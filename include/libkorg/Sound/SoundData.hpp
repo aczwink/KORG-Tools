@@ -41,6 +41,9 @@ namespace libKORG::Sound
 		uint8 unknown2[64] = {};
 		uint8 unknown3 = 0;
 		uint8 unknown4 = 0;
+
+		//Operators
+		bool operator==(const EffectData&) const = default;
 	};
 
 	struct SoundData
@@ -75,5 +78,8 @@ namespace libKORG::Sound
 		uint8 maxRange = 5;
 		StdXX::DynamicArray<OscillatorData> oscillators;
 		StdXX::Optional<DrumKitSoundData> drumKitData; //only there for drum kits
+
+		//Operators
+		bool operator==(const SoundData&) const = default;
 	};
 }

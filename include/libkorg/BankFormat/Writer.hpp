@@ -23,6 +23,13 @@
 
 namespace libKORG::BankFormat
 {
+	enum class ObjectStreamFormat
+	{
+		Uncompressed,
+		Compressed,
+		Encrypted
+	};
+
 	class Writer : protected ChunkWriter
 	{
 	public:
@@ -33,28 +40,18 @@ namespace libKORG::BankFormat
 		}
 
 		//Methods
+		StdXX::UniquePointer<StdXX::Compressor> BeginWritingObjectData();
+		void EndWritingObject();
 		void WriteHeader();
-		void WriteIndexEntry(const HeaderEntry& headerEntry);
+		void WriteIndexEntry(const HeaderEntry& headerEntry, ObjectStreamFormat format);
 
 		//Inline
 		inline void BeginWritingIndex()
 		{
-			this->BeginCrossReferencedChunk(ChunkType::ObjectTOC, 0, 0, ChunkHeaderFlags::Leaf);
-		}
-
-		inline StdXX::OutputStream& BeginWritingObjectData()
-		{
-			const HeaderEntry& headerEntry = this->headerEntries[this->currentObjectWritingHeaderIndex++];
-			this->BeginCrossReferencedChunk(this->MapObjectTypeToDataType(headerEntry.type), headerEntry.dataVersion.major, headerEntry.dataVersion.minor, this->IsLeaf(headerEntry.type));
-			return this->outputStream;
+			this->BeginCrossReferencedChunk(ChunkType::ObjectTOC, 1, 1, ChunkHeaderFlags::Leaf);
 		}
 
 		inline void EndIndex()
-		{
-			this->EndChunk();
-		}
-
-		inline void EndWritingObject()
 		{
 			this->EndChunk();
 		}
@@ -70,7 +67,9 @@ namespace libKORG::BankFormat
 		StdXX::DataWriter fourccWriter;
 		StdXX::DynamicArray<uint32> crossReferenceObjects;
 		StdXX::DynamicArray<HeaderEntry> headerEntries;
+		StdXX::DynamicArray<ObjectStreamFormat> objectFormats;
 		uint32 currentObjectWritingHeaderIndex;
+		StdXX::DynamicByteBuffer currentObjectBuffer;
 
 		//Methods
 		ChunkHeaderFlags IsLeaf(ObjectType objectType) const;
@@ -78,12 +77,12 @@ namespace libKORG::BankFormat
 		void WriteCrossReferenceTable();
 
 		//Inline
-		inline void BeginChunk(ChunkType type, uint8 versionMajor, uint8 versionMinor, ChunkHeaderFlags flag)
+		inline void BeginChunk(ChunkType type, uint8 versionMajor, uint8 versionMinor, StdXX::Flags<ChunkHeaderFlags> flags)
 		{
-			ChunkWriter::BeginChunk((uint8)type, versionMajor, versionMinor, flag | ChunkHeaderFlags::UnknownAlwaysSetInBankFile);
+			ChunkWriter::BeginChunk((uint8)type, versionMajor, versionMinor, flags.WithFlag(ChunkHeaderFlags::UnknownAlwaysSetInBankFile));
 		}
 
-		inline void BeginCrossReferencedChunk(ChunkType type, uint8 versionMajor, uint8 versionMinor, ChunkHeaderFlags flag)
+		inline void BeginCrossReferencedChunk(ChunkType type, uint8 versionMajor, uint8 versionMinor, StdXX::Flags<ChunkHeaderFlags> flag)
 		{
 			this->crossReferenceObjects.Push(this->outputStream.QueryCurrentOffset());
 			this->BeginChunk(type, versionMajor, versionMinor, flag);

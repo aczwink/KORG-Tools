@@ -28,7 +28,7 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 
 	parser.AddHelpOption();
 
-	CommandLine::PathArgument inputSetPathArg(u8"input-sourceSet-path", u8"Path to the sourceSet that should be converted");
+	CommandLine::PathArgument inputSetPathArg(u8"input-set-path", u8"Path to the sourceSet that should be converted");
 	parser.AddPositionalArgument(inputSetPathArg);
 
 	CommandLine::PathArgument targetSetPathArg(u8"target-sourceSet-path", u8"Path to the converted sourceSet. The directory must not exist");

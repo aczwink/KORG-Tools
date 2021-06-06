@@ -35,20 +35,15 @@ void SetConverter::Convert()
 
 	stdOut << u8"Converting resources..." << endl;
 
+	this->IntegratePCM();
+	this->IntegrateMultiSamples();
+	this->IntegrateSounds(bankAllocator.Allocation().soundAllocation);
 	this->IntegratePerformances(bankAllocator.Allocation().performanceAllocation);
 
 	stdOut << u8"Saving..." << endl;
 	this->targetSet.Save();
 
 	stdOut << u8"Done." << endl;
-
-	NOT_IMPLEMENTED_ERROR; //TODO: implement me
-
-	this->IntegrateSounds();
-	this->IntegrateMultiSamples();
-	this->IntegratePCM();
-
-	NOT_IMPLEMENTED_ERROR; //TODO: implement me
 }
 
 //Private methods
@@ -159,6 +154,22 @@ void SetConverter::IntegratePerformances(const BinaryTreeMap<const PerformanceOb
 	{
 		PerformanceConverter converter;
 		PerformanceObject converted = converter.Convert(*kv.key, this->targetSet.model.GetSupportedResourceVersions().maxPerformanceVersion.major);
+
+		switch(converted.Version())
+		{
+			case 1:
+			{
+				for(auto& trackSettings : converted.V1Data().keyboardSettings.trackSettings)
+				{
+					//if(this->mapped.integratedSounds.Contains(trackSettings.soundProgramChangeSeq))
+						trackSettings.soundProgramChangeSeq = this->mapped.integratedSounds.Get(trackSettings.soundProgramChangeSeq);
+				}
+			}
+			break;
+			default:
+				NOT_IMPLEMENTED_ERROR; //TODO: map program change sequences
+		}
+
 		this->targetSet.performanceBanks[kv.value.Get<0>()].AddObject(kv.value.Get<2>(), kv.value.Get<1>(), new PerformanceObject(Move(converted)));
 	}
 }
@@ -191,9 +202,7 @@ bool SetConverter::IntegratePCMSample(const MultiSamples::SampleEntry& sampleEnt
 		return false;
 	}
 
-	const auto& bankNumber = location->Get<0>();
-	uint8 pos = location->Get<1>();
-	const auto& entry = this->sourceSet.sampleBanks[bankNumber][pos];
+	const auto& entry = this->sourceSet.sampleBanks[location->bankNumber][location->pos];
 
 	const AbstractSample& sample = *entry.object;
 	const auto& sampleObject = dynamic_cast<const SampleObject&>(sample);
@@ -218,49 +227,28 @@ bool SetConverter::IntegratePCMSample(const MultiSamples::SampleEntry& sampleEnt
 	return true;
 }
 
-bool SetConverter::IntegrateSound(const ProgramChangeSequence& programChangeSequence)
+void SetConverter::IntegrateSounds(const BinaryTreeMap<ProgramChangeSequence, Tuple<SoundBankNumber, uint8, String>>& soundAllocation)
 {
-	NOT_IMPLEMENTED_ERROR;
-	/*
-	for(const auto& osc : soundData.oscillators)
+	for(const auto& kv : soundAllocation)
 	{
-		if((osc.high.source == libKORG::Sound::MultiSampleSource::RAM) && !this->IntegrateMultiSample(osc.high.multiSampleId))
+		auto slot = this->setIndex.GetSoundLocation(kv.key);
+		const auto& soundObject = *this->sourceSet.soundBanks[slot->bankNumber][slot->pos].object;
+
+		Sound::SoundData newSound = soundObject.data;
+
+		for(auto& osc : newSound.oscillators)
 		{
-			this->ShowMultiSampleErrorMessage(osc.high.multiSampleId);
-			return false;
+			if(osc.high.source == Sound::MultiSampleSource::RAM)
+				osc.high.multiSampleNumber = this->MapMultiSampleIdToIndex(osc.high.multiSampleId);
+			if(osc.low.source == Sound::MultiSampleSource::RAM)
+				osc.low.multiSampleNumber = this->MapMultiSampleIdToIndex(osc.low.multiSampleId);
 		}
 
-		if((osc.low.source == libKORG::Sound::MultiSampleSource::RAM) && !this->IntegrateMultiSample(osc.low.multiSampleId))
-		{
-			this->ShowMultiSampleErrorMessage(osc.low.multiSampleId);
-			return false;
-		}
-	}
+		SoundBankNumber bankNumber = kv.value.Get<0>();
+		String name = kv.value.Get<2>();
+		uint8 pos = kv.value.Get<1>();
 
-	Sound::SoundData newSound = soundData;
-	for(auto& osc : newSound.oscillators)
-	{
-		if(osc.high.source == Sound::MultiSampleSource::RAM)
-			osc.high.multiSampleNumber = this->mapped.integratedMultiSampleIds.Get(osc.high.multiSampleId);
-		if(osc.low.source == Sound::MultiSampleSource::RAM)
-			osc.low.multiSampleNumber = this->mapped.integratedMultiSampleIds.Get(osc.low.multiSampleId);
-	}
-
-	this->targetSet.soundBanks[bankId].AddObject(entry.name, pos, new SoundObject(Move(newSound)));
-*/
-	return true;
-}
-
-void SetConverter::IntegrateSounds()
-{
-	for(const auto& bankEntry : this->sourceSet.soundBanks.Entries())
-	{
-		for(const auto& objectEntry : bankEntry.bank.Objects())
-		{
-			if(!this->IntegrateSound(Set::CreateRAMSoundProgramChangeSequence(bankEntry.bankNumber, objectEntry.pos)))
-			{
-				stdOut << u8"Can't integrate sound '" << objectEntry.name << u8" because of missing multisamples." << endl;
-			}
-		}
+		this->targetSet.soundBanks[bankNumber].AddObject(name, pos, new SoundObject(Move(newSound)));
+		this->mapped.integratedSounds[kv.key] = Set::CreateRAMSoundProgramChangeSequence(bankNumber, pos);
 	}
 }

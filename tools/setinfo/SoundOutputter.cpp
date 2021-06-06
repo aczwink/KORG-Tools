@@ -38,7 +38,7 @@ void SoundOutputter::Output(const SoundObject& soundObject) const
 		this->Output(soundObject.data.effects[i]);
 	}
 
-	this->formattedOutputter.OutputUnknownProperties(soundObject.data.unknown2, sizeof(soundObject.data.unknown2));
+	this->formattedOutputter.OutputUnknownProperties(soundObject.data.memoryBankNumber, sizeof(soundObject.data.memoryBankNumber));
 	this->formattedOutputter.OutputProperty(u8"unknown3", soundObject.data.unknown3);
 	this->formattedOutputter.OutputProperty(u8"oscillator count packed with something additional", soundObject.data.unknownPacked);
 
@@ -111,7 +111,7 @@ void SoundOutputter::Output(const OscillatorData &oscillatorData) const
 	this->formattedOutputter.OutputProperty(u8"keyboardRangeBottomKey", oscillatorData.keyboardRangeBottomKey);
 	this->formattedOutputter.OutputProperty(u8"keyboardRangeTopKey", oscillatorData.keyboardRangeTopKey);
 
-	this->formattedOutputter.OutputProperty(u8"unknown2", oscillatorData.unknown2);
+	this->formattedOutputter.OutputProperty(u8"memoryBankNumber", oscillatorData.memoryBankNumber);
 
 	this->formattedOutputter.OutputProperty(u8"oscTriggerMode", (uint8)oscillatorData.oscTriggerMode);
 	this->formattedOutputter.OutputProperty(u8"oscOffWhenSoundControllersAreOn", oscillatorData.oscOffWhenSoundControllersAreOn);

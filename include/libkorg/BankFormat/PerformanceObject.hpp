@@ -50,6 +50,12 @@ namespace libKORG
 			return *this->v0data;
 		}
 
+		inline Performance::V1::PerformanceData& V1Data()
+		{
+			ASSERT_EQUALS(1, this->version);
+			return *this->v1data;
+		}
+
 		inline const Performance::V1::PerformanceData& V1Data() const
 		{
 			ASSERT_EQUALS(1, this->version);

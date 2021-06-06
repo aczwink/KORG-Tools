@@ -37,8 +37,8 @@ void TrackSettingsReader::Read(libKORG::Performance::V1::TrackSettings& trackSet
 	atp.soundProgramChangeSeq = ProgramChangeSequence::FromUInt32(dataReader.ReadUInt32());
 
 	atp.volume = dataReader.ReadByte();
-	atp.pan = dataReader.ReadInt8() - c_knob_offset;
-	atp.detune = dataReader.ReadInt8() - c_knob_offset;
+	atp.pan = dataReader.ReadByte() - c_knob_offset;
+	atp.detune = dataReader.ReadByte() - c_knob_offset;
 
 	atp.octaveTranspose = dataReader.ReadInt8() / 12;
 
@@ -69,5 +69,5 @@ void TrackSettingsReader::Read(libKORG::Performance::V1::TrackSettings& trackSet
 		i = dataReader.ReadUInt32();
 
 	for(uint8 i = 0; i < 8; i++)
-		dataReader.ReadBytes(atp.unknown5[i], sizeof(atp.unknown5[i]));
+		dataReader.ReadBytes(atp.unknown5[i].unknown, sizeof(atp.unknown5[i]));
 }

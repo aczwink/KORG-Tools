@@ -37,7 +37,8 @@ public:
 	virtual void OutputProperty(const String& name, const String& value) = 0;
 
 	//Inline
-	inline void OutputProperty(const String& name, bool value)
+	template <typename T, typename U = Type::EnableIf_t<Type::IsSameType<T, bool>::type> >
+	inline void OutputProperty(const String& name, T value)
 	{
 		String string = value ? u8"true" : u8"false";
 		this->OutputProperty(name, string);

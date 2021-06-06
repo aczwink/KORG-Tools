@@ -112,6 +112,11 @@ namespace libKORG
 			return StdXX::String::Number(this->bankSelectMSB) + u8"." + this->ZeroFill(this->bankSelectLSB) + u8"." + this->ZeroFill(this->programChange);
 		}
 
+		inline uint32 ToUInt32() const
+		{
+			return (this->bankSelectMSB << 24) | (this->bankSelectLSB << 16) | ((uint8)this->soundSetType << 8) | (this->programChange);
+		}
+
 		//Functions
 		static ProgramChangeSequence FromUInt32(uint32 encoded)
 		{

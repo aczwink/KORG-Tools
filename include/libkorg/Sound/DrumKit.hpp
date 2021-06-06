@@ -33,6 +33,9 @@ namespace libKORG::Sound
 		uint8 unknown12 = 96;
 		uint8 unknown13[2];
 		uint8 velocitySampleSwitches[5] = {127, 127, 127, 127, 127};
+
+		//Operators
+		bool operator==(const KeyTableEntry&) const = default;
 	};
 
 	struct LayerEntry
@@ -53,11 +56,18 @@ namespace libKORG::Sound
 		uint8 unknown21[2] = {0, 15};
 		int8 intensity = 0;
 		uint64 id;
+
+		//Operators
+		bool operator==(const LayerEntry&) const = default;
+		bool operator!=(const LayerEntry&) const = default;
 	};
 
 	struct DrumKitSoundData
 	{
 		KeyTableEntry keyTable[128];
 		StdXX::DynamicArray<LayerEntry> layers;
+
+		//Operators
+		bool operator==(const DrumKitSoundData&) const = default;
 	};
 }

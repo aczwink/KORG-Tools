@@ -56,7 +56,7 @@ namespace libKORG
 		ChunkVersion version;
 	};
 
-	enum class ChunkHeaderFlags
+	enum class ChunkHeaderFlags : uint8
 	{
 		/**
 		 * Only sourceSet for the very first chunk of a bank format file

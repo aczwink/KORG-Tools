@@ -5,11 +5,12 @@ set(SOURCE_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/BankFormat.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/BankNumber.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/BankObject.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/BankSlot.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/EncryptedSample.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/MultiSamplesObject.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ObjectBank.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/Pad.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/PerformanceObject.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/PadBankNumber.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/PerformanceBankNumber.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Reader.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/SampleBankNumber.hpp

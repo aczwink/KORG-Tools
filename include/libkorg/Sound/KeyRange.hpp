@@ -23,5 +23,8 @@ namespace libKORG::Sound
 	{
 		Pitch bottomKey;
 		Pitch topKey;
+
+		//Operators
+		bool operator==(const KeyRange&) const = default;
 	};
 }

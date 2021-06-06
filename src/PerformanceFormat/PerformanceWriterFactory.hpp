@@ -18,11 +18,14 @@
  */
 //Local
 #include "PerformanceFormatWriter.hpp"
+#include "Format0.3/PerformanceFormatV0_3Writer.hpp"
 
 PerformanceFormatWriter* CreatePerformanceWriter(StdXX::SeekableOutputStream& outputStream, const ChunkVersion& formatVersion)
 {
 	switch(formatVersion.AsUInt16())
 	{
+		case 0x0003:
+			return new PerformanceFormatV0_3Writer(outputStream);
 		case 0x0100:
 			return new PerformanceWriterV1_0Writer(outputStream);
 	}

@@ -52,6 +52,11 @@ namespace libKORG
 				bankPart = bankName.SubString(5);
 				shift = 22;
 			}
+			else if(bankName.StartsWith(u8"USER"))
+			{
+				bankPart = bankName.SubString(4);
+				shift = 10;
+			}
 			else
 			{
 				ASSERT(bankName.StartsWith(u8"BANK"), u8"???");
@@ -68,6 +73,11 @@ namespace libKORG
 		{
 			ASSERT(bankFileName.EndsWith(u8".PRF"), u8"???");
 			return PerformanceBankNumber::FromBankName(bankFileName.SubString(0, bankFileName.GetLength() - 4));
+		}
+
+		static PerformanceBankNumber FromId(uint8 id)
+		{
+			return {BankNumber::IdToNumber(id)};
 		}
 	};
 }

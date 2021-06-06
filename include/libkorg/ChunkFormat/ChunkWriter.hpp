@@ -20,7 +20,8 @@
 //Local
 #include "ChunkFormat.hpp"
 
-namespace libKORG {
+namespace libKORG
+{
 	class ChunkWriter
 	{
 	public:
@@ -31,20 +32,15 @@ namespace libKORG {
 		}
 
 		//Inline
-		inline void BeginChunk(uint8 type, uint8 versionMajor, uint8 versionMinor, uint8 flags)
+		inline void BeginChunk(uint8 type, uint8 versionMajor, uint8 versionMinor, StdXX::Flags<ChunkHeaderFlags> flags)
 		{
 			this->dataWriter.WriteByte(type);
 			this->dataWriter.WriteByte(versionMajor);
 			this->dataWriter.WriteByte(versionMinor);
-			this->dataWriter.WriteByte(flags);
+			this->dataWriter.WriteByte(flags.encodedFlags);
 			this->dataWriter.WriteUInt32(0);
 
 			this->BeginSizeBracket();
-		}
-
-		inline void BeginChunk(uint8 type, uint8 versionMajor, uint8 versionMinor, libKORG::ChunkHeaderFlags flag)
-		{
-			this->BeginChunk(type, versionMajor, versionMinor, (uint8) flag);
 		}
 
 		inline void BeginSizeBracket16()

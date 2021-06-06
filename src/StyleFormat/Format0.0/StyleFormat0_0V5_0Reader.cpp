@@ -221,11 +221,10 @@ void StyleFormat0_0V5_0Reader::Read0x1000308Chunk(DataReader &dataReader)
 	chunk.unknown12 = dataReader.ReadByte();
 	chunk.unknown13 = dataReader.ReadByte();
 	chunk.unknown14 = dataReader.ReadByte();
-
-	ASSERT_EQUALS(0, dataReader.ReadByte());
-	ASSERT_EQUALS(0, dataReader.ReadByte());
-	ASSERT_EQUALS(0x7F, dataReader.ReadByte());
-	ASSERT_EQUALS(0xFF, dataReader.ReadByte());
+	chunk.unknown15 = dataReader.ReadByte();
+	chunk.unknown16 = dataReader.ReadByte();
+	chunk.unknown17 = dataReader.ReadByte();
+	chunk.unknown18 = dataReader.ReadByte();
 }
 
 void StyleFormat0_0V5_0Reader::Read0x2000008Chunk(DataReader &dataReader)
@@ -304,6 +303,26 @@ void StyleFormat0_0V5_0Reader::Read0x5010008Chunk(DataReader &dataReader)
 	midiTrack._0x5010008_data.unknown4 = dataReader.ReadByte();
 }
 
+void StyleFormat0_0V5_0Reader::ReadKORG_MetaEvent(KORG_MIDI_Event& event, DataReader &dataReader)
+{
+	event.type = KORG_MIDI_EventType::MetaEvent;
+
+	event.metaEvent.type = static_cast<KORG_MIDI_MetaEventType>(dataReader.ReadByte());
+	event.metaEvent.dataLength = this->ReadLength(dataReader);
+
+	switch(event.metaEvent.type)
+	{
+		case KORG_MIDI_MetaEventType::EndOfTrack:
+		case KORG_MIDI_MetaEventType::UnknownMaster:
+			break;
+		default:
+			NOT_IMPLEMENTED_ERROR; //TODO: implement me
+	}
+
+	ASSERT((event.metaEvent.dataLength <= sizeof(event.metaEvent.data)), String::Number(event.metaEvent.dataLength));
+	dataReader.ReadBytes(event.metaEvent.data, event.metaEvent.dataLength);
+}
+
 void StyleFormat0_0V5_0Reader::ReadKORG_MIDIEvents(uint16 dataLength, DynamicArray<KORG_MIDI_Event>& midiEvents, DataReader &dataReader)
 {
 	midiEvents.EnsureCapacity(dataLength * 2 / 3); //Events are either 1 or 2 bytes, with the exception being 0x40 and end of track marker
@@ -329,68 +348,36 @@ void StyleFormat0_0V5_0Reader::ReadKORG_MIDIEvents(uint16 dataLength, DynamicArr
 			midiEvents.Push({KORG_MIDI_EventType::DeltaTime, totalLength});
 		}
 
-		if(eventType & 0x40) //TODO: what is this???
+		Optional<uint8> unknownAdditional;
+		if(eventType & 0x40)
 		{
-			//uint8 unknown1 = dataReader.ReadByte();
-			ASSERT((eventType == 0x40)
-				   || (eventType == 0x41)
-				   || (eventType == 0x43)
-				   || (eventType == 0x46), String::HexNumber(eventType));
-
-			uint8 unknown2 = dataReader.ReadByte();
-			ASSERT((unknown2 == 0x8)
-				   || (unknown2 == 0x9)
-				   || (unknown2 == 0xA)
-				   || (unknown2 == 0xB)
-				   || (unknown2 == 0xC)
-				   || (unknown2 == 0xD)
-				   || (unknown2 == 0xE)
-				   || (unknown2 == 0xF)
-				   || (unknown2 == 0x71)
-				   || (unknown2 == 0x72)
-				   || (unknown2 == 0x73)
-				   || (unknown2 == 0x74)
-				   || (unknown2 == 0x75)
-				   || (unknown2 == 0x76)
-				   || (unknown2 == 0x77)
-				   || (unknown2 == 0x78), String::HexNumber(unknown2));
+			eventType &= ~0x40;
+			ASSERT((eventType == 0)
+				   || (eventType == 1)
+				   || (eventType == 3)
+				   || (eventType == 6), String::HexNumber(eventType));
 			dataLength--;
 
-			eventType &= ~0x40;
+			unknownAdditional = dataReader.ReadByte(); //TODO: no idea what that is
 		}
 
 		switch(eventType)
 		{
-			case 0: //probably note off
-			case 1: //probably note on
-			{
-				uint8 value1 = dataReader.ReadByte();
-
-				uint8 value2 = dataReader.ReadByte();
-				ASSERT_EQUALS(0x80, value2 & 0x80);
-				value2 &= ~0x80;
-
-				midiEvents.Push({eventType == 1 ? KORG_MIDI_EventType::NoteOn : KORG_MIDI_EventType::NoteOff, value1, value2});
-
-				//if(eventType == 1)
-				//stdOut << u8"note " << PitchToString(value1) << " " << (uint32)value2 << endl;
-
-				dataLength -= 2;
-			}
-			break;
+			case 0:
+			case 1:
 			case 3:
+			case 12:
+			case 13:
 			{
 				uint8 value1 = dataReader.ReadByte();
-				ASSERT_EQUALS(0, value1 & 0x80);
 
 				uint8 value2 = dataReader.ReadByte();
 				ASSERT_EQUALS(0x80, value2 & 0x80);
 				value2 &= ~0x80;
 
-				midiEvents.Push({KORG_MIDI_EventType::ControlChange, value1, value2});
-				//stdOut << u8"control " << (uint16)value1 << " " << (uint32)value2 << endl;
-
 				dataLength -= 2;
+
+				midiEvents.Push({(KORG_MIDI_EventType)eventType, value1, value2, unknownAdditional});
 			}
 			break;
 			case 5:
@@ -399,10 +386,9 @@ void StyleFormat0_0V5_0Reader::ReadKORG_MIDIEvents(uint16 dataLength, DynamicArr
 				ASSERT_EQUALS(0x80, value1 & 0x80);
 				value1 &= ~0x80;
 
-				midiEvents.Push({KORG_MIDI_EventType::Aftertouch, value1});
-				//stdOut << u8"aftertouch " << (uint16)value1 << endl;
-
 				dataLength--;
+
+				midiEvents.Push({KORG_MIDI_EventType::Aftertouch, value1});
 			}
 			break;
 			case 6:
@@ -413,63 +399,23 @@ void StyleFormat0_0V5_0Reader::ReadKORG_MIDIEvents(uint16 dataLength, DynamicArr
 				uint8 b2 = dataReader.ReadByte();
 				ASSERT_EQUALS(0x80, b2 & 0x80);
 				b2 &= ~0x80;
+				dataLength -= 2;
 
 				uint16 combined = (b2 << 7) | b1;
-
 				int16 value1 = -8192 + combined;
-
-				midiEvents.Push({KORG_MIDI_EventType::Bend, static_cast<uint16>(value1)});
-				//stdOut << u8"bend " << value1 << endl;
-
-				dataLength -= 2;
+				midiEvents.Push({KORG_MIDI_EventType::Bend, static_cast<uint16>(value1), 0, unknownAdditional});
 			}
-				break;
-			case 9: //probably end of track marker
+			break;
+			case 9:
 			{
-				uint8 unknown = dataReader.ReadByte();
-				dataLength--;
-
-				if(unknown == 0x7E)
-				{
-					uint16 nBytes = dataReader.ReadUInt16();
-					ASSERT((nBytes == 2)
-						   || (nBytes == 4), String::HexNumber(nBytes));
-
-					DynamicArray<uint8> bytes;
-					bytes.Resize(nBytes);
-					dataReader.ReadBytes(&bytes[0], nBytes);
-					dataLength -= 2 + nBytes;
-
-					midiEvents.Push({KORG_MIDI_EventType::Unknown, nBytes, 0, Move(bytes)});
-					//stdOut << u8"unknown " << nBytes << endl;
-					break;
-				}
-
-				ASSERT_EQUALS(0x2F, unknown);
-				ASSERT_EQUALS(0, dataReader.ReadUInt16());
-				dataLength -= 2;
-
-				midiEvents.Push({KORG_MIDI_EventType::EndOfTrack});
-
-				foundEndOfMarker = true;
+				uint32 index = midiEvents.Push({});
+				auto& event = midiEvents[index];
+				this->ReadKORG_MetaEvent(event, dataReader);
+				dataLength -= 3; //type and size
+				dataLength -= event.metaEvent.dataLength;
+				foundEndOfMarker = event.metaEvent.type == KORG_MIDI_MetaEventType::EndOfTrack;
 			}
-				break;
-			case 12:
-			case 13:
-			{
-				uint8 value1 = dataReader.ReadByte();
-
-				uint8 value2 = dataReader.ReadByte();
-				ASSERT_EQUALS(0x80, value2 & 0x80);
-				value2 &= ~0x80;
-
-				midiEvents.Push({eventType == 13 ? KORG_MIDI_EventType::RXnoiseOn : KORG_MIDI_EventType::RXnoiseOff, value1, value2});
-				//if(eventType == 13)
-				//stdOut << u8"rxnoise " << PitchToString(value1) << " " << (uint32)value2 << endl;
-
-				dataLength -= 2;
-			}
-				break;
+			break;
 			default:
 				NOT_IMPLEMENTED_ERROR;
 		}

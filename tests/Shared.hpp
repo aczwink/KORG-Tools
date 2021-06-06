@@ -24,6 +24,11 @@ inline const PerformanceObject& ExtractFirstPerformance(const Set& set)
 	return set.performanceBanks.Entries().begin().operator*().bank.Objects().begin().operator*().object.operator*();
 }
 
+inline const SampleObject& ExtractFirstSample(const Set& set)
+{
+	return dynamic_cast<const SampleObject &>(set.sampleBanks.Entries().begin().operator*().bank.Objects().begin().operator*().object.operator*());
+}
+
 inline const SoundObject& ExtractFirstSound(const Set& set)
 {
 	return set.soundBanks.Entries().begin().operator*().bank.Objects().begin().operator*().object.operator*();

@@ -55,7 +55,7 @@ void Reader::ReadBankObject(ChunkType chunkType, const ChunkHeader &chunkHeader,
 		case ChunkType::PCMData:
 		{
 			if(chunkHeader.flags & (uint8)ChunkHeaderFlags::Encrypted)
-				object = new EncryptedSample(*headerEntry.id, dataReader.InputStream());
+				object = new EncryptedSample(*headerEntry.id, headerEntry.dataVersion, headerEntry.encryptionInformation, dataReader.InputStream());
 			else
 			{
 				PCMReader pcmReader;
@@ -81,8 +81,9 @@ ChunkReader* Reader::OnEnteringChunk(const ChunkHeader &chunkHeader)
 	{
 		case ChunkType::Container:
 			return this;
+		case ChunkType::PadData:
 		case ChunkType::PerformancesData:
-		case ChunkType::StyleObject:
+		case ChunkType::StyleData:
 		{
 			this->VerifyData(chunkHeader);
 
@@ -103,7 +104,8 @@ ChunkReader* Reader::OnEnteringChunkedResourceChunk(const ChunkHeader &chunkHead
 			this->objectReader = PerformanceReaderZeroChunkReader::CreateInstance(headerEntry.type == ObjectType::StylePerformances, chunkHeader.version);
 			return this->objectReader.IsNull() ? nullptr : this->objectReader.operator->();
 		}
-		case ChunkType::StyleObject:
+		case ChunkType::PadData:
+		case ChunkType::StyleData:
 		{
 			this->objectReader = StyleReader::CreateInstance(chunkHeader.version);
 			return this->objectReader.operator->();
@@ -117,8 +119,9 @@ void Reader::OnLeavingChunk(const ChunkHeader &chunkHeader)
 {
 	switch(ChunkType(chunkHeader.type))
 	{
+		case ChunkType::PadData:
 		case ChunkType::PerformancesData:
-		case ChunkType::StyleObject:
+		case ChunkType::StyleData:
 		{
 			const HeaderEntry& headerEntry = this->headerEntries[this->currentHeaderEntryIndex];
 			if(!this->objectReader.IsNull())

@@ -18,11 +18,63 @@
  */
 //Class header
 #include <libkorg/BankFormat/Writer.hpp>
+#include "TOCEntryChecksumFunction.hpp"
+#include "OC31Compressor.hpp"
 //Namespaces
 using namespace libKORG::BankFormat;
 using namespace StdXX;
 
 //Public methods
+UniquePointer<Compressor> Writer::BeginWritingObjectData()
+{
+	const HeaderEntry& headerEntry = this->headerEntries[this->currentObjectWritingHeaderIndex];
+	ObjectStreamFormat format = this->objectFormats[this->currentObjectWritingHeaderIndex];
+
+	Flags<ChunkHeaderFlags> flags = this->IsLeaf(headerEntry.type);
+	switch(format)
+	{
+		case ObjectStreamFormat::Compressed:
+			flags.SetFlag(ChunkHeaderFlags::OC31Compressed);
+			break;
+		case ObjectStreamFormat::Encrypted:
+			flags.SetFlag(ChunkHeaderFlags::Encrypted);
+			break;
+	}
+
+	this->BeginCrossReferencedChunk(this->MapObjectTypeToDataType(headerEntry.type), headerEntry.dataVersion.major, headerEntry.dataVersion.minor, flags);
+	if(format == ObjectStreamFormat::Compressed)
+		return new OC31Compressor(this->currentObjectBuffer.CreateOutputStream());
+
+	class DelegateCompressor : public Compressor
+	{
+	public:
+		//Constructor
+		inline DelegateCompressor(OutputStream& baseStream) : Compressor(baseStream)
+		{
+		}
+
+		void Flush() override
+		{
+			this->outputStream.Flush();
+		}
+
+		uint32 WriteBytes(const void *source, uint32 size) override
+		{
+			return this->outputStream.WriteBytes(source, size);
+		}
+	};
+	return new DelegateCompressor(this->outputStream);
+}
+
+void Writer::EndWritingObject()
+{
+	this->currentObjectWritingHeaderIndex++;
+
+	this->currentObjectBuffer.CreateInputStream()->FlushTo(this->outputStream);
+	this->currentObjectBuffer.Resize(0);
+	this->EndChunk();
+}
+
 void Writer::WriteHeader()
 {
 	this->BeginChunk(ChunkType::Container, 0, 1, ChunkHeaderFlags::Unknown4);
@@ -37,19 +89,79 @@ void Writer::WriteHeader()
 	this->EndChunk();
 }
 
-void Writer::WriteIndexEntry(const HeaderEntry &headerEntry)
+void Writer::WriteIndexEntry(const HeaderEntry &headerEntry, ObjectStreamFormat format)
 {
-	TextWriter textWriter(this->outputStream, TextCodecType::ASCII);
+	class IndexEntryWriter : public ChunkWriter
+	{
+	public:
+		//Constructor
+		inline IndexEntryWriter(SeekableOutputStream& seekableOutputStream) : ChunkWriter(seekableOutputStream)
+		{
+		}
 
-	textWriter.WriteFixedLengthString(headerEntry.name, HEADERENTRY_NAME_SIZE);
-	dataWriter.WriteByte(static_cast<byte>(headerEntry.type));
-	dataWriter.WriteByte(0);
-	dataWriter.WriteByte(headerEntry.pos);
-	dataWriter.WriteByte(headerEntry.dataVersion.major);
-	dataWriter.WriteByte(headerEntry.dataVersion.minor);
-	dataWriter.WriteByte(0);
+		//Methods
+		void Write(const HeaderEntry &headerEntry, bool encryptionEnabled)
+		{
+			this->BeginSizeBracket16();
+
+			this->dataWriter.WriteUInt16(encryptionEnabled ? 5 : 3);
+
+			this->dataWriter.WriteUInt16(0);
+			this->BeginSizeBracket16();
+			this->dataWriter.WriteByte(static_cast<byte>(headerEntry.type));
+			this->dataWriter.WriteByte(0);
+			this->dataWriter.WriteByte(headerEntry.pos);
+			this->EndSizeBracket16();
+
+			this->dataWriter.WriteUInt16(1);
+			this->BeginSizeBracket16();
+			dataWriter.WriteByte(headerEntry.dataVersion.major);
+			dataWriter.WriteByte(headerEntry.dataVersion.minor);
+			this->EndSizeBracket16();
+
+			this->dataWriter.WriteUInt16(2);
+			this->BeginSizeBracket16();
+			TextWriter textWriter(this->outputStream, TextCodecType::UTF8);
+			textWriter.WriteString(headerEntry.name);
+			this->EndSizeBracket16();
+
+			if(encryptionEnabled)
+			{
+				this->dataWriter.WriteUInt16(3);
+				this->BeginSizeBracket16();
+				this->dataWriter.WriteByte(static_cast<byte>(headerEntry.encryptionInformation.serialNumberType));
+				this->dataWriter.WriteByte(static_cast<byte>(headerEntry.encryptionInformation.encryptionAlgorithm));
+				this->dataWriter.WriteUInt16(headerEntry.encryptionInformation.vendorId);
+				this->dataWriter.WriteUInt16(headerEntry.encryptionInformation.featureId);
+				this->EndSizeBracket16();
+
+				this->dataWriter.WriteUInt16(4);
+				this->BeginSizeBracket16();
+				this->dataWriter.WriteUInt64(*headerEntry.id);
+				this->EndSizeBracket16();
+			}
+
+			this->dataWriter.WriteUInt32(0); //the checksum value... correct value gets written below
+
+			this->EndSizeBracket16();
+		}
+	};
+
+	DynamicByteBuffer buffer;
+	UniquePointer<SeekableOutputStream> bufferOutputStream = buffer.CreateOutputStream();
+
+	IndexEntryWriter indexEntryWriter(*bufferOutputStream);
+	indexEntryWriter.Write(headerEntry, format == ObjectStreamFormat::Encrypted);
+
+	UniquePointer<SeekableInputStream> bufferInputStream = buffer.CreateInputStream();
+	ChecksumInputStream checksumInputStream(*bufferInputStream, new TOCEntryChecksumFunction);
+	checksumInputStream.FlushTo(this->outputStream, buffer.Size() - 4); //exclude the checksum
+
+	//write checksum value
+	this->dataWriter.WriteUInt32(checksumInputStream.Finish());
 
 	this->headerEntries.Push(headerEntry);
+	this->objectFormats.Push(format);
 }
 
 //Private methods
@@ -74,14 +186,14 @@ ChunkType Writer::MapObjectTypeToDataType(ObjectType objectType) const
 		case ObjectType::StylePerformances:
 			return ChunkType::PerformancesData;
 		case ObjectType::Style:
-			return ChunkType::StyleObject;
+			return ChunkType::StyleData;
 		case ObjectType::Sound:
 			return ChunkType::SoundData;
 		case ObjectType::MultiSample:
 			return ChunkType::MultiSampleData;
 		case ObjectType::PCM:
 			return ChunkType::PCMData;
-		case ObjectType::PAD:
+		case ObjectType::Pad:
 			NOT_IMPLEMENTED_ERROR; //TODO: implement me
 		case ObjectType::SongBookEntry:
 			NOT_IMPLEMENTED_ERROR; //TODO: implement me

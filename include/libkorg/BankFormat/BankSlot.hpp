@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -16,14 +16,13 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-//Class header
-#include <libkorg/BankFormat/Pad.hpp>
-//Namespaces
-using namespace libKORG;
-using namespace StdXX;
 
-//Protected methods
-void Pad::ReadDataChunk(const ChunkHeader& chunkHeader, DataReader &dataReader)
+namespace libKORG
 {
-	NOT_IMPLEMENTED_ERROR;
+	template<typename BankNumberType>
+	struct BankSlot
+	{
+		BankNumberType bankNumber;
+		uint8 pos;
+	};
 }

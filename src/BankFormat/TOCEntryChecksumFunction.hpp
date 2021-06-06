@@ -17,6 +17,7 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+//TODO: looks like CRC32
 class TOCEntryChecksumFunction : public StdXX::ChecksumFunction
 {
 public:

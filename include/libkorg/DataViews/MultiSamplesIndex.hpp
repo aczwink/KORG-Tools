@@ -36,6 +36,13 @@ namespace libKORG
 			return nullptr;
 		}
 
+		inline uint32 GetMultiSampleEntryIndex(uint64 id) const
+		{
+			if(this->multiSampleIdMap.Contains(id))
+				return this->multiSampleIdMap.Get(id);
+			return StdXX::Unsigned<uint32>::Max();
+		}
+
 		inline const MultiSamples::SampleEntry* GetSampleEntryById(uint64 id) const
 		{
 			if(this->sampleIdMap.Contains(id))
