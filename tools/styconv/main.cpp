@@ -77,7 +77,7 @@ void ConvertStyleBank(const BankSelection& source, const BankSelectionWithModel&
 
 		SharedPointer<FullStyle> mappedFullStyle = new FullStyle(Move(mappedStyle), Move(mappedSTS));
 
-		targetStyleBank.AddObject(styleName, targetPos, mappedFullStyle);
+		targetStyleBank.SetObject(styleName, targetPos, mappedFullStyle);
 	}
 	targetSet.Save();
 }

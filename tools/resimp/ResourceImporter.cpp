@@ -27,7 +27,8 @@ void ResourceImporter::ImportPerformance(const PerformanceBankNumber &bankNumber
 
 	stdOut << u8"Importing performance: " << performanceEntry.name << endl;
 
-	const auto slot = this->targetSet.performanceBanks.FindFreeSlot(bankNumber, pos);
+	BankSlot<PerformanceBankNumber> sourceSlot = {bankNumber, pos};
+	const auto slot = this->targetSet.performanceBanks.FindFreeSlot(this->config.performanceInsertSlot.HasValue() ? this->config.performanceInsertSlot.Value() : sourceSlot);
 	if(!slot.HasValue())
 	{
 		stdOut << u8"No free performance slot could be found." << endl;
@@ -37,23 +38,11 @@ void ResourceImporter::ImportPerformance(const PerformanceBankNumber &bankNumber
 	switch(performanceObject.Version())
 	{
 		case 0:
-		{
-			for(const auto& trackSettings : performanceObject.V0Data().keyboardSettings.trackSettings)
-			{
-				if(!this->ImportSound(trackSettings.soundProgramChangeSeq))
-					return;
-			}
-
-			UniquePointer<Performance::V0::PerformanceData> newPerformance = new Performance::V0::PerformanceData(performanceObject.V0Data());
-			for(auto& trackSettings : newPerformance->keyboardSettings.trackSettings)
-			{
-				if(this->importedSounds.Contains(trackSettings.soundProgramChangeSeq))
-					trackSettings.soundProgramChangeSeq = this->importedSounds.Get(trackSettings.soundProgramChangeSeq);
-			}
-
-			this->targetSet.performanceBanks[slot->bankNumber].AddObject(performanceEntry.name, slot->pos, new PerformanceObject(Move(newPerformance)));
-		}
-		break;
+			this->ImportPerformanceData(performanceObject.V0Data(), *slot, performanceEntry.name);
+			break;
+		case 1:
+			this->ImportPerformanceData(performanceObject.V1Data(), *slot, performanceEntry.name);
+			break;
 		default:
 			NOT_IMPLEMENTED_ERROR; //TODO: implement me
 	}
@@ -81,23 +70,21 @@ bool ResourceImporter::ImportMultiSample(uint64 id)
 {
 	if(this->importedMultiSampleIds.Contains(id))
 		return true;
-	if(this->targetMultiSamplesIndex.GetMultiSampleEntryById(id) != nullptr)
-		return true;
 	const auto& msEntry = this->sourceMultiSamplesIndex.GetMultiSampleEntryById(id);
 
-	stdOut << u8"--Importing multisample: " << msEntry->name << endl;
-	for(uint8 relativeIndex : msEntry->keyZoneIndex)
+	stdOut << u8"--Importing multisample: " << msEntry.name << endl;
+	for(uint8 relativeIndex : msEntry.keyZoneIndex)
 	{
 		if(relativeIndex == Unsigned<uint8>::Max())
 			continue;
 
-		const auto& keyZone = this->sourceSet.MultiSamples().data.keyboardZones[msEntry->keyZoneBaseIndex + relativeIndex];
+		const auto& keyZone = this->sourceSet.MultiSamples().data.keyboardZones[msEntry.keyZoneBaseIndex + relativeIndex];
 
 		if(!this->ImportSample(this->sourceSet.MultiSamples().data.sampleEntries[keyZone.sampleNumber].id))
 			return false;
 	}
 
-	MultiSamples::MultiSampleEntry newMultiSampleEntry = *msEntry;
+	MultiSamples::MultiSampleEntry newMultiSampleEntry = msEntry;
 	newMultiSampleEntry.keyZoneBaseIndex = this->targetSet.MultiSamples().data.keyboardZones.GetNumberOfElements();
 	BinaryTreeSet<uint8> importedKeyZones;
 	for(uint8& relativeIndex : newMultiSampleEntry.keyZoneIndex)
@@ -106,7 +93,7 @@ bool ResourceImporter::ImportMultiSample(uint64 id)
 			continue;
 		if(!importedKeyZones.Contains(relativeIndex))
 		{
-			const auto& srcKeyZone = this->sourceSet.MultiSamples().data.keyboardZones[msEntry->keyZoneBaseIndex + relativeIndex];
+			const auto& srcKeyZone = this->sourceSet.MultiSamples().data.keyboardZones[msEntry.keyZoneBaseIndex + relativeIndex];
 			MultiSamples::KeyboardZone keyboardZone = srcKeyZone;
 
 			keyboardZone.sampleNumber = this->importedSampleIds.Get(this->sourceSet.MultiSamples().data.sampleEntries[srcKeyZone.sampleNumber].id);
@@ -118,7 +105,7 @@ bool ResourceImporter::ImportMultiSample(uint64 id)
 
 	uint32 index = this->targetSet.MultiSamples().data.multiSampleEntries.Push(newMultiSampleEntry);
 	this->importedMultiSampleIds.Insert(id, index);
-	stdOut << u8"--Successfully imported multi sample: " << msEntry->name << endl;
+	stdOut << u8"--Successfully imported multi sample: " << msEntry.name << endl;
 	return true;
 }
 
@@ -126,12 +113,10 @@ bool ResourceImporter::ImportSample(uint64 id)
 {
 	if(this->importedSampleIds.Contains(id))
 		return true;
-	if(this->targetMultiSamplesIndex.GetSampleEntryById(id) != nullptr)
-		return true;
 	const auto& sampleEntry = this->sourceMultiSamplesIndex.GetSampleEntryById(id);
 
-	stdOut << u8"---Importing sample: " << sampleEntry->name << u8" (" << PitchToString(sampleEntry->originalNote) << u8")" << endl;
-	auto sourceLocation = *this->sourceSetIndex.GetSampleLocation(id);
+	stdOut << u8"---Importing sample: " << sampleEntry.name << u8" (" << PitchToString(sampleEntry.originalNote) << u8")" << endl;
+	auto sourceLocation = this->sourceSetIndex.GetSampleLocation(id);
 	const auto slot = this->targetSet.sampleBanks.FindFreeSlot(sourceLocation);
 	if(!slot.HasValue())
 	{
@@ -140,9 +125,9 @@ bool ResourceImporter::ImportSample(uint64 id)
 	}
 
 	const auto& entry = this->sourceSet.sampleBanks[sourceLocation.bankNumber][sourceLocation.pos];
-	this->targetSet.sampleBanks[slot->bankNumber].AddObject(entry.name, slot->pos, entry.object);
+	this->targetSet.sampleBanks[slot->bankNumber].SetObject(entry.name, slot->pos, entry.object);
 
-	uint32 index = this->targetSet.MultiSamples().data.sampleEntries.Push(*sampleEntry);
+	uint32 index = this->targetSet.MultiSamples().data.sampleEntries.Push(sampleEntry);
 	this->importedSampleIds.Insert(id, index);
 	return true;
 }
@@ -184,7 +169,7 @@ bool ResourceImporter::ImportSound(const ProgramChangeSequence &programChangeSeq
 		return true;
 	}
 
-	this->targetSet.soundBanks[slot->bankNumber].AddObject(soundEntry.name, slot->pos, new SoundObject(Move(newSound)));
+	this->targetSet.soundBanks[slot->bankNumber].SetObject(soundEntry.name, slot->pos, new SoundObject(Move(newSound)));
 	this->importedSounds.Insert(programChangeSequence, Set::CreateRAMSoundProgramChangeSequence(slot->bankNumber, slot->pos));
 
 	stdOut << u8"-Successfully imported sound '" << soundEntry.name << u8"' to slot: " << slot->bankNumber.ToString() << u8", " << slot->pos << endl;

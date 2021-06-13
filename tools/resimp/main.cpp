@@ -32,6 +32,9 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 	CommandLine::OptionWithArgument soundLocationOpt(u8's', u8"sound-location", u8"Preferred base location where to insert new sounds. Format is: Bank,Position");
 	parser.AddOption(soundLocationOpt);
 
+	CommandLine::OptionWithArgument performanceLocationOpt(u8'p', u8"performance-location", u8"Preferred base location where to insert new performances. Format is: Bank,Position");
+	parser.AddOption(performanceLocationOpt);
+
 	CommandLine::PathArgument inputSetPathArg(u8"input-set-path", u8"Path to the set that holds the resource to be imported");
 	parser.AddPositionalArgument(inputSetPathArg);
 
@@ -71,6 +74,11 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 	{
 		auto parts = soundLocationOpt.Value(result).Split(u8",");
 		config.soundInsertSlot = {SoundBankNumber::FromBankName(parts[0]), (uint8)parts[1].ToUInt32()};
+	}
+	if(result.IsActivated(performanceLocationOpt))
+	{
+		auto parts = performanceLocationOpt.Value(result).Split(u8",");
+		config.performanceInsertSlot = {PerformanceBankNumber::FromBankName(parts[0]), (uint8)parts[1].ToUInt32()};
 	}
 
 	Set sourceSet(inputSetPathArg.Value(result));

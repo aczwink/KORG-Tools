@@ -39,6 +39,10 @@ UniquePointer<Compressor> Writer::BeginWritingObjectData()
 		case ObjectStreamFormat::Encrypted:
 			flags.SetFlag(ChunkHeaderFlags::Encrypted);
 			break;
+		case ObjectStreamFormat::EncryptedAndCompressed:
+			flags.SetFlag(ChunkHeaderFlags::OC31Compressed);
+			flags.SetFlag(ChunkHeaderFlags::Encrypted);
+			break;
 	}
 
 	this->BeginCrossReferencedChunk(this->MapObjectTypeToDataType(headerEntry.type), headerEntry.dataVersion.major, headerEntry.dataVersion.minor, flags);
@@ -151,7 +155,7 @@ void Writer::WriteIndexEntry(const HeaderEntry &headerEntry, ObjectStreamFormat 
 	UniquePointer<SeekableOutputStream> bufferOutputStream = buffer.CreateOutputStream();
 
 	IndexEntryWriter indexEntryWriter(*bufferOutputStream);
-	indexEntryWriter.Write(headerEntry, format == ObjectStreamFormat::Encrypted);
+	indexEntryWriter.Write(headerEntry, (format == ObjectStreamFormat::Encrypted) || (format == ObjectStreamFormat::EncryptedAndCompressed));
 
 	UniquePointer<SeekableInputStream> bufferInputStream = buffer.CreateInputStream();
 	ChecksumInputStream checksumInputStream(*bufferInputStream, new TOCEntryChecksumFunction);

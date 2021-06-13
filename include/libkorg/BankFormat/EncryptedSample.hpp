@@ -27,10 +27,11 @@ namespace libKORG
 	{
 	public:
 		//Constructor
-		inline EncryptedSample(uint64 id, const ChunkVersion& dataVersion, const BankFormat::EncryptionInformation& encryptionInformation, StdXX::InputStream& inputStream)
+		inline EncryptedSample(uint64 id, const ChunkVersion& dataVersion, bool isCompressed, const BankFormat::EncryptionInformation& encryptionInformation, StdXX::InputStream& inputStream)
 		{
 			this->id = id;
 			this->dataVersion = dataVersion;
+			this->isCompressed = isCompressed;
 			this->encryptionInformation = encryptionInformation;
 			inputStream.FlushTo(*this->buffer.CreateOutputStream());
 		}
@@ -46,7 +47,26 @@ namespace libKORG
 			return this->dataVersion;
 		}
 
+		inline bool IsOC31Compressed() const
+		{
+			return this->isCompressed;
+		}
+
 		//Methods
+		bool Equals(const AbstractSample &other) const override
+		{
+			const EncryptedSample* otherAsEncryptedSample = dynamic_cast<const EncryptedSample *>(&other);
+			if(otherAsEncryptedSample)
+			{
+				return (this->id == otherAsEncryptedSample->id)
+					and (this->dataVersion == otherAsEncryptedSample->dataVersion)
+					and (this->isCompressed == otherAsEncryptedSample->isCompressed)
+					and (this->encryptionInformation == otherAsEncryptedSample->encryptionInformation)
+					and (this->buffer == otherAsEncryptedSample->buffer);
+			}
+			return false;
+		}
+
 		uint64 GetId() const override
 		{
 			return this->id;
@@ -67,6 +87,7 @@ namespace libKORG
 		//Members
 		uint64 id;
 		ChunkVersion dataVersion;
+		bool isCompressed;
 		BankFormat::EncryptionInformation encryptionInformation;
 		StdXX::DynamicByteBuffer buffer;
 	};

@@ -103,4 +103,75 @@ TEST_SUITE(CompressionTests)
 		Compress(*buffer.CreateOutputStream(), test.GetRawData(), test.GetSize());
 		Decompress(*buffer.CreateInputStream(), test.GetRawData(), test.GetSize());
 	}
+
+	TEST_CASE(ComplexRedudancyTest)
+	{
+		DynamicByteBuffer buffer;
+
+		String test = u8"aaaab_bbbbbbbbbbbbbbbbbbbb_aaabbbbbbbbbbbbbbbbbbbb";
+		test.ToUTF8();
+		Compress(*buffer.CreateOutputStream(), test.GetRawData(), test.GetSize());
+		Decompress(*buffer.CreateInputStream(), test.GetRawData(), test.GetSize());
+	}
+
+	TEST_CASE(ComplexRedudancyInvertedTest)
+	{
+		DynamicByteBuffer buffer;
+
+		String test = u8"bbbbbbbbbbbbbbbbbbbb_aaaab_aaabbbbbbbbbbbbbbbbbbbb";
+		test.ToUTF8();
+		Compress(*buffer.CreateOutputStream(), test.GetRawData(), test.GetSize());
+		Decompress(*buffer.CreateInputStream(), test.GetRawData(), test.GetSize());
+	}
+
+	TEST_CASE(LongBackReferencesTest)
+	{
+		DynamicByteBuffer buffer;
+
+		String test = u8"Test";
+		Math::MinStdRand rand;
+		Math::UniformUnsignedDistribution<uint8, uint32> distribution(rand);
+		while(test.GetLength() < 2048)
+		{
+			test += distribution.Next();
+		}
+		test += u8"Test";
+		test.ToUTF8();
+		Compress(*buffer.CreateOutputStream(), test.GetRawData(), test.GetSize());
+		Decompress(*buffer.CreateInputStream(), test.GetRawData(), test.GetSize());
+	}
+
+	TEST_CASE(VeryLongBackReferencesTest)
+	{
+		DynamicByteBuffer buffer;
+
+		String test = u8"Test";
+		Math::MinStdRand rand;
+		Math::UniformUnsignedDistribution<uint8, uint32> distribution(rand);
+		while(test.GetLength() < 0x4000)
+		{
+			test += distribution.Next();
+		}
+		test += u8"Test";
+		test.ToUTF8();
+		Compress(*buffer.CreateOutputStream(), test.GetRawData(), test.GetSize());
+		Decompress(*buffer.CreateInputStream(), test.GetRawData(), test.GetSize());
+	}
+
+	TEST_CASE(OverfullDictionaryTest)
+	{
+		DynamicByteBuffer buffer;
+
+		String test = u8"Test";
+		Math::MinStdRand rand;
+		Math::UniformUnsignedDistribution<uint8, uint32> distribution(rand);
+		while(test.GetLength() < 0x2FFFF)
+		{
+			test += distribution.Next();
+		}
+		test += u8"Test";
+		test.ToUTF8();
+		Compress(*buffer.CreateOutputStream(), test.GetRawData(), test.GetSize());
+		Decompress(*buffer.CreateInputStream(), test.GetRawData(), test.GetSize());
+	}
 }

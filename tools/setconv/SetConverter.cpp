@@ -35,10 +35,11 @@ void SetConverter::Convert()
 
 	stdOut << u8"Converting resources..." << endl;
 
-	this->IntegratePCM();
-	this->IntegrateMultiSamples();
+	this->IntegratePCM(selector.Selection().samples);
+	this->IntegrateMultiSamples(selector.Selection().multiSamples);
 	this->IntegrateSounds(bankAllocator.Allocation().soundAllocation);
-	this->IntegratePerformances(bankAllocator.Allocation().performanceAllocation);
+
+	this->IntegratePerformances(bankAllocator.Allocation().performanceAllocation, bankAllocator.Allocation().freeSoundSpot);
 
 	stdOut << u8"Saving..." << endl;
 	this->targetSet.Save();
@@ -47,15 +48,9 @@ void SetConverter::Convert()
 }
 
 //Private methods
-uint32 SetConverter::ComputeSampleSize(const Sample::SampleData& sampleData)
-{
-	return sampleData.sampleBuffer.Size();
-}
-
 Sample::SampleData SetConverter::ConvertSampleIfRequired(const Sample::SampleData& sampleData)
 {
-	NOT_IMPLEMENTED_ERROR; //TODO: implement me
-	//if ((sampleData.sampleFormat == Sample::SampleFormat::Compressed) and !targetModel.IsSampleCompressionSupported())
+	if ((sampleData.sampleFormat == Sample::SampleFormat::Compressed) and !this->targetSet.model.IsSampleCompressionSupported())
 	{
 		Sample::SampleData convertedData = sampleData;
 		convertedData.sampleFormat = Sample::SampleFormat::Linear_PCM_S16BE;
@@ -63,7 +58,7 @@ Sample::SampleData SetConverter::ConvertSampleIfRequired(const Sample::SampleDat
 		const auto& entry = this->multiSamplesIndex.GetSampleEntryById(sampleData.id);
 
 		Multimedia::AudioBuffer* audioBuffer = new Multimedia::AudioBuffer(sampleData.nSamples, Multimedia::AudioSampleFormat(1, Multimedia::AudioSampleType::S16, false));
-		Sample::Decompress(sampleData.sampleBuffer.Data(), static_cast<int16 *>(audioBuffer->GetPlane(0)), sampleData.nSamples, entry->compressionCoefficients[0], entry->compressionCoefficients[1]);
+		Sample::Decompress(sampleData.sampleBuffer.Data(), static_cast<int16 *>(audioBuffer->GetPlane(0)), sampleData.nSamples, entry.compressionCoefficients[0], entry.compressionCoefficients[1]);
 		Multimedia::AudioFrame frame(audioBuffer);
 		UniquePointer<Multimedia::Packet> packet = this->EncodeAudio(frame, Multimedia::CodingFormatId::PCM_S16BE, sampleData.sampleRate);
 
@@ -89,26 +84,6 @@ Multimedia::Packet* SetConverter::EncodeAudio(const Multimedia::Frame& audioFram
 	return encoderContext->GetNextPacket();
 }
 
-MultiSamples::KeyboardZone SetConverter::MapKeyboardZone(const MultiSamples::KeyboardZone &keyboardZone) const
-{
-	if(keyboardZone.sampleNumber == -1)
-		return keyboardZone;
-
-	MultiSamples::KeyboardZone mapped = keyboardZone;
-
-	uint64 sampleId = this->sourceSet.MultiSamples().data.sampleEntries[keyboardZone.sampleNumber].id;
-	for(uint32 i = 0; i < this->targetSet.MultiSamples().data.sampleEntries.GetNumberOfElements(); i++)
-	{
-		if(this->targetSet.MultiSamples().data.sampleEntries[i].id == sampleId)
-		{
-			mapped.sampleNumber = i;
-			break;
-		}
-	}
-
-	return mapped;
-}
-
 bool SetConverter::IntegrateMultiSample(const MultiSamples::MultiSampleEntry& multiSampleEntry)
 {
 	if(this->mapped.integratedMultiSampleIds.Contains(multiSampleEntry.id))
@@ -117,22 +92,26 @@ bool SetConverter::IntegrateMultiSample(const MultiSamples::MultiSampleEntry& mu
 	//integrate it
 	MultiSamples::MultiSampleEntry newMultiSampleEntry = multiSampleEntry;
 	newMultiSampleEntry.keyZoneBaseIndex = this->targetSet.MultiSamples().data.keyboardZones.GetNumberOfElements();
-	BinaryTreeMap<uint8, uint8> keyZoneIndexMap;
-	for(uint8 i = 0; i < 128; i++)
+	BinaryTreeSet<uint8> importedKeyZones;
+	for(uint8 relativeIndex : newMultiSampleEntry.keyZoneIndex)
 	{
-		uint8 relativeIndex = newMultiSampleEntry.keyZoneIndex[i];
 		if(relativeIndex == Unsigned<uint8>::Max())
 			continue;
 
-		if(!keyZoneIndexMap.Contains(relativeIndex))
+		if(!importedKeyZones.Contains(relativeIndex))
 		{
-			MultiSamples::KeyboardZone keyBoardZone = this->MapKeyboardZone(this->sourceSet.MultiSamples().data.keyboardZones[multiSampleEntry.keyZoneBaseIndex + relativeIndex]);
-			uint32 newAbsIndex = this->targetSet.MultiSamples().data.keyboardZones.Push(keyBoardZone);
-			uint16 newRelIndex = newAbsIndex - newMultiSampleEntry.keyZoneBaseIndex;
-			keyZoneIndexMap.Insert(relativeIndex, newRelIndex);
-		}
+			const MultiSamples::MultiSamplesData &multiSamplesData = this->sourceSet.MultiSamples().data;
 
-		newMultiSampleEntry.keyZoneIndex[i] = keyZoneIndexMap.Get(relativeIndex);
+			MultiSamples::KeyboardZone mappedKeyboardZone = multiSamplesData.keyboardZones[multiSampleEntry.keyZoneBaseIndex + relativeIndex];
+			if(mappedKeyboardZone.sampleNumber != -1)
+			{
+				uint64 sampleId = multiSamplesData.sampleEntries[mappedKeyboardZone.sampleNumber].id;
+				mappedKeyboardZone.sampleNumber = this->mapped.integratedSampleIds.Get(sampleId);
+			}
+
+			this->targetSet.MultiSamples().data.keyboardZones.Push(mappedKeyboardZone);
+			importedKeyZones.Insert(relativeIndex);
+		}
 	}
 	uint32 index = this->targetSet.MultiSamples().data.multiSampleEntries.Push(newMultiSampleEntry);
 	this->mapped.integratedMultiSampleIds.Insert(multiSampleEntry.id, index);
@@ -140,15 +119,17 @@ bool SetConverter::IntegrateMultiSample(const MultiSamples::MultiSampleEntry& mu
 	return true;
 }
 
-void SetConverter::IntegrateMultiSamples()
+void SetConverter::IntegrateMultiSamples(const BinaryTreeSet<uint64>& selectedMultiSampleIds)
 {
 	for(const auto& ms : this->sourceSet.MultiSamples().data.multiSampleEntries)
 	{
+		if(!selectedMultiSampleIds.Contains(ms.id))
+			continue;
 		this->IntegrateMultiSample(ms);
 	}
 }
 
-void SetConverter::IntegratePerformances(const BinaryTreeMap<const PerformanceObject *, Tuple<PerformanceBankNumber, uint8, String>> &performanceAllocation)
+void SetConverter::IntegratePerformances(const BinaryTreeMap<const PerformanceObject *, Tuple<PerformanceBankNumber, uint8, String>> &performanceAllocation, const ProgramChangeSequence& freeSoundSpotProgramChangeSequence)
 {
 	for(const auto& kv : performanceAllocation)
 	{
@@ -161,8 +142,13 @@ void SetConverter::IntegratePerformances(const BinaryTreeMap<const PerformanceOb
 			{
 				for(auto& trackSettings : converted.V1Data().keyboardSettings.trackSettings)
 				{
-					//if(this->mapped.integratedSounds.Contains(trackSettings.soundProgramChangeSeq))
-						trackSettings.soundProgramChangeSeq = this->mapped.integratedSounds.Get(trackSettings.soundProgramChangeSeq);
+					if(Set::IsRAMSound(trackSettings.soundProgramChangeSeq, this->sourceSet.model))
+					{
+						if(this->mapped.integratedSounds.Contains(trackSettings.soundProgramChangeSeq))
+							trackSettings.soundProgramChangeSeq = this->mapped.integratedSounds.Get(trackSettings.soundProgramChangeSeq);
+						else
+							trackSettings.soundProgramChangeSeq = freeSoundSpotProgramChangeSequence;
+					}
 				}
 			}
 			break;
@@ -170,59 +156,53 @@ void SetConverter::IntegratePerformances(const BinaryTreeMap<const PerformanceOb
 				NOT_IMPLEMENTED_ERROR; //TODO: map program change sequences
 		}
 
-		this->targetSet.performanceBanks[kv.value.Get<0>()].AddObject(kv.value.Get<2>(), kv.value.Get<1>(), new PerformanceObject(Move(converted)));
+		this->targetSet.performanceBanks[kv.value.Get<0>()].SetObject(kv.value.Get<2>(), kv.value.Get<1>(),
+																	  new PerformanceObject(Move(converted)));
 	}
 }
 
-void SetConverter::IntegratePCM()
+void SetConverter::IntegratePCM(const BinaryTreeSet<uint64>& selectedSampleIds)
 {
 	for(const auto& bankEntry : this->sourceSet.sampleBanks.Entries())
 	{
 		for(const auto& objectEntry : bankEntry.bank.Objects())
 		{
+			if(!selectedSampleIds.Contains(objectEntry.object->GetId()))
+				continue;
+
 			const AbstractSample& sample = *objectEntry.object;
 			const auto& sampleObject = dynamic_cast<const SampleObject&>(sample);
 
 			auto entry = this->multiSamplesIndex.GetSampleEntryById(sampleObject.data.id);
-			if(entry)
-				this->IntegratePCMSample(*entry);
+			this->IntegratePCMSample(entry);
 		}
 	}
 }
 
 bool SetConverter::IntegratePCMSample(const MultiSamples::SampleEntry& sampleEntry)
 {
-	if(this->mapped.integratedSampleIds.Contains(sampleEntry.id))
-		return true;
-
 	const auto& location = this->setIndex.GetSampleLocation(sampleEntry.id);
-	if(!location.HasValue())
-	{
-		stdOut << u8"Free PCM data for entry: " << sampleEntry.id << u8" (" << sampleEntry.name << u8")" << endl;
-		return false;
-	}
 
-	const auto& entry = this->sourceSet.sampleBanks[location->bankNumber][location->pos];
+	const auto& entry = this->sourceSet.sampleBanks[location.bankNumber][location.pos];
 
 	const AbstractSample& sample = *entry.object;
 	const auto& sampleObject = dynamic_cast<const SampleObject&>(sample);
 
 	Sample::SampleData convertedSampleData = this->ConvertSampleIfRequired(sampleObject.data);
 
-	NOT_IMPLEMENTED_ERROR; //TODO: implement me
-	/*
-	this->targetSet.sampleBanks[bankId].AddObject(entry.name, pos, new SampleObject(Move(convertedSampleData)));
+	this->targetSet.sampleBanks[location.bankNumber].SetObject(entry.name, location.pos,
+																new SampleObject(Move(convertedSampleData)));
 
 	MultiSamples::SampleEntry mappedSample = sampleEntry;
-	if(!this->targetModel.IsSampleCompressionSupported())
+	if(!this->targetSet.model.IsSampleCompressionSupported())
 	{
 		mappedSample.packedData.SampleType(MultiSamples::SampleType::Linear_PCM_S16BE);
 		mappedSample.compressionCoefficients[0] = 0;
 		mappedSample.compressionCoefficients[1] = 0;
 	}
-	this->targetSet.MultiSamples().data.sampleEntries.Push(mappedSample);*/
 
-	this->mapped.integratedSampleIds.Insert(sampleEntry.id);
+	uint32 index = this->targetSet.MultiSamples().data.sampleEntries.Push(mappedSample);
+	this->mapped.integratedSampleIds.Insert(sampleEntry.id, index);
 
 	return true;
 }
@@ -248,7 +228,7 @@ void SetConverter::IntegrateSounds(const BinaryTreeMap<ProgramChangeSequence, Tu
 		String name = kv.value.Get<2>();
 		uint8 pos = kv.value.Get<1>();
 
-		this->targetSet.soundBanks[bankNumber].AddObject(name, pos, new SoundObject(Move(newSound)));
+		this->targetSet.soundBanks[bankNumber].SetObject(name, pos, new SoundObject(Move(newSound)));
 		this->mapped.integratedSounds[kv.key] = Set::CreateRAMSoundProgramChangeSequence(bankNumber, pos);
 	}
 }

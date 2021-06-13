@@ -37,7 +37,6 @@ public:
 	inline ResourceSelector(const Set& sourceSet, const Set& targetSet, const SetIndex& setIndex, const MultiSamplesIndex& multiSamplesIndex)
 		: sourceSet(sourceSet), targetSet(targetSet), setIndex(setIndex), multiSamplesIndex(multiSamplesIndex)
 	{
-		this->includeErrorneousData = true;
 	}
 
 	//Properties
@@ -57,7 +56,6 @@ private:
 	const SetIndex& setIndex;
 	const MultiSamplesIndex& multiSamplesIndex;
 	ResourceSelection selection;
-	bool includeErrorneousData;
 
 	//Methods
 	uint32 ComputeTargetSampleSize(uint64 sampleId) const;
@@ -88,17 +86,13 @@ private:
 
 	inline bool SelectMultiSample(uint64 id)
 	{
-		auto entry = this->multiSamplesIndex.GetMultiSampleEntryById(id);
-		if(entry)
-			return this->SelectMultiSample(*entry);
-		return this->includeErrorneousData;
+		auto& entry = this->multiSamplesIndex.GetMultiSampleEntryById(id);
+		return this->SelectMultiSample(entry);
 	}
 
 	inline bool SelectPCMSample(uint64 id)
 	{
-		auto entry = this->multiSamplesIndex.GetSampleEntryById(id);
-		if(entry)
-			return this->SelectPCMSample(*entry);
-		return this->includeErrorneousData;
+		auto& entry = this->multiSamplesIndex.GetSampleEntryById(id);
+		return this->SelectPCMSample(entry);
 	}
 };

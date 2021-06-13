@@ -1,4 +1,5 @@
 add_subdirectory(BankFormat)
+add_subdirectory(Converters)
 add_subdirectory(DataViews)
 add_subdirectory(Models)
 add_subdirectory(MultiSamplesFormat)

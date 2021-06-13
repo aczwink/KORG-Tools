@@ -158,7 +158,7 @@ void Set::LoadPads(const String &bankFileName, const DynamicArray<BankObjectEntr
 	for(const BankObjectEntry& bankObjectEntry : bankEntries)
 	{
 		StyleObject& styleObject = dynamic_cast<StyleObject&>(*bankObjectEntry.object);
-		this->padBanks[padBankNumber].AddObject(bankObjectEntry.name, bankObjectEntry.pos, &styleObject);
+		this->padBanks[padBankNumber].SetObject(bankObjectEntry.name, bankObjectEntry.pos, &styleObject);
 	}
 	this->padBanks[padBankNumber].saved = true;
 }
@@ -170,7 +170,7 @@ void Set::LoadPerformances(const String &bankFileName, const DynamicArray<BankOb
 	for(const BankObjectEntry& bankObjectEntry : bankEntries)
 	{
 		PerformanceObject& performance = dynamic_cast<PerformanceObject&>(*bankObjectEntry.object);
-		this->performanceBanks[bankNumber].AddObject(bankObjectEntry.name, bankObjectEntry.pos, &performance);
+		this->performanceBanks[bankNumber].SetObject(bankObjectEntry.name, bankObjectEntry.pos, &performance);
 	}
 	this->performanceBanks[bankNumber].saved = true;
 }
@@ -181,7 +181,7 @@ void Set::LoadSamples(const String& bankFileName, const DynamicArray<BankObjectE
 	for(const BankObjectEntry& bankObjectEntry : bankEntries)
 	{
 		AbstractSample& sample = dynamic_cast<AbstractSample&>(*bankObjectEntry.object);
-		this->sampleBanks[bankNumber].AddObject(bankObjectEntry.name, bankObjectEntry.pos, &sample);
+		this->sampleBanks[bankNumber].SetObject(bankObjectEntry.name, bankObjectEntry.pos, &sample);
 	}
 	this->sampleBanks[bankNumber].saved = true;
 }
@@ -216,7 +216,7 @@ void Set::LoadSounds(const String &bankFileName, const DynamicArray<BankObjectEn
 	for(const BankObjectEntry& bankObjectEntry : bankEntries)
 	{
 		SoundObject& sound = dynamic_cast<SoundObject&>(*bankObjectEntry.object);
-		this->soundBanks[bankNumber].AddObject(bankObjectEntry.name, bankObjectEntry.pos, &sound);
+		this->soundBanks[bankNumber].SetObject(bankObjectEntry.name, bankObjectEntry.pos, &sound);
 	}
 	this->soundBanks[bankNumber].saved = true;
 }
@@ -242,7 +242,7 @@ void Set::LoadStyles(const String &bankFileName, const DynamicArray<BankObjectEn
 		StyleObject& style = dynamic_cast<StyleObject&>(*styleEntries[kv.key]->object);
 		SingleTouchSettings* sts = dynamic_cast<SingleTouchSettings*>(stsObject);
 
-		this->styleBanks[bankNumber].AddObject(kv.value->name, kv.value->pos, new FullStyle(&style, sts));
+		this->styleBanks[bankNumber].SetObject(kv.value->name, kv.value->pos, new FullStyle(&style, sts));
 	}
 	this->styleBanks[bankNumber].saved = true;
 }

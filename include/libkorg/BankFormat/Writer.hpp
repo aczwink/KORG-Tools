@@ -27,7 +27,8 @@ namespace libKORG::BankFormat
 	{
 		Uncompressed,
 		Compressed,
-		Encrypted
+		Encrypted,
+		EncryptedAndCompressed
 	};
 
 	class Writer : protected ChunkWriter

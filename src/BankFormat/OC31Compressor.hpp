@@ -20,6 +20,14 @@
 
 namespace libKORG
 {
+	struct QueuedBlock
+	{
+		bool isBackreference;
+		uint16 distance;
+		uint16 length;
+		uint8 nExtraBytes;
+	};
+
 	class OC31Compressor : public StdXX::Compressor
 	{
 	public:
@@ -36,16 +44,36 @@ namespace libKORG
 		uint8 checkValue;
 		uint32 uncompressedSize;
 		uint64 uncompressedSizeOffset;
+		uint16 nUnprocessedBytesInDictionary;
+		uint8 nQueuedBlocks;
+		QueuedBlock queuedBlocks[2];
 		StdXX::UniquePointer<StdXX::SeekableOutputStream> baseStream;
-		StdXX::SlidingDictionary dictionary;
+		StdXX::IndexedSlidingDictionary dictionary;
 
 		//Methods
+		uint32 ComputeEncodedSize(const QueuedBlock& block) const;
+		void EmitBlock();
+		void EncodeBlock(const QueuedBlock& block, uint16 dataDistance);
+		void FindOptimalBlock(const QueuedBlock& block);
+		void FlushTopMostBlock();
+		void PutBlockInQueue(const QueuedBlock& block);
+		void WriteBackreference(uint16 distance, uint16 length, uint8 nExtraBytes, const uint8* extraBytes);
 		void WriteUncompressedBlock(const uint8* data, uint16 length);
 
 		//Inline
+		inline QueuedBlock& NewestQueuedBlock()
+		{
+			return this->queuedBlocks[this->nQueuedBlocks - 1];
+		}
+
 		inline void WriteByte(uint8 byte)
 		{
 			this->baseStream->WriteBytes(&byte, 1);
+		}
+
+		inline void WriteFlagByte(uint8 flagByte)
+		{
+			this->WriteByte(flagByte);
 		}
 	};
 }

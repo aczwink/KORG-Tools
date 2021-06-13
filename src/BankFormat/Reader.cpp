@@ -55,7 +55,10 @@ void Reader::ReadBankObject(ChunkType chunkType, const ChunkHeader &chunkHeader,
 		case ChunkType::PCMData:
 		{
 			if(chunkHeader.flags & (uint8)ChunkHeaderFlags::Encrypted)
-				object = new EncryptedSample(*headerEntry.id, headerEntry.dataVersion, headerEntry.encryptionInformation, dataReader.InputStream());
+			{
+				bool isCompressed = chunkHeader.flags & (uint8)ChunkHeaderFlags::OC31Compressed;
+				object = new EncryptedSample(*headerEntry.id, headerEntry.dataVersion, isCompressed, headerEntry.encryptionInformation, dataReader.InputStream());
+			}
 			else
 			{
 				PCMReader pcmReader;

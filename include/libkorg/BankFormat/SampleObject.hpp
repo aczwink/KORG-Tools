@@ -35,6 +35,14 @@ namespace libKORG
 		}
 
 		//Methods
+		bool Equals(const AbstractSample &other) const override
+		{
+			const SampleObject* otherAsSampleObject = dynamic_cast<const SampleObject *>(&other);
+			if(otherAsSampleObject)
+				return this->data == otherAsSampleObject->data;
+			return false;
+		}
+
 		uint64 GetId() const override
 		{
 			return this->data.id;

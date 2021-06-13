@@ -25,8 +25,8 @@ class SetConverter
 {
 public:
 	//Constructor
-	inline SetConverter(const FileSystem::Path& sourceSetPath, const FileSystem::Path& targetSetPath, const Model& targetModel)
-		: sourceSet(sourceSetPath),
+	inline SetConverter(const Set& sourceSet, const FileSystem::Path& targetSetPath, const Model& targetModel)
+		: sourceSet(sourceSet),
 		  multiSamplesIndex(sourceSet.MultiSamples().data),
 		  setIndex(sourceSet),
 		  targetSet(Set::Create(targetSetPath, targetModel))
@@ -38,40 +38,42 @@ public:
 
 private:
 	//Members
-	const Set sourceSet;
+	const Set& sourceSet;
 	MultiSamplesIndex multiSamplesIndex;
 	SetIndex setIndex;
 	Set targetSet;
 
 	struct {
 		BinaryTreeMap<uint64, uint32> integratedMultiSampleIds;
-		BinaryTreeSet<uint64> integratedSampleIds;
+		BinaryTreeMap<uint64, uint32> integratedSampleIds;
 		BinaryTreeMap<ProgramChangeSequence, ProgramChangeSequence> integratedSounds;
 	} mapped;
 
 	//Methods
-	uint32 ComputeSampleSize(const Sample::SampleData& sampleData);
 	Sample::SampleData ConvertSampleIfRequired(const Sample::SampleData& sampleData);
 	Multimedia::Packet* EncodeAudio(const Multimedia::Frame& frame, Multimedia::CodingFormatId codingFormatId, uint32 sampleRate) const;
-	MultiSamples::KeyboardZone MapKeyboardZone(const MultiSamples::KeyboardZone& keyboardZone) const;
 	bool IntegrateMultiSample(const MultiSamples::MultiSampleEntry& multiSampleEntry);
-	void IntegrateMultiSamples();
-	void IntegratePerformances(const BinaryTreeMap<const PerformanceObject*, Tuple<PerformanceBankNumber, uint8, String>>& performanceAllocation);
-	void IntegratePCM();
+	void IntegrateMultiSamples(const BinaryTreeSet<uint64>& selectedMultiSampleIds);
+	void IntegratePerformances(const BinaryTreeMap<const PerformanceObject*, Tuple<PerformanceBankNumber, uint8, String>>& performanceAllocation, const ProgramChangeSequence& freeSoundSpotProgramChangeSequence);
+	void IntegratePCM(const BinaryTreeSet<uint64>& selectedSampleIds);
 	bool IntegratePCMSample(const MultiSamples::SampleEntry& sampleEntry);
 	void IntegrateSounds(const BinaryTreeMap<ProgramChangeSequence, Tuple<SoundBankNumber, uint8, String>>& soundAllocation);
 
 	//Inline
 	inline uint32 MapMultiSampleIdToIndex(uint64 id)
 	{
-		return this->mapped.integratedMultiSampleIds.Get(id);
+		if(this->mapped.integratedMultiSampleIds.Contains(id))
+			return this->mapped.integratedMultiSampleIds.Get(id);
+
+		NOT_IMPLEMENTED_ERROR; //TODO: implement me
+		return id;
 	}
 
 	inline void ShowMultiSampleErrorMessage(uint64 multiSampleId)
 	{
 		auto entry = this->multiSamplesIndex.GetMultiSampleEntryById(multiSampleId);
 		String id = String::HexNumber(multiSampleId, 16);
-		String name = (entry == nullptr) ? (id + u8" (unknown)") : (id + u8" (" + entry->name + u8")");
+		String name = (id + u8" (" + entry.name + u8")");
 		stdOut << u8"Can't integrate multisample with id '" << name << u8"' because of missing PCM samples." << endl;
 	}
 };

@@ -26,7 +26,7 @@ namespace libKORG::Performance::V0
 	struct FX
 	{
 		int16 unknown8;
-		uint8 unknown9[64];
+		uint8 unknown9[64] = {};
 	};
 
 	struct FXGroup
@@ -41,15 +41,15 @@ namespace libKORG::Performance::V0
 
 	struct PadSettings
 	{
-		uint16 unknown51;
-		uint8 unknown52;
-		uint8 unknown53;
-		int8 unknown54;
-		uint8 unknown55;
-		uint8 unknown56;
-		uint8 unknown57;
-		uint8 unknown58;
-		uint8 unknown59;
+		uint16 unknown51 = 0;
+		uint8 unknown52 = StdXX::Unsigned<uint8>::Max();
+		uint8 unknown53 = 100;
+		int8 unknown54 = 64;
+		uint8 unknown55 = 127;
+		uint8 unknown56 = 127;
+		uint8 unknown57 = StdXX::Unsigned<uint8>::Max();
+		uint8 unknown58 = 0;
+		uint8 unknown59 = 0;
 	};
 
 

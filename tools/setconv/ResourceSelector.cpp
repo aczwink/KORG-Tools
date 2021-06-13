@@ -100,10 +100,6 @@ bool ResourceSelector::SelectPCMSample(const MultiSamples::SampleEntry &sampleEn
 	if(this->selection.samples.Contains(sampleEntry.id))
 		return true;
 
-	const auto& location = this->setIndex.GetSampleLocation(sampleEntry.id);
-	if(!location.HasValue())
-		return this->includeErrorneousData;
-
 	uint32 targetSampleRAMSize = this->targetSet.model.GetSampleRAMSize() * MiB;
 	if(this->ComputeUsedSampleRAMSize() + this->ComputeTargetSampleSize(sampleEntry.id) > targetSampleRAMSize)
 		return false;
@@ -206,8 +202,8 @@ bool ResourceSelector::SelectSound(const ProgramChangeSequence &programChangeSeq
 uint32 ResourceSelector::ComputeTargetSampleSize(uint64 sampleId) const
 {
 	auto location = this->setIndex.GetSampleLocation(sampleId);
-	uint32 sampleSize = this->sourceSet.sampleBanks[location->bankNumber][location->pos].object->GetSize();
-	if((this->multiSamplesIndex.GetSampleEntryById(sampleId)->packedData.SampleType() == libKORG::MultiSamples::SampleType::Compressed) and !this->targetSet.model.IsSampleCompressionSupported())
+	uint32 sampleSize = this->sourceSet.sampleBanks[location.bankNumber][location.pos].object->GetSize();
+	if((this->multiSamplesIndex.GetSampleEntryById(sampleId).packedData.SampleType() == libKORG::MultiSamples::SampleType::Compressed) and !this->targetSet.model.IsSampleCompressionSupported())
 		sampleSize *= 2;
 	return sampleSize;
 }

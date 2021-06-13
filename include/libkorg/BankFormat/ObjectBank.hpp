@@ -71,6 +71,11 @@ namespace libKORG
 		}
 
 		//Operators
+		inline BankObjectEntry &operator[](uint8 pos)
+		{
+			return this->objects.Get(pos);
+		}
+
 		inline const BankObjectEntry &operator[](uint8 pos) const
 		{
 			return this->objects.Get(pos);
@@ -113,7 +118,13 @@ namespace libKORG
 		}
 
 		//Inline
-		inline void AddObject(const StdXX::String &name, uint8 pos, const StdXX::SharedPointer<ObjectType> &object)
+		inline void RemoveObject(uint8 pos)
+		{
+			this->objects.Remove(pos);
+			this->saved = false;
+		}
+
+		inline void SetObject(const StdXX::String &name, uint8 pos, const StdXX::SharedPointer<ObjectType> &object)
 		{
 			this->objects[pos] = {name, object};
 			this->saved = false;

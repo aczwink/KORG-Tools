@@ -23,6 +23,7 @@ struct BankAllocation
 {
 	BinaryTreeMap<const PerformanceObject*, Tuple<PerformanceBankNumber, uint8, String>> performanceAllocation;
 	BinaryTreeMap<ProgramChangeSequence, Tuple<SoundBankNumber, uint8, String>> soundAllocation;
+	ProgramChangeSequence freeSoundSpot;
 };
 
 class BankAllocator
@@ -52,7 +53,7 @@ private:
 
 	//Methods
 	void LayoutPerformances(const BinaryTreeSet<const PerformanceObject*>& performances);
-	void LayoutSounds(const BinaryTreeSet<ProgramChangeSequence>& sounds);
+	void LayoutSounds(const BinaryTreeSet<ProgramChangeSequence>& sounds, bool requireFreeSoundSlot);
 
 	//Inline
 	inline void PlacePerformance(const PerformanceObject* performanceObject, const PerformanceBankNumber& performanceBankNumber, uint8 pos, const String& name)

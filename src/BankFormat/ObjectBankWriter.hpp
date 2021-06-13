@@ -58,14 +58,12 @@ namespace libKORG::BankFormat
 		void WriteObjects(uint8 pos, const PerformanceObject& performanceObject);
 		void WriteObjects(uint8 pos, const SoundObject& soundObject);
 		void WritePCMData(const AbstractSample& sample, const ChunkVersion& dataVersion);
-		void WritePerformance(const PerformanceObject& performance, const ChunkVersion& dataVersion);
-		void WriteSoundData(const SoundObject& soundObject, const ChunkVersion& dataVersion);
 		void WriteSTS(const SingleTouchSettings &singleTouchSettings, const ChunkVersion& dataVersion);
 		void WriteStyle(const StyleObject &style, const ChunkVersion& dataVersion);
 		void WriteTOCEntries(const StdXX::String& name, uint8 pos, const AbstractSample& object);
 		void WriteTOCEntries(const StdXX::String& name, uint8 pos, const FullStyle& object);
 		void WriteTOCEntries(const StdXX::String& name, uint8 pos, const PerformanceObject& object);
 		void WriteTOCEntries(const StdXX::String& name, uint8 pos, const SoundObject& object);
-		void WriteTOCEntry(const String &name, uint8 pos, libKORG::BankFormat::ObjectType objectType, const ChunkVersion& version);
+		void WriteTOCEntry(const String &name, uint8 pos, libKORG::BankFormat::ObjectType objectType, const ChunkVersion& version, ObjectStreamFormat streamFormat);
 	};
 }

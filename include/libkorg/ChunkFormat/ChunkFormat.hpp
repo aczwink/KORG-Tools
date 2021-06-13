@@ -39,6 +39,8 @@ namespace libKORG
 			return rhs < *this;
 		}
 
+		bool operator==(const ChunkVersion&) const = default;
+
 		//Inline
 		inline uint16 AsUInt16() const
 		{

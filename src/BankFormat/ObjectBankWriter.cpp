@@ -66,16 +66,14 @@ void ObjectBankWriter::Write(const MultiSamplesObject &multiSamplesObject)
 	ChunkVersion dataVersion = this->model.GetSupportedResourceVersions().maxMultiSamplesVersion;
 
 	this->BeginWritingIndex();
-	this->WriteTOCEntry(u8"RAM", 0, ObjectType::MultiSample, dataVersion);
+	this->WriteTOCEntry(u8"RAM", 0, ObjectType::MultiSample, dataVersion, ObjectStreamFormat::Compressed);
 	this->EndIndex();
 
-	this->BeginWritingObjectData();
-
-	BufferedOutputStream bufferedOutputStream(this->outputStream);
-	DataWriter dataWriter(true, bufferedOutputStream);
+	auto compressor = this->BeginWritingObjectData();
+	DataWriter dataWriter(true, *compressor);
 	UniquePointer<MultiSamplesFormatWriter> bankObjectFormatWriter = CreateMultiSamplesWriter(dataWriter, dataVersion);
 	bankObjectFormatWriter->Write(multiSamplesObject.data);
-	bufferedOutputStream.Flush();
+	compressor->Finalize();
 
 	this->EndWritingObject();
 
@@ -133,30 +131,39 @@ void ObjectBankWriter::WriteObjects(uint8 pos, const AbstractSample& sampleObjec
 void ObjectBankWriter::WriteObjects(uint8 pos, const FullStyle &fullStyle)
 {
 	ChunkVersion styleDataVersion = this->objectVersionMap.Get(pos).Get(ObjectType::Style);
-	this->BeginWritingObjectData();
 	this->WriteStyle(fullStyle.Style(), styleDataVersion);
-	this->EndWritingObject();
 
 	ChunkVersion stylePerformancesDataVersion = this->objectVersionMap.Get(pos).Get(ObjectType::StylePerformances);
-	this->BeginWritingObjectData();
 	this->WriteSTS(fullStyle.STS(), stylePerformancesDataVersion);
-	this->EndWritingObject();
 }
 
 void ObjectBankWriter::WriteObjects(uint8 pos, const PerformanceObject &performanceObject)
 {
 	ChunkVersion performancesDataVersion = this->objectVersionMap.Get(pos).Get(ObjectType::Performance);
-	this->BeginWritingObjectData();
-	this->WritePerformance(performanceObject, performancesDataVersion);
+	UniquePointer<Compressor> compressor = this->BeginWritingObjectData();
+
+	DynamicByteBuffer buffer;
+	UniquePointer<SeekableOutputStream> outputStream = buffer.CreateOutputStream();
+	UniquePointer<PerformanceFormatWriter> bankObjectFormatWriter = CreatePerformanceWriter(*outputStream, performancesDataVersion);
+	bankObjectFormatWriter->Write(performanceObject);
+
+	buffer.CreateInputStream()->FlushTo(*compressor);
+	compressor->Finalize();
+
 	this->EndWritingObject();
 }
 
 void ObjectBankWriter::WriteObjects(uint8 pos, const SoundObject &soundObject)
 {
 	ChunkVersion dataVersion = this->objectVersionMap.Get(pos).Get(ObjectType::Sound);
+	UniquePointer<Compressor> compressor = this->BeginWritingObjectData();
 
-	this->BeginWritingObjectData();
-	this->WriteSoundData(soundObject, dataVersion);
+	DataWriter dataWriter(true, *compressor);
+	UniquePointer<SoundFormatWriter> bankObjectFormatWriter = CreateSoundWriter(dataWriter, dataVersion);
+	bankObjectFormatWriter->Write(soundObject.data);
+
+	compressor->Finalize();
+
 	this->EndWritingObject();
 }
 
@@ -178,48 +185,48 @@ void ObjectBankWriter::WritePCMData(const AbstractSample& abstractSample, const 
 	bufferedOutputStream.Flush();
 }
 
-void ObjectBankWriter::WritePerformance(const PerformanceObject& performance, const ChunkVersion &dataVersion)
-{
-	DynamicByteBuffer buffer;
-	UniquePointer<SeekableOutputStream> outputStream = buffer.CreateOutputStream();
-
-	UniquePointer<PerformanceFormatWriter> bankObjectFormatWriter = CreatePerformanceWriter(*outputStream, dataVersion);
-	bankObjectFormatWriter->Write(performance);
-
-	buffer.CreateInputStream()->FlushTo(this->outputStream);
-}
-
-void ObjectBankWriter::WriteSoundData(const SoundObject &soundObject, const ChunkVersion& dataVersion)
-{
-	BufferedOutputStream bufferedOutputStream(this->outputStream);
-	DataWriter dataWriter(true, bufferedOutputStream);
-
-	UniquePointer<SoundFormatWriter> bankObjectFormatWriter = CreateSoundWriter(dataWriter, dataVersion);
-	bankObjectFormatWriter->Write(soundObject.data);
-
-	bufferedOutputStream.Flush();
-}
-
 void ObjectBankWriter::WriteSTS(const SingleTouchSettings &singleTouchSettings, const ChunkVersion& dataVersion)
 {
+	NOT_IMPLEMENTED_ERROR; //TODO: test if compression should be used or not
+	UniquePointer<Compressor> compressor = this->BeginWritingObjectData();
+
 	DynamicByteBuffer buffer;
 	UniquePointer<SeekableOutputStream> outputStream = buffer.CreateOutputStream();
-
 	UniquePointer<PerformanceFormatWriter> bankObjectFormatWriter = CreatePerformanceWriter(*outputStream, dataVersion);
 	bankObjectFormatWriter->Write(singleTouchSettings);
 
-	buffer.CreateInputStream()->FlushTo(this->outputStream);
+	buffer.CreateInputStream()->FlushTo(*compressor);
+	compressor->Finalize();
+
+	this->EndWritingObject();
 }
 
 void ObjectBankWriter::WriteStyle(const StyleObject &style, const ChunkVersion& dataVersion)
 {
+	NOT_IMPLEMENTED_ERROR; //TODO: test if compression should be used or not
+
+	UniquePointer<Compressor> compressor = this->BeginWritingObjectData();
+
 	DynamicByteBuffer buffer;
+	UniquePointer<SeekableOutputStream> outputStream = buffer.CreateOutputStream();
+	UniquePointer<StyleFormatWriter> bankObjectFormatWriter = CreateStyleWriter(*outputStream, dataVersion);
+	bankObjectFormatWriter->Write(style.data);
+
+	buffer.CreateInputStream()->FlushTo(*compressor);
+	compressor->Finalize();
+
+	this->EndWritingObject();
+
+	/*
+	 this->BeginWritingObjectData();
+	 DynamicByteBuffer buffer;
 	UniquePointer<SeekableOutputStream> outputStream = buffer.CreateOutputStream();
 
 	UniquePointer<StyleFormatWriter> bankObjectFormatWriter = CreateStyleWriter(*outputStream, dataVersion);
 	bankObjectFormatWriter->Write(style.data);
 
 	buffer.CreateInputStream()->FlushTo(this->outputStream);
+	 this->EndWritingObject();*/
 }
 
 void ObjectBankWriter::WriteTOCEntries(const String &name, uint8 pos, const AbstractSample &object)
@@ -232,41 +239,42 @@ void ObjectBankWriter::WriteTOCEntries(const String &name, uint8 pos, const Abst
 	headerEntry.type = ObjectType::PCM;
 	headerEntry.dataVersion = encryptedSample ? encryptedSample->DataVersion() : this->model.GetSupportedResourceVersions().maxPCMVersion;
 
+	ObjectStreamFormat streamFormat = ObjectStreamFormat::Uncompressed; //PCM data does not compress well
 	if(encryptedSample)
 	{
 		headerEntry.encryptionInformation = encryptedSample->EncryptionInfo();
 		headerEntry.id = encryptedSample->GetId();
+		streamFormat = encryptedSample->IsOC31Compressed() ? ObjectStreamFormat::EncryptedAndCompressed : ObjectStreamFormat::Encrypted;
 	}
 
-	NOT_IMPLEMENTED_ERROR; //TODO: maybe some can be compressed and encrypted?
-	this->WriteIndexEntry(headerEntry, encryptedSample == nullptr ? ObjectStreamFormat::Uncompressed : ObjectStreamFormat::Encrypted);
+	this->WriteIndexEntry(headerEntry, streamFormat);
 	this->objectVersionMap[pos][headerEntry.type] = headerEntry.dataVersion;
 }
 
 void ObjectBankWriter::WriteTOCEntries(const String &name, uint8 pos, const FullStyle &object)
 {
-	this->WriteTOCEntry(name, pos, ObjectType::Style, this->model.GetSupportedResourceVersions().maxStyleVersion);
-	this->WriteTOCEntry(name, pos, ObjectType::StylePerformances, this->DeterminePerformanceVersion(object.STS().Version()));
+	//TODO: check if can be compressed good
+	this->WriteTOCEntry(name, pos, ObjectType::Style, this->model.GetSupportedResourceVersions().maxStyleVersion, ObjectStreamFormat::Compressed);
+	this->WriteTOCEntry(name, pos, ObjectType::StylePerformances, this->DeterminePerformanceVersion(object.STS().Version()), ObjectStreamFormat::Compressed);
 }
 
 void ObjectBankWriter::WriteTOCEntries(const String &name, uint8 pos, const PerformanceObject &object)
 {
-	this->WriteTOCEntry(name, pos, ObjectType::Performance, this->DeterminePerformanceVersion(object.Version()));
+	this->WriteTOCEntry(name, pos, ObjectType::Performance, this->DeterminePerformanceVersion(object.Version()), ObjectStreamFormat::Compressed);
 }
 
 void ObjectBankWriter::WriteTOCEntries(const String &name, uint8 pos, const SoundObject& object)
 {
-	this->WriteTOCEntry(name, pos, ObjectType::Sound, this->model.GetSupportedResourceVersions().maxSoundVersion);
+	this->WriteTOCEntry(name, pos, ObjectType::Sound, this->model.GetSupportedResourceVersions().maxSoundVersion, ObjectStreamFormat::Compressed);
 }
 
-void ObjectBankWriter::WriteTOCEntry(const String& name, uint8 pos, ObjectType objectType, const ChunkVersion& version)
+void ObjectBankWriter::WriteTOCEntry(const String& name, uint8 pos, ObjectType objectType, const ChunkVersion& version, ObjectStreamFormat streamFormat)
 {
 	HeaderEntry headerEntry;
 	headerEntry.name = name;
 	headerEntry.pos = pos;
 	headerEntry.type = objectType;
 	headerEntry.dataVersion = version;
-	NOT_IMPLEMENTED_ERROR; //TODO: check which data can be compressed good
-	this->WriteIndexEntry(headerEntry, ObjectStreamFormat::Uncompressed);
+	this->WriteIndexEntry(headerEntry, streamFormat);
 	this->objectVersionMap[pos][objectType] = version;
 }

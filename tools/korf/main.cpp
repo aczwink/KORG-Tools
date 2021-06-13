@@ -218,11 +218,11 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 					writer.WriteHeader();
 
 					writer.BeginWritingIndex();
-					writer.WriteIndexEntry(*kv.key);
+					writer.WriteIndexEntry(*kv.key, BankFormat::ObjectStreamFormat::Uncompressed);
 					writer.EndIndex();
 
-					auto& objectOutputStream = writer.BeginWritingObjectData();
-					kv.value.CreateInputStream()->FlushTo(objectOutputStream);
+					auto objectOutputStream = writer.BeginWritingObjectData();
+					kv.value.CreateInputStream()->FlushTo(*objectOutputStream);
 					writer.EndWritingObject();
 
 					writer.Finalize();

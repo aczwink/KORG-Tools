@@ -40,6 +40,7 @@ void SetCleaner::RemoveUnusedMultiSamples()
 	stdOut << endl << u8"Are you sure that you want to remove the above " << count << u8" multisamples? Type 'y' if you want to proceed, or anything else to cancel: ";
 	if(textReader.ReadLine() == u8"y")
 	{
+		NOT_IMPLEMENTED_ERROR; //TODO: implement me
 		//TODO: remove keyzones
 		//TODO: renumber keyzone indexes in sounds
 		//TODO: renumber multisample numbers in sounds
@@ -84,6 +85,8 @@ void SetCleaner::RemoveUnusedSamples()
 	stdOut << endl << u8"Are you sure that you want to remove the above " << samplesCount << u8" samples and the " << drumSamplesCount << u8" drum samples? Type 'y' if you want to proceed, or anything else to cancel: ";
 	if(textReader.ReadLine() == u8"y")
 	{
+		NOT_IMPLEMENTED_ERROR; //TODO: implement me
+
 		uint32 newSampleRamSize = this->set.ComputeUsedSampleRAMSize();
 		stdOut << u8"Saved." << endl
 			<< u8"Old sample RAM usage:"
@@ -123,6 +126,7 @@ void SetCleaner::RemoveUnusedSounds()
 	stdOut << endl << u8"Are you sure that you want to remove the above " << count << u8" sounds? Type 'y' if you want to proceed, or anything else to cancel: ";
 	if(textReader.ReadLine() == u8"y")
 	{
+		NOT_IMPLEMENTED_ERROR; //TODO: implement me
 	}
 	else
 	{
@@ -213,6 +217,7 @@ void SetCleaner::ProcessSounds()
 				for(const auto& layer : dkData.layers)
 				{
 					//TODO:
+					NOT_IMPLEMENTED_ERROR; //TODO: implement me
 				}
 			}
 		}

@@ -44,7 +44,14 @@ namespace libKORG
 	{
 	public:
 		//Abstract
+		virtual bool Equals(const AbstractSample& other) const = 0;
 		virtual uint64 GetId() const = 0;
 		virtual uint32 GetSize() const = 0;
+
+		//Operators
+		inline bool operator==(const AbstractSample& other) const
+		{
+			return this->Equals(other);
+		}
 	};
 }

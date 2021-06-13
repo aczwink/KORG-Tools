@@ -22,6 +22,7 @@ using namespace StdXX;
 
 struct Config
 {
+	Optional<BankSlot<PerformanceBankNumber>> performanceInsertSlot;
 	Optional<BankSlot<SoundBankNumber>> soundInsertSlot;
 };
 
@@ -64,5 +65,23 @@ private:
 		if(this->importedMultiSampleIds.Contains(id))
 			return this->importedMultiSampleIds.Get(id);
 		return this->targetMultiSamplesIndex.GetMultiSampleEntryIndex(id);
+	}
+
+	template<typename PerfType>
+	void ImportPerformanceData(const PerfType& source, const BankSlot<PerformanceBankNumber>& slot, const String& name)
+	{
+		for(const auto& trackSettings : source.keyboardSettings.trackSettings)
+		{
+			if(!this->ImportSound(trackSettings.soundProgramChangeSeq))
+				return;
+		}
+		UniquePointer<PerfType> newPerformance = new PerfType(source);
+		for(auto& trackSettings : newPerformance->keyboardSettings.trackSettings)
+		{
+			if(this->importedSounds.Contains(trackSettings.soundProgramChangeSeq))
+				trackSettings.soundProgramChangeSeq = this->importedSounds.Get(trackSettings.soundProgramChangeSeq);
+		}
+
+		this->targetSet.performanceBanks[slot.bankNumber].SetObject(name, slot.pos, new PerformanceObject(Move(newPerformance)));
 	}
 };

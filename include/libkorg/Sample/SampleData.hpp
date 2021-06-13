@@ -40,5 +40,8 @@ namespace libKORG::Sample
 		uint32 unknown4;
 		uint32 unknown5;
 		StdXX::DynamicByteBuffer sampleBuffer;
+
+		//Operators
+		bool operator==(const SampleData&) const = default;
 	};
 }

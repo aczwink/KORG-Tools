@@ -23,7 +23,7 @@
 void BankAllocator::Compute(const ResourceSelection &selection)
 {
 	this->LayoutPerformances(selection.performances);
-	this->LayoutSounds(selection.sounds);
+	this->LayoutSounds(selection.sounds, selection.requireFreeSoundSlot);
 }
 
 //Private methods
@@ -69,7 +69,7 @@ void BankAllocator::LayoutPerformances(const BinaryTreeSet<const PerformanceObje
 	}
 }
 
-void BankAllocator::LayoutSounds(const BinaryTreeSet<ProgramChangeSequence> &sounds)
+void BankAllocator::LayoutSounds(const BinaryTreeSet<ProgramChangeSequence> &sounds, bool requireFreeSoundSlot)
 {
 	//first all that can be mapped directly to a position
 	for(const auto& bankEntry : this->sourceSet.soundBanks.Entries())
@@ -111,4 +111,7 @@ void BankAllocator::LayoutSounds(const BinaryTreeSet<ProgramChangeSequence> &sou
 			}
 		}
 	}
+
+	if(requireFreeSoundSlot)
+		this->bankAllocation.freeSoundSpot = Set::CreateRAMSoundProgramChangeSequence(bankNumber, pos);
 }

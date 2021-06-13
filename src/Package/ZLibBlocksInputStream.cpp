@@ -65,6 +65,9 @@ uint32 ZLibBlocksInputStream::ReadNextBlock(InputStream& baseInputStream, void* 
 				   << endl;
 			NOT_IMPLEMENTED_ERROR;
 	}
+
+	NOT_IMPLEMENTED_ERROR;
+	return 0;
 }
 
 uint32 ZLibBlocksInputStream::ReadZLibBlock(DataReader &dataReader, void *destination)

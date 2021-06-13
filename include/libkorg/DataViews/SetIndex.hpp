@@ -29,11 +29,9 @@ namespace libKORG
 		SetIndex(const Set& set);
 
 		//Properties
-		inline StdXX::Optional<BankSlot<SampleBankNumber>> GetSampleLocation(uint64 id) const
+		inline BankSlot<SampleBankNumber> GetSampleLocation(uint64 id) const
 		{
-			if(this->sampleLocations.Contains(id))
-				return this->sampleLocations.Get(id);
-			return {};
+			return this->sampleLocations.Get(id);
 		}
 
 		inline StdXX::Optional<BankSlot<SoundBankNumber>> GetSoundLocation(const ProgramChangeSequence& programChangeSequence) const

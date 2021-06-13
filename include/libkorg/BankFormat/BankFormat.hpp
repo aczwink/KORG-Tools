@@ -71,6 +71,8 @@ namespace libKORG::BankFormat
 		EncryptionAlgorithm encryptionAlgorithm;
 		uint16 vendorId;
 		uint16 featureId;
+
+		bool operator==(const EncryptionInformation&) const = default;
 	};
 
 	struct HeaderEntry

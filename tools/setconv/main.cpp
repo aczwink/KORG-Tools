@@ -52,7 +52,13 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 		return EXIT_FAILURE;
 	}
 
-	SetConverter setConverter(inputSetPathArg.Value(result), targetSetPathArg.Value(result), *model);
+	Set sourceSet(inputSetPathArg.Value(result));
+	IdsCorrector idsCorrector(sourceSet);
+	idsCorrector.Correct();
+	if(idsCorrector.ErrorCount())
+		stdErr << u8"There were " << idsCorrector.ErrorCount() << u8" errors within the samples of the source set that could only be resolved by excluding these samples." << endl;
+
+	SetConverter setConverter(sourceSet, targetSetPathArg.Value(result), *model);
 	setConverter.Convert();
 
 	return EXIT_SUCCESS;

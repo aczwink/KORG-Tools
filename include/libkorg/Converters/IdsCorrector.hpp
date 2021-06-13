@@ -18,36 +18,38 @@
  */
 #pragma once
 //Local
-#include <libkorg/MultiSamples/MultiSamplesData.hpp>
+#include <libkorg/Set.hpp>
 
 namespace libKORG
 {
-	class MultiSamplesIndex
+	class IdsCorrector
 	{
 	public:
 		//Constructor
-		MultiSamplesIndex(const MultiSamples::MultiSamplesData& data);
-
-		//Inline
-		inline const MultiSamples::MultiSampleEntry& GetMultiSampleEntryById(uint64 id) const
+		inline IdsCorrector(Set& set) : set(set)
 		{
-			return this->data.multiSampleEntries[this->multiSampleIdMap.Get(id)];
+			this->errorCounter = 0;
 		}
 
-		inline uint32 GetMultiSampleEntryIndex(uint64 id) const
+		//Properties
+		inline uint32 ErrorCount() const
 		{
-			return this->multiSampleIdMap.Get(id);
+			return this->errorCounter;
 		}
 
-		inline const MultiSamples::SampleEntry& GetSampleEntryById(uint64 id) const
-		{
-			return this->data.sampleEntries[this->sampleIdMap.Get(id)];
-		}
+		//Methods
+		void Correct();
 
 	private:
 		//Members
-		const MultiSamples::MultiSamplesData& data;
-		StdXX::BinaryTreeMap<uint64, uint32> multiSampleIdMap;
-		StdXX::BinaryTreeMap<uint64, uint32> sampleIdMap;
+		Set& set;
+		StdXX::BinaryTreeMap<uint64, uint32> sampleIdToIndexMap;
+		StdXX::BinaryTreeMap<uint64, uint32> multiSampleIdToIndexMap;
+		uint32 errorCounter;
+
+		//Methods
+		void CorrectMultiSampleAssignment(Sound::OSCMultiSampleSettings& multiSampleSettings);
+		void CorrectSamples();
+		void RemoveSampleFromIndex(uint32 index);
 	};
 }

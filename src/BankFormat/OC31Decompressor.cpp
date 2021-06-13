@@ -26,7 +26,7 @@ const bool c_oc31endianness = true;
 
 //Constructor
 OC31Decompressor::OC31Decompressor(InputStream &inputStream) : Decompressor(inputStream),
-	dictionary(Unsigned<uint16>::Max()), dataReader(c_oc31endianness, inputStream)
+	dictionary(Unsigned<uint16>::Max() << 1), dataReader(c_oc31endianness, inputStream)
 {
 	this->computedCheck = 0;
 	this->nBytesInBuffer = 0;

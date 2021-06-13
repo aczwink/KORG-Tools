@@ -22,6 +22,7 @@
 #include <libkorg/BankFormat/SampleObject.hpp>
 #include <libkorg/BankFormat/Writer.hpp>
 
+#include <libkorg/Converters/IdsCorrector.hpp>
 #include <libkorg/Converters/PerformanceConverter.hpp>
 #include <libkorg/Converters/PerformanceV0ToV1Converter.hpp>
 #include <libkorg/Converters/PerformanceV2ToV1Converter.hpp>
