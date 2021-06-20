@@ -31,13 +31,13 @@ void LegacySoundFormat0_3Reader::ReadDrumKitSoundData(DrumKitSoundData& drumKitS
 	}
 
 	Bitfield<uint16> packed = dataReader.ReadUInt16();
-	ASSERT_EQUALS(1, packed.IsBitSet(15));
+	bool hasId = packed.IsBitSet(15);
 	uint16 nLayers = packed.Get(0, 15);
 
 	for(uint16 i = 0; i < nLayers; i++)
 	{
 		LayerEntry layerEntry;
-		this->ReadLayerEntry(layerEntry, dataReader);
+		this->ReadLayerEntry(layerEntry, hasId, dataReader);
 		drumKitSoundData.layers.Push(layerEntry);
 	}
 }
@@ -113,17 +113,18 @@ void LegacySoundFormat0_3Reader::ReadKeyTableEntry(KeyTableEntry& keyTableEntry,
 	this->SkipUnknownKeyTableEntryByte(dataReader);
 }
 
-void LegacySoundFormat0_3Reader::ReadLayerEntry(LayerEntry& layerEntry, DataReader &dataReader)
+void LegacySoundFormat0_3Reader::ReadLayerEntry(LayerEntry& layerEntry, bool hasId, DataReader &dataReader)
 {
-	layerEntry.unknown1 = dataReader.ReadByte();
+	layerEntry.sampleBankNumber = dataReader.ReadByte();
 
 	uint8 rev = dataReader.ReadByte();
 	ASSERT((rev == 0)
 		   || (rev == 1)
-		   || (rev == 2), String::Number(rev));
+		   || (rev == 2)
+		   || (rev == 3), String::Number(rev));
 	layerEntry.reversed = static_cast<Reversed>(rev);
 
-	layerEntry.multiSampleNumber = dataReader.ReadUInt16();
+	layerEntry.drumSampleNumber = dataReader.ReadUInt16();
 
 	layerEntry.level = dataReader.ReadByte();
 	layerEntry.transpose = dataReader.ReadByte();
@@ -135,5 +136,8 @@ void LegacySoundFormat0_3Reader::ReadLayerEntry(LayerEntry& layerEntry, DataRead
 
 	this->ReadLayerEntryDetails(layerEntry, dataReader);
 
-	layerEntry.id = dataReader.ReadUInt64();
+	if(hasId)
+		layerEntry.drumSampleId = dataReader.ReadUInt64();
+	else
+		layerEntry.drumSampleId = 0;
 }

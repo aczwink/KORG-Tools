@@ -92,11 +92,6 @@ void PrintSoundBanks(const PrintSettings& printSettings, const Set& set, Formatt
 	PrintBanks<SoundBankNumber, SoundObject, SoundOutputter>(printSettings, set.soundBanks, outputter);
 }
 
-void PrintStyleBanks(const PrintSettings& printSettings, const Set& set, FormattedOutputter& outputter)
-{
-	PrintBanks<StyleBankNumber, FullStyle, StyleOutputter>(printSettings, set.styleBanks, outputter); //StyleBankNumberToString
-}
-
 enum class ResourceType
 {
 	MultiSamples,
@@ -104,7 +99,8 @@ enum class ResourceType
 	Performances,
 	Samples,
 	Sounds,
-	Styles
+	Styles,
+	StylesSTS
 };
 
 int32 Main(const String &programName, const FixedArray<String> &args)
@@ -120,6 +116,7 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 	typeArgument.AddMapping(u8"samples", ResourceType::Samples, u8"Dump samples");
 	typeArgument.AddMapping(u8"sounds", ResourceType::Sounds, u8"Dump sounds");
 	typeArgument.AddMapping(u8"styles", ResourceType::Styles, u8"Dump styles");
+	typeArgument.AddMapping(u8"styles-sts", ResourceType::StylesSTS, u8"Dump styles and STS");
 	parser.AddPositionalArgument(typeArgument);
 
 	CommandLine::PathArgument inputPathArg(u8"input-path", u8"Path to the sourceSet that should be dumped");
@@ -176,7 +173,10 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 			PrintSoundBanks(printSettings, set, *outputter);
 			break;
 		case ResourceType::Styles:
-			PrintStyleBanks(printSettings, set, *outputter);
+			PrintBanks<StyleBankNumber, FullStyle, StyleOnlyOutputter>(printSettings, set.styleBanks, *outputter); //StyleBankNumberToString
+			break;
+		case ResourceType::StylesSTS:
+			PrintBanks<StyleBankNumber, FullStyle, StyleOutputter>(printSettings, set.styleBanks, *outputter); //StyleBankNumberToString
 			break;
 	}
 

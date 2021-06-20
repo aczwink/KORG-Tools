@@ -82,6 +82,15 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 	}
 
 	Set sourceSet(inputSetPathArg.Value(result));
+	IdsCorrector idsCorrector(sourceSet);
+	idsCorrector.Correct();
+	if(idsCorrector.ErrorsDetected())
+	{
+		stdErr << u8"The source set is erroneous." << endl
+			<< idsCorrector.Errors().missingSamplesCount << u8" samples are missing (either metadata or payload)." << endl
+			<< idsCorrector.Errors().missingDrumSamplesCount << u8" drum samples (metadata) are missing." << endl;
+	}
+
 	Set targetSet(targetSetPathArg.Value(result), *targetModel);
 	ResourceImporter resourceImporter(sourceSet, targetSet, config);
 	switch(typeArgument.Value(result))

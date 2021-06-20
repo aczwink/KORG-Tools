@@ -55,8 +55,12 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 	Set sourceSet(inputSetPathArg.Value(result));
 	IdsCorrector idsCorrector(sourceSet);
 	idsCorrector.Correct();
-	if(idsCorrector.ErrorCount())
-		stdErr << u8"There were " << idsCorrector.ErrorCount() << u8" errors within the samples of the source set that could only be resolved by excluding these samples." << endl;
+	if(idsCorrector.ErrorsDetected())
+	{
+		stdErr << u8"The source set is erroneous." << endl
+			   << idsCorrector.Errors().missingSamplesCount << u8" samples are missing (either metadata or payload)." << endl
+			   << idsCorrector.Errors().missingDrumSamplesCount << u8" drum samples (metadata) are missing." << endl;
+	}
 
 	SetConverter setConverter(sourceSet, targetSetPathArg.Value(result), *model);
 	setConverter.Convert();

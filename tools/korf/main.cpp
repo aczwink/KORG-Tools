@@ -64,12 +64,14 @@ class ObjectTrackingReader : public BankFormat::Reader
 {
 public:
 	//Members
+	BinaryTreeMap<const BankFormat::HeaderEntry*, BankFormat::ChunkType> objectsDataType;
 	BinaryTreeMap<const BankFormat::HeaderEntry*, DynamicByteBuffer> objectsData;
 
 protected:
 	void ReadBankObject(BankFormat::ChunkType chunkType, const ChunkHeader &chunkHeader, const BankFormat::HeaderEntry &headerEntry, DataReader &dataReader) override
 	{
 		dataReader.InputStream().FlushTo(*this->objectsData[&headerEntry].CreateOutputStream());
+		this->objectsDataType[&headerEntry] = chunkType;
 	}
 
 	ChunkReader* OnEnteringChunkedResourceChunk(const ChunkHeader &chunkHeader, const BankFormat::HeaderEntry &headerEntry) override
@@ -162,7 +164,10 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 					stdOut << u8"Style";
 					break;
 				case BankFormat::ObjectType::Sound:
-					stdOut << u8"Sound";
+					if(bankFormatReader.objectsDataType[kv.key] == BankFormat::ChunkType::LegacySoundData)
+						stdOut << u8"LegacySound";
+					else
+						stdOut << u8"Sound";
 					break;
 				case BankFormat::ObjectType::MultiSample:
 					stdOut << u8"MultiSamples";

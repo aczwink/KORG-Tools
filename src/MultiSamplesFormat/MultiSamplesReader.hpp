@@ -18,6 +18,7 @@
  */
 //Local
 #include "Format3.0/MultiSamplesFormat3_0Reader.hpp"
+#include "Format1.0/MultiSamplesFormat1_0Reader.hpp"
 
 class MultiSamplesReader
 {
@@ -26,6 +27,12 @@ public:
 	{
 		switch (chunkVersion.AsUInt16())
 		{
+			case 0x0100:
+			{
+				MultiSamplesFormat1_0Reader multiSamplesFormat10Reader;
+				multiSamplesFormat10Reader.Read(dataReader);
+				return new MultiSamplesObject(Move(multiSamplesFormat10Reader.data));
+			}
 			case 0x0300:
 			{
 				MultiSamplesFormat3_0Reader multiSamplesFormat30Reader;

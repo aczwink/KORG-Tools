@@ -19,6 +19,7 @@
 //Class header
 #include "MultiSamplesFormat3_0Writer.hpp"
 //Namespaces
+using namespace libKORG::MultiSamples;
 using namespace StdXX;
 
 //Public methods
@@ -42,14 +43,14 @@ void MultiSamplesFormat3_0Writer::Write(const libKORG::MultiSamples::MultiSample
 }
 
 //Private methods
-void MultiSamplesFormat3_0Writer::Write(const libKORG::MultiSamples::DrumSampleEntry& drumSampleEntry)
+void MultiSamplesFormat3_0Writer::Write(const DrumSampleEntry& drumSampleEntry)
 {
-	this->dataWriter.WriteInt16(drumSampleEntry.unknown1);
-	this->dataWriter.WriteInt16(drumSampleEntry.unknown2);
+	this->dataWriter.WriteInt16(drumSampleEntry.sampleIndexLeft);
+	this->dataWriter.WriteInt16(drumSampleEntry.sampleIndexRight);
 	this->dataWriter.WriteInt16(drumSampleEntry.unknown3);
 	this->dataWriter.WriteInt16(drumSampleEntry.unknown4);
-	this->dataWriter.WriteByte(drumSampleEntry.unknown5);
-	this->dataWriter.WriteByte(drumSampleEntry.unknown6);
+	this->dataWriter.WriteByte(drumSampleEntry.bankNumber);
+	this->dataWriter.WriteInt8(static_cast<int8>(drumSampleEntry.family));
 	this->dataWriter.WriteByte(drumSampleEntry.unknown7);
 	this->dataWriter.WriteByte(drumSampleEntry.unknown8);
 
@@ -107,7 +108,7 @@ void MultiSamplesFormat3_0Writer::Write(const libKORG::MultiSamples::SampleEntry
 
 	this->dataWriter.WriteUInt16(sampleEntry.packedData.Encoded().value);
 
-	this->dataWriter.WriteByte(sampleEntry.unknown4);
+	this->dataWriter.WriteByte(sampleEntry.bankNumber);
 	this->dataWriter.WriteUInt32(sampleEntry.unknown8);
 
 	for(uint8 j = 0; j < 8; j++)

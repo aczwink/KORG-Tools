@@ -48,6 +48,10 @@ namespace libKORG::Sound
 
 	struct SoundData
 	{
+		/**
+		 * Probably a map between ROM multisample numbers.
+		 * The keyboard uses this internally on import do determine the correct mutlisamples even when the sound comes from a different keyboard model.
+		 */
 		uint16 multiSampleMap;
 		StdXX::Flags<VoiceAssignModeFlags> voiceAssignModeFlags;
 		uint8 unknown1[5]; //single bytes... probably also flags?

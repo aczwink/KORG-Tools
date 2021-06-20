@@ -22,21 +22,33 @@
 
 namespace libKORG::MultiSamples
 {
+	enum class DrumSampleFamily : int8
+	{
+		Bass = 0,
+		Snare = 1,
+		HiHat = 2,
+		Tom = 3,
+		Cymbal = 4,
+		Latin = 5,
+		Ethnic = 6,
+		SFX = 7,
+	};
+
 	struct DrumSampleEntry
 	{
-		int16 unknown1;
-		int16 unknown2;
-		int16 unknown3;
-		int16 unknown4;
-		uint8 unknown5;
-		int8 unknown6;
+		int16 sampleIndexLeft;
+		int16 sampleIndexRight;
+		int16 unknown3 = -1;
+		int16 unknown4 = -1;
+		uint8 bankNumber;
+		DrumSampleFamily family;
 		uint8 unknown7;
 		int8 unknown8;
 		StdXX::String name;
-		int8 unknown9;
-		int8 unknown10;
-		int8 unknown11;
-		int8 unknown12;
+		int8 unknown9 = 0;
+		int8 unknown10 = 0;
+		int8 unknown11 = 0;
+		int8 unknown12 = 0;
 		uint64 id;
 	};
 
@@ -130,7 +142,7 @@ namespace libKORG::MultiSamples
 		int16 unknown1;
 		int16 unknown2;
 		PackedData packedData;
-		uint8 unknown4;
+		uint8 bankNumber;
 		uint32 unknown8;
 		uint32 unknown9[8];
 		uint8 unknown5;
@@ -139,7 +151,7 @@ namespace libKORG::MultiSamples
 		uint32 unknown12;
 		uint32 unknown13;
 		int16 compressionCoefficients[2];
-		uint32 unknown14;
+		uint32 unknown14 = 0;
 		StdXX::String name;
 		uint64 id;
 		uint8 unknown15;

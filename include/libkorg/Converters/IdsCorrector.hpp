@@ -24,17 +24,26 @@ namespace libKORG
 {
 	class IdsCorrector
 	{
+		struct ErrorCounts
+		{
+			uint32 missingDrumSamplesCount = 0;
+			uint32 missingSamplesCount = 0;
+		};
 	public:
 		//Constructor
 		inline IdsCorrector(Set& set) : set(set)
 		{
-			this->errorCounter = 0;
 		}
 
 		//Properties
-		inline uint32 ErrorCount() const
+		inline const ErrorCounts& Errors() const
 		{
-			return this->errorCounter;
+			return this->errorCounts;
+		}
+
+		inline bool ErrorsDetected() const
+		{
+			return (this->errorCounts.missingDrumSamplesCount > 0) or (this->errorCounts.missingSamplesCount > 0);
 		}
 
 		//Methods
@@ -43,13 +52,20 @@ namespace libKORG
 	private:
 		//Members
 		Set& set;
-		StdXX::BinaryTreeMap<uint64, uint32> sampleIdToIndexMap;
+		StdXX::BinaryTreeMap<uint64, uint32> drumSampleIdToIndexMap;
 		StdXX::BinaryTreeMap<uint64, uint32> multiSampleIdToIndexMap;
-		uint32 errorCounter;
+		ErrorCounts errorCounts;
 
 		//Methods
+		void BuildDrumSampleIndex();
+		void BuildMultiSampleIndex();
+		StdXX::BinaryTreeMap<uint64, uint32> BuildSampleIndex();
+		void CorrectDrumSampleAssignment(Sound::LayerEntry& layerEntry);
+		void CorrectDrumSampleAssignments();
 		void CorrectMultiSampleAssignment(Sound::OSCMultiSampleSettings& multiSampleSettings);
+		void CorrectMultiSampleAssignments();
 		void CorrectSamples();
 		void RemoveSampleFromIndex(uint32 index);
+		void RenumberDrumSampleAssignments();
 	};
 }

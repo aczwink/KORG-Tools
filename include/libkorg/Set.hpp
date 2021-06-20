@@ -65,6 +65,8 @@ namespace libKORG
 
 		inline const MultiSamplesObject& MultiSamples() const
 		{
+			if(this->multiSamples.IsNull())
+				this->multiSamples = new MultiSamplesObject();
 			return *this->multiSamples;
 		}
 
@@ -92,7 +94,7 @@ namespace libKORG
 	private:
 		//Members
 		StdXX::FileSystem::Path setPath;
-		StdXX::UniquePointer<MultiSamplesObject> multiSamples;
+		mutable StdXX::UniquePointer<MultiSamplesObject> multiSamples;
 
 		//Methods
 		void LoadMultiSamples(const StdXX::String& bankFileName, const StdXX::DynamicArray<BankObjectEntry>& bankEntries);

@@ -43,8 +43,10 @@ void SoundFormat2_0Reader::ReadOscillatorEqualizer(OscillatorData &oscillatorDat
 
 void SoundFormat2_0Reader::ReadOscillatorMultiSamplesData(OSCMultiSampleSettings &oscMultiSampleSettings, DataReader &dataReader)
 {
-	SoundFormat1_0Reader::ReadOscillatorMultiSamplesData(oscMultiSampleSettings, dataReader);
-
+	oscMultiSampleSettings.multiSampleId = this->ReadMultiSampleId(dataReader);
+	oscMultiSampleSettings.multiSampleNumber = dataReader.ReadUInt16();
+	oscMultiSampleSettings.source = static_cast<MultiSampleSource>(dataReader.ReadByte());
+	oscMultiSampleSettings.level = dataReader.ReadByte();
 	oscMultiSampleSettings.reversed = this->ReadBool(dataReader);
 	oscMultiSampleSettings.offset = static_cast<Offset>(dataReader.ReadByte());
 }

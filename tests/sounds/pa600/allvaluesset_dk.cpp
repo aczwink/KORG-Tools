@@ -40,7 +40,7 @@ TEST_SUITE(AllValuesSetDrumKitTests)
 		//TODO: ROM/RAM
 
 		ASSERT_EQUALS(Reversed::No, layer1.reversed);
-		ASSERT_EQUALS(28, layer1.multiSampleNumber);
+		ASSERT_EQUALS(28, layer1.drumSampleNumber);
 		ASSERT_EQUALS(-99, layer1.level);
 		ASSERT_EQUALS(-41, layer1.transpose);
 		ASSERT_EQUALS(45, layer1.tune);

@@ -16,14 +16,18 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "../Format1.0/MultiSamplesFormat1_0Reader.hpp"
+#include <StdXXTest.hpp>
+#include <libkorg.hpp>
+//Namespaces
+using namespace libKORG;
+using namespace libKORG::Sound;
+using namespace StdXX;
 
-class MultiSamplesFormat3_0Reader : public MultiSamplesFormat1_0Reader
+TEST_SUITE(DrumKitWith9SamplesTests)
 {
-protected:
-	//Methods
-	void ReadDrumSampleUnknowns3And4(libKORG::MultiSamples::DrumSampleEntry &drumSampleEntry, StdXX::DataReader &dataReader) override;
-	void ReadDrumSampleUnknowns9To12(libKORG::MultiSamples::DrumSampleEntry &drumSampleEntry, StdXX::DataReader &dataReader) override;
-	int16 ReadSampleUnknown2(StdXX::DataReader &dataReader) override;
-	void ReadSampleUnknown14(libKORG::MultiSamples::SampleEntry& sampleEntry, StdXX::DataReader &dataReader) override;
-};
+	TEST_CASE(Test)
+	{
+		FileSystem::Path setPath(u8"testdata/sounds/pa600/dk_with9samples.SET");
+		Set set(setPath);
+	}
+}

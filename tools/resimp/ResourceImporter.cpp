@@ -79,6 +79,8 @@ bool ResourceImporter::ImportMultiSample(uint64 id)
 			continue;
 
 		const auto& keyZone = this->sourceSet.MultiSamples().data.keyboardZones[msEntry.keyZoneBaseIndex + relativeIndex];
+		if(keyZone.sampleNumber == -1)
+			continue;
 
 		if(!this->ImportSample(this->sourceSet.MultiSamples().data.sampleEntries[keyZone.sampleNumber].id))
 			return false;
@@ -96,7 +98,8 @@ bool ResourceImporter::ImportMultiSample(uint64 id)
 			const auto& srcKeyZone = this->sourceSet.MultiSamples().data.keyboardZones[msEntry.keyZoneBaseIndex + relativeIndex];
 			MultiSamples::KeyboardZone keyboardZone = srcKeyZone;
 
-			keyboardZone.sampleNumber = this->importedSampleIds.Get(this->sourceSet.MultiSamples().data.sampleEntries[srcKeyZone.sampleNumber].id);
+			if(srcKeyZone.sampleNumber != -1)
+				keyboardZone.sampleNumber = this->importedSampleIds.Get(this->sourceSet.MultiSamples().data.sampleEntries[srcKeyZone.sampleNumber].id);
 
 			this->targetSet.MultiSamples().data.keyboardZones.Push(keyboardZone);
 			importedKeyZones.Insert(relativeIndex);

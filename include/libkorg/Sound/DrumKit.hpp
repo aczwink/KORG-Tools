@@ -40,9 +40,9 @@ namespace libKORG::Sound
 
 	struct LayerEntry
 	{
-		uint8 unknown1;
+		uint8 sampleBankNumber; //0 means apparently ROM meaning that its +1 in case of RAM
 		Reversed reversed;
-		uint16 multiSampleNumber; //is it sample or multisample number?
+		uint16 drumSampleNumber;
 		int8 level;
 		int8 transpose;
 		uint8 tune;
@@ -55,7 +55,7 @@ namespace libKORG::Sound
 		EqualizerData drumSampleEqualizer;
 		uint8 unknown21[2] = {0, 15};
 		int8 intensity = 0;
-		uint64 id;
+		uint64 drumSampleId;
 
 		//Operators
 		bool operator==(const LayerEntry&) const = default;

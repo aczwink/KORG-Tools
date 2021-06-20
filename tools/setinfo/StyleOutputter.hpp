@@ -50,3 +50,23 @@ private:
 
 	String ToString(StyleElementNumber styleElementNumber) const;
 };
+
+class StyleOnlyOutputter
+{
+public:
+	//Constructor
+	inline StyleOnlyOutputter(FormattedOutputter& formattedOutputter) : formattedOutputter(formattedOutputter)
+	{
+	}
+
+	//Inline
+	inline void Output(const FullStyle& fullStyle)
+	{
+		StyleOutputter styleOutputter(this->formattedOutputter);
+		styleOutputter.Output(fullStyle.Style());
+	}
+
+private:
+	//Members
+	FormattedOutputter& formattedOutputter;
+};

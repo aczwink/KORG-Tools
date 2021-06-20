@@ -64,9 +64,9 @@ void LegacySoundFormat0_0Reader::ReadDrumKitSoundData(DrumKitSoundData &drumKitS
 		LayerEntry layerEntries[2];
 		for(auto& layerEntry : layerEntries)
 		{
-			layerEntry.unknown1 = dataReader.ReadByte();
+			layerEntry.sampleBankNumber = dataReader.ReadByte();
 			layerEntry.reversed = static_cast<Reversed>(dataReader.ReadByte());
-			layerEntry.multiSampleNumber = dataReader.ReadUInt16();
+			layerEntry.drumSampleNumber = dataReader.ReadUInt16();
 
 			layerEntry.level = dataReader.ReadInt8();
 			layerEntry.transpose = dataReader.ReadInt8();
@@ -76,7 +76,7 @@ void LegacySoundFormat0_0Reader::ReadDrumKitSoundData(DrumKitSoundData &drumKitS
 			layerEntry.cutoff = dataReader.ReadInt8();
 			layerEntry.resonance = dataReader.ReadInt8();
 
-			layerEntry.id = 0;
+			layerEntry.drumSampleId = 0;
 
 			dataReader.Skip(1); //?
 		}
@@ -89,11 +89,21 @@ void LegacySoundFormat0_0Reader::ReadDrumKitSoundData(DrumKitSoundData &drumKitS
 		uint8 velocitySampleSwitch = dataReader.ReadByte();
 		if(velocitySampleSwitch == 1)
 		{
+			//TODO: set velocity sample switch
 			drumKitSoundData.layers.Push(layerEntries[0]);
 			keyTableEntry.nLayers = 1;
 		}
-		else
+		else if(velocitySampleSwitch == 127)
+		{
 			NOT_IMPLEMENTED_ERROR; //TODO: implement me
+		}
+		else
+		{
+			//TODO: set velocity sample switch
+			drumKitSoundData.layers.Push(layerEntries[1]);
+			drumKitSoundData.layers.Push(layerEntries[0]);
+			keyTableEntry.nLayers = 2;
+		}
 
 		dataReader.Skip(1); //?
 	}
@@ -149,9 +159,17 @@ void LegacySoundFormat0_0Reader::ReadOscillatorEqualizer(OscillatorData &oscilla
 void LegacySoundFormat0_0Reader::ReadOscillatorMultiSamplesData(OSCMultiSampleSettings& oscMultiSampleSettings, DataReader &dataReader)
 {
 	oscMultiSampleSettings.multiSampleId = this->ReadMultiSampleId(dataReader);
-	oscMultiSampleSettings.multiSampleNumber = dataReader.ReadUInt16();
+
+	Bitfield<uint16> packed = dataReader.ReadUInt16();
+
 	oscMultiSampleSettings.source = static_cast<MultiSampleSource>(dataReader.ReadByte());
 	oscMultiSampleSettings.level = dataReader.ReadByte();
+
+	if(packed.IsBitSet(15))
+		oscMultiSampleSettings.offset = Offset::NoAttack;
+	if(packed.IsBitSet(14))
+		oscMultiSampleSettings.reversed = true;
+	oscMultiSampleSettings.multiSampleNumber = packed.Get(0, 12);
 }
 
 void LegacySoundFormat0_0Reader::ReadOSCTrigger(OscillatorData &oscillatorData, DataReader &dataReader)

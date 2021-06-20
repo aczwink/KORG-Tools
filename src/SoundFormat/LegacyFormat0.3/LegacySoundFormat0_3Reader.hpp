@@ -40,5 +40,5 @@ protected:
 private:
 	//Methods
 	void ReadKeyTableEntry(libKORG::Sound::KeyTableEntry& keyTableEntry, StdXX::DataReader& dataReader);
-	void ReadLayerEntry(libKORG::Sound::LayerEntry& layerEntry, StdXX::DataReader& dataReader);
+	void ReadLayerEntry(libKORG::Sound::LayerEntry& layerEntry, bool hasId, StdXX::DataReader& dataReader);
 };

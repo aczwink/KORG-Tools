@@ -22,143 +22,27 @@
 using namespace libKORG::MultiSamples;
 using namespace StdXX;
 
-void MultiSamplesFormat3_0Reader::Read(DataReader& dataReader)
+//Protected methods
+void MultiSamplesFormat3_0Reader::ReadDrumSampleUnknowns3And4(DrumSampleEntry &drumSampleEntry, DataReader &dataReader)
 {
-	uint16 versionMaybe = dataReader.ReadUInt16();
-	ASSERT((versionMaybe == 2) || (versionMaybe == 3), String::HexNumber(versionMaybe));
-
-	uint16 nSampleEntries = dataReader.ReadUInt16();
-	uint16 nDrumSampleEntries = dataReader.ReadUInt16();
-	uint16 nKeyboardZones = dataReader.ReadUInt16();
-	uint16 nMultiSampleEntries = dataReader.ReadUInt16();
-
-	this->ReadSamples(nSampleEntries, dataReader);
-	this->ReadDrumSamples(nDrumSampleEntries, dataReader);
-	this->ReadKeyboardZones(nKeyboardZones, dataReader);
-	this->ReadMultiSamples(nMultiSampleEntries, dataReader);
+	drumSampleEntry.unknown3 = dataReader.ReadInt16();
+	drumSampleEntry.unknown4 = dataReader.ReadInt16();
 }
 
-//Private methods
-void MultiSamplesFormat3_0Reader::ReadDrumSamples(uint16 nDrumSampleEntries, DataReader &dataReader)
+void MultiSamplesFormat3_0Reader::ReadDrumSampleUnknowns9To12(DrumSampleEntry &drumSampleEntry, DataReader &dataReader)
 {
-	TextReader textReader(dataReader.InputStream(), TextCodecType::Latin1);
-
-	this->data.drumSampleEntries.Resize(nDrumSampleEntries);
-	for(uint32 i = 0; i < nDrumSampleEntries; i++)
-	{
-		DrumSampleEntry& drumSampleEntry = this->data.drumSampleEntries[i];
-
-		drumSampleEntry.unknown1 = dataReader.ReadInt16();
-		drumSampleEntry.unknown2 = dataReader.ReadInt16();
-		drumSampleEntry.unknown3 = dataReader.ReadInt16();
-		drumSampleEntry.unknown4 = dataReader.ReadInt16();
-		drumSampleEntry.unknown5 = dataReader.ReadByte();
-		drumSampleEntry.unknown6 = dataReader.ReadByte();
-		drumSampleEntry.unknown7 = dataReader.ReadByte();
-		drumSampleEntry.unknown8 = dataReader.ReadByte();
-
-		drumSampleEntry.name = textReader.ReadZeroTerminatedString(24);
-
-		drumSampleEntry.unknown9 = dataReader.ReadByte();
-		drumSampleEntry.unknown10 = dataReader.ReadByte();
-		drumSampleEntry.unknown11 = dataReader.ReadByte();
-		drumSampleEntry.unknown12 = dataReader.ReadByte();
-
-		drumSampleEntry.id = dataReader.ReadUInt64();
-	}
+	drumSampleEntry.unknown9 = dataReader.ReadInt8();
+	drumSampleEntry.unknown10 = dataReader.ReadInt8();
+	drumSampleEntry.unknown11 = dataReader.ReadInt8();
+	drumSampleEntry.unknown12 = dataReader.ReadInt8();
 }
 
-void MultiSamplesFormat3_0Reader::ReadKeyboardZones(uint16 nEntries, DataReader &dataReader)
+int16 MultiSamplesFormat3_0Reader::ReadSampleUnknown2(DataReader &dataReader)
 {
-	TextReader textReader(dataReader.InputStream(), TextCodecType::ASCII);
-
-	this->data.keyboardZones.Resize(nEntries);
-	for(uint32 i = 0; i < nEntries; i++)
-	{
-		KeyboardZone& keyboardZone = this->data.keyboardZones[i];
-
-		keyboardZone.sampleNumber = dataReader.ReadInt16();
-
-		ASSERT_EQUALS(1, dataReader.ReadByte());
-
-		keyboardZone.to = dataReader.ReadByte();
-		keyboardZone.originalNote = dataReader.ReadByte();
-
-		keyboardZone.unknown3 = dataReader.ReadByte();
-
-		keyboardZone.pitch = dataReader.ReadInt16();
-		keyboardZone.level = dataReader.ReadByte();
-		keyboardZone.unknown4 = dataReader.ReadByte();
-
-		ASSERT_EQUALS(0, dataReader.ReadUInt32());
-		ASSERT_EQUALS(0, dataReader.ReadUInt32());
-		ASSERT_EQUALS(0, dataReader.ReadByte());
-
-		keyboardZone.unknown5 = dataReader.ReadByte();
-	}
+	return dataReader.ReadInt16();
 }
 
-void MultiSamplesFormat3_0Reader::ReadMultiSamples(uint16 nMultiSampleEntries, DataReader &dataReader)
+void MultiSamplesFormat3_0Reader::ReadSampleUnknown14(SampleEntry& sampleEntry, DataReader &dataReader)
 {
-	TextReader textReader(dataReader.InputStream(), TextCodecType::Latin1);
-
-	this->data.multiSampleEntries.Resize(nMultiSampleEntries);
-	for(uint32 i = 0; i < nMultiSampleEntries; i++)
-	{
-		MultiSampleEntry& multiSampleEntry = this->data.multiSampleEntries[i];
-
-		multiSampleEntry.unknown1 = dataReader.ReadUInt16();
-
-		multiSampleEntry.name = textReader.ReadZeroTerminatedString(24);
-		multiSampleEntry.keyZoneBaseIndex = dataReader.ReadUInt16();
-		dataReader.ReadBytes(multiSampleEntry.keyZoneIndex, sizeof(multiSampleEntry.keyZoneIndex));
-		multiSampleEntry.nKeyZones = dataReader.ReadByte();
-
-		multiSampleEntry.unknown3 = dataReader.ReadByte();
-
-		multiSampleEntry.id = dataReader.ReadUInt64();
-	}
-}
-
-void MultiSamplesFormat3_0Reader::ReadSamples(uint16 nSampleEntries, DataReader& dataReader)
-{
-	TextReader textReader(dataReader.InputStream(), TextCodecType::Latin1);
-
-	this->data.sampleEntries.Resize(nSampleEntries);
-	for(uint32 i = 0; i < this->data.sampleEntries.GetNumberOfElements(); i++)
-	{
-		SampleEntry& sampleEntry = this->data.sampleEntries[i];
-
-		sampleEntry.unknown1 = dataReader.ReadInt16();
-		sampleEntry.unknown2 = dataReader.ReadInt16();
-		sampleEntry.packedData = dataReader.ReadUInt16();
-
-		sampleEntry.unknown4 = dataReader.ReadByte();
-		sampleEntry.unknown8 = dataReader.ReadUInt32();
-
-		for(uint8 j = 0; j < 8; j++)
-		{
-			sampleEntry.unknown9[j] = dataReader.ReadUInt32();
-		}
-
-		sampleEntry.unknown5 = dataReader.ReadByte();
-		sampleEntry.unknown10 = dataReader.ReadUInt32();
-		sampleEntry.unknown11 = dataReader.ReadUInt32();
-		sampleEntry.unknown12 = dataReader.ReadUInt32();
-		sampleEntry.unknown13 = dataReader.ReadUInt32();
-
-		sampleEntry.compressionCoefficients[0] = dataReader.ReadInt16();
-		sampleEntry.compressionCoefficients[1] = dataReader.ReadInt16();
-
-		sampleEntry.unknown14 = dataReader.ReadUInt32();
-
-		sampleEntry.name = textReader.ReadZeroTerminatedString(16);
-		sampleEntry.id = dataReader.ReadUInt64();
-
-		sampleEntry.unknown15 = dataReader.ReadByte();
-		sampleEntry.unknown16 = dataReader.ReadByte();
-		sampleEntry.unknown17 = dataReader.ReadUInt32();
-
-		sampleEntry.originalNote = dataReader.ReadByte();
-	}
+	sampleEntry.unknown14 = dataReader.ReadUInt32();
 }

@@ -56,12 +56,12 @@ void MultiSamplesOutputter::Output(uint32 index, const DrumSampleEntry& drumSamp
 {
 	Section section(u8"Drum sample entry " + String::Number(index), this->formattedOutputter);
 
-	this->formattedOutputter.OutputProperty(u8"unknown1", drumSampleEntry.unknown1);
-	this->formattedOutputter.OutputProperty(u8"memoryBankNumber", drumSampleEntry.unknown2);
+	this->formattedOutputter.OutputProperty(u8"sampleIndexLeft", drumSampleEntry.sampleIndexLeft);
+	this->formattedOutputter.OutputProperty(u8"sampleIndexRight", drumSampleEntry.sampleIndexRight);
 	this->formattedOutputter.OutputProperty(u8"unknown3", drumSampleEntry.unknown3);
 	this->formattedOutputter.OutputProperty(u8"unknown4", drumSampleEntry.unknown4);
-	this->formattedOutputter.OutputProperty(u8"unknown5", drumSampleEntry.unknown5);
-	this->formattedOutputter.OutputProperty(u8"unknown6", drumSampleEntry.unknown6);
+	this->formattedOutputter.OutputProperty(u8"bankNumber", drumSampleEntry.bankNumber);
+	this->formattedOutputter.OutputProperty(u8"family", (int8)drumSampleEntry.family);
 	this->formattedOutputter.OutputProperty(u8"unknown7", drumSampleEntry.unknown7);
 	this->formattedOutputter.OutputProperty(u8"unknown8", drumSampleEntry.unknown8);
 
@@ -98,18 +98,15 @@ void MultiSamplesOutputter::Output(uint32 index, const MultiSampleEntry& multiSa
 
 void MultiSamplesOutputter::Output(uint32 index, const SampleEntry& sampleEntry) const
 {
-	NOT_IMPLEMENTED_ERROR; //TODO: refix me
-	/*
 	Section section(u8"Sample entry " + String::Number(index), this->formattedOutputter);
 
 	this->formattedOutputter.OutputProperty(u8"unknown1", sampleEntry.unknown1);
-	this->formattedOutputter.OutputProperty(u8"memoryBankNumber", sampleEntry.memoryBankNumber);
+	this->formattedOutputter.OutputProperty(u8"unknown2", sampleEntry.unknown2);
 
-	this->formattedOutputter.OutputProperty(u8"sampleType", (uint8)sampleEntry.sampleType);
-	this->formattedOutputter.OutputProperty(u8"interpolationMode", (uint8)sampleEntry.interpolationMode);
-	this->formattedOutputter.OutputProperty(u8"flags", sampleEntry.flags.encodedFlags);
+	this->formattedOutputter.OutputProperty(u8"sampleType", (uint8)sampleEntry.packedData.SampleType());
+	this->formattedOutputter.OutputProperty(u8"interpolationMode", (uint8)sampleEntry.packedData.InterpolationMode());
 
-	this->formattedOutputter.OutputProperty(u8"unknown4", sampleEntry.unknown4);
+	this->formattedOutputter.OutputProperty(u8"bankNumber", sampleEntry.bankNumber);
 	this->formattedOutputter.OutputProperty(u8"unknown8", sampleEntry.unknown8);
 	for(uint32 i = 0; i < 8; i++)
 		this->formattedOutputter.OutputProperty(u8"unknown9_ " + String::Number(i), sampleEntry.unknown9[i]);
@@ -131,7 +128,7 @@ void MultiSamplesOutputter::Output(uint32 index, const SampleEntry& sampleEntry)
 	this->formattedOutputter.OutputProperty(u8"unknown16", sampleEntry.unknown16);
 	this->formattedOutputter.OutputProperty(u8"unknown17", sampleEntry.unknown17);
 
-	this->formattedOutputter.OutputProperty(u8"originalNote", sampleEntry.originalNote);*/
+	this->formattedOutputter.OutputProperty(u8"originalNote", sampleEntry.originalNote);
 }
 
 void MultiSamplesOutputter::Output(uint32 index, const KeyboardZone& keyboardZone) const
