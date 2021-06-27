@@ -52,7 +52,7 @@ private:
 	BinaryTreeMap<ProgramChangeSequence, ProgramChangeSequence> importedSounds;
 
 	//Methods
-	bool CheckIfSoundExists(const Sound::SoundData& soundData);
+	Optional<BankSlot<SoundBankNumber>> FindSoundLocation(const Sound::SoundData& soundData);
 	bool ImportMultiSample(uint64 id);
 	bool ImportSample(uint64 id);
 	bool ImportSound(const ProgramChangeSequence& programChangeSequence);
@@ -68,12 +68,12 @@ private:
 	}
 
 	template<typename PerfType>
-	void ImportPerformanceData(const PerfType& source, const BankSlot<PerformanceBankNumber>& slot, const String& name)
+	bool ImportPerformanceData(const PerfType& source, const BankSlot<PerformanceBankNumber>& slot, const String& name)
 	{
 		for(const auto& trackSettings : source.keyboardSettings.trackSettings)
 		{
 			if(!this->ImportSound(trackSettings.soundProgramChangeSeq))
-				return;
+				return false;
 		}
 		UniquePointer<PerfType> newPerformance = new PerfType(source);
 		for(auto& trackSettings : newPerformance->keyboardSettings.trackSettings)
@@ -83,5 +83,6 @@ private:
 		}
 
 		this->targetSet.performanceBanks[slot.bankNumber].SetObject(name, slot.pos, new PerformanceObject(Move(newPerformance)));
+		return true;
 	}
 };

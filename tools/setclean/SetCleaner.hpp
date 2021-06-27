@@ -24,29 +24,33 @@ class SetCleaner
 {
 public:
 	//Constructor
-	inline SetCleaner(const FileSystem::Path& setPath, const Model& model) : set(setPath, model)
+	inline SetCleaner(Set& set) : set(set), setIndex(set)
 	{
 	}
 
 	//Methods
 	void RemoveUnusedMultiSamples();
 	void RemoveUnusedSamples();
-	void RemoveUnusedSounds();
+	void RemoveUnusedSounds(bool ignoreSTS);
 
 private:
 	//Members
-	Set set;
+	Set& set;
+	const SetIndex setIndex;
 	BinaryTreeSet<uint64> markedDrumSamples;
 	BinaryTreeSet<uint64> markedMultiSamples;
 	BinaryTreeSet<uint64> markedSamples;
 	BinaryTreeSet<ProgramChangeSequence> markedSounds;
 
 	//Methods
+	void ProcessDrumSamples();
 	void ProcessMultiSamples();
 	void ProcessPads();
 	void ProcessPerformances();
 	void ProcessSounds();
-	void ProcessSTS(const SingleTouchSettings& sts);
+	void ProcessSTS(bool ignoreSTS, const SingleTouchSettings& sts);
 	void ProcessStyle(const Style::StyleData& styleData);
-	void ProcessStyles();
+	void ProcessStyles(bool ignoreSTS);
+	void RemoveUnreferencedMultiSample(uint32 index);
+	void RemoveUnreferencedSample(uint32 index);
 };

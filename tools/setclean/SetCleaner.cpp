@@ -26,6 +26,7 @@ void SetCleaner::RemoveUnusedMultiSamples()
 
 	uint32 count = 0;
 	stdOut << u8"Position\tName" << endl;
+	PriorityQueue<uint32> indicesToRemove;
 	for(uint32 i = 0; i < this->set.MultiSamples().data.multiSampleEntries.GetNumberOfElements(); i++)
 	{
 		const auto& msEntry = this->set.MultiSamples().data.multiSampleEntries[i];
@@ -34,16 +35,22 @@ void SetCleaner::RemoveUnusedMultiSamples()
 
 		count++;
 		stdOut << i << u8"\t" << msEntry.name << endl;
+		indicesToRemove.Insert(i);
 	}
 
 	TextReader textReader(stdIn, TextCodecType::UTF8);
 	stdOut << endl << u8"Are you sure that you want to remove the above " << count << u8" multisamples? Type 'y' if you want to proceed, or anything else to cancel: ";
 	if(textReader.ReadLine() == u8"y")
 	{
-		NOT_IMPLEMENTED_ERROR; //TODO: implement me
-		//TODO: remove keyzones
-		//TODO: renumber keyzone indexes in sounds
-		//TODO: renumber multisample numbers in sounds
+		while(!indicesToRemove.IsEmpty())
+			this->RemoveUnreferencedMultiSample(indicesToRemove.PopTop());
+
+		IdsCorrector idsCorrector(this->set);
+		idsCorrector.Correct(); //renumber the multi sample numbers in sounds again
+		ASSERT_EQUALS(false, idsCorrector.ErrorsDetected());
+
+		this->set.Save();
+		stdOut << u8"Saved." << endl;
 	}
 	else
 	{
@@ -55,12 +62,14 @@ void SetCleaner::RemoveUnusedSamples()
 {
 	uint32 oldSampleRamSize = this->set.ComputeUsedSampleRAMSize();
 
+	this->ProcessDrumSamples();
 	this->ProcessMultiSamples();
 	this->ProcessSounds();
 
 	uint32 samplesCount = 0, drumSamplesCount = 0;
 	stdOut << u8"Position\tName" << endl
 		<< u8"Samples" << endl;
+	PriorityQueue<uint32> sampleIndicesToRemove;
 	for(uint32 i = 0; i < this->set.MultiSamples().data.sampleEntries.GetNumberOfElements(); i++)
 	{
 		const auto& entry = this->set.MultiSamples().data.sampleEntries[i];
@@ -69,6 +78,7 @@ void SetCleaner::RemoveUnusedSamples()
 
 		samplesCount++;
 		stdOut << i << u8"\t" << entry.name << endl;
+		sampleIndicesToRemove.Insert(i);
 	}
 	stdOut << u8"Drum samples" << endl;
 	for(uint32 i = 0; i < this->set.MultiSamples().data.drumSampleEntries.GetNumberOfElements(); i++)
@@ -85,6 +95,9 @@ void SetCleaner::RemoveUnusedSamples()
 	stdOut << endl << u8"Are you sure that you want to remove the above " << samplesCount << u8" samples and the " << drumSamplesCount << u8" drum samples? Type 'y' if you want to proceed, or anything else to cancel: ";
 	if(textReader.ReadLine() == u8"y")
 	{
+		while(!sampleIndicesToRemove.IsEmpty())
+			this->RemoveUnreferencedSample(sampleIndicesToRemove.PopTop());
+
 		NOT_IMPLEMENTED_ERROR; //TODO: implement me
 
 		uint32 newSampleRamSize = this->set.ComputeUsedSampleRAMSize();
@@ -102,11 +115,11 @@ void SetCleaner::RemoveUnusedSamples()
 	}
 }
 
-void SetCleaner::RemoveUnusedSounds()
+void SetCleaner::RemoveUnusedSounds(bool ignoreSTS)
 {
 	this->ProcessPads();
 	this->ProcessPerformances();
-	this->ProcessStyles();
+	this->ProcessStyles(ignoreSTS);
 
 	uint32 count = 0;
 	stdOut << u8"Bank\tPosition\tName" << endl;
@@ -135,6 +148,18 @@ void SetCleaner::RemoveUnusedSounds()
 }
 
 //Private methods
+void SetCleaner::ProcessDrumSamples()
+{
+	const auto& sampleEntries = this->set.MultiSamples().data.sampleEntries;
+	const auto& drumSampleEntries = this->set.MultiSamples().data.drumSampleEntries;
+	for(const auto& entry : drumSampleEntries)
+	{
+		this->markedSamples.Insert(sampleEntries[entry.sampleIndexLeft].id);
+		if(entry.sampleIndexRight != -1)
+			this->markedSamples.Insert(sampleEntries[entry.sampleIndexRight].id);
+	}
+}
+
 void SetCleaner::ProcessMultiSamples()
 {
 	const auto& data = this->set.MultiSamples().data;
@@ -216,15 +241,14 @@ void SetCleaner::ProcessSounds()
 				const auto& dkData = data.drumKitData.Value();
 				for(const auto& layer : dkData.layers)
 				{
-					//TODO:
-					NOT_IMPLEMENTED_ERROR; //TODO: implement me
+					this->markedDrumSamples.Insert(layer.drumSampleId);
 				}
 			}
 		}
 	}
 }
 
-void SetCleaner::ProcessSTS(const SingleTouchSettings& sts)
+void SetCleaner::ProcessSTS(bool ignoreSTS, const SingleTouchSettings& sts)
 {
 	switch(sts.Version())
 	{
@@ -232,11 +256,15 @@ void SetCleaner::ProcessSTS(const SingleTouchSettings& sts)
 			NOT_IMPLEMENTED_ERROR; //TODO: implement me
 		case 1:
 		{
-			for(const auto& kbdSettings : sts.V1Data().keyboardSettings)
+			if(!ignoreSTS)
 			{
-				for(const auto& track : kbdSettings.trackSettings)
-					this->markedSounds.Insert(track.soundProgramChangeSeq);
+				for (const auto &kbdSettings : sts.V1Data().keyboardSettings)
+				{
+					for (const auto &track : kbdSettings.trackSettings)
+						this->markedSounds.Insert(track.soundProgramChangeSeq);
+				}
 			}
+
 			for(const auto& track : sts.V1Data().accompanimentSettings.trackSettings)
 				this->markedSounds.Insert(track.soundProgramChangeSeq);
 		}
@@ -261,14 +289,45 @@ void SetCleaner::ProcessStyle(const Style::StyleData &styleData)
 	}
 }
 
-void SetCleaner::ProcessStyles()
+void SetCleaner::ProcessStyles(bool ignoreSTS)
 {
 	for(const auto& bankEntry : this->set.styleBanks.Entries())
 	{
 		for(const auto& objectEntry : bankEntry.bank.Objects())
 		{
-			this->ProcessSTS(objectEntry.object->STS());
+			this->ProcessSTS(ignoreSTS, objectEntry.object->STS());
 			this->ProcessStyle(objectEntry.object->Style().data);
 		}
 	}
+}
+
+void SetCleaner::RemoveUnreferencedMultiSample(uint32 index)
+{
+	auto& data = this->set.MultiSamples().data;
+	auto& keyZones = data.keyboardZones;
+	auto& msData = data.multiSampleEntries;
+	auto& ms = msData[index];
+
+	for(uint8 i = 0; i < ms.nKeyZones; i++)
+		keyZones.Remove(ms.keyZoneBaseIndex);
+
+	for(auto& msEntry : msData)
+	{
+		if(msEntry.keyZoneBaseIndex > ms.keyZoneBaseIndex)
+			msEntry.keyZoneBaseIndex -= ms.nKeyZones;
+	}
+
+	msData.Remove(index);
+}
+
+void SetCleaner::RemoveUnreferencedSample(uint32 sampleIndex)
+{
+	auto& data = this->set.MultiSamples().data;
+	uint64 sampleId = data.sampleEntries[sampleIndex].id;
+
+	SampleRemover sampleRemover(this->set.MultiSamples().data);
+	sampleRemover.RemoveSampleFromIndex(sampleIndex);
+
+	auto slot = this->setIndex.GetSampleLocation(sampleId);
+	this->set.sampleBanks[slot.bankNumber].RemoveObject(slot.pos);
 }

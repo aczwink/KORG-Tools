@@ -65,7 +65,6 @@ namespace libKORG
 		void CorrectMultiSampleAssignment(Sound::OSCMultiSampleSettings& multiSampleSettings);
 		void CorrectMultiSampleAssignments();
 		void CorrectSamples();
-		void RemoveSampleFromIndex(uint32 index);
 		void RenumberDrumSampleAssignments();
 	};
 }

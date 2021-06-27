@@ -35,35 +35,39 @@ void ResourceImporter::ImportPerformance(const PerformanceBankNumber &bankNumber
 		return;
 	}
 
+	bool success;
 	switch(performanceObject.Version())
 	{
 		case 0:
-			this->ImportPerformanceData(performanceObject.V0Data(), *slot, performanceEntry.name);
+			success = this->ImportPerformanceData(performanceObject.V0Data(), *slot, performanceEntry.name);
 			break;
 		case 1:
-			this->ImportPerformanceData(performanceObject.V1Data(), *slot, performanceEntry.name);
+			success = this->ImportPerformanceData(performanceObject.V1Data(), *slot, performanceEntry.name);
 			break;
 		default:
 			NOT_IMPLEMENTED_ERROR; //TODO: implement me
 	}
 
-	stdOut << u8"Successfully imported performance '" << performanceEntry.name << u8"' to slot: " << slot->bankNumber.ToString() << u8", " << slot->pos << endl;
+	if(success)
+	{
+		stdOut << u8"Successfully imported performance '" << performanceEntry.name << u8"' to slot: " << slot->bankNumber.ToString() << u8", " << slot->pos << endl;
 
-	this->SaveChanges();
+		this->SaveChanges();
+	}
 }
 
 //Private methods
-bool ResourceImporter::CheckIfSoundExists(const Sound::SoundData &soundData)
+Optional<BankSlot<SoundBankNumber>> ResourceImporter::FindSoundLocation(const Sound::SoundData& soundData)
 {
 	for(const auto& bankEntry : this->targetSet.soundBanks.Entries())
 	{
 		for(const auto& objectEntry : bankEntry.bank.Objects())
 		{
 			if(objectEntry.object->data == soundData)
-				return true;
+				return {{.bankNumber = bankEntry.bankNumber, .pos = objectEntry.pos}};
 		}
 	}
-	return false;
+	return {};
 }
 
 bool ResourceImporter::ImportMultiSample(uint64 id)
@@ -126,8 +130,13 @@ bool ResourceImporter::ImportSample(uint64 id)
 		stdOut << u8"No free sample slot available" << endl;
 		return false;
 	}
-
 	const auto& entry = this->sourceSet.sampleBanks[sourceLocation.bankNumber][sourceLocation.pos];
+	if(this->targetSet.ComputeUsedSampleRAMSize() + entry.object->GetSize() > this->targetSet.model.GetSampleRAMSize())
+	{
+		stdOut << u8"Sample RAM is full" << endl;
+		return false;
+	}
+
 	this->targetSet.sampleBanks[slot->bankNumber].SetObject(entry.name, slot->pos, entry.object);
 
 	uint32 index = this->targetSet.MultiSamples().data.sampleEntries.Push(sampleEntry);
@@ -166,9 +175,11 @@ bool ResourceImporter::ImportSound(const ProgramChangeSequence &programChangeSeq
 			osc.low.multiSampleNumber = this->MapMultiSampleIdToIndex(osc.high.multiSampleId);
 	}
 
-	if(this->CheckIfSoundExists(newSound))
+	auto findResult = this->FindSoundLocation(newSound);
+	if(findResult.HasValue())
 	{
 		stdOut << u8"-Skipping sound '" << soundEntry.name << u8"' because it already exists" << endl;
+		this->importedSounds.Insert(programChangeSequence, Set::CreateRAMSoundProgramChangeSequence(findResult->bankNumber, findResult->pos));
 		return true;
 	}
 

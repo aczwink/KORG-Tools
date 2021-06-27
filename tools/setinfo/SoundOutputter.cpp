@@ -182,9 +182,12 @@ void SoundOutputter::OutputLayers(const DrumKitSoundData &drumKitSoundData) cons
 {
 	Section section(u8"Layers", this->formattedOutputter);
 
-	for(const auto& layer : drumKitSoundData.layers)
+	for(uint32 i = 0; i < drumKitSoundData.layers.GetNumberOfElements(); i++)
 	{
+		const auto& layer = drumKitSoundData.layers[i];
 		Section layerSection(u8"Layer", this->formattedOutputter);
+
+		this->formattedOutputter.OutputProperty(u8"__index", i);
 
 		this->formattedOutputter.OutputProperty(u8"sampleBankNumber", layer.sampleBankNumber);
 		this->formattedOutputter.OutputProperty(u8"reversed", (uint8)layer.reversed);

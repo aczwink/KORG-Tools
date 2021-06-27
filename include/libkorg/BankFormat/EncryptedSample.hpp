@@ -74,6 +74,8 @@ namespace libKORG
 
 		uint32 GetSize() const override
 		{
+			/*if(this->isCompressed) //oups... we have no idea how big the sample really is. However, PCM usually compresses very bad
+				return this->buffer.Size() * 2;*/
 			return this->buffer.Size();
 		}
 

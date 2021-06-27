@@ -18,6 +18,7 @@
  */
 //Class header
 #include <libkorg/Converters/IdsCorrector.hpp>
+#include <libkorg/Converters/SampleRemover.hpp>
 //Namespaces
 using namespace libKORG;
 using namespace StdXX;
@@ -215,45 +216,10 @@ void IdsCorrector::CorrectSamples()
 			i++;
 		else
 		{
-			this->RemoveSampleFromIndex(i);
+			SampleRemover sampleRemover(this->set.MultiSamples().data);
+			sampleRemover.RemoveSampleFromIndex(i);
 			this->errorCounts.missingSamplesCount++;
 		}
-	}
-}
-
-void IdsCorrector::RemoveSampleFromIndex(uint32 sampleIndex)
-{
-	auto& sampleEntries = this->set.MultiSamples().data.sampleEntries;
-	sampleEntries.Remove(sampleIndex);
-
-	auto& drumSampleEntries = this->set.MultiSamples().data.drumSampleEntries;
-	for(uint32 i = 0; i < drumSampleEntries.GetNumberOfElements();)
-	{
-		if(drumSampleEntries[i].sampleIndexLeft == sampleIndex)
-		{
-			drumSampleEntries.Remove(i);
-			continue;
-		}
-		if(drumSampleEntries[i].sampleIndexRight == sampleIndex)
-			drumSampleEntries[i].sampleIndexRight = -1;
-
-		if(drumSampleEntries[i].sampleIndexLeft > sampleIndex)
-			drumSampleEntries[i].sampleIndexLeft--;
-		if(drumSampleEntries[i].sampleIndexRight > sampleIndex)
-			drumSampleEntries[i].sampleIndexRight--;
-
-		i++;
-	}
-
-	auto& keyboardZones = this->set.MultiSamples().data.keyboardZones;
-	for(auto& zone : keyboardZones)
-	{
-		if(zone.sampleNumber == -1)
-			continue;
-		else if(zone.sampleNumber == sampleIndex)
-			zone.sampleNumber = -1;
-		else if(zone.sampleNumber > sampleIndex)
-			zone.sampleNumber--;
 	}
 }
 

@@ -32,6 +32,9 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 
 	parser.AddHelpOption();
 
+	CommandLine::Option ignoreSTSOpt(u8'i', u8"ignore-sts", u8"If specified, STS are ignored, i.e. their assigned sounds are not considered");
+	parser.AddOption(ignoreSTSOpt);
+
 	CommandLine::EnumArgument<ResourceType> typeArgument(u8"type", u8"The resource type of the set that should be cleaned");
 	typeArgument.AddMapping(u8"multisamples", ResourceType::MultiSamples, u8"Remove unused multisamples");
 	typeArgument.AddMapping(u8"samples", ResourceType::Samples, u8"Remove unused samples");
@@ -59,7 +62,18 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 		return EXIT_FAILURE;
 	}
 
-	SetCleaner setCleaner(inputSetPathArg.Value(result), *model);
+	Set set(inputSetPathArg.Value(result), *model);
+
+	IdsCorrector idsCorrector(set);
+	idsCorrector.Correct();
+	if(idsCorrector.ErrorsDetected())
+	{
+		stdErr << u8"The source set is erroneous." << endl
+			   << idsCorrector.Errors().missingSamplesCount << u8" samples are missing (either metadata or payload)." << endl
+			   << idsCorrector.Errors().missingDrumSamplesCount << u8" drum samples (metadata) are missing." << endl;
+	}
+
+	SetCleaner setCleaner(set);
 	switch(typeArgument.Value(result))
 	{
 		case ResourceType::MultiSamples:
@@ -69,7 +83,7 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 			setCleaner.RemoveUnusedSamples();
 			break;
 		case ResourceType::Sounds:
-			setCleaner.RemoveUnusedSounds();
+			setCleaner.RemoveUnusedSounds(result.IsActivated(ignoreSTSOpt));
 			break;
 	}
 

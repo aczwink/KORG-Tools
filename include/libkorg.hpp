@@ -26,6 +26,7 @@
 #include <libkorg/Converters/PerformanceConverter.hpp>
 #include <libkorg/Converters/PerformanceV0ToV1Converter.hpp>
 #include <libkorg/Converters/PerformanceV2ToV1Converter.hpp>
+#include <libkorg/Converters/SampleRemover.hpp>
 #include <libkorg/Converters/SoundMapper.hpp>
 
 #include <libkorg/DataViews/MultiSamplesIndex.hpp>
