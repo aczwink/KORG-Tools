@@ -61,7 +61,7 @@ void StyleFormat0_0V5_0Writer::WriteMIDITrackMapping(const StyleData &styleData)
 
 void StyleFormat0_0V5_0Writer::Write0x1000308Chunk(const StyleData& styleData)
 {
-	auto& data = styleData._0x1000308_chunk;
+	auto& data = styleData.styleInfoData;
 	TextWriter textWriter(this->outputStream, TextCodecType::ASCII);
 
 	this->BeginChunk(1, 0, 3, ChunkHeaderFlags::Leaf);
@@ -69,8 +69,7 @@ void StyleFormat0_0V5_0Writer::Write0x1000308Chunk(const StyleData& styleData)
 	this->dataWriter.WriteByte(data.name.GetLength());
 	textWriter.WriteString(data.name);
 
-	this->dataWriter.WriteByte(data.unknown1);
-	this->dataWriter.WriteByte(data.unknown2);
+	this->dataWriter.WriteInt16(data.unknown111);
 	this->dataWriter.WriteByte(data.unknown3);
 	this->dataWriter.WriteUInt16(data.enabledStyleElements);
 	this->dataWriter.WriteByte(data.unknown6);
@@ -84,8 +83,7 @@ void StyleFormat0_0V5_0Writer::Write0x1000308Chunk(const StyleData& styleData)
 	this->dataWriter.WriteByte(data.unknown14);
 	this->dataWriter.WriteByte(data.unknown15);
 	this->dataWriter.WriteByte(data.unknown16);
-	this->dataWriter.WriteByte(data.unknown17);
-	this->dataWriter.WriteByte(data.unknown18);
+	this->dataWriter.WriteInt16(data.unknown19);
 
 	this->EndChunk();
 }
@@ -93,13 +91,10 @@ void StyleFormat0_0V5_0Writer::Write0x1000308Chunk(const StyleData& styleData)
 void StyleFormat0_0V5_0Writer::Write0x2000308Chunk(const GeneralStyleElementData &styleElementData)
 {
 	uint8 versionMinor;
-	switch(styleElementData.unknown.Size())
+	switch(styleElementData.unknown3.Size())
 	{
-		case 40:
-			versionMinor = 3;
-			break;
-		case 48:
-			versionMinor = 4;
+		case 0:
+			versionMinor = 2;
 			break;
 		default:
 			NOT_IMPLEMENTED_ERROR;
@@ -113,7 +108,15 @@ void StyleFormat0_0V5_0Writer::Write0x2000308Chunk(const GeneralStyleElementData
 		this->dataWriter.WriteByte(styleTrackData.keyboardRangeBottom.Encode());
 		this->dataWriter.WriteByte(styleTrackData.keyboardRangeTop.Encode());
 	}
-	styleElementData.unknown.CreateInputStream()->FlushTo(this->outputStream);
+	for(uint8 i = 0; i < 8; i++)
+	{
+		this->dataWriter.WriteBytes(styleElementData.styleTrackData[i].unknown1, sizeof(styleElementData.styleTrackData[i].unknown1));
+	}
+	for(uint8 i = 0; i < 8; i++)
+	{
+		this->dataWriter.WriteByte(styleElementData.styleTrackData[i].unknown2);
+	}
+	styleElementData.unknown3.CreateInputStream()->FlushTo(this->outputStream);
 
 	this->EndChunk();
 }

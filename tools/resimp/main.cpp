@@ -20,7 +20,8 @@
 
 enum class ResourceType
 {
-	Performance
+	Performance,
+	Style
 };
 
 int32 Main(const String &programName, const FixedArray<String> &args)
@@ -40,6 +41,7 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 
 	CommandLine::EnumArgument<ResourceType> typeArgument(u8"type", u8"The resource type of the set that should be imported");
 	typeArgument.AddMapping(u8"performance", ResourceType::Performance, u8"Import performance");
+	typeArgument.AddMapping(u8"style", ResourceType::Style, u8"Import style");
 	parser.AddPositionalArgument(typeArgument);
 
 	CommandLine::StringArgument inputBankArg(u8"input-bank", u8"Bank of the resource that should be imported");
@@ -99,6 +101,12 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 		{
 			PerformanceBankNumber bankNumber = PerformanceBankNumber::FromBankName(inputBankArg.Value(result));
 			resourceImporter.ImportPerformance(bankNumber, inputPosArg.Value(result));
+		}
+		break;
+		case ResourceType::Style:
+		{
+			StyleBankNumber bankNumber = StyleBankNumber::FromBankName(inputBankArg.Value(result));
+			resourceImporter.ImportStyle(bankNumber, inputPosArg.Value(result));
 		}
 		break;
 	}

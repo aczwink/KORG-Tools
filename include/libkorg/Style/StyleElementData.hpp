@@ -27,30 +27,30 @@ namespace libKORG::Style
 		uint8 unknown1;
 		uint8 unknown2;
 
-		uint8 majorCVIndex;
-		uint8 sixCVIndex;
-		uint8 M7CVIndex;
-		uint8 M7b5CVIndex;
-		uint8 susCVIndex;
-		uint8 sus2CVIndex;
-		uint8 M7susCVIndex;
-		uint8 mCVIndex;
-		uint8 m6CVIndex;
-		uint8 m7CVIndex;
-		uint8 m7b5CVIndex;
-		uint8 mM7CVIndex;
-		uint8 sevenCVIndex;
-		uint8 seven_b5CVIndex;
-		uint8 seven_susCVIndex;
-		uint8 dimCVIndex;
-		uint8 dimM7CVIndex;
-		uint8 sharp5CVIndex;
-		uint8 seven_sharp5CVIndex;
-		uint8 M7sharp5CVIndex;
-		uint8 onePlusFiveCVIndex;
-		byte onePlusEightCVIndex;
-		uint8 b5CVIndex;
-		uint8 dim7CVIndex;
+		uint8 majorCVIndex = 0;
+		uint8 sixCVIndex = 0;
+		uint8 M7CVIndex = 0;
+		uint8 M7b5CVIndex = 0;
+		uint8 susCVIndex = 0;
+		uint8 sus2CVIndex = 0;
+		uint8 M7susCVIndex = 0;
+		uint8 mCVIndex = 0;
+		uint8 m6CVIndex = 0;
+		uint8 m7CVIndex = 0;
+		uint8 m7b5CVIndex = 0;
+		uint8 mM7CVIndex = 0;
+		uint8 sevenCVIndex = 0;
+		uint8 seven_b5CVIndex = 0;
+		uint8 seven_susCVIndex = 0;
+		uint8 dimCVIndex = 0;
+		uint8 dimM7CVIndex = 0;
+		uint8 sharp5CVIndex = 0;
+		uint8 seven_sharp5CVIndex = 0;
+		uint8 M7sharp5CVIndex = 0;
+		uint8 onePlusFiveCVIndex = 0;
+		byte onePlusEightCVIndex = 0;
+		uint8 b5CVIndex = 0;
+		uint8 dim7CVIndex = 0;
 		byte unknown3;
 
 		StdXX::DynamicByteBuffer unknown;
@@ -60,7 +60,7 @@ namespace libKORG::Style
 	{
 		ChordTable chordTable;
 		StyleTrackData styleTrackData[8];
-		StdXX::DynamicByteBuffer unknown;
+		StdXX::DynamicByteBuffer unknown3;
 
 		//Constructors
 		GeneralStyleElementData() = default;
@@ -71,7 +71,7 @@ namespace libKORG::Style
 			this->chordTable = styleElementData.chordTable;
 			for(uint8 i = 0; i < 8; i++)
 				this->styleTrackData[i] = styleElementData.styleTrackData[i];
-			this->unknown = styleElementData.unknown;
+			this->unknown3 = styleElementData.unknown3;
 		}
 	};
 

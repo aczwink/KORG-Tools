@@ -16,34 +16,15 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
+#pragma once
 #include "StyleElementData.hpp"
+#include "StyleInfoData.hpp"
 
 namespace libKORG::Style
 {
 	struct StyleData
 	{
-		struct
-		{
-			StdXX::String name;
-			uint8 unknown1;
-			uint8 unknown2;
-			uint8 unknown3;
-			uint16 enabledStyleElements;
-			uint8 unknown6;
-			uint8 unknown7;
-			uint8 unknown8;
-			uint8 unknown9;
-			uint8 unknown10;
-			uint8 unknown11;
-			uint8 unknown12;
-			uint8 unknown13;
-			uint8 unknown14;
-			uint8 unknown15;
-			uint8 unknown16;
-			uint8 unknown17;
-			uint8 unknown18;
-		} _0x1000308_chunk;
-
+		StyleInfoData styleInfoData;
 		StdXX::DynamicArray<uint16> oneBasedMIDITrackMappingIndices;
 		StdXX::DynamicArray<MIDI_Track> midiTracks;
 		VariationStyleElementData variation[4];

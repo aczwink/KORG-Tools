@@ -187,7 +187,6 @@ void ObjectBankWriter::WritePCMData(const AbstractSample& abstractSample, const 
 
 void ObjectBankWriter::WriteSTS(const SingleTouchSettings &singleTouchSettings, const ChunkVersion& dataVersion)
 {
-	NOT_IMPLEMENTED_ERROR; //TODO: test if compression should be used or not
 	UniquePointer<Compressor> compressor = this->BeginWritingObjectData();
 
 	DynamicByteBuffer buffer;
@@ -203,8 +202,6 @@ void ObjectBankWriter::WriteSTS(const SingleTouchSettings &singleTouchSettings, 
 
 void ObjectBankWriter::WriteStyle(const StyleObject &style, const ChunkVersion& dataVersion)
 {
-	NOT_IMPLEMENTED_ERROR; //TODO: test if compression should be used or not
-
 	UniquePointer<Compressor> compressor = this->BeginWritingObjectData();
 
 	DynamicByteBuffer buffer;
@@ -216,17 +213,6 @@ void ObjectBankWriter::WriteStyle(const StyleObject &style, const ChunkVersion& 
 	compressor->Finalize();
 
 	this->EndWritingObject();
-
-	/*
-	 this->BeginWritingObjectData();
-	 DynamicByteBuffer buffer;
-	UniquePointer<SeekableOutputStream> outputStream = buffer.CreateOutputStream();
-
-	UniquePointer<StyleFormatWriter> bankObjectFormatWriter = CreateStyleWriter(*outputStream, dataVersion);
-	bankObjectFormatWriter->Write(style.data);
-
-	buffer.CreateInputStream()->FlushTo(this->outputStream);
-	 this->EndWritingObject();*/
 }
 
 void ObjectBankWriter::WriteTOCEntries(const String &name, uint8 pos, const AbstractSample &object)
@@ -253,7 +239,6 @@ void ObjectBankWriter::WriteTOCEntries(const String &name, uint8 pos, const Abst
 
 void ObjectBankWriter::WriteTOCEntries(const String &name, uint8 pos, const FullStyle &object)
 {
-	//TODO: check if can be compressed good
 	this->WriteTOCEntry(name, pos, ObjectType::Style, this->model.GetSupportedResourceVersions().maxStyleVersion, ObjectStreamFormat::Compressed);
 	this->WriteTOCEntry(name, pos, ObjectType::StylePerformances, this->DeterminePerformanceVersion(object.STS().Version()), ObjectStreamFormat::Compressed);
 }

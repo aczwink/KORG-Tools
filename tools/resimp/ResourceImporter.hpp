@@ -24,6 +24,7 @@ struct Config
 {
 	Optional<BankSlot<PerformanceBankNumber>> performanceInsertSlot;
 	Optional<BankSlot<SoundBankNumber>> soundInsertSlot;
+	Optional<BankSlot<StyleBankNumber>> styleInsertSlot;
 };
 
 class ResourceImporter
@@ -38,6 +39,7 @@ public:
 
 	//Methods
 	void ImportPerformance(const PerformanceBankNumber& bankNumber, uint8 pos);
+	void ImportStyle(const StyleBankNumber& bankNumber, uint8 pos);
 
 private:
 	//Members
@@ -67,6 +69,20 @@ private:
 		return this->targetMultiSamplesIndex.GetMultiSampleEntryIndex(id);
 	}
 
+	inline uint16 MapSampleIdToIndex(uint64 id)
+	{
+		if(this->importedSampleIds.Contains(id))
+			return this->importedSampleIds.Get(id);
+		return this->targetMultiSamplesIndex.GetSampleEntryIndex(id);
+	}
+
+	inline ProgramChangeSequence MapSoundProgramChangeSequence(ProgramChangeSequence input) const
+	{
+		if(this->importedSounds.Contains(input))
+			return this->importedSounds.Get(input);
+		return input;
+	}
+
 	template<typename PerfType>
 	bool ImportPerformanceData(const PerfType& source, const BankSlot<PerformanceBankNumber>& slot, const String& name)
 	{
@@ -78,8 +94,7 @@ private:
 		UniquePointer<PerfType> newPerformance = new PerfType(source);
 		for(auto& trackSettings : newPerformance->keyboardSettings.trackSettings)
 		{
-			if(this->importedSounds.Contains(trackSettings.soundProgramChangeSeq))
-				trackSettings.soundProgramChangeSeq = this->importedSounds.Get(trackSettings.soundProgramChangeSeq);
+			trackSettings.soundProgramChangeSeq = this->MapSoundProgramChangeSequence(trackSettings.soundProgramChangeSeq);
 		}
 
 		this->targetSet.performanceBanks[slot.bankNumber].SetObject(name, slot.pos, new PerformanceObject(Move(newPerformance)));

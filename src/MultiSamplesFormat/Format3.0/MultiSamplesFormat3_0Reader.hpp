@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
+#pragma once
 #include "../Format1.0/MultiSamplesFormat1_0Reader.hpp"
 
 class MultiSamplesFormat3_0Reader : public MultiSamplesFormat1_0Reader

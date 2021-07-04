@@ -120,6 +120,9 @@ void MultiSamplesOutputter::Output(uint32 index, const SampleEntry& sampleEntry)
 	this->formattedOutputter.OutputProperty(u8"compressionCoefficient2", sampleEntry.compressionCoefficients[1]);
 
 	this->formattedOutputter.OutputProperty(u8"unknown14", sampleEntry.unknown14);
+	this->formattedOutputter.OutputProperty(u8"unknown21", sampleEntry.unknown21);
+	this->formattedOutputter.OutputProperty(u8"unknown22", sampleEntry.unknown22);
+	this->formattedOutputter.OutputProperty(u8"unknown23", sampleEntry.unknown23);
 
 	this->formattedOutputter.OutputProperty(u8"name", sampleEntry.name);
 	this->formattedOutputter.OutputProperty(u8"ID", String::HexNumber(sampleEntry.id, 16));

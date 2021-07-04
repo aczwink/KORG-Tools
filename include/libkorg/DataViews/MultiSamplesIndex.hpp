@@ -44,6 +44,21 @@ namespace libKORG
 			return this->data.sampleEntries[this->sampleIdMap.Get(id)];
 		}
 
+		inline uint32 GetSampleEntryIndex(uint64 id) const
+		{
+			return this->sampleIdMap.Get(id);
+		}
+
+		inline bool HasMultiSampleEntry(uint64 id) const
+		{
+			return this->multiSampleIdMap.Contains(id);
+		}
+
+		inline bool HasSampleEntry(uint64 id) const
+		{
+			return this->sampleIdMap.Contains(id);
+		}
+
 	private:
 		//Members
 		const MultiSamples::MultiSamplesData& data;

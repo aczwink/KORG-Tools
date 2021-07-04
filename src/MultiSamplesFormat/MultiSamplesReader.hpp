@@ -19,6 +19,7 @@
 //Local
 #include "Format3.0/MultiSamplesFormat3_0Reader.hpp"
 #include "Format1.0/MultiSamplesFormat1_0Reader.hpp"
+#include "Format5.0/MultiSamplesFormat5_0Reader.hpp"
 
 class MultiSamplesReader
 {
@@ -38,6 +39,12 @@ public:
 				MultiSamplesFormat3_0Reader multiSamplesFormat30Reader;
 				multiSamplesFormat30Reader.Read(dataReader);
 				return new MultiSamplesObject(Move(multiSamplesFormat30Reader.data));
+			}
+			case 0x0500:
+			{
+				MultiSamplesFormat5_0Reader multiSamplesFormat50Reader;
+				multiSamplesFormat50Reader.Read(dataReader);
+				return new MultiSamplesObject(Move(multiSamplesFormat50Reader.data));
 			}
 			default:
 				stdErr << u8"Unknown multi samples version: " << String::HexNumber(chunkVersion.AsUInt16(), 4) << endl;

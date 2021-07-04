@@ -28,5 +28,7 @@ namespace libKORG::Style
 		ProgramChangeSequence soundProgramChangeSeq;
 		Pitch keyboardRangeBottom;
 		Pitch keyboardRangeTop;
+		uint8 unknown1[3] = {0, 0, 0};
+		uint8 unknown2 = 0;
 	};
 }

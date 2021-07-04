@@ -63,7 +63,7 @@ void IdsCorrector::BuildMultiSampleIndex()
 		const auto& msEntry = msEntries[i];
 
 		ASSERT(msEntry.id != 0, u8"Invalid Ids are not allowed");
-		ASSERT_EQUALS(false, this->multiSampleIdToIndexMap.Contains(msEntry.id));
+		ASSERT(!this->multiSampleIdToIndexMap.Contains(msEntry.id), u8"Duplicate multi sample (at least same id)");
 		this->multiSampleIdToIndexMap.Insert(msEntry.id, i);
 
 		for(uint8 relativeIndex : msEntry.keyZoneIndex)
@@ -89,7 +89,7 @@ StdXX::BinaryTreeMap<uint64, uint32> IdsCorrector::BuildSampleIndex()
 	{
 		const auto& sampleEntry = sampleEntries[i];
 		ASSERT(sampleEntry.id != 0, u8"Invalid Ids are not allowed");
-		ASSERT_EQUALS(false, sampleIdToIndexMap.Contains(sampleEntry.id));
+		ASSERT(!sampleIdToIndexMap.Contains(sampleEntry.id), u8"Duplicate sample entry (at least same id)");
 		sampleIdToIndexMap.Insert(sampleEntry.id, i);
 	}
 

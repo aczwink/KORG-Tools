@@ -30,7 +30,7 @@ DynamicArray<HeaderEntry> TOCReader::Read()
 	{
 		ASSERT_EQUALS(0, this->chunkHeader.version.minor);
 		auto dataReader = this->CreateDataReader(this->inputStream);
-		TextReader textReader(this->inputStream, TextCodecType::ASCII);
+		TextReader textReader(this->inputStream, TextCodecType::Latin1);
 		this->ReadVersion0(dataReader, textReader);
 	}
 	else if(this->chunkHeader.version.major == 1)

@@ -192,6 +192,36 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 			stdOut << u8" " << kv.key->dataVersion.major << u8"." << kv.key->dataVersion.minor << u8" " << kv.key->name << endl;
 		}
 	}
+	else if(result.IsActivated(repackObject))
+	{
+		uint8 pos = inputPosArg.Value(result);
+
+		DynamicByteBuffer buffer;
+		auto outputStream = buffer.CreateOutputStream();
+		BankFormat::Writer writer(*outputStream);
+
+		writer.WriteHeader();
+		writer.BeginWritingIndex();
+		for (const auto& kv: bankFormatReader.objectsData)
+		{
+			if(kv.key->pos == pos)
+				writer.WriteIndexEntry(*kv.key, BankFormat::ObjectStreamFormat::Uncompressed);
+		}
+		writer.EndIndex();
+
+		for (const auto& kv: bankFormatReader.objectsData)
+		{
+			if(kv.key->pos == pos)
+			{
+				auto objectOutputStream = writer.BeginWritingObjectData();
+				kv.value.CreateInputStream()->FlushTo(*objectOutputStream);
+				writer.EndWritingObject();
+			}
+		}
+		writer.Finalize();
+
+		buffer.CreateInputStream()->FlushTo(stdOut);
+	}
 	else
 	{
 		uint8 pos = inputPosArg.Value(result);
@@ -213,26 +243,6 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 				else if(result.IsActivated(dumpObject))
 				{
 					kv.value.CreateInputStream()->FlushTo(stdOut);
-				}
-				else if(result.IsActivated(repackObject))
-				{
-					DynamicByteBuffer buffer;
-					auto outputStream = buffer.CreateOutputStream();
-					BankFormat::Writer writer(*outputStream);
-
-					writer.WriteHeader();
-
-					writer.BeginWritingIndex();
-					writer.WriteIndexEntry(*kv.key, BankFormat::ObjectStreamFormat::Uncompressed);
-					writer.EndIndex();
-
-					auto objectOutputStream = writer.BeginWritingObjectData();
-					kv.value.CreateInputStream()->FlushTo(*objectOutputStream);
-					writer.EndWritingObject();
-
-					writer.Finalize();
-
-					buffer.CreateInputStream()->FlushTo(stdOut);
 				}
 			}
 		}

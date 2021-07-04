@@ -34,13 +34,17 @@ void SampleRemover::RemoveSampleFromIndex(uint32 sampleIndex)
 			drumSampleEntries.Remove(i);
 			continue;
 		}
-		if(drumSampleEntries[i].sampleIndexRight == sampleIndex)
-			drumSampleEntries[i].sampleIndexRight = -1;
+
+		if(drumSampleEntries[i].sampleIndexRight != -1)
+		{
+			if(drumSampleEntries[i].sampleIndexRight == sampleIndex)
+				drumSampleEntries[i].sampleIndexRight = -1;
+			else if(drumSampleEntries[i].sampleIndexRight > sampleIndex)
+				drumSampleEntries[i].sampleIndexRight--;
+		}
 
 		if(drumSampleEntries[i].sampleIndexLeft > sampleIndex)
 			drumSampleEntries[i].sampleIndexLeft--;
-		if(drumSampleEntries[i].sampleIndexRight > sampleIndex)
-			drumSampleEntries[i].sampleIndexRight--;
 
 		i++;
 	}

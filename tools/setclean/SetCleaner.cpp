@@ -98,14 +98,14 @@ void SetCleaner::RemoveUnusedSamples()
 		while(!sampleIndicesToRemove.IsEmpty())
 			this->RemoveUnreferencedSample(sampleIndicesToRemove.PopTop());
 
-		NOT_IMPLEMENTED_ERROR; //TODO: implement me
+		this->set.Save();
 
 		uint32 newSampleRamSize = this->set.ComputeUsedSampleRAMSize();
 		stdOut << u8"Saved." << endl
-			<< u8"Old sample RAM usage:"
+			<< u8"Old sample RAM usage:" << endl
 			<< u8"Occupied: " << String::FormatBinaryPrefixed(oldSampleRamSize) << endl
 			<< u8"Free: " << String::FormatBinaryPrefixed(this->set.model.GetSampleRAMSize() * MiB - oldSampleRamSize) << endl
-			<< u8"New sample RAM usage:"
+			<< u8"New sample RAM usage:" << endl
 			<< u8"Occupied: " << String::FormatBinaryPrefixed(newSampleRamSize) << endl
 			<< u8"Free: " << String::FormatBinaryPrefixed(this->set.model.GetSampleRAMSize() * MiB - newSampleRamSize) << endl;
 	}

@@ -78,12 +78,12 @@ namespace libKORG
 		inline bool IsStyleElementEnabled(Style::StyleElementNumber styleElementNumber) const
 		{
 			uint16 shiftAmount = 4 + (uint16)styleElementNumber;
-			return this->styleData._0x1000308_chunk.enabledStyleElements & (1 << shiftAmount);
+			return this->styleData.styleInfoData.enabledStyleElements & (1 << shiftAmount);
 		}
 
 		inline bool IsVariationEnabled(uint8 index) const
 		{
-			return this->styleData._0x1000308_chunk.enabledStyleElements & (1 << index);
+			return this->styleData.styleInfoData.enabledStyleElements & (1 << index);
 		}
 
 	private:

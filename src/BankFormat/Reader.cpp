@@ -128,7 +128,13 @@ void Reader::OnLeavingChunk(const ChunkHeader &chunkHeader)
 		{
 			const HeaderEntry& headerEntry = this->headerEntries[this->currentHeaderEntryIndex];
 			if(!this->objectReader.IsNull())
-				this->AddObject(this->objectReader->TakeResult(), headerEntry);
+			{
+				BankObject* bankObject = this->objectReader->TakeResult();
+				if(bankObject)
+					this->AddObject(bankObject, headerEntry);
+				else
+					stdErr << u8"Can't read object: " << headerEntry.name << u8" with version: " << headerEntry.dataVersion.major << u8"." << headerEntry.dataVersion.minor << endl;
+			}
 			this->currentHeaderEntryIndex++;
 		}
 		break;

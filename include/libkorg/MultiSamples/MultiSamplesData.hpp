@@ -104,6 +104,9 @@ namespace libKORG::MultiSamples
 		{
 		}
 
+		//Operators
+		bool operator==(const PackedData&) const = default;
+
 		//Properties
 		inline StdXX::Bitfield<uint16> Encoded() const
 		{
@@ -152,12 +155,18 @@ namespace libKORG::MultiSamples
 		uint32 unknown13;
 		int16 compressionCoefficients[2];
 		uint32 unknown14 = 0;
+		uint32 unknown21 = 0;
+		uint32 unknown22 = StdXX::Unsigned<uint32>::Max();
+		uint32 unknown23 = 0;
 		StdXX::String name;
 		uint64 id;
 		uint8 unknown15;
 		uint8 unknown16;
 		uint32 unknown17;
 		libKORG::Pitch originalNote;
+
+		//Operators
+		bool operator==(const SampleEntry&) const = default;
 	};
 
 	struct MultiSamplesData

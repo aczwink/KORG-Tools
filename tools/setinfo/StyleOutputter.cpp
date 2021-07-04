@@ -73,12 +73,11 @@ void StyleOutputter::Output(const ChordTable &chordTable)
 void StyleOutputter::Output(const StyleData &styleData)
 {
 	{
-		Section chunkSection(u8"0x1000308", this->formattedOutputter);
+		Section chunkSection(u8"StyleInfoData", this->formattedOutputter);
 
-		auto& data = styleData._0x1000308_chunk;
+		auto& data = styleData.styleInfoData;
 		this->formattedOutputter.OutputProperty(u8"name", data.name);
-		this->formattedOutputter.OutputProperty(u8"unknown1", data.unknown1);
-		this->formattedOutputter.OutputProperty(u8"unknown2", data.unknown2);
+		this->formattedOutputter.OutputProperty(u8"unknown111", data.unknown111);
 		this->formattedOutputter.OutputProperty(u8"unknown3", data.unknown3);
 		this->formattedOutputter.OutputProperty(u8"enabledStyleElements", data.enabledStyleElements);
 		this->formattedOutputter.OutputProperty(u8"unknown6", data.unknown6);
@@ -92,8 +91,7 @@ void StyleOutputter::Output(const StyleData &styleData)
 		this->formattedOutputter.OutputProperty(u8"unknown14", data.unknown14);
 		this->formattedOutputter.OutputProperty(u8"unknown15", data.unknown15);
 		this->formattedOutputter.OutputProperty(u8"unknown16", data.unknown16);
-		this->formattedOutputter.OutputProperty(u8"unknown17", data.unknown17);
-		this->formattedOutputter.OutputProperty(u8"unknown18", data.unknown18);
+		this->formattedOutputter.OutputProperty(u8"unknown19", data.unknown19);
 	}
 
 	{
@@ -290,10 +288,24 @@ void StyleOutputter::OutputGeneralStyleElementData(const GeneralStyleElementData
 		this->formattedOutputter.OutputProperty(u8"keyboardRangeTop", data.styleTrackData[i].keyboardRangeTop);
 	}
 
+	for(uint32 i = 0; i < 8; i++)
+	{
+		Section section(u8"unknown1_" + String::Number(i), this->formattedOutputter);
+
+		this->formattedOutputter.OutputUnknownProperties(data.styleTrackData[i].unknown1, sizeof(data.styleTrackData[i].unknown1));
+	}
+
+	for(uint32 i = 0; i < 8; i++)
+	{
+		Section section(u8"unknown2_" + String::Number(i), this->formattedOutputter);
+
+		this->formattedOutputter.OutputProperty(u8"unknown2", data.styleTrackData[i].unknown2);
+	}
+
 	{
 		Section chunkSection(u8"unknown data", this->formattedOutputter);
 
-		this->formattedOutputter.OutputUnknownProperties(data.unknown);
+		this->formattedOutputter.OutputUnknownProperties(data.unknown3);
 	}
 }
 

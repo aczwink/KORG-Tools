@@ -243,7 +243,10 @@ void Set::LoadStyles(const String &bankFileName, const DynamicArray<BankObjectEn
 		SingleTouchSettings* sts = dynamic_cast<SingleTouchSettings*>(stsObject);
 
 		this->styleBanks[bankNumber].SetObject(kv.value->name, kv.value->pos, new FullStyle(&style, sts));
+		performanceEntries.Remove(kv.key);
 	}
+	for(const auto& kv : performanceEntries)
+		delete kv.value->object; //remove sts for unreadable styles
 	this->styleBanks[bankNumber].saved = true;
 }
 

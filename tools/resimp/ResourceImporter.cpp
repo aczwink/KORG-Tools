@@ -56,6 +56,57 @@ void ResourceImporter::ImportPerformance(const PerformanceBankNumber &bankNumber
 	}
 }
 
+void ResourceImporter::ImportStyle(const StyleBankNumber &bankNumber, uint8 pos)
+{
+	const auto& styleEntry = this->sourceSet.styleBanks[bankNumber][pos];
+	const FullStyle& fullStyle = *styleEntry.object;
+
+	stdOut << u8"Importing style: " << styleEntry.name << endl;
+
+	BankSlot<StyleBankNumber> sourceSlot = {bankNumber, pos};
+	const auto slot = this->targetSet.styleBanks.FindFreeSlot(this->config.styleInsertSlot.HasValue() ? this->config.styleInsertSlot.Value() : sourceSlot);
+	if(!slot.HasValue())
+	{
+		stdOut << u8"No free style slot could be found." << endl;
+		return;
+	}
+
+	const auto& styleData = fullStyle.Style().data;
+	for(const auto& styleElement : styleData.styleElements)
+	{
+		for(const auto& styleTrackData : styleElement.styleTrackData)
+		{
+			if(!this->ImportSound(styleTrackData.soundProgramChangeSeq))
+				return;
+		}
+	}
+	for(const auto& styleElement : styleData.variation)
+	{
+		for(const auto& styleTrackData : styleElement.styleTrackData)
+		{
+			if(!this->ImportSound(styleTrackData.soundProgramChangeSeq))
+				return;
+		}
+	}
+
+	Style::StyleData newStyleData = styleData;
+	for(auto& styleElement : newStyleData.styleElements)
+	{
+		for(auto& styleTrackData : styleElement.styleTrackData)
+			styleTrackData.soundProgramChangeSeq = this->MapSoundProgramChangeSequence(styleTrackData.soundProgramChangeSeq);
+	}
+	for(auto& styleElement : newStyleData.variation)
+	{
+		for(auto& styleTrackData : styleElement.styleTrackData)
+			styleTrackData.soundProgramChangeSeq = this->MapSoundProgramChangeSequence(styleTrackData.soundProgramChangeSeq);
+	}
+
+	this->targetSet.styleBanks[slot->bankNumber].SetObject(styleEntry.name, slot->pos, new FullStyle(new StyleObject(Move(newStyleData)), new SingleTouchSettings(new Performance::V1::STSData)));
+	stdOut << u8"Successfully imported style '" << styleEntry.name << u8"' to slot: " << slot->bankNumber.ToString() << u8", " << slot->pos << endl;
+
+	this->SaveChanges();
+}
+
 //Private methods
 Optional<BankSlot<SoundBankNumber>> ResourceImporter::FindSoundLocation(const Sound::SoundData& soundData)
 {
@@ -74,6 +125,9 @@ bool ResourceImporter::ImportMultiSample(uint64 id)
 {
 	if(this->importedMultiSampleIds.Contains(id))
 		return true;
+	if(this->targetMultiSamplesIndex.HasMultiSampleEntry(id))
+		return true;
+
 	const auto& msEntry = this->sourceMultiSamplesIndex.GetMultiSampleEntryById(id);
 
 	stdOut << u8"--Importing multisample: " << msEntry.name << endl;
@@ -103,7 +157,7 @@ bool ResourceImporter::ImportMultiSample(uint64 id)
 			MultiSamples::KeyboardZone keyboardZone = srcKeyZone;
 
 			if(srcKeyZone.sampleNumber != -1)
-				keyboardZone.sampleNumber = this->importedSampleIds.Get(this->sourceSet.MultiSamples().data.sampleEntries[srcKeyZone.sampleNumber].id);
+				keyboardZone.sampleNumber = this->MapSampleIdToIndex(this->sourceSet.MultiSamples().data.sampleEntries[srcKeyZone.sampleNumber].id);
 
 			this->targetSet.MultiSamples().data.keyboardZones.Push(keyboardZone);
 			importedKeyZones.Insert(relativeIndex);
@@ -120,8 +174,10 @@ bool ResourceImporter::ImportSample(uint64 id)
 {
 	if(this->importedSampleIds.Contains(id))
 		return true;
-	const auto& sampleEntry = this->sourceMultiSamplesIndex.GetSampleEntryById(id);
+	if(this->targetMultiSamplesIndex.HasSampleEntry(id))
+		return true;
 
+	const auto& sampleEntry = this->sourceMultiSamplesIndex.GetSampleEntryById(id);
 	stdOut << u8"---Importing sample: " << sampleEntry.name << u8" (" << PitchToString(sampleEntry.originalNote) << u8")" << endl;
 	auto sourceLocation = this->sourceSetIndex.GetSampleLocation(id);
 	const auto slot = this->targetSet.sampleBanks.FindFreeSlot(sourceLocation);
@@ -130,8 +186,11 @@ bool ResourceImporter::ImportSample(uint64 id)
 		stdOut << u8"No free sample slot available" << endl;
 		return false;
 	}
+
 	const auto& entry = this->sourceSet.sampleBanks[sourceLocation.bankNumber][sourceLocation.pos];
-	if(this->targetSet.ComputeUsedSampleRAMSize() + entry.object->GetSize() > this->targetSet.model.GetSampleRAMSize())
+	uint32 requiredSize = this->targetSet.ComputeUsedSampleRAMSize() + entry.object->GetSize();
+	uint32 availableSize = this->targetSet.model.GetSampleRAMSize() * MiB;
+	if(requiredSize > availableSize)
 	{
 		stdOut << u8"Sample RAM is full" << endl;
 		return false;

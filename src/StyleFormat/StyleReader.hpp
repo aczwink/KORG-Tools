@@ -17,6 +17,8 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
+#include "StyleFormatReader.hpp"
+#include "Format0.0/StyleFormat0_0V4_0Reader.hpp"
 
 class StyleReader : public BankFormat::BankObjectReader
 {
@@ -32,7 +34,9 @@ public:
 
 	BankFormat::BankObject *TakeResult() override
 	{
-		return this->styleFormat00V50Reader.TakeResult();
+		if(this->styleFormatReader)
+			return this->styleFormatReader->TakeResult();
+		return nullptr;
 	}
 
 protected:
@@ -43,8 +47,10 @@ protected:
 		{
 			switch(chunkHeader.version.AsUInt16())
 			{
+				case 0x0400:
+					return this->styleFormatReader = &this->styleFormat00V40Reader;
 				case 0x0500:
-					return &this->styleFormat00V50Reader;
+					return this->styleFormatReader = &this->styleFormat00V50Reader;
 			}
 		}
 
@@ -58,8 +64,13 @@ protected:
 
 private:
 	//Members
+	StyleFormatReader* styleFormatReader;
+	StyleFormat0_0V4_0Reader styleFormat00V40Reader;
 	StyleFormat0_0V5_0Reader styleFormat00V50Reader;
 
 	//Constructor
-	StyleReader() = default;
+	inline StyleReader()
+	{
+		this->styleFormatReader = nullptr;
+	}
 };

@@ -23,6 +23,7 @@
 #include "PerformanceObject.hpp"
 #include "SoundObject.hpp"
 #include <libkorg/Model.hpp>
+#include <libkorg/FullStyle.hpp>
 
 namespace libKORG
 {
@@ -165,6 +166,13 @@ namespace libKORG
 		GetNumberOfSlots() const
 		{
 			return 16 * 8; //16 pages and 8 sounds per page
+		}
+
+		template<typename T = ObjectType>
+		inline StdXX::Type::EnableIf_t< StdXX::Type::IsSameType<T, FullStyle>::value, uint8>
+		GetNumberOfSlots() const
+		{
+			return this->model.GetBankSetup().styleBanks.nStylesPerBank;
 		}
 	};
 }
