@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -17,7 +17,7 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 //Class header
-#include "StyleFormat0_0V4_0Reader.hpp"
+#include "StyleFormatV0_0Reader.hpp"
 //Local
 #include "StyleInfoDataReader.hpp"
 #include "MIDITrackListReader.hpp"
@@ -26,7 +26,7 @@
 using namespace libKORG;
 
 //Protected methods
-libKORG::ChunkReader *StyleFormat0_0V4_0Reader::OnEnteringChunk(const libKORG::ChunkHeader &chunkHeader)
+libKORG::ChunkReader *StyleFormatV0_0Reader::OnEnteringChunk(const libKORG::ChunkHeader &chunkHeader)
 {
 	switch(chunkHeader.id)
 	{
@@ -34,29 +34,34 @@ libKORG::ChunkReader *StyleFormat0_0V4_0Reader::OnEnteringChunk(const libKORG::C
 			this->subReader = new MIDITrackListReader(this->data);
 			return this->subReader.operator->();
 		case 0x03000000:
+		{
+			while( (this->remainingStyleElementsFlags & 1) == 0)
+			{
+				this->currentStyleElementNumber++;
+				this->remainingStyleElementsFlags >>= 1;
+			}
+
+			this->currentStyleElementNumber++;
+			this->remainingStyleElementsFlags >>= 1;
+
 			this->subReader = new StyleElementReader(this->data, this->currentStyleElementNumber);
 			return this->subReader.operator->();
+		}
 	}
 
 	return nullptr;
 }
 
-void StyleFormat0_0V4_0Reader::OnLeavingChunk(const ChunkHeader &chunkHeader)
-{
-	if(chunkHeader.id == 0x3000000)
-	{
-		this->currentStyleElementNumber++;
-	}
-}
-
-void StyleFormat0_0V4_0Reader::ReadDataChunk(const ChunkHeader &chunkHeader, StdXX::DataReader &dataReader)
+void StyleFormatV0_0Reader::ReadDataChunk(const ChunkHeader &chunkHeader, StdXX::DataReader &dataReader)
 {
 	switch(chunkHeader.id)
 	{
 		case 0x01000208:
+		case 0x01000308:
 		{
 			StyleInfoDataReader styleInfoDataReader;
 			styleInfoDataReader.Read(this->data.styleInfoData, chunkHeader.version.minor, dataReader);
+			this->remainingStyleElementsFlags = this->data.styleInfoData.styleElementsWithData;
 		}
 		break;
 	}

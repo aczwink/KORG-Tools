@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -16,16 +16,16 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
+//Local
 #include <libkorg/ChunkFormat/ChunkReader.hpp>
-#include <libkorg/BankFormat/PerformanceObject.hpp>
-#include "UnknownAdditionalAccompanimentSettingsReader.hpp"
+#include <libkorg/Performance/Version2/AccompanimentSettings.hpp>
 
-class AccompanimentSettingsV1_0Reader : public libKORG::ChunkReader
+class UnknownAdditionalAccompanimentSettingsReader : public libKORG::ChunkReader
 {
 public:
 	//Constructor
-	inline AccompanimentSettingsV1_0Reader(libKORG::Performance::V2::AccompanimentSettings& accompanimentSettings)
-		: accompanimentSettings(accompanimentSettings), unknownAdditionalAccompanimentSettingsReader(accompanimentSettings.unknownAccSettings)
+	inline UnknownAdditionalAccompanimentSettingsReader(libKORG::Performance::V2::UnknownAccSettings& unknownAccSettings)
+		: unknownAccSettings(unknownAccSettings)
 	{
 	}
 
@@ -35,6 +35,5 @@ protected:
 
 private:
 	//Members
-	libKORG::Performance::V2::AccompanimentSettings& accompanimentSettings;
-	UnknownAdditionalAccompanimentSettingsReader unknownAdditionalAccompanimentSettingsReader;
+	libKORG::Performance::V2::UnknownAccSettings& unknownAccSettings;
 };

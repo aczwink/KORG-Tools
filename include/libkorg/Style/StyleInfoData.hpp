@@ -36,6 +36,6 @@ namespace libKORG::Style
 		uint8 unknown14;
 		uint8 unknown15;
 		uint8 unknown16;
-		int16 unknown19;
+		uint16 styleElementsWithData;
 	};
 }

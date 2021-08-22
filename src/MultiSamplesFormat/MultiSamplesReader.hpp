@@ -17,6 +17,7 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 //Local
+#include <libkorg/BankFormat/MultiSamplesObject.hpp>
 #include "Format3.0/MultiSamplesFormat3_0Reader.hpp"
 #include "Format1.0/MultiSamplesFormat1_0Reader.hpp"
 #include "Format5.0/MultiSamplesFormat5_0Reader.hpp"

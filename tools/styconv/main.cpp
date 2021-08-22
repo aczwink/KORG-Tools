@@ -57,8 +57,8 @@ void ConvertStyleBank(const BankSelection& source, const BankSelectionWithModel&
 	auto& targetStyleBank = targetSet.styleBanks[target.bankNumber];
 	for(const auto& entry : entries)
 	{
-		const String& styleName = entry.name;
-		const FullStyle& fullStyle = *entry.object;
+		const String& styleName = entry.Name();
+		const FullStyle& fullStyle = entry.Object();
 
 		if(source.posOffset > entry.pos)
 			continue;
@@ -75,9 +75,8 @@ void ConvertStyleBank(const BankSelection& source, const BankSelectionWithModel&
 		soundMapper.Map(*mappedStyle);
 		soundMapper.Map(*mappedSTS);
 
-		SharedPointer<FullStyle> mappedFullStyle = new FullStyle(Move(mappedStyle), Move(mappedSTS));
-
-		targetStyleBank.SetObject(styleName, targetPos, mappedFullStyle);
+		UniquePointer<FullStyle> mappedFullStyle = new FullStyle(Move(mappedStyle), Move(mappedSTS));
+		targetStyleBank.SetObject(styleName, targetPos, Move(mappedFullStyle));
 	}
 	targetSet.Save();
 }

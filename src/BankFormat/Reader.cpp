@@ -23,7 +23,6 @@
 #include <libkorg/BankFormat/EncryptedSample.hpp>
 #include "OC31Decompressor.hpp"
 #include "TOCReader.hpp"
-#include "../StyleFormat/Format0.0/StyleFormat0_0V5_0Reader.hpp"
 #include "../StyleFormat/StyleReader.hpp"
 #include "../PCMFormat/PCMReader.hpp"
 #include "../SoundFormat/SoundReader.hpp"
@@ -34,7 +33,52 @@ using namespace libKORG;
 using namespace libKORG::BankFormat;
 using namespace StdXX;
 
-void Reader::ReadBankObject(ChunkType chunkType, const ChunkHeader &chunkHeader, const HeaderEntry &headerEntry, DataReader &dataReader)
+//Public methods
+BankObject *Reader::ReadBankObject(const HeaderEntry &headerEntry, InputStream &inputStream)
+{
+	ChunkHeader chunkHeader;
+	auto chunkInputStream = ChunkReader::ReadNextChunk(inputStream, chunkHeader);
+
+	switch(ChunkType(chunkHeader.type))
+	{
+		case ChunkType::MultiSampleData:
+		case ChunkType::LegacySoundData:
+		case ChunkType::PCMData:
+		case ChunkType::SoundData:
+		{
+			this->VerifyDataType(headerEntry, chunkHeader.type);
+			this->VerifyDataVersion(headerEntry, chunkHeader.version);
+
+			DataReader dataReader(true, *chunkInputStream);
+			return this->ReadBankObject((ChunkType)chunkHeader.type, chunkHeader, headerEntry, dataReader);
+		}
+		case ChunkType::PadData:
+		case ChunkType::PerformancesData:
+		case ChunkType::StyleData:
+		{
+			this->VerifyData(headerEntry, chunkHeader);
+
+			auto reader = this->OnEnteringChunkedResourceChunk(chunkHeader, headerEntry);
+			reader->ReadData(*chunkInputStream);
+
+			BankObject* bankObject = this->objectReader->TakeResult();
+			return bankObject; //stdErr << u8"Can't read object: " << headerEntry.name << u8" with version: " << headerEntry.dataVersion.major << u8"." << headerEntry.dataVersion.minor << endl;
+		}
+	}
+}
+
+void Reader::ReadMetadata(SeekableInputStream& seekableInputStream)
+{
+	seekableInputStream.SeekTo(0);
+	this->ReadContainerChunkHeader(seekableInputStream);
+	this->ReadKorfHeaderChunk(seekableInputStream);
+	this->ReadTableOfContentsChunk(seekableInputStream);
+	this->FindXRefLocation(seekableInputStream);
+	this->ReadXRef(seekableInputStream);
+}
+
+//Protected methods
+BankObject* Reader::ReadBankObject(ChunkType chunkType, const ChunkHeader &chunkHeader, const HeaderEntry &headerEntry, DataReader &dataReader)
 {
 	BankObject* object = nullptr;
 
@@ -74,28 +118,7 @@ void Reader::ReadBankObject(ChunkType chunkType, const ChunkHeader &chunkHeader,
 		break;
 	}
 
-	if(object)
-		this->AddObject(object, headerEntry);
-}
-
-ChunkReader* Reader::OnEnteringChunk(const ChunkHeader &chunkHeader)
-{
-	switch(ChunkType(chunkHeader.type))
-	{
-		case ChunkType::Container:
-			return this;
-		case ChunkType::PadData:
-		case ChunkType::PerformancesData:
-		case ChunkType::StyleData:
-		{
-			this->VerifyData(chunkHeader);
-
-			const HeaderEntry& headerEntry = this->headerEntries[this->currentHeaderEntryIndex];
-			return this->OnEnteringChunkedResourceChunk(chunkHeader, headerEntry);
-		}
-	}
-
-	return nullptr;
+	return object;
 }
 
 ChunkReader* Reader::OnEnteringChunkedResourceChunk(const ChunkHeader &chunkHeader, const HeaderEntry& headerEntry)
@@ -118,69 +141,70 @@ ChunkReader* Reader::OnEnteringChunkedResourceChunk(const ChunkHeader &chunkHead
 	return nullptr;
 }
 
-void Reader::OnLeavingChunk(const ChunkHeader &chunkHeader)
+//Private methods
+void Reader::FindXRefLocation(SeekableInputStream& seekableInputStream)
 {
-	switch(ChunkType(chunkHeader.type))
-	{
-		case ChunkType::PadData:
-		case ChunkType::PerformancesData:
-		case ChunkType::StyleData:
-		{
-			const HeaderEntry& headerEntry = this->headerEntries[this->currentHeaderEntryIndex];
-			if(!this->objectReader.IsNull())
-			{
-				BankObject* bankObject = this->objectReader->TakeResult();
-				if(bankObject)
-					this->AddObject(bankObject, headerEntry);
-				else
-					stdErr << u8"Can't read object: " << headerEntry.name << u8" with version: " << headerEntry.dataVersion.major << u8"." << headerEntry.dataVersion.minor << endl;
-			}
-			this->currentHeaderEntryIndex++;
-		}
-		break;
-	}
+	seekableInputStream.SeekTo(seekableInputStream.QuerySize() - 4);
+	DataReader dataReader(true, seekableInputStream);
+
+	uint32 nEntries = dataReader.ReadUInt32();
+
+	uint32 offset = nEntries * 4;
+	offset += 8; //KBEG and KEND
+	offset += 8; //chunk header
+	offset += 4; //number of entries marker
+
+	seekableInputStream.SeekTo(seekableInputStream.QuerySize() - offset);
 }
 
-void Reader::ReadDataChunk(const ChunkHeader& chunkHeader, DataReader &dataReader)
+void Reader::ReadContainerChunkHeader(InputStream& inputStream)
 {
-	ChunkType chunkType = (ChunkType)chunkHeader.type;
-	switch(chunkType)
-	{
-		case ChunkType::CrossReferenceTable:
-			dataReader.Skip(chunkHeader.size);
-			break;
-		case ChunkType::KorgFile:
-		{
-			ASSERT_EQUALS(12_u32, chunkHeader.size);
+	ChunkHeader chunkHeader;
+	ChunkReader::ReadNextChunk(inputStream, chunkHeader);
 
-			ASSERT_EQUALS(0x0B000000_u32, dataReader.ReadUInt32());
-			ASSERT_EQUALS(0_u16, dataReader.ReadUInt16());
-			ASSERT_EQUALS(0_u8, dataReader.ReadByte());
-			ASSERT_EQUALS(FOURCC(u8"KORF"), this->ReadFourCC(dataReader.InputStream()));
-			ASSERT_EQUALS(0_u8, dataReader.ReadByte());
-		}
-		break;
-		case ChunkType::ObjectTOC:
-		{
-			TOCReader tocReader(chunkHeader, dataReader.InputStream());
-			this->headerEntries = tocReader.Read();
-		}
-		break;
-		case ChunkType::MultiSampleData:
-		case ChunkType::LegacySoundData:
-		case ChunkType::PCMData:
-		case ChunkType::SoundData:
-		{
-			const HeaderEntry& headerEntry = this->headerEntries[this->currentHeaderEntryIndex];
-			this->VerifyDataType(headerEntry, chunkHeader.type);
-			this->VerifyDataVersion(headerEntry, chunkHeader.version);
+	ASSERT_EQUALS((uint8)ChunkType::Container, chunkHeader.type);
+	ASSERT_EQUALS((uint8)ChunkHeaderFlags::Unknown4, chunkHeader.flags & (uint8)ChunkHeaderFlags::Unknown4);
+	ASSERT_EQUALS((uint8)ChunkHeaderFlags::UnknownAlwaysSetInBankFile, chunkHeader.flags & (uint8)ChunkHeaderFlags::UnknownAlwaysSetInBankFile);
+}
 
-			this->ReadBankObject(chunkType, chunkHeader, headerEntry, dataReader);
-			this->currentHeaderEntryIndex++;
-		}
-		break;
-		default:
-			stdOut << String::HexNumber(chunkHeader.id) << endl;
-			NOT_IMPLEMENTED_ERROR;
-	}
+void Reader::ReadKorfHeaderChunk(InputStream &inputStream)
+{
+	ChunkHeader chunkHeader;
+	auto chunkInputStream = ChunkReader::ReadNextChunk(inputStream, chunkHeader);
+
+	ASSERT_EQUALS((uint8)ChunkType::KorgFile, chunkHeader.type);
+	ASSERT_EQUALS((uint8)ChunkHeaderFlags::UnknownAlwaysSetInBankFile, chunkHeader.flags & (uint8)ChunkHeaderFlags::UnknownAlwaysSetInBankFile);
+
+	ASSERT_EQUALS(12_u32, chunkHeader.size);
+
+	DataReader dataReader(true, *chunkInputStream);
+
+	ASSERT_EQUALS(0x0B000000_u32, dataReader.ReadUInt32());
+	ASSERT_EQUALS(0_u16, dataReader.ReadUInt16());
+	ASSERT_EQUALS(0_u8, dataReader.ReadByte());
+	ASSERT_EQUALS(FOURCC(u8"KORF"), ChunkReader::ReadFourCC(dataReader.InputStream()));
+	ASSERT_EQUALS(0_u8, dataReader.ReadByte());
+}
+
+void Reader::ReadTableOfContentsChunk(InputStream &inputStream)
+{
+	ChunkHeader chunkHeader;
+	auto chunkInputStream = ChunkReader::ReadNextChunk(inputStream, chunkHeader);
+
+	ASSERT_EQUALS((uint8)ChunkType::ObjectTOC, chunkHeader.type);
+	ASSERT_EQUALS((uint8)ChunkHeaderFlags::UnknownAlwaysSetInBankFile, chunkHeader.flags & (uint8)ChunkHeaderFlags::UnknownAlwaysSetInBankFile);
+
+	TOCReader tocReader(chunkHeader, *chunkInputStream);
+	this->headerEntries = tocReader.Read();
+}
+
+void Reader::ReadXRef(InputStream &inputStream)
+{
+	ChunkHeader chunkHeader;
+	auto chunkInputStream = ChunkReader::ReadNextChunk(inputStream, chunkHeader);
+	DataReader dataReader(true, *chunkInputStream);
+
+	ASSERT_EQUALS(FOURCC(u8"KBEG"), ChunkReader::ReadFourCC(dataReader.InputStream()));
+	for(uint32 leftSize = chunkHeader.size - 12; leftSize; leftSize -= 4)
+		this->xref.Push(dataReader.ReadUInt32());
 }

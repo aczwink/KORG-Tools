@@ -16,43 +16,26 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#pragma once
-#include "libkorg/ChunkFormat/ChunkReader.hpp"
+//Local
+#include "../StyleFormatReader.hpp"
 
-namespace libKORG::BankFormat
+class StyleFormatV0_0Reader : public StyleFormatReader
 {
-	class BankObject
+public:
+	//Constructor
+	inline StyleFormatV0_0Reader()
 	{
-	public:
-		virtual ~BankObject() = default;
-	};
+		this->currentStyleElementNumber = -1;
+	}
 
-	class BankObjectReader : public ChunkReader
-	{
-	public:
-		//Destructor
-		virtual ~BankObjectReader() = default;
+protected:
+	//Methods
+	ChunkReader *OnEnteringChunk(const libKORG::ChunkHeader &chunkHeader) override;
+	void ReadDataChunk(const libKORG::ChunkHeader &chunkHeader, StdXX::DataReader &dataReader) override;
 
-		//Abstract
-		virtual BankObject* TakeResult() = 0;
-	};
-}
-
-namespace libKORG
-{
-	class AbstractSample : public BankFormat::BankObject
-	{
-	public:
-		//Abstract
-		virtual AbstractSample* Clone() const = 0;
-		virtual bool Equals(const AbstractSample& other) const = 0;
-		virtual uint64 GetId() const = 0;
-		virtual uint32 GetSize() const = 0;
-
-		//Operators
-		inline bool operator==(const AbstractSample& other) const
-		{
-			return this->Equals(other);
-		}
-	};
-}
+private:
+	//Members
+	int8 currentStyleElementNumber;
+	uint16 remainingStyleElementsFlags;
+	StdXX::UniquePointer<libKORG::ChunkReader> subReader;
+};

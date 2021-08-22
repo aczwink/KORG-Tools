@@ -19,67 +19,120 @@
 #pragma once
 #include <StdXX.hpp>
 //Local
-#include "libkorg/BankFormat/BankObject.hpp"
-#include "PerformanceObject.hpp"
-#include "SoundObject.hpp"
 #include <libkorg/Model.hpp>
 #include <libkorg/FullStyle.hpp>
+#include "PerformanceObject.hpp"
+#include "SoundObject.hpp"
+#include "ObjectBank.hpp"
+#include "Reader.hpp"
 
 namespace libKORG
 {
 	template<typename ObjectType>
 	class ObjectBank
 	{
-		struct BankObjectEntry
+		struct ObjectStorageEntry
 		{
 			StdXX::String name;
-			StdXX::SharedPointer<ObjectType> object;
+			StdXX::UniquePointer<ObjectType> object;
+
+			bool hasInputData;
+			BankFormat::HeaderEntry headerEntry;
+			uint32 dataOffset;
+			BankFormat::HeaderEntry stsHeaderEntry;
+			uint32 stsDataOffset;
 		};
 
-		struct ObjectEntry : public BankObjectEntry
+		struct ConstObjectEntry
 		{
 			uint8 pos;
 
-			inline ObjectEntry(uint8 pos, const BankObjectEntry &bankObjectEntry) : pos(pos)
+			//Constructor
+			ConstObjectEntry(const ObjectBank<ObjectType>& bank, uint8 pos) : bank(bank), pos(pos)
 			{
-				this->name = bankObjectEntry.name;
-				this->object = bankObjectEntry.object;
 			}
 
-			ObjectEntry(const ObjectEntry &) = default;
+			//Properties
+			inline const auto& Name() const
+			{
+				return this->bank.GetName(this->pos);
+			}
 
-			ObjectEntry(ObjectEntry &&) = default;
+			inline const ObjectType& Object() const
+			{
+				return this->bank.GetObject(this->pos);
+			}
 
-			ObjectEntry &operator=(const ObjectEntry &) = delete;
+		private:
+			//Members
+			const ObjectBank<ObjectType>& bank;
+		};
 
-			ObjectEntry &operator=(ObjectEntry &&) = delete;
+		struct ObjectEntry
+		{
+			uint8 pos;
+
+			//Constructor
+			ObjectEntry(ObjectBank<ObjectType>& bank, uint8 pos) : bank(bank), pos(pos)
+			{
+			}
+
+			//Properties
+			inline const auto& Name() const
+			{
+				return this->bank.GetName(this->pos);
+			}
+
+			inline ObjectType& Object()
+			{
+				return this->bank.GetObject(this->pos);
+			}
+
+			inline const ObjectType& Object() const
+			{
+				return this->bank.GetObject(this->pos);
+			}
+
+		private:
+			//Members
+			ObjectBank<ObjectType>& bank;
+		};
+
+		struct UnchangedObjectData
+		{
+			ChunkHeader header;
+			StdXX::DynamicByteBuffer data;
 		};
 
 	public:
-		//Members
-		bool saved;
-
 		//Constructors
 		inline ObjectBank(const Model &model) : model(model)
 		{
-			this->saved = true;
+			this->wasModified = false;
+		}
+
+		inline ObjectBank(const Model &model, StdXX::UniquePointer<StdXX::SeekableInputStream>&& inputStream) : model(model), inputStream(Move(inputStream))
+		{
+			this->ReadObjectsMetadata();
+			this->wasModified = false;
 		}
 
 		inline ObjectBank(ObjectBank&& bank) : model(bank.model)
 		{
+			this->inputStream = StdXX::Move(bank.inputStream);
 			this->objects = StdXX::Move(bank.objects);
-			this->saved = bank.saved;
+			this->wasModified = bank.wasModified;
 		}
 
 		//Operators
-		inline BankObjectEntry &operator[](uint8 pos)
+		inline ObjectEntry operator[](uint8 pos)
 		{
-			return this->objects.Get(pos);
+			return ObjectEntry(*this, pos);
 		}
 
-		inline const BankObjectEntry &operator[](uint8 pos) const
+		inline ConstObjectEntry operator[](uint8 pos) const
 		{
-			return this->objects.Get(pos);
+			return ConstObjectEntry(*this, pos);
 		}
 
 		inline ObjectBank& operator=(ObjectBank&& bank)
@@ -87,7 +140,7 @@ namespace libKORG
 			ASSERT(this->model == bank.model, u8"Can't assign banks on sets for different models")
 
 			this->objects = StdXX::Move(bank.objects);
-			this->saved = bank.saved;
+			this->wasModified = bank.wasModified;
 			return *this;
 		}
 
@@ -100,8 +153,8 @@ namespace libKORG
 		inline auto Objects() const
 		{
 			return this->objects.Entries()
-					>> StdXX::Map<const StdXX::KeyValuePair<uint8, BankObjectEntry> &, ObjectEntry>([](const auto &kv) {
-						return ObjectEntry(kv.key, kv.value);
+					>> StdXX::Map<const StdXX::KeyValuePair<uint8, ObjectStorageEntry> &, ConstObjectEntry>([this](const auto &kv) {
+						return ConstObjectEntry(*this, kv.key);
 					});
 		}
 
@@ -119,19 +172,67 @@ namespace libKORG
 		}
 
 		//Inline
+		inline ObjectType& GetObject(uint8 pos)
+		{
+			auto& entry = this->objects[pos];
+			if(entry.object.IsNull())
+				this->LoadObject(pos);
+
+			//since the object is accessed non-const we need to assume that it gets modified
+			this->wasModified = true;
+			this->objects[pos].hasInputData = false; //the input object does not count anymore
+
+			return *this->objects[pos].object;
+		}
+
+		inline const ObjectType& GetObject(uint8 pos) const
+		{
+			auto& entry = this->objects[pos];
+			if(entry.object.IsNull())
+				this->LoadObject(pos);
+
+			return *this->objects[pos].object;
+		}
+
 		inline void RemoveObject(uint8 pos)
 		{
 			this->objects.Remove(pos);
-			this->saved = false;
+			this->wasModified = true;
 		}
 
-		inline void SetObject(const StdXX::String &name, uint8 pos, const StdXX::SharedPointer<ObjectType> &object)
+		inline void Save(const StdXX::FileSystem::Path& bankPath)
 		{
-			this->objects[pos] = {name, object};
-			this->saved = false;
+			if(!this->wasModified)
+				return;
+
+			if(!this->objects.IsEmpty())
+			{
+				StdXX::FileSystem::File banksDir(bankPath.GetParent());
+				if(!banksDir.Exists())
+					banksDir.CreateDirectory();
+
+				this->SaveBank(bankPath);
+			}
+			else
+			{
+				StdXX::FileSystem::File bankFile(bankPath);
+				if(bankFile.Exists())
+					bankFile.DeleteFile();
+			}
+
+			this->inputStream = new StdXX::FileInputStream(bankPath);
+			this->objects = {};
+			this->ReadObjectsMetadata();
+			this->wasModified = false;
 		}
 
-		inline const auto &GetName(uint8 pos) const
+		inline void SetObject(const StdXX::String &name, uint8 pos, StdXX::UniquePointer<ObjectType>&& object)
+		{
+			this->objects[pos] = {name, StdXX::Move(object)};
+			this->wasModified = true;
+		}
+
+		inline const auto& GetName(uint8 pos) const
 		{
 			return this->objects.Get(pos).name;
 		}
@@ -143,8 +244,68 @@ namespace libKORG
 
 	private:
 		//Members
-		StdXX::BinaryTreeMap<uint8, BankObjectEntry> objects;
 		const Model &model;
+		mutable StdXX::BinaryTreeMap<uint8, ObjectStorageEntry> objects;
+		mutable StdXX::UniquePointer<StdXX::SeekableInputStream> inputStream;
+		bool wasModified;
+
+		//Methods
+		void CacheBinaryObject(uint32 dataOffset, UnchangedObjectData& unchangedObjectData);
+		StdXX::BinaryTreeMap<StdXX::Tuple<uint8, BankFormat::ObjectType>, UnchangedObjectData> CacheBinaryObjects();
+
+		template<typename T = ObjectType>
+		inline StdXX::Type::EnableIf_t< StdXX::Type::IsSameType<T, FullStyle>::value, void>
+		LoadObject(uint8 pos) const
+		{
+			const auto& bankObjectEntry = this->objects.Get(pos);
+
+			auto style = dynamic_cast<StyleObject*>(this->LoadBankObject(bankObjectEntry.headerEntry, bankObjectEntry.dataOffset));
+			auto sts = dynamic_cast<SingleTouchSettings*>(this->LoadBankObject(bankObjectEntry.stsHeaderEntry, bankObjectEntry.stsDataOffset));
+			this->objects[pos].object = new FullStyle(style, sts);
+		}
+
+		template<typename T = ObjectType>
+		inline StdXX::Type::EnableIf_t< !StdXX::Type::IsSameType<T, FullStyle>::value, void>
+		LoadObject(uint8 pos) const
+		{
+			const auto& bankObjectEntry = this->objects.Get(pos);
+			this->objects[pos].object = (ObjectType*)this->LoadBankObject(bankObjectEntry.headerEntry, bankObjectEntry.dataOffset);
+		}
+
+		BankFormat::BankObject* LoadBankObject(const BankFormat::HeaderEntry& headerEntry, uint32 dataOffset) const
+		{
+			BankFormat::Reader bankFormatReader;
+			this->inputStream->SeekTo(dataOffset);
+			return bankFormatReader.ReadBankObject(headerEntry, *this->inputStream);
+		}
+
+		void ReadObjectsMetadata()
+		{
+			BankFormat::Reader bankFormatReader;
+			bankFormatReader.ReadMetadata(*this->inputStream);
+			auto entries = bankFormatReader.TakeEntries();
+
+			for(const auto& entry : entries)
+			{
+				auto& input = this->objects[entry.headerEntry.pos];
+
+				if(entry.headerEntry.type == BankFormat::ObjectType::StylePerformances)
+				{
+					input.stsHeaderEntry = entry.headerEntry;
+					input.stsDataOffset = entry.dataOffset;
+				}
+				else
+				{
+					input.hasInputData = true;
+					input.headerEntry = entry.headerEntry;
+					input.dataOffset = entry.dataOffset;
+
+					input.name = entry.headerEntry.name;
+				}
+			}
+		}
+
+		void SaveBank(const StdXX::FileSystem::Path& bankPath);
 
 		//Inline
 		template<typename T = ObjectType>

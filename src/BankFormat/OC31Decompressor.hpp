@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -26,6 +26,12 @@ namespace libKORG
 		//Constructor
 		OC31Decompressor(StdXX::InputStream& inputStream);
 
+		//Properties
+		inline uint32 UncompressedSize() const
+		{
+			return this->uncompressedSize;
+		}
+
 		//Methods
 		uint32 GetBytesAvailable() const override;
 		bool IsAtEnd() const override;
@@ -35,6 +41,7 @@ namespace libKORG
 		//Members
 		uint8 computedCheck;
 		uint32 uncompressedSize;
+		uint32 leftUncompressedSize;
 		StdXX::SlidingDictionary dictionary;
 		uint16 nBytesInBuffer;
 		StdXX::DataReader dataReader;

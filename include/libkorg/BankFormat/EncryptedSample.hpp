@@ -53,6 +53,11 @@ namespace libKORG
 		}
 
 		//Methods
+		AbstractSample *Clone() const override
+		{
+			return new EncryptedSample(*this);
+		}
+
 		bool Equals(const AbstractSample &other) const override
 		{
 			const EncryptedSample* otherAsEncryptedSample = dynamic_cast<const EncryptedSample *>(&other);

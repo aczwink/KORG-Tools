@@ -18,6 +18,7 @@
  */
 //Class header
 #include <libkorg/ChunkFormat/ChunkReader.hpp>
+#include <libkorg/FormatException.hpp>
 //Local
 #include "../BankFormat/OC31Decompressor.hpp"
 #include "SkippingChunkReader.hpp"
@@ -33,17 +34,75 @@ void ChunkReader::ReadData(InputStream &inputStream)
 }
 
 //Protected methods
-bool ChunkReader::IsDataChunk(const ChunkHeader &chunkHeader)
-{
-	ASSERT_EQUALS(0, chunkHeader.flags & (uint8)ChunkHeaderFlags::Encrypted);
-	return chunkHeader.flags & (uint8)ChunkHeaderFlags::Leaf;
-}
-
 void ChunkReader::OnLeavingChunk(const ChunkHeader& chunkHeader)
 {
 }
 
 //Private methods
+void ChunkReader::ReadChunks(InputStream &inputStream)
+{
+	DataReader dataReader(true, inputStream);
+
+	while(!inputStream.IsAtEnd())
+	{
+		ChunkHeader chunkHeader;
+		auto chunkInputStream = ReadNextChunk(inputStream, chunkHeader);
+		bool isEncrypted = chunkHeader.flags & (uint8)ChunkHeaderFlags::Encrypted;
+		bool isLeaf = chunkHeader.flags & (uint8)ChunkHeaderFlags::Leaf;
+
+		if(isEncrypted || isLeaf)
+		{
+			DataReader chunkDataReader(true, *chunkInputStream);
+			this->ReadDataChunk(chunkHeader, chunkDataReader);
+
+			if(!chunkInputStream->IsAtEnd())
+			{
+				static int __iteration = 0;
+				stdErr << u8"Trailing data found for chunk " << String::HexNumber(chunkHeader.id, 8) << u8". Counter: " << __iteration << endl;
+				FileOutputStream fileOutputStream(
+						FileSystem::Path(String::HexNumber(chunkHeader.id, 8) + u8"_" + String::Number(__iteration++)),
+						true);
+				chunkInputStream->FlushTo(fileOutputStream);
+			}
+		}
+		else
+		{
+			ChunkReader* delegate = this->OnEnteringChunk(chunkHeader);
+			if(delegate == nullptr)
+			{
+				throw FormatException(u8"No handler found for chunk " + String::HexNumber(chunkHeader.id, 8));
+			}
+			delegate->ReadChunks(*chunkInputStream);
+			this->OnLeavingChunk(chunkHeader);
+		}
+	}
+}
+
+//Class functions
+UniquePointer<InputStream> ChunkReader::ReadNextChunk(InputStream& inputStream, ChunkHeader& chunkHeader)
+{
+	DataReader dataReader(true, inputStream);
+
+	chunkHeader = ChunkReader::ReadChunkHeader(dataReader);
+
+	UniquePointer<ChainedInputStream> chainedInputStream = new ChainedInputStream(new LimitedInputStream(inputStream, chunkHeader.size));
+
+	bool isEncrypted = chunkHeader.flags & (uint8)ChunkHeaderFlags::Encrypted;
+	bool isCompressed = chunkHeader.flags & (uint8)ChunkHeaderFlags::OC31Compressed;
+	if(!isEncrypted and isCompressed)
+	{
+		uint32 oc31Header = ReadFourCC(chainedInputStream->GetEnd());
+		ASSERT( (oc31Header == FOURCC(u8"OC31")) || (oc31Header == FOURCC(u8"OC32")), String::HexNumber(oc31Header));
+
+		auto decompressor = new libKORG::OC31Decompressor(chainedInputStream->GetEnd());
+		chainedInputStream->Add(decompressor);
+
+		chunkHeader.size = decompressor->UncompressedSize();
+	}
+	return chainedInputStream;
+}
+
+//Private class functions
 ChunkHeader ChunkReader::ReadChunkHeader(DataReader& dataReader)
 {
 	ChunkHeader chunkHeader{};
@@ -66,57 +125,4 @@ ChunkHeader ChunkReader::ReadChunkHeader(DataReader& dataReader)
 	ASSERT_EQUALS(0, flagsCopy);
 
 	return chunkHeader;
-}
-
-void ChunkReader::ReadChunks(InputStream &inputStream)
-{
-	DataReader dataReader(true, inputStream);
-
-	while(!inputStream.IsAtEnd())
-	{
-		ChunkHeader chunkHeader = this->ReadChunkHeader(dataReader);
-
-		ChainedInputStream chainedInputStream(new LimitedInputStream(inputStream, chunkHeader.size));
-
-		bool isEncrypted = chunkHeader.flags & (uint8)ChunkHeaderFlags::Encrypted;
-		if(!isEncrypted)
-		{
-			if(chunkHeader.flags & (uint8)ChunkHeaderFlags::OC31Compressed)
-			{
-				uint32 oc31Header = this->ReadFourCC(chainedInputStream.GetEnd());
-				ASSERT( (oc31Header == FOURCC(u8"OC31")) || (oc31Header == FOURCC(u8"OC32")), String::HexNumber(oc31Header));
-				chainedInputStream.Add(new libKORG::OC31Decompressor(chainedInputStream.GetEnd()));
-			}
-		}
-		InputStream& chunkInputStream = chainedInputStream.GetEnd();
-
-		if(isEncrypted || this->IsDataChunk(chunkHeader))
-		{
-			DataReader chunkDataReader(true, chunkInputStream);
-			this->ReadDataChunk(chunkHeader, chunkDataReader);
-
-			if(!chunkInputStream.IsAtEnd())
-			{
-				static int __iteration = 0;
-				stdErr << u8"Trailing data found for chunk " << String::HexNumber(chunkHeader.id, 8) << u8". Counter: " << __iteration << endl;
-				FileOutputStream fileOutputStream(
-						FileSystem::Path(String::HexNumber(chunkHeader.id, 8) + u8"_" + String::Number(__iteration++)),
-						true);
-				chunkInputStream.FlushTo(fileOutputStream);
-			}
-		}
-		else
-		{
-			SkippingChunkReader skippingChunkReader;
-
-			ChunkReader* delegate = this->OnEnteringChunk(chunkHeader);
-			if(delegate == nullptr)
-			{
-				stdErr << u8"No handler found for chunk " << String::HexNumber(chunkHeader.id, 8) << u8". Skipping..." << endl;
-				delegate = &skippingChunkReader;
-			}
-			delegate->ReadChunks(chunkInputStream);
-			this->OnLeavingChunk(chunkHeader);
-		}
-	}
 }

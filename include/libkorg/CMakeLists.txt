@@ -11,6 +11,7 @@ add_subdirectory(Style)
 set(SOURCE_FILES
 	${SOURCE_FILES}
 
+	${CMAKE_CURRENT_SOURCE_DIR}/FormatException.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/FullStyle.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Model.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Package.hpp

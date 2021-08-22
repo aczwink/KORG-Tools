@@ -19,59 +19,24 @@
 //Local
 #include "StyleTrackData.hpp"
 #include "ChordVariation.hpp"
+#include "StyleElementInfoData.hpp"
 
 namespace libKORG::Style
 {
-	struct ChordTable
-	{
-		uint8 unknown1;
-		uint8 unknown2;
-
-		uint8 majorCVIndex = 0;
-		uint8 sixCVIndex = 0;
-		uint8 M7CVIndex = 0;
-		uint8 M7b5CVIndex = 0;
-		uint8 susCVIndex = 0;
-		uint8 sus2CVIndex = 0;
-		uint8 M7susCVIndex = 0;
-		uint8 mCVIndex = 0;
-		uint8 m6CVIndex = 0;
-		uint8 m7CVIndex = 0;
-		uint8 m7b5CVIndex = 0;
-		uint8 mM7CVIndex = 0;
-		uint8 sevenCVIndex = 0;
-		uint8 seven_b5CVIndex = 0;
-		uint8 seven_susCVIndex = 0;
-		uint8 dimCVIndex = 0;
-		uint8 dimM7CVIndex = 0;
-		uint8 sharp5CVIndex = 0;
-		uint8 seven_sharp5CVIndex = 0;
-		uint8 M7sharp5CVIndex = 0;
-		uint8 onePlusFiveCVIndex = 0;
-		byte onePlusEightCVIndex = 0;
-		uint8 b5CVIndex = 0;
-		uint8 dim7CVIndex = 0;
-		byte unknown3;
-
-		StdXX::DynamicByteBuffer unknown;
-	};
-
 	struct GeneralStyleElementData
 	{
-		ChordTable chordTable;
+		StyleElementInfoData styleElementInfoData;
 		StyleTrackData styleTrackData[8];
-		StdXX::DynamicByteBuffer unknown3;
 
-		//Constructors
+		//Constructor
 		GeneralStyleElementData() = default;
 
 		//Operators
 		inline void CopyFrom(const GeneralStyleElementData& styleElementData)
 		{
-			this->chordTable = styleElementData.chordTable;
+			this->styleElementInfoData = styleElementData.styleElementInfoData;
 			for(uint8 i = 0; i < 8; i++)
 				this->styleTrackData[i] = styleElementData.styleTrackData[i];
-			this->unknown3 = styleElementData.unknown3;
 		}
 	};
 
@@ -79,8 +44,11 @@ namespace libKORG::Style
 	{
 		ChordVariationData cv[6];
 
-		//Constructors
-		VariationStyleElementData() = default;
+		//Constructor
+		inline VariationStyleElementData()
+		{
+			this->styleElementInfoData.cueMode = CueMode::EnterOnNextMeasure_ContinueWithCurrentMeasure;
+		}
 
 		//Operators
 		inline VariationStyleElementData& operator=(const VariationStyleElementData& styleElementData)
@@ -95,6 +63,9 @@ namespace libKORG::Style
 	struct StyleElementData : public GeneralStyleElementData
 	{
 		ChordVariationData cv[2];
+
+		//Constructor
+		StyleElementData() = default;
 
 		//Operators
 		inline StyleElementData& operator=(const StyleElementData& styleElementData)

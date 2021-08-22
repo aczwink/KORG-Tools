@@ -18,59 +18,60 @@
  */
 #pragma once
 //Local
-#include <libkorg/ChunkFormat/ChunkReader.hpp>
-#include <libkorg/Set.hpp>
 #include "BankFormat.hpp"
+#include "BankObject.hpp"
 
 namespace libKORG::BankFormat
 {
-	class Reader : public ChunkReader
+	struct BankObjectEntry
+	{
+		HeaderEntry headerEntry;
+		uint32 dataOffset;
+	};
+
+	class Reader
 	{
 	public:
-		//Constructor
-		inline Reader()
-		{
-			this->currentHeaderEntryIndex = 0;
-		}
+		//Methods
+		BankObject* ReadBankObject(const HeaderEntry& headerEntry, StdXX::InputStream& inputStream);
+		void ReadMetadata(StdXX::SeekableInputStream& seekableInputStream);
 
 		//Inline
-		inline StdXX::DynamicArray<libKORG::BankObjectEntry>&& TakeEntries()
+		inline StdXX::DynamicArray<libKORG::BankFormat::BankObjectEntry> TakeEntries()
 		{
-			return Move(this->objectEntries);
+			StdXX::DynamicArray<libKORG::BankFormat::BankObjectEntry> entries;
+			for(uint32 i = 0; i < this->headerEntries.GetNumberOfElements(); i++)
+			{
+				const auto& headerEntry = this->headerEntries[i];
+
+				entries.Push({ headerEntry, this->xref[i + 1] }); //the first entry in the xref is the offset of the TOC
+			}
+
+			return entries;
 		}
 
 	protected:
-		//Methods
-		ChunkReader* OnEnteringChunk(const ChunkHeader &chunkHeader) override;
-		void OnLeavingChunk(const ChunkHeader &chunkHeader) override;
-		void ReadDataChunk(const ChunkHeader& chunkHeader, StdXX::DataReader &dataReader) override;
-
 		//Overrideable
 		virtual ChunkReader* OnEnteringChunkedResourceChunk(const ChunkHeader &chunkHeader, const HeaderEntry& headerEntry);
-		virtual void ReadBankObject(ChunkType chunkType, const ChunkHeader& chunkHeader, const HeaderEntry& headerEntry, StdXX::DataReader& dataReader);
-
-		//Inline
-		inline void Next()
-		{
-			this->currentHeaderEntryIndex++;
-		}
+		virtual BankObject* ReadBankObject(ChunkType chunkType, const ChunkHeader& chunkHeader, const HeaderEntry& headerEntry, StdXX::DataReader& dataReader);
 
 	private:
 		//Members
 		StdXX::DynamicArray<HeaderEntry> headerEntries;
-		uint8 currentHeaderEntryIndex;
+		StdXX::DynamicArray<uint32> xref;
 		StdXX::DynamicArray<BankObjectEntry> objectEntries;
 		StdXX::UniquePointer<BankObjectReader> objectReader;
 
-		//Inline
-		inline void AddObject(BankObject* object, const HeaderEntry& headerEntry)
-		{
-			this->objectEntries.Push({ headerEntry.name, headerEntry.pos, object });
-		}
+		//Methods
+		void FindXRefLocation(StdXX::SeekableInputStream& inputStream);
+		void ReadContainerChunkHeader(StdXX::InputStream& inputStream);
+		void ReadKorfHeaderChunk(StdXX::InputStream& inputStream);
+		void ReadTableOfContentsChunk(StdXX::InputStream& inputStream);
+		void ReadXRef(StdXX::InputStream& inputStream);
 
-		inline void VerifyData(const ChunkHeader& chunkHeader)
+		//Inline
+		inline void VerifyData(const HeaderEntry& headerEntry, const ChunkHeader& chunkHeader)
 		{
-			const HeaderEntry& headerEntry = this->headerEntries[this->currentHeaderEntryIndex];
 			this->VerifyDataType(headerEntry, chunkHeader.type);
 			this->VerifyDataVersion(headerEntry, chunkHeader.version);
 		}

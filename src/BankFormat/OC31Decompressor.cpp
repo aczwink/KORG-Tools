@@ -33,6 +33,7 @@ OC31Decompressor::OC31Decompressor(InputStream &inputStream) : Decompressor(inpu
 
 	DataReader dataReader(false, inputStream);
 	this->uncompressedSize = dataReader.ReadUInt32();
+	this->leftUncompressedSize = this->uncompressedSize;
 }
 
 //Public methods
@@ -162,8 +163,8 @@ void OC31Decompressor::DecompressNextBlock()
 	else
 		length = this->DecompressDirect(flagByte);
 
-	ASSERT(this->uncompressedSize >= length, u8"TODO: HANDLE THIS CORRECTLY");
-	this->uncompressedSize -= length;
+	ASSERT(this->leftUncompressedSize >= length, u8"TODO: HANDLE THIS CORRECTLY");
+	this->leftUncompressedSize -= length;
 
 	for(uint16 i = 0; i < length; i++)
 	{
@@ -173,7 +174,7 @@ void OC31Decompressor::DecompressNextBlock()
 	}
 	this->nBytesInBuffer += length;
 
-	if((this->nBytesInBuffer == 0) && (this->uncompressedSize == 0))
+	if((this->nBytesInBuffer == 0) && (this->leftUncompressedSize == 0))
 	{
 		uint8 end[2];
 		uint32 nBytesRead = this->inputStream.ReadBytes(end, 2);

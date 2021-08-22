@@ -18,7 +18,7 @@
  */
 #pragma once
 #include "StyleFormatReader.hpp"
-#include "Format0.0/StyleFormat0_0V4_0Reader.hpp"
+#include "Format0.0/StyleFormatV0_0Reader.hpp"
 
 class StyleReader : public BankFormat::BankObjectReader
 {
@@ -47,10 +47,11 @@ protected:
 		{
 			switch(chunkHeader.version.AsUInt16())
 			{
+				case 0x0100:
+				case 0x0200:
 				case 0x0400:
-					return this->styleFormatReader = &this->styleFormat00V40Reader;
 				case 0x0500:
-					return this->styleFormatReader = &this->styleFormat00V50Reader;
+					return this->styleFormatReader = &this->styleFormatV00Reader;
 			}
 		}
 
@@ -65,8 +66,7 @@ protected:
 private:
 	//Members
 	StyleFormatReader* styleFormatReader;
-	StyleFormat0_0V4_0Reader styleFormat00V40Reader;
-	StyleFormat0_0V5_0Reader styleFormat00V50Reader;
+	StyleFormatV0_0Reader styleFormatV00Reader;
 
 	//Constructor
 	inline StyleReader()

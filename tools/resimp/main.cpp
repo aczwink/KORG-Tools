@@ -36,6 +36,9 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 	CommandLine::OptionWithArgument performanceLocationOpt(u8'p', u8"performance-location", u8"Preferred base location where to insert new performances. Format is: Bank,Position");
 	parser.AddOption(performanceLocationOpt);
 
+	CommandLine::Option ignoreSTSOpt(u8'i', u8"ignore-sts", u8"If specified, STS are ignored, i.e. their assigned sounds are not considered");
+	parser.AddOption(ignoreSTSOpt);
+
 	CommandLine::PathArgument inputSetPathArg(u8"input-set-path", u8"Path to the set that holds the resource to be imported");
 	parser.AddPositionalArgument(inputSetPathArg);
 
@@ -106,7 +109,7 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 		case ResourceType::Style:
 		{
 			StyleBankNumber bankNumber = StyleBankNumber::FromBankName(inputBankArg.Value(result));
-			resourceImporter.ImportStyle(bankNumber, inputPosArg.Value(result));
+			resourceImporter.ImportStyle(bankNumber, inputPosArg.Value(result), result.IsActivated(ignoreSTSOpt));
 		}
 		break;
 	}

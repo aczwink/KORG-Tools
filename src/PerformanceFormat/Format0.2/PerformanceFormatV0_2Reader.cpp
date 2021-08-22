@@ -177,7 +177,7 @@ void PerformanceFormatV0_2Reader::ReadAccompanimentSettings(DataReader &dataRead
 
 	for(uint8 i = 0; i < 8; i++)
 	{
-		this->ReadTrackParams(this->generalData.unknownPart8[i], dataReader);
+		this->ReadTrackParams(this->generalData.accompanimentSettings.trackSettings[i], dataReader);
 	}
 }
 

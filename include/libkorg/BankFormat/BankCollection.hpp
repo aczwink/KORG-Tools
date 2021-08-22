@@ -17,8 +17,9 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 //Local
-#include "PadBankNumber.hpp"
 #include "BankSlot.hpp"
+#include "ObjectBank.hpp"
+#include "PadBankNumber.hpp"
 
 namespace libKORG
 {
@@ -78,6 +79,11 @@ namespace libKORG
 		}
 
 		//Inline
+		inline void AddSourceBank(BankNumberType bankNumber, StdXX::UniquePointer<StdXX::SeekableInputStream>&& inputStream)
+		{
+			this->banks.Insert(bankNumber, ObjectBank<ObjectType>(this->model, Move(inputStream)));
+		}
+
 		inline auto Entries() const
 		{
 			return this->banks.Entries() >> StdXX::Map<const StdXX::KeyValuePair<BankNumberType, ObjectBank<ObjectType>>&, BankEntry>([](const auto& kv)

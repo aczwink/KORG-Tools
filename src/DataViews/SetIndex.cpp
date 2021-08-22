@@ -30,7 +30,7 @@ SetIndex::SetIndex(const Set& set)
 	{
 		for(const auto& objectEntry : bankEntry.bank.Objects())
 		{
-			const AbstractSample& sample = *objectEntry.object;
+			const AbstractSample& sample = objectEntry.Object();
 
 			this->sampleLocations.Insert(sample.GetId(), {bankEntry.bankNumber, objectEntry.pos});
 		}

@@ -209,6 +209,11 @@ namespace libKORG::Performance::V0
 		uint32 unknownEnd;
 	};
 
+	struct AccompanimentSettings
+	{
+		TrackSettings trackSettings[8];
+	};
+
 	struct GeneralData
 	{
 		uint32 unknown1;
@@ -218,7 +223,7 @@ namespace libKORG::Performance::V0
 		UnknownPart1 unknownPart1;
 		int8 unknown7;
 		FXGroup unknown8;
-		TrackSettings unknownPart8[8];
+		AccompanimentSettings accompanimentSettings;
 		uint32 unknown99;
 		_0x02000108_chunk _0x02000108_data;
 

@@ -25,11 +25,17 @@
 
 namespace libKORG::Performance::V2
 {
+	struct UnknownAccSettings
+	{
+		StdXX::DynamicByteBuffer _0x00000008_chunk;
+	};
+
 	struct AccompanimentSettings : public libKORG::Performance::V1::GeneralTracksSettings
 	{
 		libKORG::Performance::V1::_0x06000008_chunk _0x06000008_data;
 		StdXX::StaticArray<MasterFXSettings, 3> masterFxSettings;
 		StdXX::StaticArray<StdXX::StaticArray<InsertFXSettings, 2>, 8> insertFXSettings;
 		StdXX::StaticArray<TrackSettings, 8> trackSettings;
+		UnknownAccSettings unknownAccSettings;
 	};
 }

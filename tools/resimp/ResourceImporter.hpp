@@ -39,7 +39,7 @@ public:
 
 	//Methods
 	void ImportPerformance(const PerformanceBankNumber& bankNumber, uint8 pos);
-	void ImportStyle(const StyleBankNumber& bankNumber, uint8 pos);
+	void ImportStyle(const StyleBankNumber& bankNumber, uint8 pos, bool ignoreSTSSounds);
 
 private:
 	//Members
@@ -59,6 +59,7 @@ private:
 	bool ImportSample(uint64 id);
 	bool ImportSound(const ProgramChangeSequence& programChangeSequence);
 	bool ImportSoundDependencies(const Sound::SoundData& soundData);
+	UniquePointer<SingleTouchSettings> ImportSTS(const SingleTouchSettings& sts, bool ignoreSTSSounds);
 	void SaveChanges();
 
 	//Inline
@@ -99,5 +100,43 @@ private:
 
 		this->targetSet.performanceBanks[slot.bankNumber].SetObject(name, slot.pos, new PerformanceObject(Move(newPerformance)));
 		return true;
+	}
+
+	template<typename STSType>
+	UniquePointer<SingleTouchSettings> ImportSTSData(const STSType& source, bool ignoreSTSSounds)
+	{
+		for(const auto& trackSettings : source.accompanimentSettings.trackSettings)
+		{
+			if(!this->ImportSound(trackSettings.soundProgramChangeSeq))
+				return nullptr;
+		}
+
+		if(!ignoreSTSSounds)
+		{
+			for (const auto &keyboardSettings : source.keyboardSettings)
+			{
+				for (const auto &trackSettings : keyboardSettings.trackSettings)
+				{
+					if (!this->ImportSound(trackSettings.soundProgramChangeSeq))
+						return nullptr;
+				}
+			}
+		}
+
+		UniquePointer<STSType> newSTS = new STSType(source);
+		for(auto& keyboardSettings : newSTS->keyboardSettings)
+		{
+			for(auto& trackSettings : keyboardSettings.trackSettings)
+			{
+				trackSettings.soundProgramChangeSeq = this->MapSoundProgramChangeSequence(trackSettings.soundProgramChangeSeq);
+			}
+		}
+
+		for(auto& trackSettings : newSTS->accompanimentSettings.trackSettings)
+		{
+			trackSettings.soundProgramChangeSeq = this->MapSoundProgramChangeSequence(trackSettings.soundProgramChangeSeq);
+		}
+
+		return new SingleTouchSettings(Move(newSTS));
 	}
 };

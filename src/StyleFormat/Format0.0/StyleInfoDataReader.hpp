@@ -50,8 +50,8 @@ public:
 		chunk.unknown16 = dataReader.ReadByte();
 
 		if(versionMinor > 2)
-			chunk.unknown19 = dataReader.ReadInt16();
+			chunk.styleElementsWithData = dataReader.ReadUInt16();
 		else
-			chunk.unknown19 = chunk.enabledStyleElements;
+			chunk.styleElementsWithData = chunk.enabledStyleElements;
 	}
 };

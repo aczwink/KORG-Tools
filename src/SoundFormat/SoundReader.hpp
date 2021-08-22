@@ -19,11 +19,14 @@
 //Local
 #include <libkorg/BankFormat/BankObject.hpp>
 #include <libkorg/ChunkFormat/ChunkFormat.hpp>
+#include <libkorg/BankFormat/SoundObject.hpp>
+#include <libkorg/FormatException.hpp>
 #include "Format3.0/SoundFormat3_0Reader.hpp"
 #include "Format2.0/SoundFormat2_0Reader.hpp"
 #include "Format0.0/SoundFormat0_0Reader.hpp"
 #include "LegacyFormat0.3/LegacySoundFormat0_3Reader.hpp"
 #include "LegacyFormat0.0/LegacySoundFormat0_0Reader.hpp"
+#include "LegacyFormat0.2/LegacySoundFormat0_2Reader.hpp"
 
 using namespace StdXX;
 
@@ -79,20 +82,21 @@ public:
 				soundFormat00Reader.Read(dataReader);
 				return new SoundObject(Move(soundFormat00Reader.data));
 			}
+			case 0x0002:
+			{
+				LegacySoundFormat0_2Reader soundFormat02Reader;
+				soundFormat02Reader.Read(dataReader);
+				return new SoundObject(Move(soundFormat02Reader.data));
+			}
 			case 0x0003:
 			{
 				LegacySoundFormat0_3Reader soundFormat03Reader;
 				soundFormat03Reader.Read(dataReader);
 				return new SoundObject(Move(soundFormat03Reader.data));
 			}
-			default:
-			{
-				stdErr << u8"Unknown legacy sound version: " << String::HexNumber(chunkVersion.AsUInt16(), 4) << u8" skipping..." << endl;
-				NullOutputStream nullOutputStream;
-				dataReader.InputStream().FlushTo(nullOutputStream);
-			}
 		}
 
+		throw libKORG::FormatException(u8"Unknown legacy sound version: " + String::HexNumber(chunkVersion.AsUInt16(), 4));
 		return nullptr;
 	}
 };

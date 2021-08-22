@@ -43,4 +43,20 @@ private:
 	void WriteMIDITrack(const libKORG::Style::MIDI_Track& midiTrack);
 	void WriteStyleElement(const libKORG::Style::VariationStyleElementData& styleElementData);
 	void WriteStyleElement(const libKORG::Style::StyleElementData& styleElementData);
+	void WriteStyleElementInfoData(const libKORG::Style::StyleElementInfoData& styleElementInfoData);
+
+	//Inline
+	inline bool HasChordVariationData(uint8& chordVariationFlags) const
+	{
+		bool hasData = (chordVariationFlags & 1) != 0;
+		chordVariationFlags >>= 1;
+		return hasData;
+	}
+
+	inline bool HasStyleElementData(uint16& styleElementDataFlags) const
+	{
+		bool hasData = (styleElementDataFlags & 1) != 0;
+		styleElementDataFlags >>= 1;
+		return hasData;
+	}
 };

@@ -34,31 +34,6 @@
 using namespace BankFormat;
 
 //Public methods
-template<typename T>
-void ObjectBankWriter::Write(const ObjectBank<T> &bank)
-{
-	this->WriteHeader();
-
-	this->BeginWritingIndex();
-	for(const auto& objectEntry : bank.Objects())
-	{
-		this->WriteTOCEntries(objectEntry.name, objectEntry.pos, *objectEntry.object);
-	}
-	this->EndIndex();
-
-	for(const auto& objectEntry : bank.Objects())
-	{
-		this->WriteObjects(objectEntry.pos, *objectEntry.object);
-	}
-
-	this->Finalize();
-}
-
-template void ObjectBankWriter::Write(const ObjectBank<AbstractSample> &bank);
-template void ObjectBankWriter::Write(const ObjectBank<FullStyle> &bank);
-template void ObjectBankWriter::Write(const ObjectBank<PerformanceObject> &bank);
-template void ObjectBankWriter::Write(const ObjectBank<SoundObject> &bank);
-
 void ObjectBankWriter::Write(const MultiSamplesObject &multiSamplesObject)
 {
 	this->WriteHeader();
@@ -102,22 +77,6 @@ void ObjectBankWriter::Write(const MultiSamplesObject &multiSamplesObject)
 
 	this->EndChunk();
 }*/
-
-//Private methods
-ChunkVersion ObjectBankWriter::DeterminePerformanceVersion(uint8 majorVersion) const
-{
-	majorVersion = Math::Min(majorVersion, this->model.GetSupportedResourceVersions().maxPerformanceVersion.major);
-
-	switch(majorVersion)
-	{
-		case 0:
-			return {0, 3};
-		case 1:
-			return {1, 0};
-	}
-
-	NOT_IMPLEMENTED_ERROR; //TODO: implement me
-}
 
 void ObjectBankWriter::WriteObjects(uint8 pos, const AbstractSample& sampleObject)
 {
@@ -167,6 +126,60 @@ void ObjectBankWriter::WriteObjects(uint8 pos, const SoundObject &soundObject)
 	this->EndWritingObject();
 }
 
+void ObjectBankWriter::WriteTOCEntries(const String &name, uint8 pos, const AbstractSample &object)
+{
+	const EncryptedSample* encryptedSample = dynamic_cast<const EncryptedSample *>(&object);
+
+	HeaderEntry headerEntry;
+	headerEntry.name = name;
+	headerEntry.pos = pos;
+	headerEntry.type = ObjectType::PCM;
+	headerEntry.dataVersion = encryptedSample ? encryptedSample->DataVersion() : this->model.GetSupportedResourceVersions().maxPCMVersion;
+
+	ObjectStreamFormat streamFormat = ObjectStreamFormat::Uncompressed; //PCM data does not compress well
+	if(encryptedSample)
+	{
+		headerEntry.encryptionInformation = encryptedSample->EncryptionInfo();
+		headerEntry.id = encryptedSample->GetId();
+		streamFormat = encryptedSample->IsOC31Compressed() ? ObjectStreamFormat::EncryptedAndCompressed : ObjectStreamFormat::Encrypted;
+	}
+
+	this->WriteIndexEntry(headerEntry, streamFormat);
+	this->objectVersionMap[pos][headerEntry.type] = headerEntry.dataVersion;
+}
+
+void ObjectBankWriter::WriteTOCEntries(const String &name, uint8 pos, const FullStyle &object)
+{
+	this->WriteTOCEntry(name, pos, ObjectType::Style, this->model.GetSupportedResourceVersions().maxStyleVersion, ObjectStreamFormat::Compressed);
+	this->WriteTOCEntry(name, pos, ObjectType::StylePerformances, this->DeterminePerformanceVersion(object.STS().Version()), ObjectStreamFormat::Compressed);
+}
+
+void ObjectBankWriter::WriteTOCEntries(const String &name, uint8 pos, const PerformanceObject &object)
+{
+	this->WriteTOCEntry(name, pos, ObjectType::Performance, this->DeterminePerformanceVersion(object.Version()), ObjectStreamFormat::Compressed);
+}
+
+void ObjectBankWriter::WriteTOCEntries(const String &name, uint8 pos, const SoundObject& object)
+{
+	this->WriteTOCEntry(name, pos, ObjectType::Sound, this->model.GetSupportedResourceVersions().maxSoundVersion, ObjectStreamFormat::Compressed);
+}
+
+//Private methods
+ChunkVersion ObjectBankWriter::DeterminePerformanceVersion(uint8 majorVersion) const
+{
+	majorVersion = Math::Min(majorVersion, this->model.GetSupportedResourceVersions().maxPerformanceVersion.major);
+
+	switch(majorVersion)
+	{
+		case 0:
+			return {0, 3};
+		case 1:
+			return {1, 0};
+	}
+
+	NOT_IMPLEMENTED_ERROR; //TODO: implement me
+}
+
 void ObjectBankWriter::WritePCMData(const AbstractSample& abstractSample, const ChunkVersion& dataVersion)
 {
 	const auto* encryptedSample = dynamic_cast<const EncryptedSample *>(&abstractSample);
@@ -213,44 +226,6 @@ void ObjectBankWriter::WriteStyle(const StyleObject &style, const ChunkVersion& 
 	compressor->Finalize();
 
 	this->EndWritingObject();
-}
-
-void ObjectBankWriter::WriteTOCEntries(const String &name, uint8 pos, const AbstractSample &object)
-{
-	const EncryptedSample* encryptedSample = dynamic_cast<const EncryptedSample *>(&object);
-
-	HeaderEntry headerEntry;
-	headerEntry.name = name;
-	headerEntry.pos = pos;
-	headerEntry.type = ObjectType::PCM;
-	headerEntry.dataVersion = encryptedSample ? encryptedSample->DataVersion() : this->model.GetSupportedResourceVersions().maxPCMVersion;
-
-	ObjectStreamFormat streamFormat = ObjectStreamFormat::Uncompressed; //PCM data does not compress well
-	if(encryptedSample)
-	{
-		headerEntry.encryptionInformation = encryptedSample->EncryptionInfo();
-		headerEntry.id = encryptedSample->GetId();
-		streamFormat = encryptedSample->IsOC31Compressed() ? ObjectStreamFormat::EncryptedAndCompressed : ObjectStreamFormat::Encrypted;
-	}
-
-	this->WriteIndexEntry(headerEntry, streamFormat);
-	this->objectVersionMap[pos][headerEntry.type] = headerEntry.dataVersion;
-}
-
-void ObjectBankWriter::WriteTOCEntries(const String &name, uint8 pos, const FullStyle &object)
-{
-	this->WriteTOCEntry(name, pos, ObjectType::Style, this->model.GetSupportedResourceVersions().maxStyleVersion, ObjectStreamFormat::Compressed);
-	this->WriteTOCEntry(name, pos, ObjectType::StylePerformances, this->DeterminePerformanceVersion(object.STS().Version()), ObjectStreamFormat::Compressed);
-}
-
-void ObjectBankWriter::WriteTOCEntries(const String &name, uint8 pos, const PerformanceObject &object)
-{
-	this->WriteTOCEntry(name, pos, ObjectType::Performance, this->DeterminePerformanceVersion(object.Version()), ObjectStreamFormat::Compressed);
-}
-
-void ObjectBankWriter::WriteTOCEntries(const String &name, uint8 pos, const SoundObject& object)
-{
-	this->WriteTOCEntry(name, pos, ObjectType::Sound, this->model.GetSupportedResourceVersions().maxSoundVersion, ObjectStreamFormat::Compressed);
 }
 
 void ObjectBankWriter::WriteTOCEntry(const String& name, uint8 pos, ObjectType objectType, const ChunkVersion& version, ObjectStreamFormat streamFormat)

@@ -7,10 +7,8 @@ set(SOURCE_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/Format0.0/MIDITrackListReader.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Format0.0/StyleElementReader.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Format0.0/StyleElementReader.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/Format0.0/StyleFormat0_0V4_0Reader.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/Format0.0/StyleFormat0_0V4_0Reader.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/Format0.0/StyleFormat0_0V5_0Reader.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/Format0.0/StyleFormat0_0V5_0Reader.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Format0.0/StyleFormatV0_0Reader.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Format0.0/StyleFormatV0_0Reader.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Format0.0/StyleFormat0_0V5_0Writer.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Format0.0/StyleFormat0_0V5_0Writer.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Format0.0/StyleInfoDataReader.hpp

@@ -37,6 +37,8 @@ set(SOURCE_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/Format2.0/PerformanceFormat2_0VReader.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Format2.0/PerformanceFormat2_0VReader.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Format2.0/TrackSettingsV2Reader.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Format2.0/UnknownAdditionalAccompanimentSettingsReader.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Format2.0/UnknownAdditionalAccompanimentSettingsReader.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Format2.0/UnknownAdditionalReaderV2.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Format2.0/UnknownAdditionalReaderV2.hpp
 

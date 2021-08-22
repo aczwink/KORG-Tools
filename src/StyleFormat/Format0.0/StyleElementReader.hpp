@@ -23,10 +23,9 @@ class StyleElementReader : public libKORG::ChunkReader
 {
 public:
 	//Constructor
-	inline StyleElementReader(libKORG::Style::StyleData& data, uint8 currentStyleElementNumber) : data(data)
+	inline StyleElementReader(libKORG::Style::StyleData& data, uint8 currentStyleElementNumber) : data(data), currentStyleElementNumber(currentStyleElementNumber)
 	{
-		this->currentStyleElementNumber = currentStyleElementNumber;
-		this->nextMIDITrackNumber = 0;
+		this->nextMasterMIDITrackNumber = -1;
 	}
 
 protected:
@@ -41,14 +40,15 @@ protected:
 private:
 	//Members
 	libKORG::Style::StyleData& data;
-	uint8 currentStyleElementNumber;
-	uint8 nextMIDITrackNumber;
+	const uint8 currentStyleElementNumber;
+	int8 nextMasterMIDITrackNumber;
+	uint8 remainingChordVariationFlags;
 
 	//Methods
-	void ReadChordTable(const libKORG::ChunkVersion& chunkVersion, libKORG::Style::ChordTable& chordTable, StdXX::DataReader& dataReader);
-	void ReadChordTableV1_1(libKORG::Style::ChordTable& chordTable, StdXX::DataReader& dataReader);
+	void ReadChordTable(libKORG::Style::ChordTable& chordTable, StdXX::DataReader& dataReader);
 	void ReadKORG_MIDIEvents(uint16 dataLength, StdXX::DynamicArray<libKORG::Style::KORG_MIDI_Event>& midiEvents, StdXX::DataReader& dataReader);
 	void ReadMasterMIDITrack(StdXX::DataReader& dataReader);
+	void ReadStyleElementInfoData(const libKORG::ChunkVersion& chunkVersion, libKORG::Style::StyleElementInfoData& styleElementInfoData, StdXX::DataReader& dataReader);
 	void ReadStyleTrackDataChunk(const libKORG::ChunkVersion& chunkVersion, StdXX::DataReader& dataReader);
 	void ReadStyleTrackDataChunkV0_0(StdXX::DataReader& dataReader);
 	void ReadStyleTrackDataChunkV0_1(StdXX::DataReader& dataReader);
@@ -59,8 +59,8 @@ private:
 	inline auto& GetCurrentChordVariationData()
 	{
 		if(this->currentStyleElementNumber < 4)
-			return this->data.variation[this->currentStyleElementNumber].cv[this->nextMIDITrackNumber];
-		return this->data.styleElements[this->currentStyleElementNumber - 4].cv[this->nextMIDITrackNumber];
+			return this->data.variation[this->currentStyleElementNumber].cv[this->nextMasterMIDITrackNumber];
+		return this->data.styleElements[this->currentStyleElementNumber - 4].cv[this->nextMasterMIDITrackNumber];
 	}
 
 	inline libKORG::Style::GeneralStyleElementData& GetCurrentStyleElementData()

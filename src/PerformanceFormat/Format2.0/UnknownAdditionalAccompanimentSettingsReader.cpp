@@ -16,26 +16,28 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-//Local
-#include "../StyleFormatReader.hpp"
+//Class header
+#include "UnknownAdditionalAccompanimentSettingsReader.hpp"
+//Namespaces
+using namespace StdXX;
 
-class StyleFormat0_0V4_0Reader : public StyleFormatReader
+libKORG::ChunkReader* UnknownAdditionalAccompanimentSettingsReader::OnEnteringChunk(const libKORG::ChunkHeader &chunkHeader)
 {
-public:
-	//Constructor
-	inline StyleFormat0_0V4_0Reader()
+	NOT_IMPLEMENTED_ERROR; //TODO: implement me
+	return nullptr;
+}
+
+void UnknownAdditionalAccompanimentSettingsReader::ReadDataChunk(const libKORG::ChunkHeader &chunkHeader, StdXX::DataReader &dataReader)
+{
+	switch(chunkHeader.id)
 	{
-		this->currentStyleElementNumber = 0;
+		case 0x00000008:
+		{
+			auto dest = this->unknownAccSettings._0x00000008_chunk.CreateOutputStream();
+			dataReader.InputStream().FlushTo(*dest);
+		}
+		break;
+		default:
+			ASSERT(false, String::HexNumber(chunkHeader.id));
 	}
-
-protected:
-	//Methods
-	ChunkReader *OnEnteringChunk(const libKORG::ChunkHeader &chunkHeader) override;
-	void OnLeavingChunk(const libKORG::ChunkHeader &chunkHeader) override;
-	void ReadDataChunk(const libKORG::ChunkHeader &chunkHeader, StdXX::DataReader &dataReader) override;
-
-private:
-	//Members
-	uint8 currentStyleElementNumber;
-	StdXX::UniquePointer<libKORG::ChunkReader> subReader;
-};
+}

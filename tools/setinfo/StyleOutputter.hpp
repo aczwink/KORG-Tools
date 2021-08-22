@@ -39,15 +39,18 @@ private:
 
 	//Methods
 	void Output(const ChordTable& chordTable);
+	void Output(uint32 index, const ChordVariationData& data);
 	void Output(const StyleData& styleData);
+	void Output(const StyleElementInfoData& styleElementInfoData);
+	void Output(const StyleInfoData& styleInfoData);
 	void Output(const MasterMIDI_Track& midiTrack);
 	void Output(const MIDI_Track& midiTrack);
 	void Output(uint32 index, const KORG_MIDI_Event& event);
 	void Output(const VariationStyleElementData& data);
 	void Output(const StyleElementData& data);
-	void Output(const ChordVariationData& data);
 	void OutputGeneralStyleElementData(const GeneralStyleElementData& data);
 
+	String ToString(ChordVariationTrackType trackType) const;
 	String ToString(StyleElementNumber styleElementNumber) const;
 };
 

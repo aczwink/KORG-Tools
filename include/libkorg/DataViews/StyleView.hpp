@@ -75,15 +75,24 @@ namespace libKORG
 			return *this->styleElementViews[static_cast<uint32>(styleElementNumber)];
 		}
 
+		inline bool IsStyleElementDataAvailable(Style::StyleElementNumber styleElementNumber) const
+		{
+			return this->styleData.styleInfoData.styleElementsWithData & this->StyleElementNumberToFlag(styleElementNumber);
+		}
+
 		inline bool IsStyleElementEnabled(Style::StyleElementNumber styleElementNumber) const
 		{
-			uint16 shiftAmount = 4 + (uint16)styleElementNumber;
-			return this->styleData.styleInfoData.enabledStyleElements & (1 << shiftAmount);
+			return this->styleData.styleInfoData.enabledStyleElements & this->StyleElementNumberToFlag(styleElementNumber);
+		}
+
+		inline bool IsVariationDataAvailable(uint8 index) const
+		{
+			return this->styleData.styleInfoData.styleElementsWithData & this->VariationIndexToFlag(index);
 		}
 
 		inline bool IsVariationEnabled(uint8 index) const
 		{
-			return this->styleData.styleInfoData.enabledStyleElements & (1 << index);
+			return this->styleData.styleInfoData.enabledStyleElements & this->VariationIndexToFlag(index);
 		}
 
 	private:
@@ -94,5 +103,18 @@ namespace libKORG
 
 		//Methods
 		void GenerateStyleElementViews(const Style::StyleData& styleData);
+
+		//Inline
+		inline uint16 StyleElementNumberToFlag(Style::StyleElementNumber styleElementNumber) const
+		{
+			uint16 shiftAmount = 4 + (uint16)styleElementNumber;
+			return 1 << shiftAmount;
+		}
+
+		inline uint8 VariationIndexToFlag(uint8 index) const
+		{
+			ASSERT(index < 4, u8"Only 4 variations exist");
+			return 1 << index;
+		}
 	};
 }

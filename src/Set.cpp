@@ -100,14 +100,17 @@ Set::Set(const Path &setPath, const Model& model) : setPath(setPath), model(mode
 	ASSERT(setDir.Exists(), u8"Set does not exist");
 
 	//TODO: GLOBAL
-	if(!this->ReadDirectory(setPath, u8"KEYBOARDSET", &Set::LoadPerformances))
-		this->ReadDirectory(setPath, u8"PERFORM", &Set::LoadPerformances);
-	this->ReadDirectory(setPath, u8"MULTISMP", &Set::LoadMultiSamples);
-	this->ReadDirectory(setPath, u8"PAD", &Set::LoadPads);
-	this->ReadDirectory(setPath, u8"PCM", &Set::LoadSamples);
+	if(!this->ReadDirectory(setPath, u8"KEYBOARDSET", this->performanceBanks))
+		this->ReadDirectory(setPath, u8"PERFORM", this->performanceBanks);
+
+	this->LoadMultiSamples();
+
+	this->ReadDirectory(setPath, u8"PAD", this->padBanks);
+	this->ReadDirectory(setPath, u8"PCM", this->sampleBanks);
+	this->ReadDirectory(setPath, u8"SOUND", this->soundBanks);
+	this->ReadDirectory(setPath, u8"STYLE", this->styleBanks);
+
 	//this->LoadSongBook(setPath);
-	this->ReadDirectory(setPath, u8"SOUND", &Set::LoadSounds);
-	this->ReadDirectory(setPath, u8"STYLE", &Set::LoadStyles);
 }
 
 //Public methods
@@ -117,7 +120,7 @@ uint32 Set::ComputeUsedSampleRAMSize()
 	for(const auto& bankEntry : this->sampleBanks.Entries())
 	{
 		for(const auto& objectEntry : bankEntry.bank.Objects())
-			sum += objectEntry.object->GetSize();
+			sum += objectEntry.Object().GetSize();
 	}
 
 	return sum;
@@ -142,7 +145,7 @@ Set Set::Create(const Path &targetPath, const Model& targetModel)
 }
 
 //Private methods
-void Set::LoadMultiSamples(const String &bankFileName, const DynamicArray<BankObjectEntry> &bankEntries)
+/*void Set::LoadMultiSamples(const String &bankFileName, const DynamicArray<BankObjectEntry> &bankEntries)
 {
 	if(!bankEntries.IsEmpty())
 	{
@@ -150,42 +153,9 @@ void Set::LoadMultiSamples(const String &bankFileName, const DynamicArray<BankOb
 		this->multiSamples = dynamic_cast<MultiSamplesObject*>(bankEntries[0].object);
 	}
 }
+*/
 
-void Set::LoadPads(const String &bankFileName, const DynamicArray<BankObjectEntry> &bankEntries)
-{
-	PadBankNumber padBankNumber = PadBankNumber::FromBankFileName(bankFileName);
-
-	for(const BankObjectEntry& bankObjectEntry : bankEntries)
-	{
-		StyleObject& styleObject = dynamic_cast<StyleObject&>(*bankObjectEntry.object);
-		this->padBanks[padBankNumber].SetObject(bankObjectEntry.name, bankObjectEntry.pos, &styleObject);
-	}
-	this->padBanks[padBankNumber].saved = true;
-}
-
-void Set::LoadPerformances(const String &bankFileName, const DynamicArray<BankObjectEntry> &bankEntries)
-{
-	PerformanceBankNumber bankNumber = PerformanceBankNumber::FromBankFileName(bankFileName);
-
-	for(const BankObjectEntry& bankObjectEntry : bankEntries)
-	{
-		PerformanceObject& performance = dynamic_cast<PerformanceObject&>(*bankObjectEntry.object);
-		this->performanceBanks[bankNumber].SetObject(bankObjectEntry.name, bankObjectEntry.pos, &performance);
-	}
-	this->performanceBanks[bankNumber].saved = true;
-}
-
-void Set::LoadSamples(const String& bankFileName, const DynamicArray<BankObjectEntry>& bankEntries)
-{
-	auto bankNumber = SampleBankNumber::FromBankFileName(bankFileName);
-	for(const BankObjectEntry& bankObjectEntry : bankEntries)
-	{
-		AbstractSample& sample = dynamic_cast<AbstractSample&>(*bankObjectEntry.object);
-		this->sampleBanks[bankNumber].SetObject(bankObjectEntry.name, bankObjectEntry.pos, &sample);
-	}
-	this->sampleBanks[bankNumber].saved = true;
-}
-
+/*
 void Set::LoadSongs(const String& bankFileName, const DynamicArray<BankObjectEntry> &bankEntries)
 {
 	for(const BankObjectEntry& bankObjectEntry : bankEntries)
@@ -205,52 +175,32 @@ void Set::LoadSongBook(const Path& setPath)
 
 		for(const BankObjectEntry& bankObjectEntry : bankEntries)
 			delete bankObjectEntry.object;*/
-	}
+/*	}
 
 	this->ReadDirectory(setPath, u8"SONGBOOK/SONGDB.SBD", &Set::LoadSongs);
 }
+*/
 
-void Set::LoadSounds(const String &bankFileName, const DynamicArray<BankObjectEntry> &bankEntries)
+void Set::LoadMultiSamples()
 {
-	SoundBankNumber bankNumber = SoundBankNumber::FromBankFileName(bankFileName);
-	for(const BankObjectEntry& bankObjectEntry : bankEntries)
-	{
-		SoundObject& sound = dynamic_cast<SoundObject&>(*bankObjectEntry.object);
-		this->soundBanks[bankNumber].SetObject(bankObjectEntry.name, bankObjectEntry.pos, &sound);
-	}
-	this->soundBanks[bankNumber].saved = true;
+	Path path = this->setPath / String(u8"MULTISMP") / String(u8"RAM.KMP");
+	File file(path);
+	if(!file.Exists())
+		return;
+
+	FileInputStream fileInputStream(path);
+	BankFormat::Reader reader;
+	reader.ReadMetadata(fileInputStream);
+	auto entries = reader.TakeEntries();
+	ASSERT_EQUALS(1, entries.GetNumberOfElements());
+
+	fileInputStream.SeekTo(entries[0].dataOffset);
+	BankFormat::BankObject* bankObject = reader.ReadBankObject(entries[0].headerEntry, fileInputStream);
+	this->multiSamples = dynamic_cast<MultiSamplesObject*>(bankObject);
 }
 
-void Set::LoadStyles(const String &bankFileName, const DynamicArray<BankObjectEntry> &bankEntries)
-{
-	BinaryTreeMap<uint8, const BankObjectEntry*> styleEntries;
-	BinaryTreeMap<uint8, const BankObjectEntry*> performanceEntries;
-	for(const BankObjectEntry& bankObjectEntry : bankEntries)
-	{
-		if(IS_INSTANCE_OF(bankObjectEntry.object, StyleObject))
-			styleEntries[bankObjectEntry.pos] = &bankObjectEntry;
-		else
-			performanceEntries[bankObjectEntry.pos] = &bankObjectEntry;
-	}
-
-	auto bankNumber = StyleBankNumber::FromBankFileName(bankFileName);
-
-	for(const auto& kv : styleEntries)
-	{
-		auto stsObject = performanceEntries[kv.key]->object;
-
-		StyleObject& style = dynamic_cast<StyleObject&>(*styleEntries[kv.key]->object);
-		SingleTouchSettings* sts = dynamic_cast<SingleTouchSettings*>(stsObject);
-
-		this->styleBanks[bankNumber].SetObject(kv.value->name, kv.value->pos, new FullStyle(&style, sts));
-		performanceEntries.Remove(kv.key);
-	}
-	for(const auto& kv : performanceEntries)
-		delete kv.value->object; //remove sts for unreadable styles
-	this->styleBanks[bankNumber].saved = true;
-}
-
-bool Set::ReadDirectory(const Path &setPath, const String &dirName, void (Set::* loader)(const String& bankFileName, const DynamicArray<BankObjectEntry>&))
+template<typename BankNumberType, typename BankObjectType>
+bool Set::ReadDirectory(const Path& setPath, const String& dirName, BankCollection<BankNumberType, BankObjectType>& bankCollection)
 {
 	Path dirPath = setPath / dirName;
 
@@ -259,22 +209,10 @@ bool Set::ReadDirectory(const Path &setPath, const String &dirName, void (Set::*
 		return false;
 	for (const DirectoryEntry& childEntry : directory)
 	{
-		FileInputStream fileInputStream(dirPath / childEntry.name);
-
-		BankFormat::Reader bankFormatReader;
-		bankFormatReader.ReadData(fileInputStream);
-
-		(this->*loader)(childEntry.name, bankFormatReader.TakeEntries());
+		bankCollection.AddSourceBank(BankNumberType::FromBankFileName(childEntry.name), new FileInputStream(dirPath / childEntry.name));
 	}
 
 	return true;
-}
-
-template<typename BankObjectType>
-void Set::SaveBank(const ObjectBank<BankObjectType>& bank, SeekableOutputStream& outputStream)
-{
-	BankFormat::ObjectBankWriter bankFormatWriter(outputStream, this->model);
-	bankFormatWriter.Write(bank);
 }
 
 template<typename BankNumberType, typename BankObjectType>
@@ -282,28 +220,10 @@ void Set::SaveBanks(BankCollection<BankNumberType, BankObjectType>& bankCollecti
 {
 	for(const auto& bankEntry : bankCollection.Entries())
 	{
-		if(bankEntry.bank.saved)
-			continue;
-
 		auto dirPath = this->setPath / folderName;
 		auto path = dirPath / bankEntry.bankNumber.ToFileName();
-		if(bankEntry.bank.Objects() >> Any())
-		{
-			File banksDir(dirPath);
-			if(!banksDir.Exists())
-				banksDir.CreateDirectory();
 
-			StdXX::FileOutputStream fileOutputStream(path, true);
-			this->SaveBank(bankEntry.bank, fileOutputStream);
-		}
-		else
-		{
-			File bankFile(path);
-			if(bankFile.Exists())
-				bankFile.DeleteFile();
-		}
-
-		bankCollection[bankEntry.bankNumber].saved = true;
+		bankCollection[bankEntry.bankNumber].Save(path);
 	}
 }
 
@@ -312,7 +232,7 @@ void Set::SaveMultiSamples()
 	auto dirPath = this->setPath / String(u8"MULTISMP");
 	auto path = dirPath / String(u8"RAM.KMP");
 
-	if(this->multiSamples.IsNull())
+	if(this->multiSamples.IsNull() or this->multiSamples->IsEmpty())
 	{
 		File kmpFile(path);
 		if(kmpFile.Exists())

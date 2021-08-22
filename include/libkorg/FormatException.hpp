@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -16,25 +16,24 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "../StyleFormatReader.hpp"
 
-class StyleFormat0_0V5_0Reader : public StyleFormatReader
+namespace libKORG
 {
-public:
-	//Constructor
-	inline StyleFormat0_0V5_0Reader()
+	class FormatException : public StdXX::Exception
 	{
-		this->currentStyleElementNumber = 0;
-	}
+	public:
+		//Constructor
+		inline FormatException(const StdXX::String& message) : message(message)
+		{
+		}
 
-protected:
-	//Methods
-	void ReadDataChunk(const libKORG::ChunkHeader& chunkHeader, StdXX::DataReader &dataReader) override;
-	libKORG::ChunkReader* OnEnteringChunk(const libKORG::ChunkHeader& chunkHeader) override;
-	void OnLeavingChunk(const libKORG::ChunkHeader& chunkHeader) override;
+		StdXX::String Description() const override
+		{
+			return u8"Error while reading data: " + this->message;
+		}
 
-private:
-	//Members
-	StdXX::UniquePointer<libKORG::ChunkReader> subReader;
-	uint8 currentStyleElementNumber;
-};
+	private:
+		//Members
+		StdXX::String message;
+	};
+}

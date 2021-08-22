@@ -83,7 +83,7 @@ void TOCReader::ReadProperty(uint16 propertyType, uint16 propertySize, HeaderEnt
 		}
 		break;
 		case 2:
-			headerEntry.name = textReader.ReadStringBySize(propertySize);
+			headerEntry.name = textReader.ReadZeroTerminatedStringBySize(propertySize);
 			break;
 		case 3:
 		{

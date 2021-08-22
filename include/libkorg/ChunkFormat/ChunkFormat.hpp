@@ -61,7 +61,7 @@ namespace libKORG
 	enum class ChunkHeaderFlags : uint8
 	{
 		/**
-		 * Only sourceSet for the very first chunk of a bank format file
+		 * Only set for the very first chunk of a bank format file
 		 */
 		Unknown4 = 0x4,
 		/**
@@ -70,7 +70,7 @@ namespace libKORG
 		 */
 		Leaf = 0x8,
 		/**
-		 * Always sourceSet in bank files for every chunk but not the ones in the nested objects (i.e. styles etc.)
+		 * Always set in bank files for every chunk but not the ones in the nested objects (i.e. styles etc.)
 		 */
 		UnknownAlwaysSetInBankFile = 0x10,
 		OC31Compressed = 0x20,

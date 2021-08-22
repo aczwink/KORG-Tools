@@ -18,6 +18,9 @@ set(SOURCE_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/LegacyFormat0.0/LegacySoundFormat0_0Reader.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/LegacyFormat0.0/LegacySoundFormat0_0Reader.hpp
 
+	${CMAKE_CURRENT_SOURCE_DIR}/LegacyFormat0.2/LegacySoundFormat0_2Reader.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/LegacyFormat0.2/LegacySoundFormat0_2Reader.hpp
+
 	${CMAKE_CURRENT_SOURCE_DIR}/LegacyFormat0.3/LegacySoundFormat0_3Reader.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/LegacyFormat0.3/LegacySoundFormat0_3Reader.hpp
 

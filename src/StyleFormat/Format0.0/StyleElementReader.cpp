@@ -31,41 +31,38 @@ void StyleElementReader::ReadDataChunk(const libKORG::ChunkHeader &chunkHeader, 
 	switch(chunkHeader.type)
 	{
 		case 1:
-			this->ReadChordTable(chunkHeader.version, this->GetCurrentStyleElementData().chordTable, dataReader);
-			break;
+		{
+			auto& styleElementInfoData = this->GetCurrentStyleElementData().styleElementInfoData;
+			this->ReadStyleElementInfoData(chunkHeader.version, styleElementInfoData, dataReader);
+			this->remainingChordVariationFlags = styleElementInfoData.chordVariationsWithData;
+		}
+		break;
 		case 2:
 			this->ReadStyleTrackDataChunk(chunkHeader.version, dataReader);
 			break;
 		case 3:
+		{
+			while( (this->remainingChordVariationFlags & 1) == 0)
+			{
+				this->nextMasterMIDITrackNumber++;
+				this->remainingChordVariationFlags >>= 1;
+			}
+
+			this->nextMasterMIDITrackNumber++;
+			this->remainingChordVariationFlags >>= 1;
+
 			ASSERT_EQUALS(0, chunkHeader.version.AsUInt16());
 			this->ReadMasterMIDITrack(dataReader);
-			break;
+		}
+		break;
 	}
 }
 
 //Private methods
-void StyleElementReader::ReadChordTable(const ChunkVersion &chunkVersion, ChordTable &chordTable, DataReader &dataReader)
+void StyleElementReader::ReadChordTable(ChordTable& chordTable, DataReader &dataReader)
 {
-	switch(chunkVersion.AsUInt16())
-	{
-		case 0x0100:
-		case 0x0101:
-			this->ReadChordTableV1_1(chordTable, dataReader);
-			break;
-		case 0x0102:
-		case 0x0103:
-			this->ReadChordTableV1_1(chordTable, dataReader);
-			dataReader.InputStream().FlushTo(*chordTable.unknown.CreateOutputStream());
-			break;
-	}
-}
-
-void StyleElementReader::ReadChordTableV1_1(ChordTable& chordTable, DataReader &dataReader)
-{
-	chordTable.unknown1 = dataReader.ReadByte();
-	chordTable.unknown2 = dataReader.ReadByte();
-
-	ASSERT_EQUALS(24, dataReader.ReadByte()); //number of entries in the chord table
+	uint8 nEntries = dataReader.ReadByte();
+	ASSERT((nEntries == 22) or (nEntries == 24), String::Number(nEntries));
 
 	chordTable.majorCVIndex = dataReader.ReadByte();
 	chordTable.sixCVIndex = dataReader.ReadByte();
@@ -89,10 +86,17 @@ void StyleElementReader::ReadChordTableV1_1(ChordTable& chordTable, DataReader &
 	chordTable.M7sharp5CVIndex = dataReader.ReadByte();
 	chordTable.onePlusFiveCVIndex = dataReader.ReadByte();
 	chordTable.onePlusEightCVIndex = dataReader.ReadByte();
-	chordTable.b5CVIndex = dataReader.ReadByte();
-	chordTable.dim7CVIndex = dataReader.ReadByte();
 
-	chordTable.unknown3 = dataReader.ReadByte();
+	if(nEntries >= 24)
+	{
+		chordTable.b5CVIndex = dataReader.ReadByte();
+		chordTable.dim7CVIndex = dataReader.ReadByte();
+	}
+	else
+	{
+		chordTable.b5CVIndex = chordTable.seven_b5CVIndex;
+		chordTable.dim7CVIndex = chordTable.dimCVIndex;
+	}
 }
 
 void StyleElementReader::ReadKORG_MIDIEvents(uint16 dataLength, DynamicArray<KORG_MIDI_Event> &midiEvents, DataReader &dataReader)
@@ -116,7 +120,7 @@ void StyleElementReader::ReadMasterMIDITrack(DataReader &dataReader)
 	uint16 dataLength = dataReader.ReadUInt16();
 	this->ReadKORG_MIDIEvents(dataLength, midiTrack.events, dataReader);
 
-	auto&cv = this->GetCurrentChordVariationData();
+	auto &cv = this->GetCurrentChordVariationData();
 
 	uint8 nEntries = dataReader.ReadByte();
 	cv.trackMapping.Resize(nEntries);
@@ -125,26 +129,61 @@ void StyleElementReader::ReadMasterMIDITrack(DataReader &dataReader)
 		cv.trackMapping[i].type = static_cast<ChordVariationTrackType>(dataReader.ReadByte());
 		cv.trackMapping[i].trackNumber = static_cast<AccompanimentTrackNumber>(dataReader.ReadByte());
 	}
+}
 
-	this->nextMIDITrackNumber++;
+void StyleElementReader::ReadStyleElementInfoData(const ChunkVersion &chunkVersion, StyleElementInfoData& styleElementInfoData, DataReader &dataReader)
+{
+	styleElementInfoData.chordVariationsWithData = dataReader.ReadByte();
+
+	if(chunkVersion.major == 0)
+	{
+		ASSERT(Math::IsValueInInterval(chunkVersion.minor, 0_u8, 1_u8), String::Number(chunkVersion.minor));
+
+		uint8 ntt = dataReader.ReadByte();
+		auto& styleElementData = this->GetCurrentStyleElementData();
+		for(StyleTrackData& styleTrackData : styleElementData.styleTrackData)
+			styleTrackData.ntt = ntt;
+	}
+
+	styleElementInfoData.unknown2 = dataReader.ReadByte();
+	this->ReadChordTable(styleElementInfoData.chordTable, dataReader);
+
+	if(chunkVersion.AsUInt16() > 0)
+		styleElementInfoData.cueMode = static_cast<CueMode>(dataReader.ReadByte());
+
+	if(chunkVersion.major >= 1)
+	{
+		ASSERT_EQUALS(1, chunkVersion.major);
+		ASSERT(Math::IsValueInInterval(chunkVersion.minor, 0_u8, 3_u8), String::Number(chunkVersion.minor));
+
+		if(chunkVersion.minor >= 2)
+		{
+			dataReader.ReadBytes(styleElementInfoData.unknown4, sizeof(styleElementInfoData.unknown4));
+			dataReader.ReadBytes(styleElementInfoData.unknown5, sizeof(styleElementInfoData.unknown5));
+		}
+
+		if(chunkVersion.minor >= 3)
+			styleElementInfoData.unknown6 = dataReader.ReadByte();
+	}
 }
 
 void StyleElementReader::ReadStyleTrackDataChunk(const ChunkVersion &chunkVersion, DataReader &dataReader)
 {
-	switch (chunkVersion.AsUInt16())
+	ASSERT_EQUALS(0, chunkVersion.major);
+	ASSERT(Math::IsValueInInterval(chunkVersion.minor, 0_u8, 4_u8), String::Number(chunkVersion.minor));
+
+	this->ReadStyleTrackDataChunkV0_0(dataReader);
+	if(chunkVersion.minor >= 1)
+		this->ReadStyleTrackDataChunkV0_1(dataReader);
+	if(chunkVersion.minor >= 2)
+		this->ReadStyleTrackDataChunkV0_2(dataReader);
+	if(chunkVersion.minor >= 3)
+		this->ReadStyleTrackDataChunkV0_3(dataReader);
+	if(chunkVersion.minor >= 4)
 	{
-		case 0x0002:
-			this->ReadStyleTrackDataChunkV0_0(dataReader);
-			this->ReadStyleTrackDataChunkV0_1(dataReader);
-			this->ReadStyleTrackDataChunkV0_2(dataReader);
-			break;
-		case 0x0003:
-		case 0x0004:
-			this->ReadStyleTrackDataChunkV0_0(dataReader);
-			this->ReadStyleTrackDataChunkV0_1(dataReader);
-			this->ReadStyleTrackDataChunkV0_2(dataReader);
-			this->ReadStyleTrackDataChunkV0_3(dataReader);
-			break;
+		auto& styleElementData = this->GetCurrentStyleElementData();
+		for(StyleTrackData& styleTrackData : styleElementData.styleTrackData)
+			styleTrackData.unknown4 = dataReader.ReadByte();
 	}
 }
 
@@ -182,7 +221,7 @@ void StyleElementReader::ReadStyleTrackDataChunkV0_2(DataReader &dataReader)
 
 	for(uint8 i = 0; i < 8; i++)
 	{
-		styleElementData.styleTrackData[i].unknown2 = dataReader.ReadByte();
+		styleElementData.styleTrackData[i].ntt = dataReader.ReadByte();
 	}
 }
 
@@ -190,6 +229,8 @@ void StyleElementReader::ReadStyleTrackDataChunkV0_3(DataReader &dataReader)
 {
 	auto& styleElementData = this->GetCurrentStyleElementData();
 
-	auto output = styleElementData.unknown3.CreateOutputStream();
-	dataReader.InputStream().FlushTo(*output);
+	for(uint8 i = 0; i < 8; i++)
+	{
+		styleElementData.styleTrackData[i].unknown3 = dataReader.ReadByte();
+	}
 }

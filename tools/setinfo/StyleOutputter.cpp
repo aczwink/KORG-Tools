@@ -41,8 +41,6 @@ void StyleOutputter::Output(const ChordTable &chordTable)
 {
 	Section chunkSection(u8"Chord table", this->formattedOutputter);
 
-	this->formattedOutputter.OutputProperty(u8"unknown1", chordTable.unknown1);
-	this->formattedOutputter.OutputProperty(u8"unknown2", chordTable.unknown2);
 	this->formattedOutputter.OutputProperty(u8"majorCVIndex", chordTable.majorCVIndex);
 	this->formattedOutputter.OutputProperty(u8"sixCVIndex", chordTable.sixCVIndex);
 	this->formattedOutputter.OutputProperty(u8"M7CVIndex", chordTable.M7CVIndex);
@@ -67,32 +65,27 @@ void StyleOutputter::Output(const ChordTable &chordTable)
 	this->formattedOutputter.OutputProperty(u8"onePlusEightCVIndex", chordTable.onePlusEightCVIndex);
 	this->formattedOutputter.OutputProperty(u8"b5CVIndex", chordTable.b5CVIndex);
 	this->formattedOutputter.OutputProperty(u8"dim7CVIndex", chordTable.dim7CVIndex);
-	this->formattedOutputter.OutputProperty(u8"unknown3", chordTable.unknown3);
+}
+
+void StyleOutputter::Output(uint32 index, const ChordVariationData &data)
+{
+	Section cvSection(u8"Chord variation " + String::Number(index+1), this->formattedOutputter);
+
+	this->Output(data.masterMidiTrack);
+
+	{
+		Section trackMappingSection(u8"Track mapping", this->formattedOutputter);
+		for(uint32 i = 0; i < data.trackMapping.GetNumberOfElements(); i++)
+		{
+			this->formattedOutputter.OutputProperty(u8"track type " + String::Number(i), this->ToString(data.trackMapping[i].type));
+			this->formattedOutputter.OutputProperty(u8"track number " + String::Number(i), AccompanimentTrackNumberToAbbreviatedString(data.trackMapping[i].trackNumber));
+		}
+	}
 }
 
 void StyleOutputter::Output(const StyleData &styleData)
 {
-	{
-		Section chunkSection(u8"StyleInfoData", this->formattedOutputter);
-
-		auto& data = styleData.styleInfoData;
-		this->formattedOutputter.OutputProperty(u8"name", data.name);
-		this->formattedOutputter.OutputProperty(u8"unknown111", data.unknown111);
-		this->formattedOutputter.OutputProperty(u8"unknown3", data.unknown3);
-		this->formattedOutputter.OutputProperty(u8"enabledStyleElements", data.enabledStyleElements);
-		this->formattedOutputter.OutputProperty(u8"unknown6", data.unknown6);
-		this->formattedOutputter.OutputProperty(u8"unknown7", data.unknown7);
-		this->formattedOutputter.OutputProperty(u8"unknown8", data.unknown8);
-		this->formattedOutputter.OutputProperty(u8"unknown9", data.unknown9);
-		this->formattedOutputter.OutputProperty(u8"unknown10", data.unknown10);
-		this->formattedOutputter.OutputProperty(u8"unknown11", data.unknown11);
-		this->formattedOutputter.OutputProperty(u8"unknown12", data.unknown12);
-		this->formattedOutputter.OutputProperty(u8"unknown13", data.unknown13);
-		this->formattedOutputter.OutputProperty(u8"unknown14", data.unknown14);
-		this->formattedOutputter.OutputProperty(u8"unknown15", data.unknown15);
-		this->formattedOutputter.OutputProperty(u8"unknown16", data.unknown16);
-		this->formattedOutputter.OutputProperty(u8"unknown19", data.unknown19);
-	}
+	this->Output(styleData.styleInfoData);
 
 	{
 		Section chunkSection(u8"MIDI track mapping", this->formattedOutputter);
@@ -111,18 +104,64 @@ void StyleOutputter::Output(const StyleData &styleData)
 		}
 	}
 
+	StyleView styleView(styleData);
+
 	Section styleElements(u8"Style elements", this->formattedOutputter);
 	for(uint8 i = 0; i < 4; i++)
 	{
+		if(!styleView.IsVariationDataAvailable(i))
+			continue;
+
 		Section variationSection(u8"Variation " + String::Number(i+1), this->formattedOutputter);
 		this->Output(styleData.variation[i]);
 	}
 
 	for(uint8 i = 0; i < 11; i++)
 	{
-		Section styleElementSection(this->ToString((StyleElementNumber)i), this->formattedOutputter);
+		auto styleElementNumber = (StyleElementNumber)i;
+		if(!styleView.IsStyleElementDataAvailable(styleElementNumber))
+			continue;
+
+		Section styleElementSection(this->ToString(styleElementNumber), this->formattedOutputter);
 		this->Output(styleData.styleElements[i]);
 	}
+}
+
+void StyleOutputter::Output(const StyleElementInfoData& styleElementInfoData)
+{
+	Section chunkSection(u8"StyleElementInfoData", this->formattedOutputter);
+
+	this->formattedOutputter.OutputProperty(u8"chordVariationsWithData", styleElementInfoData.chordVariationsWithData);
+	this->formattedOutputter.OutputProperty(u8"unknown2", styleElementInfoData.unknown2);
+	this->Output(styleElementInfoData.chordTable);
+	this->formattedOutputter.OutputProperty(u8"cueMode", (uint8)styleElementInfoData.cueMode);
+	this->formattedOutputter.OutputUnknownProperties(styleElementInfoData.unknown4, sizeof(styleElementInfoData.unknown4));
+	this->formattedOutputter.OutputUnknownProperties(styleElementInfoData.unknown5, sizeof(styleElementInfoData.unknown5));
+	this->formattedOutputter.OutputProperty(u8"unknown6", styleElementInfoData.unknown6);
+}
+
+void StyleOutputter::Output(const StyleInfoData& styleInfoData)
+{
+	auto& data = styleInfoData;
+
+	Section chunkSection(u8"StyleInfoData", this->formattedOutputter);
+
+	this->formattedOutputter.OutputProperty(u8"name", data.name);
+	this->formattedOutputter.OutputProperty(u8"unknown111", data.unknown111);
+	this->formattedOutputter.OutputProperty(u8"unknown3", data.unknown3);
+	this->formattedOutputter.OutputProperty(u8"enabledStyleElements", data.enabledStyleElements);
+	this->formattedOutputter.OutputProperty(u8"unknown6", data.unknown6);
+	this->formattedOutputter.OutputProperty(u8"unknown7", data.unknown7);
+	this->formattedOutputter.OutputProperty(u8"unknown8", data.unknown8);
+	this->formattedOutputter.OutputProperty(u8"unknown9", data.unknown9);
+	this->formattedOutputter.OutputProperty(u8"unknown10", data.unknown10);
+	this->formattedOutputter.OutputProperty(u8"unknown11", data.unknown11);
+	this->formattedOutputter.OutputProperty(u8"unknown12", data.unknown12);
+	this->formattedOutputter.OutputProperty(u8"unknown13", data.unknown13);
+	this->formattedOutputter.OutputProperty(u8"unknown14", data.unknown14);
+	this->formattedOutputter.OutputProperty(u8"unknown15", data.unknown15);
+	this->formattedOutputter.OutputProperty(u8"unknown16", data.unknown16);
+	this->formattedOutputter.OutputProperty(u8"styleElementsWithData", data.styleElementsWithData);
 }
 
 void StyleOutputter::Output(const MasterMIDI_Track &midiTrack)
@@ -245,8 +284,8 @@ void StyleOutputter::Output(const VariationStyleElementData& data)
 
 	for(uint32 i = 0; i < 6; i++)
 	{
-		Section cvSection(u8"Chord variation " + String::Number(i+1), this->formattedOutputter);
-		this->Output(data.cv[i]);
+		if(data.styleElementInfoData.IsChordVariationDataAvailable(i))
+			this->Output(i, data.cv[i]);
 	}
 }
 
@@ -256,28 +295,14 @@ void StyleOutputter::Output(const StyleElementData &data)
 
 	for(uint32 i = 0; i < 2; i++)
 	{
-		Section cvSection(u8"Chord variation " + String::Number(i+1), this->formattedOutputter);
-		this->Output(data.cv[i]);
-	}
-}
-
-void StyleOutputter::Output(const ChordVariationData &data)
-{
-	this->Output(data.masterMidiTrack);
-
-	{
-		Section trackMappingSection(u8"Track mapping", this->formattedOutputter);
-		for(uint32 i = 0; i < data.trackMapping.GetNumberOfElements(); i++)
-		{
-			this->formattedOutputter.OutputProperty(u8"track type " + String::Number(i), static_cast<uint8>(data.trackMapping[i].type));
-			this->formattedOutputter.OutputProperty(u8"track number " + String::Number(i), static_cast<uint8>(data.trackMapping[i].trackNumber));
-		}
+		if(data.styleElementInfoData.IsChordVariationDataAvailable(i))
+			this->Output(i, data.cv[i]);
 	}
 }
 
 void StyleOutputter::OutputGeneralStyleElementData(const GeneralStyleElementData &data)
 {
-	this->Output(data.chordTable);
+	this->Output(data.styleElementInfoData);
 
 	for(uint32 i = 0; i < 8; i++)
 	{
@@ -286,6 +311,8 @@ void StyleOutputter::OutputGeneralStyleElementData(const GeneralStyleElementData
 		this->formattedOutputter.OutputProperty(u8"soundProgramChangeSeq", data.styleTrackData[i].soundProgramChangeSeq.ToString());
 		this->formattedOutputter.OutputProperty(u8"keyboardRangeBottom", data.styleTrackData[i].keyboardRangeBottom);
 		this->formattedOutputter.OutputProperty(u8"keyboardRangeTop", data.styleTrackData[i].keyboardRangeTop);
+		this->formattedOutputter.OutputProperty(u8"NTT_type", (uint8)data.styleTrackData[i].ntt.Type());
+		this->formattedOutputter.OutputProperty(u8"NTT_table", (data.styleTrackData[i].ntt.Type() == NTT_Type::Parallel) ? (uint8)data.styleTrackData[i].ntt.TableParallel() : (uint8)data.styleTrackData[i].ntt.TableFixed());
 	}
 
 	for(uint32 i = 0; i < 8; i++)
@@ -297,16 +324,25 @@ void StyleOutputter::OutputGeneralStyleElementData(const GeneralStyleElementData
 
 	for(uint32 i = 0; i < 8; i++)
 	{
-		Section section(u8"unknown2_" + String::Number(i), this->formattedOutputter);
+		Section section(u8"unknown3_" + String::Number(i), this->formattedOutputter);
 
-		this->formattedOutputter.OutputProperty(u8"unknown2", data.styleTrackData[i].unknown2);
+		this->formattedOutputter.OutputProperty(u8"unknown3", data.styleTrackData[i].unknown3);
 	}
+}
 
+String StyleOutputter::ToString(ChordVariationTrackType trackType) const
+{
+	switch(trackType)
 	{
-		Section chunkSection(u8"unknown data", this->formattedOutputter);
-
-		this->formattedOutputter.OutputUnknownProperties(data.unknown3);
+		case ChordVariationTrackType::DrumOrPerc:
+			return u8"DRUM/PERC";
+		case ChordVariationTrackType::Bass:
+			return u8"BASS";
+		case ChordVariationTrackType::Accompany:
+			return u8"ACC";
 	}
+
+	RAISE(ErrorHandling::IllegalCodePathError);
 }
 
 String StyleOutputter::ToString(StyleElementNumber styleElementNumber) const

@@ -28,30 +28,32 @@ namespace libKORG
 		//Methods
 		void ReadData(StdXX::InputStream& inputStream);
 
+		//Functions
+		static inline uint32 ReadFourCC(StdXX::InputStream& inputStream)
+		{
+			return CreateFourCCReader(inputStream).ReadUInt32();
+		}
+
+		static StdXX::UniquePointer<StdXX::InputStream> ReadNextChunk(StdXX::InputStream& inputStream, ChunkHeader& chunkHeader);
+
 	protected:
 		//Abstract
 		virtual ChunkReader* OnEnteringChunk(const ChunkHeader& chunkHeader) = 0;
 		virtual void ReadDataChunk(const ChunkHeader& chunkHeader, StdXX::DataReader& dataReader) = 0;
 
 		//Overrideable
-		virtual bool IsDataChunk(const ChunkHeader& chunkHeader);
 		virtual void OnLeavingChunk(const ChunkHeader& chunkHeader);
-
-		//Inline
-		inline uint32 ReadFourCC(StdXX::InputStream& inputStream)
-		{
-			return this->CreateFourCCReader(inputStream).ReadUInt32();
-		}
 
 	private:
 		//Methods
-		ChunkHeader ReadChunkHeader(StdXX::DataReader& dataReader);
 		void ReadChunks(StdXX::InputStream& inputStream);
 
-		//Inline
-		inline StdXX::DataReader CreateFourCCReader(StdXX::InputStream &inputStream)
+		//Functions
+		static inline StdXX::DataReader CreateFourCCReader(StdXX::InputStream &inputStream)
 		{
 			return StdXX::DataReader(false, inputStream);
 		}
+
+		static ChunkHeader ReadChunkHeader(StdXX::DataReader& dataReader);
 	};
 }

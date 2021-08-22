@@ -33,8 +33,8 @@ public:
 
 private:
 	//Methods
-	void Write0x00010008Chunk(const libKORG::Performance::V0::PerformanceData& performanceData);
-	void Write0x02000108Chunk(const libKORG::Performance::V0::PerformanceData& performanceData);
+	void Write0x00010008Chunk(const libKORG::Performance::V0::GeneralData& generalData, const StdXX::DynamicArray<libKORG::Performance::V0::KeyboardSettings>& keyboardSettings);
+	void Write0x02000108Chunk(const libKORG::Performance::V0::GeneralData& performanceData);
 	void WriteAccompanimentSettings(const libKORG::Performance::V0::GeneralData& generalData);
 	void WriteEffectGroup(const libKORG::Performance::V0::FXGroup& fxGroup);
 	void WriteKeyboardSettings(const libKORG::Performance::V0::KeyboardSettings& keyboardSettings);

@@ -37,5 +37,11 @@ namespace libKORG
 		inline MultiSamplesObject(MultiSamples::MultiSamplesData&& data) : data(StdXX::Move(data))
 		{
 		}
+
+		//Inline
+		inline bool IsEmpty() const
+		{
+			return this->data.sampleEntries.IsEmpty() and this->data.keyboardZones.IsEmpty() and this->data.multiSampleEntries.IsEmpty() and this->data.drumSampleEntries.IsEmpty();
+		}
 	};
 }

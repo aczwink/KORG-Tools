@@ -23,9 +23,9 @@
 void ResourceImporter::ImportPerformance(const PerformanceBankNumber &bankNumber, uint8 pos)
 {
 	const auto& performanceEntry = this->sourceSet.performanceBanks[bankNumber][pos];
-	const PerformanceObject& performanceObject = *performanceEntry.object;
+	const PerformanceObject& performanceObject = performanceEntry.Object();
 
-	stdOut << u8"Importing performance: " << performanceEntry.name << endl;
+	stdOut << u8"Importing performance: " << performanceEntry.Name() << endl;
 
 	BankSlot<PerformanceBankNumber> sourceSlot = {bankNumber, pos};
 	const auto slot = this->targetSet.performanceBanks.FindFreeSlot(this->config.performanceInsertSlot.HasValue() ? this->config.performanceInsertSlot.Value() : sourceSlot);
@@ -39,10 +39,10 @@ void ResourceImporter::ImportPerformance(const PerformanceBankNumber &bankNumber
 	switch(performanceObject.Version())
 	{
 		case 0:
-			success = this->ImportPerformanceData(performanceObject.V0Data(), *slot, performanceEntry.name);
+			success = this->ImportPerformanceData(performanceObject.V0Data(), *slot, performanceEntry.Name());
 			break;
 		case 1:
-			success = this->ImportPerformanceData(performanceObject.V1Data(), *slot, performanceEntry.name);
+			success = this->ImportPerformanceData(performanceObject.V1Data(), *slot, performanceEntry.Name());
 			break;
 		default:
 			NOT_IMPLEMENTED_ERROR; //TODO: implement me
@@ -50,18 +50,18 @@ void ResourceImporter::ImportPerformance(const PerformanceBankNumber &bankNumber
 
 	if(success)
 	{
-		stdOut << u8"Successfully imported performance '" << performanceEntry.name << u8"' to slot: " << slot->bankNumber.ToString() << u8", " << slot->pos << endl;
+		stdOut << u8"Successfully imported performance '" << performanceEntry.Name() << u8"' to slot: " << slot->bankNumber.ToString() << u8", " << slot->pos << endl;
 
 		this->SaveChanges();
 	}
 }
 
-void ResourceImporter::ImportStyle(const StyleBankNumber &bankNumber, uint8 pos)
+void ResourceImporter::ImportStyle(const StyleBankNumber &bankNumber, uint8 pos, bool ignoreSTSSounds)
 {
 	const auto& styleEntry = this->sourceSet.styleBanks[bankNumber][pos];
-	const FullStyle& fullStyle = *styleEntry.object;
+	const FullStyle& fullStyle = styleEntry.Object();
 
-	stdOut << u8"Importing style: " << styleEntry.name << endl;
+	stdOut << u8"Importing style: " << styleEntry.Name() << endl;
 
 	BankSlot<StyleBankNumber> sourceSlot = {bankNumber, pos};
 	const auto slot = this->targetSet.styleBanks.FindFreeSlot(this->config.styleInsertSlot.HasValue() ? this->config.styleInsertSlot.Value() : sourceSlot);
@@ -101,8 +101,14 @@ void ResourceImporter::ImportStyle(const StyleBankNumber &bankNumber, uint8 pos)
 			styleTrackData.soundProgramChangeSeq = this->MapSoundProgramChangeSequence(styleTrackData.soundProgramChangeSeq);
 	}
 
-	this->targetSet.styleBanks[slot->bankNumber].SetObject(styleEntry.name, slot->pos, new FullStyle(new StyleObject(Move(newStyleData)), new SingleTouchSettings(new Performance::V1::STSData)));
-	stdOut << u8"Successfully imported style '" << styleEntry.name << u8"' to slot: " << slot->bankNumber.ToString() << u8", " << slot->pos << endl;
+	stdOut << u8"Importing STS: " << styleEntry.Name() << endl;
+
+	UniquePointer<SingleTouchSettings> sts = this->ImportSTS(fullStyle.STS(), ignoreSTSSounds);
+	if(sts.IsNull())
+		sts = new SingleTouchSettings(new Performance::V1::STSData);
+
+	this->targetSet.styleBanks[slot->bankNumber].SetObject(styleEntry.Name(), slot->pos, new FullStyle(new StyleObject(Move(newStyleData)), Move(sts)));
+	stdOut << u8"Successfully imported style '" << styleEntry.Name() << u8"' to slot: " << slot->bankNumber.ToString() << u8", " << slot->pos << endl;
 
 	this->SaveChanges();
 }
@@ -114,7 +120,7 @@ Optional<BankSlot<SoundBankNumber>> ResourceImporter::FindSoundLocation(const So
 	{
 		for(const auto& objectEntry : bankEntry.bank.Objects())
 		{
-			if(objectEntry.object->data == soundData)
+			if(objectEntry.Object().data == soundData)
 				return {{.bankNumber = bankEntry.bankNumber, .pos = objectEntry.pos}};
 		}
 	}
@@ -188,7 +194,7 @@ bool ResourceImporter::ImportSample(uint64 id)
 	}
 
 	const auto& entry = this->sourceSet.sampleBanks[sourceLocation.bankNumber][sourceLocation.pos];
-	uint32 requiredSize = this->targetSet.ComputeUsedSampleRAMSize() + entry.object->GetSize();
+	uint32 requiredSize = this->targetSet.ComputeUsedSampleRAMSize() + entry.Object().GetSize();
 	uint32 availableSize = this->targetSet.model.GetSampleRAMSize() * MiB;
 	if(requiredSize > availableSize)
 	{
@@ -196,7 +202,7 @@ bool ResourceImporter::ImportSample(uint64 id)
 		return false;
 	}
 
-	this->targetSet.sampleBanks[slot->bankNumber].SetObject(entry.name, slot->pos, entry.object);
+	this->targetSet.sampleBanks[slot->bankNumber].SetObject(entry.Name(), slot->pos, entry.Object().Clone());
 
 	uint32 index = this->targetSet.MultiSamples().data.sampleEntries.Push(sampleEntry);
 	this->importedSampleIds.Insert(id, index);
@@ -212,9 +218,9 @@ bool ResourceImporter::ImportSound(const ProgramChangeSequence &programChangeSeq
 		return true;
 
 	const auto& soundEntry = this->sourceSet.soundBanks[sourceLocation->bankNumber][sourceLocation->pos];
-	const SoundObject& soundObject = *soundEntry.object;
+	const SoundObject& soundObject = soundEntry.Object();
 
-	stdOut << u8"-Importing sound: " << soundEntry.name << endl;
+	stdOut << u8"-Importing sound: " << soundEntry.Name() << endl;
 	const auto slot = this->targetSet.soundBanks.FindFreeSlot(this->config.soundInsertSlot.HasValue() ? this->config.soundInsertSlot.Value() : *sourceLocation);
 	if(!slot.HasValue())
 	{
@@ -237,15 +243,15 @@ bool ResourceImporter::ImportSound(const ProgramChangeSequence &programChangeSeq
 	auto findResult = this->FindSoundLocation(newSound);
 	if(findResult.HasValue())
 	{
-		stdOut << u8"-Skipping sound '" << soundEntry.name << u8"' because it already exists" << endl;
+		stdOut << u8"-Skipping sound '" << soundEntry.Name() << u8"' because it already exists" << endl;
 		this->importedSounds.Insert(programChangeSequence, Set::CreateRAMSoundProgramChangeSequence(findResult->bankNumber, findResult->pos));
 		return true;
 	}
 
-	this->targetSet.soundBanks[slot->bankNumber].SetObject(soundEntry.name, slot->pos, new SoundObject(Move(newSound)));
+	this->targetSet.soundBanks[slot->bankNumber].SetObject(soundEntry.Name(), slot->pos, new SoundObject(Move(newSound)));
 	this->importedSounds.Insert(programChangeSequence, Set::CreateRAMSoundProgramChangeSequence(slot->bankNumber, slot->pos));
 
-	stdOut << u8"-Successfully imported sound '" << soundEntry.name << u8"' to slot: " << slot->bankNumber.ToString() << u8", " << slot->pos << endl;
+	stdOut << u8"-Successfully imported sound '" << soundEntry.Name() << u8"' to slot: " << slot->bankNumber.ToString() << u8", " << slot->pos << endl;
 	return true;
 }
 
@@ -266,6 +272,19 @@ bool ResourceImporter::ImportSoundDependencies(const Sound::SoundData& soundData
 	}
 	ASSERT_EQUALS(false, soundData.drumKitData.HasValue()); //TODO: implement importing drum kits
 	return true;
+}
+
+UniquePointer<SingleTouchSettings> ResourceImporter::ImportSTS(const SingleTouchSettings& sts, bool ignoreSTSSounds)
+{
+	switch(sts.Version())
+	{
+		case 0:
+			return this->ImportSTSData(sts.V0Data(), ignoreSTSSounds);
+		case 1:
+			return this->ImportSTSData(sts.V1Data(), ignoreSTSSounds);
+		default:
+			NOT_IMPLEMENTED_ERROR; //TODO: implement me
+	}
 }
 
 void ResourceImporter::SaveChanges()

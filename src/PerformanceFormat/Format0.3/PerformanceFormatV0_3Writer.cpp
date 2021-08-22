@@ -21,46 +21,57 @@
 //Namespaces
 using namespace libKORG;
 using namespace libKORG::Performance::V0;
+using namespace StdXX;
 
 //Public methods
 void PerformanceFormatV0_3Writer::Write(const PerformanceObject &performanceObject)
 {
-	this->Write0x00010008Chunk(performanceObject.V0Data());
+	DynamicArray<KeyboardSettings> keyboardSettings;
+	keyboardSettings.Push(performanceObject.V0Data().keyboardSettings);
+
+	this->Write0x00010008Chunk(performanceObject.V0Data(), keyboardSettings);
 	this->Write0x02000108Chunk(performanceObject.V0Data());
 }
 
 void PerformanceFormatV0_3Writer::Write(const libKORG::SingleTouchSettings &singleTouchSettings)
 {
-	NOT_IMPLEMENTED_ERROR; //TODO: implement me
+	DynamicArray<KeyboardSettings> keyboardSettings;
+	for(uint8 i = 0; i < 4; i++)
+		keyboardSettings.Push(singleTouchSettings.V0Data().keyboardSettings[i]);
+
+	this->Write0x00010008Chunk(singleTouchSettings.V0Data(), keyboardSettings);
+	this->Write0x02000108Chunk(singleTouchSettings.V0Data());
 }
 
 //Private methods
-void PerformanceFormatV0_3Writer::Write0x00010008Chunk(const Performance::V0::PerformanceData &performanceData)
+void PerformanceFormatV0_3Writer::Write0x00010008Chunk(const GeneralData& generalData, const DynamicArray<KeyboardSettings>& keyboardSettings)
 {
 	this->BeginChunk(0, 1, 0, ChunkHeaderFlags::Leaf);
 
-	this->dataWriter.WriteUInt32(performanceData.unknown1);
-	this->dataWriter.WriteUInt32(performanceData.unknown2);
-	this->dataWriter.WriteUInt32(performanceData.unknown3);
-	this->dataWriter.WriteByte(1);
-	this->dataWriter.WriteByte(performanceData.unknown4);
+	this->dataWriter.WriteUInt32(generalData.unknown1);
+	this->dataWriter.WriteUInt32(generalData.unknown2);
+	this->dataWriter.WriteUInt32(generalData.unknown3);
+	this->dataWriter.WriteByte(keyboardSettings.GetNumberOfElements());
+	this->dataWriter.WriteByte(generalData.unknown4);
 
-	this->dataWriter.WriteBytes(performanceData.unknownPart1.unknown1, sizeof(performanceData.unknownPart1.unknown1));
-	this->dataWriter.WriteBytes(performanceData.unknownPart1.unknown2, sizeof(performanceData.unknownPart1.unknown2));
-	this->dataWriter.WriteBytes(performanceData.unknownPart1.unknown3, sizeof(performanceData.unknownPart1.unknown3));
-	this->dataWriter.WriteBytes(performanceData.unknownPart1.unknown4, sizeof(performanceData.unknownPart1.unknown4));
-	this->dataWriter.WriteBytes(performanceData.unknownPart1.unknown5, sizeof(performanceData.unknownPart1.unknown5));
-	this->dataWriter.WriteBytes(performanceData.unknownPart1.unknown6, sizeof(performanceData.unknownPart1.unknown6));
+	this->dataWriter.WriteBytes(generalData.unknownPart1.unknown1, sizeof(generalData.unknownPart1.unknown1));
+	this->dataWriter.WriteBytes(generalData.unknownPart1.unknown2, sizeof(generalData.unknownPart1.unknown2));
+	this->dataWriter.WriteBytes(generalData.unknownPart1.unknown3, sizeof(generalData.unknownPart1.unknown3));
+	this->dataWriter.WriteBytes(generalData.unknownPart1.unknown4, sizeof(generalData.unknownPart1.unknown4));
+	this->dataWriter.WriteBytes(generalData.unknownPart1.unknown5, sizeof(generalData.unknownPart1.unknown5));
+	this->dataWriter.WriteBytes(generalData.unknownPart1.unknown6, sizeof(generalData.unknownPart1.unknown6));
 
-	this->WriteAccompanimentSettings(performanceData);
-	this->WriteKeyboardSettings(performanceData.keyboardSettings);
+	this->WriteAccompanimentSettings(generalData);
 
-	this->dataWriter.WriteUInt32(performanceData.unknown99);
+	for(const auto& keyboardSettingsPart : keyboardSettings)
+		this->WriteKeyboardSettings(keyboardSettingsPart);
+
+	this->dataWriter.WriteUInt32(generalData.unknown99);
 
 	this->EndChunk();
 }
 
-void PerformanceFormatV0_3Writer::Write0x02000108Chunk(const Performance::V0::PerformanceData &performanceData)
+void PerformanceFormatV0_3Writer::Write0x02000108Chunk(const Performance::V0::GeneralData &performanceData)
 {
 	this->BeginChunk(2, 0, 1, ChunkHeaderFlags::Leaf);
 
@@ -155,7 +166,7 @@ void PerformanceFormatV0_3Writer::WriteAccompanimentSettings(const Performance::
 
 	for(uint8 i = 0; i < 8; i++)
 	{
-		this->WriteTrackSettings(generalData.unknownPart8[i]);
+		this->WriteTrackSettings(generalData.accompanimentSettings.trackSettings[i]);
 	}
 }
 

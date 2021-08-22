@@ -36,10 +36,18 @@ void StyleFormat0_0V5_0Writer::Write(const StyleData &styleData)
 		this->WriteMIDITrack(midiTrack);
 	this->EndChunk();
 
+	uint16 remainingStyleElementsFlags = styleData.styleInfoData.styleElementsWithData;
+
 	for(const auto & variation : styleData.variation)
-		this->WriteStyleElement(variation);
+	{
+		if(this->HasStyleElementData(remainingStyleElementsFlags))
+			this->WriteStyleElement(variation);
+	}
 	for(const auto & styleElement : styleData.styleElements)
-		this->WriteStyleElement(styleElement);
+	{
+		if(this->HasStyleElementData(remainingStyleElementsFlags))
+			this->WriteStyleElement(styleElement);
+	}
 
 	this->EndChunk();
 }
@@ -83,23 +91,14 @@ void StyleFormat0_0V5_0Writer::Write0x1000308Chunk(const StyleData& styleData)
 	this->dataWriter.WriteByte(data.unknown14);
 	this->dataWriter.WriteByte(data.unknown15);
 	this->dataWriter.WriteByte(data.unknown16);
-	this->dataWriter.WriteInt16(data.unknown19);
+	this->dataWriter.WriteUInt16(data.styleElementsWithData);
 
 	this->EndChunk();
 }
 
 void StyleFormat0_0V5_0Writer::Write0x2000308Chunk(const GeneralStyleElementData &styleElementData)
 {
-	uint8 versionMinor;
-	switch(styleElementData.unknown3.Size())
-	{
-		case 0:
-			versionMinor = 2;
-			break;
-		default:
-			NOT_IMPLEMENTED_ERROR;
-	}
-	this->BeginChunk(2, 0, versionMinor, ChunkHeaderFlags::Leaf);
+	this->BeginChunk(2, 0, 4, ChunkHeaderFlags::Leaf);
 
 	for(const StyleTrackData& styleTrackData : styleElementData.styleTrackData)
 	{
@@ -108,37 +107,28 @@ void StyleFormat0_0V5_0Writer::Write0x2000308Chunk(const GeneralStyleElementData
 		this->dataWriter.WriteByte(styleTrackData.keyboardRangeBottom.Encode());
 		this->dataWriter.WriteByte(styleTrackData.keyboardRangeTop.Encode());
 	}
-	for(uint8 i = 0; i < 8; i++)
+	for(const auto& styleTrackData : styleElementData.styleTrackData)
 	{
-		this->dataWriter.WriteBytes(styleElementData.styleTrackData[i].unknown1, sizeof(styleElementData.styleTrackData[i].unknown1));
+		this->dataWriter.WriteBytes(styleTrackData.unknown1, sizeof(styleTrackData.unknown1));
 	}
-	for(uint8 i = 0; i < 8; i++)
+	for(const auto& styleTrackData : styleElementData.styleTrackData)
 	{
-		this->dataWriter.WriteByte(styleElementData.styleTrackData[i].unknown2);
+		this->dataWriter.WriteByte(styleTrackData.ntt.Encoded().value);
 	}
-	styleElementData.unknown3.CreateInputStream()->FlushTo(this->outputStream);
+	for(const auto& styleTrackData : styleElementData.styleTrackData)
+	{
+		this->dataWriter.WriteByte(styleTrackData.unknown3);
+	}
+	for(const auto& styleTrackData : styleElementData.styleTrackData)
+	{
+		this->dataWriter.WriteByte(styleTrackData.unknown4);
+	}
 
 	this->EndChunk();
 }
 
 void StyleFormat0_0V5_0Writer::WriteChordTable(const ChordTable& chordTable)
 {
-	uint8 versionMinor = 1;
-	switch (chordTable.unknown.Size())
-	{
-		case 15:
-			versionMinor = 2;
-			break;
-		case 16:
-			versionMinor = 3;
-			break;
-	}
-
-	this->BeginChunk(1, 1, versionMinor, ChunkHeaderFlags::Leaf);
-
-	this->dataWriter.WriteByte(chordTable.unknown1);
-	this->dataWriter.WriteByte(chordTable.unknown2);
-
 	this->dataWriter.WriteByte(24);
 
 	this->dataWriter.WriteByte(chordTable.majorCVIndex);
@@ -165,11 +155,6 @@ void StyleFormat0_0V5_0Writer::WriteChordTable(const ChordTable& chordTable)
 	this->dataWriter.WriteByte(chordTable.onePlusEightCVIndex);
 	this->dataWriter.WriteByte(chordTable.b5CVIndex);
 	this->dataWriter.WriteByte(chordTable.dim7CVIndex);
-	this->dataWriter.WriteByte(chordTable.unknown3);
-
-	chordTable.unknown.CreateInputStream()->FlushTo(this->dataWriter.Stream());
-
-	this->EndChunk();
 }
 
 void StyleFormat0_0V5_0Writer::WriteChordVariationData(const ChordVariationData &cv)
@@ -332,10 +317,15 @@ void StyleFormat0_0V5_0Writer::WriteStyleElement(const VariationStyleElementData
 {
 	this->BeginChunk(3, 0, 0, 0);
 
-	this->WriteChordTable(styleElementData.chordTable);
+	this->WriteStyleElementInfoData(styleElementData.styleElementInfoData);
 	this->Write0x2000308Chunk(styleElementData);
+
+	uint8 chordVariationsWithData = styleElementData.styleElementInfoData.chordVariationsWithData;
 	for(const ChordVariationData& cv : styleElementData.cv)
-		this->WriteChordVariationData(cv);
+	{
+		if(this->HasChordVariationData(chordVariationsWithData))
+			this->WriteChordVariationData(cv);
+	}
 
 	this->EndChunk();
 }
@@ -344,10 +334,32 @@ void StyleFormat0_0V5_0Writer::WriteStyleElement(const StyleElementData &styleEl
 {
 	this->BeginChunk(3, 0, 0, 0);
 
-	this->WriteChordTable(styleElementData.chordTable);
+	this->WriteStyleElementInfoData(styleElementData.styleElementInfoData);
 	this->Write0x2000308Chunk(styleElementData);
+
+	uint8 chordVariationsWithData = styleElementData.styleElementInfoData.chordVariationsWithData;
 	for(const ChordVariationData& cv : styleElementData.cv)
-		this->WriteChordVariationData(cv);
+	{
+		if(this->HasChordVariationData(chordVariationsWithData))
+			this->WriteChordVariationData(cv);
+	}
+
+	this->EndChunk();
+}
+
+void StyleFormat0_0V5_0Writer::WriteStyleElementInfoData(const StyleElementInfoData& styleElementInfoData)
+{
+	this->BeginChunk(1, 1, 3, ChunkHeaderFlags::Leaf);
+
+	this->dataWriter.WriteByte(styleElementInfoData.chordVariationsWithData);
+	this->dataWriter.WriteByte(styleElementInfoData.unknown2);
+
+	this->WriteChordTable(styleElementInfoData.chordTable);
+
+	this->dataWriter.WriteByte(static_cast<byte>(styleElementInfoData.cueMode));
+	this->dataWriter.WriteBytes(styleElementInfoData.unknown4, sizeof(styleElementInfoData.unknown4));
+	this->dataWriter.WriteBytes(styleElementInfoData.unknown5, sizeof(styleElementInfoData.unknown5));
+	this->dataWriter.WriteByte(styleElementInfoData.unknown6);
 
 	this->EndChunk();
 }

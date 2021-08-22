@@ -18,27 +18,14 @@
  */
 #pragma once
 //Local
-#include "../LegacyFormat0.0/LegacySoundFormat0_0Reader.hpp"
+#include "../LegacyFormat0.2/LegacySoundFormat0_2Reader.hpp"
 
-class LegacySoundFormat0_3Reader : public LegacySoundFormat0_0Reader
+class LegacySoundFormat0_3Reader : public LegacySoundFormat0_2Reader
 {
 protected:
 	//Methods
-	void ReadDrumKitSoundData(libKORG::Sound::DrumKitSoundData &drumKitSoundData, StdXX::DataReader &dataReader) override;
-	void ReadKeyRange(libKORG::Sound::KeyRange &keyRange, StdXX::DataReader &dataReader) override;
 	uint8 ReadLowPriority(StdXX::DataReader &dataReader) override;
-	uint64 ReadMultiSampleId(StdXX::DataReader &dataReader) override;
-	uint16 ReadMultiSampleMap(StdXX::DataReader &dataReader) override;
-	void ReadScaledVelocity(libKORG::Sound::OscillatorData &oscillatorData, StdXX::DataReader &dataReader) override;
 	void ReadUnknowns21(libKORG::Sound::OscillatorData &oscillatorData, StdXX::DataReader &dataReader) override;
 
-	virtual void ReadLayerEntryDetails(libKORG::Sound::LayerEntry& layerEntry, StdXX::DataReader& dataReader);
-	virtual void ReadUnknowns4(libKORG::Sound::KeyTableEntry& keyTableEntry, StdXX::DataReader& dataReader);
 	virtual void SkipUnknownBytes(StdXX::DataReader& dataReader);
-	virtual void SkipUnknownKeyTableEntryByte(StdXX::DataReader& dataReader);
-
-private:
-	//Methods
-	void ReadKeyTableEntry(libKORG::Sound::KeyTableEntry& keyTableEntry, StdXX::DataReader& dataReader);
-	void ReadLayerEntry(libKORG::Sound::LayerEntry& layerEntry, bool hasId, StdXX::DataReader& dataReader);
 };

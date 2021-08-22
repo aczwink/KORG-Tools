@@ -18,7 +18,6 @@
  */
 #pragma once
 #include <StdXX.hpp>
-#include "libkorg/BankFormat/ObjectBank.hpp"
 #include "libkorg/BankFormat/MultiSamplesObject.hpp"
 #include <libkorg/BankFormat/SoundObject.hpp>
 #include "libkorg/BankFormat/PerformanceObject.hpp"
@@ -33,13 +32,6 @@
 
 namespace libKORG
 {
-	struct BankObjectEntry
-	{
-		StdXX::String name;
-		uint8 pos;
-		BankFormat::BankObject* object;
-	};
-
 	class Set
 	{
 	public:
@@ -97,18 +89,10 @@ namespace libKORG
 		mutable StdXX::UniquePointer<MultiSamplesObject> multiSamples;
 
 		//Methods
-		void LoadMultiSamples(const StdXX::String& bankFileName, const StdXX::DynamicArray<BankObjectEntry>& bankEntries);
-		void LoadPads(const StdXX::String& bankFileName, const StdXX::DynamicArray<BankObjectEntry>& bankEntries);
-		void LoadPerformances(const StdXX::String& bankFileName, const StdXX::DynamicArray<BankObjectEntry>& bankEntries);
-		void LoadSamples(const StdXX::String& bankFileName, const StdXX::DynamicArray<BankObjectEntry>& bankEntries);
-		void LoadSongs(const StdXX::String& bankFileName, const StdXX::DynamicArray<BankObjectEntry>& bankEntries);
-		void LoadSongBook(const StdXX::FileSystem::Path& setPath);
-		void LoadSounds(const StdXX::String& bankFileName, const StdXX::DynamicArray<BankObjectEntry>& bankEntries);
-		void LoadStyles(const StdXX::String& bankFileName, const StdXX::DynamicArray<BankObjectEntry>& bankEntries);
-		bool ReadDirectory(const StdXX::FileSystem::Path& setPath, const StdXX::String& dirName, void (Set::* loader)(const StdXX::String& bankFileName, const StdXX::DynamicArray<BankObjectEntry>&));
+		void LoadMultiSamples();
+		template<typename BankNumberType, typename BankObjectType>
+		bool ReadDirectory(const StdXX::FileSystem::Path& setPath, const StdXX::String& dirName, BankCollection<BankNumberType, BankObjectType>& bankCollection);
 
-		template<typename BankObjectType>
-		void SaveBank(const ObjectBank<BankObjectType>& bank, StdXX::SeekableOutputStream& outputStream);
 		template<typename BankNumberType, typename BankObjectType>
 		void SaveBanks(BankCollection<BankNumberType, BankObjectType>& bankCollection, const StdXX::String& folderName);
 		void SaveMultiSamples();

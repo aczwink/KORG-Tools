@@ -18,6 +18,7 @@
  */
 //Class header
 #include <libkorg/Converters/IdsCorrector.hpp>
+//Local
 #include <libkorg/Converters/SampleRemover.hpp>
 //Namespaces
 using namespace libKORG;
@@ -117,9 +118,9 @@ void IdsCorrector::CorrectDrumSampleAssignments()
 	{
 		for(const auto& objectEntry : bankEntry.bank.Objects())
 		{
-			if(objectEntry.object->data.drumKitData.HasValue())
+			if(objectEntry.Object().data.drumKitData.HasValue())
 			{
-				Sound::SoundData& data = this->set.soundBanks[bankEntry.bankNumber][objectEntry.pos].object->data;
+				Sound::SoundData& data = this->set.soundBanks[bankEntry.bankNumber][objectEntry.pos].Object().data;
 				auto& layers = data.drumKitData->layers;
 				for(auto& layer : layers)
 				{
@@ -158,7 +159,7 @@ void IdsCorrector::CorrectMultiSampleAssignments()
 	{
 		for(const auto& objectEntry : bankEntry.bank.Objects())
 		{
-			Sound::SoundData& data = this->set.soundBanks[bankEntry.bankNumber][objectEntry.pos].object->data;
+			Sound::SoundData& data = this->set.soundBanks[bankEntry.bankNumber][objectEntry.pos].Object().data;
 			for(auto& osc : data.oscillators)
 			{
 				if(osc.high.source == Sound::MultiSampleSource::RAM)
@@ -180,16 +181,16 @@ void IdsCorrector::CorrectSamples()
 	{
 		for(const auto& objectEntry : bankEntry.bank.Objects())
 		{
-			ASSERT(objectEntry.object->GetId() != 0, u8"Invalid Ids are not allowed");
-			if(!sampleIdToIndexMap.Contains(objectEntry.object->GetId()))
+			ASSERT(objectEntry.Object().GetId() != 0, u8"Invalid Ids are not allowed");
+			if(!sampleIdToIndexMap.Contains(objectEntry.Object().GetId()))
 			{
 				toDelete.Push({bankEntry.bankNumber.Number(), objectEntry.pos});
 				this->errorCounts.missingSamplesCount++;
 			}
-			else if(foundSamples.Contains(objectEntry.object->GetId()))
+			else if(foundSamples.Contains(objectEntry.Object().GetId()))
 			{
-				const auto& entry = foundSamples.Get(objectEntry.object->GetId());
-				if(*this->set.sampleBanks[entry.bankNumber][entry.pos].object == *objectEntry.object) //duplicate
+				const auto& entry = foundSamples.Get(objectEntry.Object().GetId());
+				if(this->set.sampleBanks[entry.bankNumber][entry.pos].Object() == objectEntry.Object()) //duplicate
 				{
 					toDelete.Push({bankEntry.bankNumber.Number(), objectEntry.pos});
 				}
@@ -199,7 +200,7 @@ void IdsCorrector::CorrectSamples()
 				}
 			}
 			else
-				foundSamples.Insert(objectEntry.object->GetId(), {bankEntry.bankNumber, objectEntry.pos});
+				foundSamples.Insert(objectEntry.Object().GetId(), {bankEntry.bankNumber, objectEntry.pos});
 		}
 	}
 
@@ -229,9 +230,9 @@ void IdsCorrector::RenumberDrumSampleAssignments()
 	{
 		for(const auto& objectEntry : bankEntry.bank.Objects())
 		{
-			if(objectEntry.object->data.drumKitData.HasValue())
+			if(objectEntry.Object().data.drumKitData.HasValue())
 			{
-				Sound::SoundData& data = this->set.soundBanks[bankEntry.bankNumber][objectEntry.pos].object->data;
+				Sound::SoundData& data = this->set.soundBanks[bankEntry.bankNumber][objectEntry.pos].Object().data;
 				for(Sound::LayerEntry& layer : data.drumKitData->layers)
 				{
 					if(layer.sampleBankNumber > 0)

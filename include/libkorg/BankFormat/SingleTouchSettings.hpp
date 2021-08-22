@@ -27,7 +27,7 @@ namespace libKORG
 		//Constructors
 		inline SingleTouchSettings(StdXX::UniquePointer<Performance::V0::STSData>&& v0data) : v0data(StdXX::Move(v0data))
 		{
-			this->version = 1;
+			this->version = 0;
 		}
 
 		inline SingleTouchSettings(StdXX::UniquePointer<Performance::V1::STSData>&& v1data) : v1data(StdXX::Move(v1data))
@@ -52,6 +52,12 @@ namespace libKORG
 		}
 
 		//Properties
+		inline const Performance::V0::STSData& V0Data() const
+		{
+			ASSERT_EQUALS(0, this->version);
+			return *this->v0data;
+		}
+
 		inline Performance::V1::STSData& V1Data()
 		{
 			ASSERT_EQUALS(1, this->version);

@@ -29,12 +29,12 @@ using namespace libKORG;
 using namespace StdXX;
 
 //Protected methods
-libKORG::ChunkReader *AccompanimentSettingsV1_0Reader::OnEnteringChunk(const libKORG::ChunkHeader &chunkHeader)
+libKORG::ChunkReader* AccompanimentSettingsV1_0Reader::OnEnteringChunk(const libKORG::ChunkHeader &chunkHeader)
 {
 	switch(chunkHeader.id)
 	{
 		case 0x1F000000:
-			return nullptr;
+			return &this->unknownAdditionalAccompanimentSettingsReader;
 	}
 	return nullptr;
 }

@@ -42,9 +42,15 @@ namespace libKORG::BankFormat
 		}
 
 		//Methods
-		template<typename T>
-		void Write(const ObjectBank<T> &bank);
 		void Write(const MultiSamplesObject& multiSamplesObject);
+		void WriteObjects(uint8 pos, const AbstractSample& sampleObject);
+		void WriteObjects(uint8 pos, const FullStyle& fullStyle);
+		void WriteObjects(uint8 pos, const PerformanceObject& performanceObject);
+		void WriteObjects(uint8 pos, const SoundObject& soundObject);
+		void WriteTOCEntries(const StdXX::String& name, uint8 pos, const AbstractSample& object);
+		void WriteTOCEntries(const StdXX::String& name, uint8 pos, const FullStyle& object);
+		void WriteTOCEntries(const StdXX::String& name, uint8 pos, const PerformanceObject& object);
+		void WriteTOCEntries(const StdXX::String& name, uint8 pos, const SoundObject& object);
 
 	private:
 		//Members
@@ -53,17 +59,9 @@ namespace libKORG::BankFormat
 
 		//Methods
 		ChunkVersion DeterminePerformanceVersion(uint8 majorVersion) const;
-		void WriteObjects(uint8 pos, const AbstractSample& sampleObject);
-		void WriteObjects(uint8 pos, const FullStyle& fullStyle);
-		void WriteObjects(uint8 pos, const PerformanceObject& performanceObject);
-		void WriteObjects(uint8 pos, const SoundObject& soundObject);
 		void WritePCMData(const AbstractSample& sample, const ChunkVersion& dataVersion);
 		void WriteSTS(const SingleTouchSettings &singleTouchSettings, const ChunkVersion& dataVersion);
 		void WriteStyle(const StyleObject &style, const ChunkVersion& dataVersion);
-		void WriteTOCEntries(const StdXX::String& name, uint8 pos, const AbstractSample& object);
-		void WriteTOCEntries(const StdXX::String& name, uint8 pos, const FullStyle& object);
-		void WriteTOCEntries(const StdXX::String& name, uint8 pos, const PerformanceObject& object);
-		void WriteTOCEntries(const StdXX::String& name, uint8 pos, const SoundObject& object);
 		void WriteTOCEntry(const String &name, uint8 pos, libKORG::BankFormat::ObjectType objectType, const ChunkVersion& version, ObjectStreamFormat streamFormat);
 	};
 }

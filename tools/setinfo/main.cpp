@@ -55,12 +55,12 @@ void PrintBanks(const PrintSettings& printSettings, const BankCollection<BankNum
 			if(printSettings.posNumber.HasValue() && (*printSettings.posNumber != posNumber++))
 				continue;
 
-			Section objectSection(BankPositionToString(objectEntry.pos) + u8" - " + objectEntry.name, outputter);
+			Section objectSection(BankPositionToString(objectEntry.pos) + u8" - " + objectEntry.Name(), outputter);
 
 			if(printSettings.showObjects)
 			{
 				ObjectOutputter objectOutputter(outputter);
-				objectOutputter.Output(*objectEntry.object);
+				objectOutputter.Output(objectEntry.Object());
 			}
 		}
 	}

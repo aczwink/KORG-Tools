@@ -29,12 +29,21 @@ namespace libKORG
 		//Members
 		Sample::SampleData data;
 
-		//Constructor
+		//Constructors
+		inline SampleObject(const Sample::SampleData& data) : data(StdXX::Move(data))
+		{
+		}
+
 		inline SampleObject(Sample::SampleData&& data) : data(StdXX::Move(data))
 		{
 		}
 
 		//Methods
+		AbstractSample *Clone() const override
+		{
+			return new SampleObject(this->data);
+		}
+
 		bool Equals(const AbstractSample &other) const override
 		{
 			const SampleObject* otherAsSampleObject = dynamic_cast<const SampleObject *>(&other);
