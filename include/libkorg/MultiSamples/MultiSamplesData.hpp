@@ -50,6 +50,9 @@ namespace libKORG::MultiSamples
 		int8 unknown11 = 0;
 		int8 unknown12 = 0;
 		uint64 id;
+
+		//Operators
+		bool operator==(const DrumSampleEntry&) const = default;
 	};
 
 	enum class InterpolationMode
@@ -59,6 +62,7 @@ namespace libKORG::MultiSamples
 	struct KeyboardZone
 	{
 		int16 sampleNumber;
+		uint8 unknown1;
 		Pitch to;
 		Pitch originalNote;
 		uint8 unknown3;

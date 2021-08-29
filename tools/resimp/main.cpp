@@ -30,11 +30,17 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 
 	parser.AddHelpOption();
 
+	CommandLine::OptionWithArgument drumkitLocationOpt(u8'd', u8"drumkit-location", u8"Preferred base location where to insert new drumkits. Format is: Position");
+	parser.AddOption(drumkitLocationOpt);
+
 	CommandLine::OptionWithArgument soundLocationOpt(u8's', u8"sound-location", u8"Preferred base location where to insert new sounds. Format is: Bank,Position");
 	parser.AddOption(soundLocationOpt);
 
 	CommandLine::OptionWithArgument performanceLocationOpt(u8'p', u8"performance-location", u8"Preferred base location where to insert new performances. Format is: Bank,Position");
 	parser.AddOption(performanceLocationOpt);
+
+	CommandLine::OptionWithArgument styleLocationOpt(u8'S', u8"style-location", u8"Preferred base location where to insert new styles. Format is: Bank,Position");
+	parser.AddOption(styleLocationOpt);
 
 	CommandLine::Option ignoreSTSOpt(u8'i', u8"ignore-sts", u8"If specified, STS are ignored, i.e. their assigned sounds are not considered");
 	parser.AddOption(ignoreSTSOpt);
@@ -75,6 +81,10 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 	}
 
 	Config config;
+	if(result.IsActivated(drumkitLocationOpt))
+	{
+		config.drumKitStartPos = drumkitLocationOpt.Value(result).ToUInt32();
+	}
 	if(result.IsActivated(soundLocationOpt))
 	{
 		auto parts = soundLocationOpt.Value(result).Split(u8",");
@@ -84,6 +94,11 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 	{
 		auto parts = performanceLocationOpt.Value(result).Split(u8",");
 		config.performanceInsertSlot = {PerformanceBankNumber::FromBankName(parts[0]), (uint8)parts[1].ToUInt32()};
+	}
+	if(result.IsActivated(styleLocationOpt))
+	{
+		auto parts = styleLocationOpt.Value(result).Split(u8",");
+		config.styleInsertSlot = {StyleBankNumber::FromBankName(parts[0]), (uint8)parts[1].ToUInt32()};
 	}
 
 	Set sourceSet(inputSetPathArg.Value(result));

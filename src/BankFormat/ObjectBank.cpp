@@ -91,12 +91,12 @@ void ObjectBank<ObjectType>::SaveBank(const StdXX::FileSystem::Path& bankPath)
 		if(binaryObjectCache.Contains({kv.key, kv.value.headerEntry.type}))
 		{
 			const auto& entry = binaryObjectCache.Get({kv.key, kv.value.headerEntry.type});
-			bankFormatWriter.WriteIndexEntry(kv.value.headerEntry, ChunkHeaderToObjectStreamFormat(entry.header.type));
+			bankFormatWriter.WriteIndexEntry(kv.value.headerEntry, ChunkHeaderToObjectStreamFormat(entry.header.flags));
 
 			if(kv.value.headerEntry.type == BankFormat::ObjectType::Style)
 			{
 				const auto& stsEntry = binaryObjectCache.Get({kv.key, kv.value.stsHeaderEntry.type});
-				bankFormatWriter.WriteIndexEntry(kv.value.stsHeaderEntry, ChunkHeaderToObjectStreamFormat(stsEntry.header.type));
+				bankFormatWriter.WriteIndexEntry(kv.value.stsHeaderEntry, ChunkHeaderToObjectStreamFormat(stsEntry.header.flags));
 			}
 		}
 		else

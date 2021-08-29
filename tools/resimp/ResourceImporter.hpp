@@ -22,6 +22,7 @@ using namespace StdXX;
 
 struct Config
 {
+	uint8 drumKitStartPos = 0;
 	Optional<BankSlot<PerformanceBankNumber>> performanceInsertSlot;
 	Optional<BankSlot<SoundBankNumber>> soundInsertSlot;
 	Optional<BankSlot<StyleBankNumber>> styleInsertSlot;
@@ -49,12 +50,14 @@ private:
 	SetIndex sourceSetIndex;
 	MultiSamplesIndex sourceMultiSamplesIndex;
 	MultiSamplesIndex targetMultiSamplesIndex;
+	BinaryTreeMap<uint64, uint32> importedDrumSampleIds;
 	BinaryTreeMap<uint64, uint32> importedMultiSampleIds;
 	BinaryTreeMap<uint64, uint32> importedSampleIds;
 	BinaryTreeMap<ProgramChangeSequence, ProgramChangeSequence> importedSounds;
 
 	//Methods
 	Optional<BankSlot<SoundBankNumber>> FindSoundLocation(const Sound::SoundData& soundData);
+	bool ImportDrumSample(uint64 id);
 	bool ImportMultiSample(uint64 id);
 	bool ImportSample(uint64 id);
 	bool ImportSound(const ProgramChangeSequence& programChangeSequence);
@@ -63,6 +66,26 @@ private:
 	void SaveChanges();
 
 	//Inline
+	inline Optional<BankSlot<SoundBankNumber>> FindFreeSoundSlot(const Optional<BankSlot<SoundBankNumber>>& sourceLocation)
+	{
+		if(sourceLocation->bankNumber.IsDrumKit())
+		{
+			auto dkSoundBank = SoundBankNumber(11);
+			auto freePos = this->targetSet.soundBanks[dkSoundBank].FindFreeSlot(this->config.drumKitStartPos);
+			if(freePos.HasValue())
+				return {{dkSoundBank, *freePos}};
+			return {};
+		}
+		return this->targetSet.soundBanks.FindFreeSlot(this->config.soundInsertSlot.HasValue() ? this->config.soundInsertSlot.Value() : *sourceLocation);
+	}
+
+	inline uint16 MapDrumSampleIdToIndex(uint64 id)
+	{
+		if(this->importedDrumSampleIds.Contains(id))
+			return this->importedDrumSampleIds.Get(id);
+		return this->targetMultiSamplesIndex.GetDrumSampleEntryIndex(id);
+	}
+
 	inline uint16 MapMultiSampleIdToIndex(uint64 id)
 	{
 		if(this->importedMultiSampleIds.Contains(id))

@@ -20,6 +20,43 @@
 #include "SetCleaner.hpp"
 
 //Public methods
+void SetCleaner::RemoveUnusedDrumSamples()
+{
+	this->ProcessSounds(); //in fact only drum kits would be needed
+
+	PriorityQueue<uint32> indicesToRemove;
+
+	uint32 drumSamplesCount = 0;
+	stdOut << u8"Position\tName" << endl;
+	for(uint32 i = 0; i < this->set.MultiSamples().data.drumSampleEntries.GetNumberOfElements(); i++)
+	{
+		const auto& entry = this->set.MultiSamples().data.drumSampleEntries[i];
+		if(this->markedDrumSamples.Contains(entry.id))
+			continue;
+
+		drumSamplesCount++;
+		indicesToRemove.Insert(i);
+		stdOut << i << u8"\t" << entry.name << endl;
+	}
+
+	TextReader textReader(stdIn, TextCodecType::UTF8);
+	stdOut << endl << u8"Are you sure that you want to remove the above " << drumSamplesCount << u8" drum samples? Type 'y' if you want to proceed, or anything else to cancel: ";
+	if(textReader.ReadLine() == u8"y")
+	{
+		auto& drumSamples = this->set.MultiSamples().data.drumSampleEntries;
+		while(!indicesToRemove.IsEmpty())
+			drumSamples.Remove(indicesToRemove.PopTop());
+
+		this->set.Save();
+
+		stdOut << u8"Saved." << endl;
+	}
+	else
+	{
+		stdOut << u8"Aborted. Set wasn't changed." << endl;
+	}
+}
+
 void SetCleaner::RemoveUnusedMultiSamples()
 {
 	this->ProcessSounds();
@@ -58,41 +95,43 @@ void SetCleaner::RemoveUnusedMultiSamples()
 	}
 }
 
-void SetCleaner::RemoveUnusedSamples()
+void SetCleaner::RemoveUnusedSamples(bool showAll)
 {
 	uint32 oldSampleRamSize = this->set.ComputeUsedSampleRAMSize();
 
 	this->ProcessDrumSamples();
 	this->ProcessMultiSamples();
-	this->ProcessSounds();
 
-	uint32 samplesCount = 0, drumSamplesCount = 0;
-	stdOut << u8"Position\tName" << endl
+	uint32 samplesCount = 0;
+	stdOut << u8"Position\tReference count\tSize\tName" << endl
 		<< u8"Samples" << endl;
+
 	PriorityQueue<uint32> sampleIndicesToRemove;
+	uint32 sampleSizeSum = 0;
 	for(uint32 i = 0; i < this->set.MultiSamples().data.sampleEntries.GetNumberOfElements(); i++)
 	{
 		const auto& entry = this->set.MultiSamples().data.sampleEntries[i];
-		if(this->markedSamples.Contains(entry.id))
-			continue;
+		uint32 referenceCount = this->markedSamples.Contains(entry.id) ? this->markedSamples.Get(entry.id) : 0;
+		bool isReferenced = referenceCount > 0;
+		if(!isReferenced)
+		{
+			samplesCount++;
+			sampleIndicesToRemove.Insert(i);
+		}
 
-		samplesCount++;
-		stdOut << i << u8"\t" << entry.name << endl;
-		sampleIndicesToRemove.Insert(i);
-	}
-	stdOut << u8"Drum samples" << endl;
-	for(uint32 i = 0; i < this->set.MultiSamples().data.drumSampleEntries.GetNumberOfElements(); i++)
-	{
-		const auto& entry = this->set.MultiSamples().data.drumSampleEntries[i];
-		if(this->markedDrumSamples.Contains(entry.id))
-			continue;
+		if(showAll or !isReferenced)
+		{
+			auto slot = this->setIndex.GetSampleLocation(entry.id);
+			uint32 size = this->set.sampleBanks[slot.bankNumber][slot.pos].Object().GetSize();
+			sampleSizeSum += size;
 
-		drumSamplesCount++;
-		stdOut << i << u8"\t" << entry.name << endl;
+			stdOut << i << u8"\t" << referenceCount << u8"\t" << String::FormatBinaryPrefixed(size) << u8"\t" << entry.name << endl;
+		}
 	}
+	stdOut << u8"Sum: " << String::FormatBinaryPrefixed(sampleSizeSum) << endl << endl;
 
 	TextReader textReader(stdIn, TextCodecType::UTF8);
-	stdOut << endl << u8"Are you sure that you want to remove the above " << samplesCount << u8" samples and the " << drumSamplesCount << u8" drum samples? Type 'y' if you want to proceed, or anything else to cancel: ";
+	stdOut << endl << u8"Are you sure that you want to remove the above " << samplesCount << u8" samples? Type 'y' if you want to proceed, or anything else to cancel: ";
 	if(textReader.ReadLine() == u8"y")
 	{
 		while(!sampleIndicesToRemove.IsEmpty())
@@ -115,23 +154,26 @@ void SetCleaner::RemoveUnusedSamples()
 	}
 }
 
-void SetCleaner::RemoveUnusedSounds(bool ignoreSTS)
+void SetCleaner::RemoveUnusedSounds(bool ignorePerformanceAccSettings, bool ignoreSTS, bool showAll)
 {
 	this->ProcessPads();
-	this->ProcessPerformances();
+	this->ProcessPerformances(ignorePerformanceAccSettings);
 	this->ProcessStyles(ignoreSTS);
 
 	uint32 count = 0;
-	stdOut << u8"Bank\tPosition\tName" << endl;
+	stdOut << u8"Bank\tPosition\tReference count\tProgram change\tName" << endl;
 	for(const auto& bankEntry : this->set.soundBanks.Entries())
 	{
 		for(const auto& objectEntry : bankEntry.bank.Objects())
 		{
-			if(this->markedSounds.Contains(Set::CreateRAMSoundProgramChangeSequence(bankEntry.bankNumber, objectEntry.pos)))
-				continue;
+			auto programChangeSequence = Set::CreateRAMSoundProgramChangeSequence(bankEntry.bankNumber, objectEntry.pos);
+			uint32 referenceCount = this->markedSounds.Contains(programChangeSequence) ? this->markedSounds.Get(programChangeSequence) : 0;
+			bool isReferenced = referenceCount > 0;
+			if(!isReferenced)
+				count++;
 
-			count++;
-			stdOut << bankEntry.bankNumber.ToString() << u8"\t" << BankPositionToString(objectEntry.pos) << u8"\t" << objectEntry.name << endl;
+			if(showAll or !isReferenced)
+				stdOut << bankEntry.bankNumber.ToString() << u8"\t" << BankPositionToString(objectEntry.pos) << u8"\t\t" << referenceCount << u8"\t\t\t\t" << programChangeSequence.ToString() << u8"\t\t" << objectEntry.Name() << endl;
 		}
 	}
 
@@ -154,9 +196,9 @@ void SetCleaner::ProcessDrumSamples()
 	const auto& drumSampleEntries = this->set.MultiSamples().data.drumSampleEntries;
 	for(const auto& entry : drumSampleEntries)
 	{
-		this->markedSamples.Insert(sampleEntries[entry.sampleIndexLeft].id);
+		this->IncrementSampleReferenceCount(sampleEntries[entry.sampleIndexLeft].id);
 		if(entry.sampleIndexRight != -1)
-			this->markedSamples.Insert(sampleEntries[entry.sampleIndexRight].id);
+			this->IncrementSampleReferenceCount(sampleEntries[entry.sampleIndexRight].id);
 	}
 }
 
@@ -174,7 +216,7 @@ void SetCleaner::ProcessMultiSamples()
 			if(sampleNumber == -1)
 				continue;
 
-			this->markedSamples.Insert(data.sampleEntries[sampleNumber].id);
+			this->IncrementSampleReferenceCount(data.sampleEntries[sampleNumber].id);
 		}
 	}
 }
@@ -185,34 +227,40 @@ void SetCleaner::ProcessPads()
 	{
 		for(const auto& objectEntry : bankEntry.bank.Objects())
 		{
-			this->ProcessStyle(objectEntry.object->data);
+			this->ProcessStyle(objectEntry.Object().data);
 		}
 	}
 }
 
-void SetCleaner::ProcessPerformances()
+void SetCleaner::ProcessPerformances(bool ignorePerformanceAccSettings)
 {
 	for(const auto& bankEntry : this->set.performanceBanks.Entries())
 	{
 		for(const auto& objectEntry : bankEntry.bank.Objects())
 		{
-			const auto& perf = *objectEntry.object;
+			const auto& perf = objectEntry.Object();
 			switch(perf.Version())
 			{
 				case 0:
 				{
 					for(const auto& track : perf.V0Data().keyboardSettings.trackSettings)
-						this->markedSounds.Insert(track.soundProgramChangeSeq);
-					for(const auto& track : perf.V0Data().unknownPart8)
-						this->markedSounds.Insert(track.soundProgramChangeSeq);
+						this->IncrementSoundReferenceCount(track.soundProgramChangeSeq);
+					if(!ignorePerformanceAccSettings)
+					{
+						for (const auto &track : perf.V0Data().accompanimentSettings.trackSettings)
+							this->IncrementSoundReferenceCount(track.soundProgramChangeSeq);
+					}
 				}
 				break;
 				case 1:
 				{
 					for(const auto& track : perf.V1Data().keyboardSettings.trackSettings)
-						this->markedSounds.Insert(track.soundProgramChangeSeq);
-					for(const auto& track : perf.V1Data().accompanimentSettings.trackSettings)
-						this->markedSounds.Insert(track.soundProgramChangeSeq);
+						this->IncrementSoundReferenceCount(track.soundProgramChangeSeq);
+					if(!ignorePerformanceAccSettings)
+					{
+						for (const auto &track : perf.V1Data().accompanimentSettings.trackSettings)
+							this->IncrementSoundReferenceCount(track.soundProgramChangeSeq);
+					}
 				}
 					break;
 				case 2:
@@ -228,7 +276,7 @@ void SetCleaner::ProcessSounds()
 	{
 		for(const auto& objectEntry : bankEntry.bank.Objects())
 		{
-			const auto& data = objectEntry.object->data;
+			const auto& data = objectEntry.Object().data;
 
 			for(const auto& osc : data.oscillators)
 			{
@@ -253,21 +301,10 @@ void SetCleaner::ProcessSTS(bool ignoreSTS, const SingleTouchSettings& sts)
 	switch(sts.Version())
 	{
 		case 0:
-			NOT_IMPLEMENTED_ERROR; //TODO: implement me
+			this->ProcessSTSData(sts.V0Data(), ignoreSTS);
+		break;
 		case 1:
-		{
-			if(!ignoreSTS)
-			{
-				for (const auto &kbdSettings : sts.V1Data().keyboardSettings)
-				{
-					for (const auto &track : kbdSettings.trackSettings)
-						this->markedSounds.Insert(track.soundProgramChangeSeq);
-				}
-			}
-
-			for(const auto& track : sts.V1Data().accompanimentSettings.trackSettings)
-				this->markedSounds.Insert(track.soundProgramChangeSeq);
-		}
+			this->ProcessSTSData(sts.V1Data(), ignoreSTS);
 		break;
 		case 2:
 			NOT_IMPLEMENTED_ERROR; //TODO: implement me
@@ -279,13 +316,13 @@ void SetCleaner::ProcessStyle(const Style::StyleData &styleData)
 	for(const auto& var : styleData.variation)
 	{
 		for(const auto& track : var.styleTrackData)
-			this->markedSounds.Insert(track.soundProgramChangeSeq);
+			this->IncrementSoundReferenceCount(track.soundProgramChangeSeq);
 	}
 
 	for(const auto& var : styleData.styleElements)
 	{
 		for(const auto& track : var.styleTrackData)
-			this->markedSounds.Insert(track.soundProgramChangeSeq);
+			this->IncrementSoundReferenceCount(track.soundProgramChangeSeq);
 	}
 }
 
@@ -295,8 +332,8 @@ void SetCleaner::ProcessStyles(bool ignoreSTS)
 	{
 		for(const auto& objectEntry : bankEntry.bank.Objects())
 		{
-			this->ProcessSTS(ignoreSTS, objectEntry.object->STS());
-			this->ProcessStyle(objectEntry.object->Style().data);
+			this->ProcessSTS(ignoreSTS, objectEntry.Object().STS());
+			this->ProcessStyle(objectEntry.Object().Style().data);
 		}
 	}
 }

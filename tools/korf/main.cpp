@@ -23,89 +23,6 @@ using namespace StdXX::FileSystem;
 
 void DumpChunks(const Path& path, InputStream& inputStream);
 
-class ChunkSerializer : public ChunkReader
-{
-public:
-	//Constructor
-	inline ChunkSerializer(UniquePointer<OutputStream>&& outputStream) : outputStream(Move(outputStream))
-	{
-	}
-
-protected:
-	//Methods
-	ChunkReader* OnEnteringChunk(const ChunkHeader &chunkHeader) override
-	{
-		this->WriteChunkHeader(chunkHeader);
-
-		return this;
-	}
-
-	void ReadDataChunk(const ChunkHeader &chunkHeader, DataReader &dataReader) override
-	{
-		this->WriteChunkHeader(chunkHeader);
-		dataReader.InputStream().FlushTo(*this->outputStream);
-	}
-
-private:
-	//Members
-	UniquePointer<OutputStream> outputStream;
-
-	//Inline
-	inline void WriteChunkHeader(const ChunkHeader& chunkHeader)
-	{
-		DataWriter dataWriter(true, *this->outputStream);
-
-		dataWriter.WriteUInt32(chunkHeader.id);
-		dataWriter.WriteUInt32(chunkHeader.size);
-	}
-};
-
-class ObjectTrackingReader : public BankFormat::Reader
-{
-public:
-	//Members
-	BinaryTreeMap<const BankFormat::HeaderEntry*, BankFormat::ChunkType> objectsDataType;
-	BinaryTreeMap<const BankFormat::HeaderEntry*, DynamicByteBuffer> objectsData;
-
-protected:
-	void ReadBankObject(BankFormat::ChunkType chunkType, const ChunkHeader &chunkHeader, const BankFormat::HeaderEntry &headerEntry, DataReader &dataReader) override
-	{
-		dataReader.InputStream().FlushTo(*this->objectsData[&headerEntry].CreateOutputStream());
-		this->objectsDataType[&headerEntry] = chunkType;
-	}
-
-	ChunkReader* OnEnteringChunkedResourceChunk(const ChunkHeader &chunkHeader, const BankFormat::HeaderEntry &headerEntry) override
-	{
-		switch (BankFormat::ChunkType(chunkHeader.type))
-		{
-			case BankFormat::ChunkType::PadData:
-			case BankFormat::ChunkType::PerformancesData:
-			case BankFormat::ChunkType::StyleData:
-				this->chunkSerializer = new ChunkSerializer(this->objectsData[&headerEntry].CreateOutputStream());
-				return this->chunkSerializer.operator->();
-		}
-		return Reader::OnEnteringChunkedResourceChunk(chunkHeader, headerEntry);
-	}
-
-	void OnLeavingChunk(const ChunkHeader &chunkHeader) override
-	{
-		switch (BankFormat::ChunkType(chunkHeader.type))
-		{
-			case BankFormat::ChunkType::PadData:
-			case BankFormat::ChunkType::PerformancesData:
-			case BankFormat::ChunkType::StyleData:
-				this->Next();
-				break;
-			default:
-				Reader::OnLeavingChunk(chunkHeader);
-		}
-	}
-
-private:
-	//Members
-	UniquePointer<ChunkSerializer> chunkSerializer;
-};
-
 int32 Main(const String &programName, const FixedArray<String> &args)
 {
 	CommandLine::Parser parser(programName);
@@ -146,16 +63,16 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 	Path inputPath = inputPathArg.Value(result);
 
 	FileInputStream fileInputStream(inputPath);
-	ObjectTrackingReader bankFormatReader;
-	bankFormatReader.ReadData(fileInputStream);
+	BankFormat::Reader bankFormatReader;
+	bankFormatReader.ReadMetadata(fileInputStream);
 
 	if(result.IsActivated(listContents))
 	{
 		stdOut << u8"Position: Type Version Name" << endl;
-		for (const auto& kv: bankFormatReader.objectsData)
+		for (const auto& entry: bankFormatReader.TakeEntries())
 		{
-			stdOut << String::Number(kv.key->pos, 10, 2) << u8": ";
-			switch(kv.key->type)
+			stdOut << String::Number(entry.headerEntry.pos, 10, 2) << u8": ";
+			switch(entry.headerEntry.type)
 			{
 				case BankFormat::ObjectType::Performance:
 					stdOut << u8"Performance";
@@ -164,9 +81,10 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 					stdOut << u8"Style";
 					break;
 				case BankFormat::ObjectType::Sound:
-					if(bankFormatReader.objectsDataType[kv.key] == BankFormat::ChunkType::LegacySoundData)
+					//TODO: FIX ME
+					/*if(bankFormatReader.objectsDataType[kv.key] == BankFormat::ChunkType::LegacySoundData)
 						stdOut << u8"LegacySound";
-					else
+					else*/
 						stdOut << u8"Sound";
 					break;
 				case BankFormat::ObjectType::MultiSample:
@@ -189,7 +107,7 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 					break;
 			}
 
-			stdOut << u8" " << kv.key->dataVersion.major << u8"." << kv.key->dataVersion.minor << u8" " << kv.key->name << endl;
+			stdOut << u8" " << entry.headerEntry.dataVersion.major << u8"." << entry.headerEntry.dataVersion.minor << u8" " << entry.headerEntry.name << endl;
 		}
 	}
 	else if(result.IsActivated(repackObject))
@@ -202,19 +120,23 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 
 		writer.WriteHeader();
 		writer.BeginWritingIndex();
-		for (const auto& kv: bankFormatReader.objectsData)
+		for (const auto& entry: bankFormatReader.TakeEntries())
 		{
-			if(kv.key->pos == pos)
-				writer.WriteIndexEntry(*kv.key, BankFormat::ObjectStreamFormat::Uncompressed);
+			if(entry.headerEntry.pos == pos)
+				writer.WriteIndexEntry(entry.headerEntry, BankFormat::ObjectStreamFormat::Uncompressed);
 		}
 		writer.EndIndex();
 
-		for (const auto& kv: bankFormatReader.objectsData)
+		for (const auto& entry: bankFormatReader.TakeEntries())
 		{
-			if(kv.key->pos == pos)
+			if(entry.headerEntry.pos == pos)
 			{
+				ChunkHeader chunkHeader;
+				fileInputStream.SeekTo(entry.dataOffset);
+				auto chunkInputStream = ChunkReader::ReadNextChunk(fileInputStream, chunkHeader);
+
 				auto objectOutputStream = writer.BeginWritingObjectData();
-				kv.value.CreateInputStream()->FlushTo(*objectOutputStream);
+				chunkInputStream->FlushTo(*objectOutputStream);
 				writer.EndWritingObject();
 			}
 		}
@@ -226,23 +148,27 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 	{
 		uint8 pos = inputPosArg.Value(result);
 
-		for (const auto& kv: bankFormatReader.objectsData)
+		for (const auto& entry: bankFormatReader.TakeEntries())
 		{
-			if(kv.key->pos == pos)
+			if(entry.headerEntry.pos == pos)
 			{
-				String name = String::Number((uint8)kv.key->type) + u8"_" + String::HexNumber(kv.key->dataVersion.AsUInt16(), 4) + u8"_" + kv.key->name;
+				ChunkHeader chunkHeader;
+				fileInputStream.SeekTo(entry.dataOffset);
+				auto chunkInputStream = ChunkReader::ReadNextChunk(fileInputStream, chunkHeader);
+
+				String name = String::Number((uint8)entry.headerEntry.type) + u8"_" + String::HexNumber(entry.headerEntry.dataVersion.AsUInt16(), 4) + u8"_" + entry.headerEntry.name;
 				if(result.IsActivated(dumpChunks))
 				{
 					stdOut << u8"Dumping chunks of: " << name << endl;
 
 					Path path = FileSystemsManager::Instance().OSFileSystem().GetWorkingDirectory() / name;
-					DumpChunks(path, *kv.value.CreateInputStream());
+					DumpChunks(path, *chunkInputStream);
 
 					stdOut << endl;
 				}
 				else if(result.IsActivated(dumpObject))
 				{
-					kv.value.CreateInputStream()->FlushTo(stdOut);
+					chunkInputStream->FlushTo(stdOut);
 				}
 			}
 		}

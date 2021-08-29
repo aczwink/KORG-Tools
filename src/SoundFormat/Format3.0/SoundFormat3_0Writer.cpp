@@ -20,6 +20,7 @@
 #include "SoundFormat3_0Writer.hpp"
 //Namespaces
 using namespace libKORG;
+using namespace libKORG::Sound;
 
 //Public methods
 void SoundFormat3_0Writer::Write(const Sound::SoundData &soundData)
@@ -67,10 +68,22 @@ void SoundFormat3_0Writer::Write(const Sound::SoundData &soundData)
 	for(const auto& osc : soundData.oscillators)
 		this->WriteOscillatorData(osc);
 
-	ASSERT_EQUALS(false, soundData.drumKitData.HasValue()); //TODO: implement writing drum kit data
+	if(soundData.drumKitData.HasValue())
+		this->WriteDrumKitSoundData(*soundData.drumKitData);
 }
 
 //Private methods
+void SoundFormat3_0Writer::WriteDrumKitSoundData(const Sound::DrumKitSoundData &drumKitSoundData)
+{
+	for(const KeyTableEntry& entry : drumKitSoundData.keyTable)
+		this->WriteKeyTableEntry(entry);
+
+	this->dataWriter.WriteUInt16(drumKitSoundData.layers.GetNumberOfElements() | 0x8000);
+
+	for(const LayerEntry& entry : drumKitSoundData.layers)
+		this->WriteLayerEntry(entry);
+}
+
 void SoundFormat3_0Writer::WriteEqualizerData(const Sound::EqualizerData &equalizerData)
 {
 	this->dataWriter.WriteByte(equalizerData.enable);
@@ -79,6 +92,45 @@ void SoundFormat3_0Writer::WriteEqualizerData(const Sound::EqualizerData &equali
 	this->dataWriter.WriteByte(equalizerData.freq);
 	this->dataWriter.WriteByte(equalizerData.midGainTimes2);
 	this->dataWriter.WriteByte(equalizerData.highGainTimes2);
+}
+
+void SoundFormat3_0Writer::WriteKeyTableEntry(const KeyTableEntry& keyTableEntry)
+{
+	this->dataWriter.WriteUInt16(keyTableEntry.index);
+	this->dataWriter.WriteByte(keyTableEntry.nLayers);
+
+	this->dataWriter.WriteBytes(keyTableEntry.unknown11, sizeof(keyTableEntry.unknown11));
+	this->dataWriter.WriteByte(keyTableEntry.unknown12);
+	this->dataWriter.WriteBytes(keyTableEntry.unknown13, sizeof(keyTableEntry.unknown13));
+
+	this->dataWriter.WriteBytes(keyTableEntry.velocitySampleSwitches, sizeof(keyTableEntry.velocitySampleSwitches));
+	this->dataWriter.WriteByte(127);
+	this->dataWriter.WriteByte(127);
+	this->dataWriter.WriteByte(127);
+}
+
+void SoundFormat3_0Writer::WriteLayerEntry(const LayerEntry& layerEntry)
+{
+	this->dataWriter.WriteByte(layerEntry.sampleBankNumber);
+	this->dataWriter.WriteByte(static_cast<byte>(layerEntry.reversed));
+	this->dataWriter.WriteUInt16(layerEntry.drumSampleNumber);
+
+	this->dataWriter.WriteByte(layerEntry.level);
+	this->dataWriter.WriteByte(layerEntry.transpose);
+	this->dataWriter.WriteByte(layerEntry.tune);
+	this->dataWriter.WriteByte(layerEntry.attack);
+	this->dataWriter.WriteByte(layerEntry.decay);
+	this->dataWriter.WriteByte(layerEntry.cutoff);
+	this->dataWriter.WriteByte(layerEntry.resonance);
+
+	this->dataWriter.WriteByte((layerEntry.unknown13 - 32768) / 330);
+	this->dataWriter.WriteByte(layerEntry.unknown14);
+	this->WriteEqualizerData(layerEntry.drumSampleEqualizer);
+
+	this->dataWriter.WriteBytes(layerEntry.unknown21, sizeof(layerEntry.unknown21));
+	this->dataWriter.WriteByte(layerEntry.intensity);
+
+	this->dataWriter.WriteUInt64(layerEntry.drumSampleId);
 }
 
 void SoundFormat3_0Writer::WriteOscillatorData(const Sound::OscillatorData &oscillatorData)

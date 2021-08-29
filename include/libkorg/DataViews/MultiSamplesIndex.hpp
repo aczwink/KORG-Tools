@@ -29,6 +29,16 @@ namespace libKORG
 		MultiSamplesIndex(const MultiSamples::MultiSamplesData& data);
 
 		//Inline
+		inline const MultiSamples::DrumSampleEntry& GetDrumSampleEntryById(uint64 id) const
+		{
+			return this->data.drumSampleEntries[this->drumSampleIdMap.Get(id)];
+		}
+
+		inline uint32 GetDrumSampleEntryIndex(uint64 id) const
+		{
+			return this->drumSampleIdMap.Get(id);
+		}
+
 		inline const MultiSamples::MultiSampleEntry& GetMultiSampleEntryById(uint64 id) const
 		{
 			return this->data.multiSampleEntries[this->multiSampleIdMap.Get(id)];
@@ -49,6 +59,11 @@ namespace libKORG
 			return this->sampleIdMap.Get(id);
 		}
 
+		inline bool HasDrumSampleEntry(uint64 id) const
+		{
+			return this->drumSampleIdMap.Contains(id);
+		}
+
 		inline bool HasMultiSampleEntry(uint64 id) const
 		{
 			return this->multiSampleIdMap.Contains(id);
@@ -62,6 +77,7 @@ namespace libKORG
 	private:
 		//Members
 		const MultiSamples::MultiSamplesData& data;
+		StdXX::BinaryTreeMap<uint64, uint32> drumSampleIdMap;
 		StdXX::BinaryTreeMap<uint64, uint32> multiSampleIdMap;
 		StdXX::BinaryTreeMap<uint64, uint32> sampleIdMap;
 	};

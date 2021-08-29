@@ -127,6 +127,38 @@ Optional<BankSlot<SoundBankNumber>> ResourceImporter::FindSoundLocation(const So
 	return {};
 }
 
+bool ResourceImporter::ImportDrumSample(uint64 id)
+{
+	if(this->importedDrumSampleIds.Contains(id))
+		return true;
+	if(this->targetMultiSamplesIndex.HasDrumSampleEntry(id))
+		return true;
+
+	const auto& sourceData = this->sourceSet.MultiSamples().data;
+	const auto& sourceEntry = this->sourceMultiSamplesIndex.GetDrumSampleEntryById(id);
+	stdOut << u8"---Importing drum sample: " << sourceEntry.name << endl;
+
+	auto targetEntry = sourceEntry;
+
+	uint64 leftSampleId = sourceData.sampleEntries[sourceEntry.sampleIndexLeft].id;
+	if(!this->ImportSample(leftSampleId))
+		return false;
+	targetEntry.sampleIndexLeft = this->MapSampleIdToIndex(leftSampleId);
+
+	if(sourceEntry.sampleIndexRight != -1)
+	{
+		uint64 rightSampleId = sourceData.sampleEntries[sourceEntry.sampleIndexRight].id;
+		if(!this->ImportSample(rightSampleId))
+			return false;
+		targetEntry.sampleIndexRight = this->MapSampleIdToIndex(rightSampleId);
+	}
+
+	uint32 index = this->targetSet.MultiSamples().data.drumSampleEntries.Push(targetEntry);
+	this->importedDrumSampleIds.Insert(id, index);
+
+	return true;
+}
+
 bool ResourceImporter::ImportMultiSample(uint64 id)
 {
 	if(this->importedMultiSampleIds.Contains(id))
@@ -221,7 +253,7 @@ bool ResourceImporter::ImportSound(const ProgramChangeSequence &programChangeSeq
 	const SoundObject& soundObject = soundEntry.Object();
 
 	stdOut << u8"-Importing sound: " << soundEntry.Name() << endl;
-	const auto slot = this->targetSet.soundBanks.FindFreeSlot(this->config.soundInsertSlot.HasValue() ? this->config.soundInsertSlot.Value() : *sourceLocation);
+	const auto slot = this->FindFreeSoundSlot(*sourceLocation);
 	if(!slot.HasValue())
 	{
 		stdOut << u8"No free sound slot available" << endl;
@@ -237,7 +269,16 @@ bool ResourceImporter::ImportSound(const ProgramChangeSequence &programChangeSeq
 		if(osc.low.source == Sound::MultiSampleSource::RAM)
 			osc.low.multiSampleNumber = this->MapMultiSampleIdToIndex(osc.low.multiSampleId);
 		if(osc.high.source == Sound::MultiSampleSource::RAM)
-			osc.low.multiSampleNumber = this->MapMultiSampleIdToIndex(osc.high.multiSampleId);
+			osc.high.multiSampleNumber = this->MapMultiSampleIdToIndex(osc.high.multiSampleId);
+	}
+
+	if(newSound.drumKitData.HasValue())
+	{
+		for(auto& layerEntry : newSound.drumKitData->layers)
+		{
+			if(layerEntry.sampleBankNumber > 0)
+				layerEntry.drumSampleNumber = this->MapDrumSampleIdToIndex(layerEntry.drumSampleId);
+		}
 	}
 
 	auto findResult = this->FindSoundLocation(newSound);
@@ -270,7 +311,19 @@ bool ResourceImporter::ImportSoundDependencies(const Sound::SoundData& soundData
 				return false;
 		}
 	}
-	ASSERT_EQUALS(false, soundData.drumKitData.HasValue()); //TODO: implement importing drum kits
+
+	if(soundData.drumKitData.HasValue())
+	{
+		for(const auto& layerEntry : soundData.drumKitData->layers)
+		{
+			if(layerEntry.sampleBankNumber > 0)
+			{
+				if(!this->ImportDrumSample(layerEntry.drumSampleId))
+					return false;
+			}
+		}
+	}
+
 	return true;
 }
 

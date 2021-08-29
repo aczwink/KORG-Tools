@@ -68,7 +68,7 @@ void MultiSamplesFormat3_0Writer::Write(const libKORG::MultiSamples::KeyboardZon
 {
 	this->dataWriter.WriteInt16(keyboardZone.sampleNumber);
 
-	this->dataWriter.WriteByte(1);
+	this->dataWriter.WriteByte(keyboardZone.unknown1);
 
 	this->dataWriter.WriteByte(keyboardZone.to.Encode());
 	this->dataWriter.WriteByte(keyboardZone.originalNote.Encode());

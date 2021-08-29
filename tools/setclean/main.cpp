@@ -21,6 +21,7 @@
 
 enum class ResourceType
 {
+	DrumSamples,
 	MultiSamples,
 	Samples,
 	Sounds,
@@ -32,10 +33,17 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 
 	parser.AddHelpOption();
 
+	CommandLine::Option allOpt(u8'a', u8"all", u8"Show also referenced resources");
+	parser.AddOption(allOpt);
+
 	CommandLine::Option ignoreSTSOpt(u8'i', u8"ignore-sts", u8"If specified, STS are ignored, i.e. their assigned sounds are not considered");
 	parser.AddOption(ignoreSTSOpt);
 
+	CommandLine::Option ignorePerformanceAccSettingsOpt(u8'I', u8"ignore-performance-acc-settings", u8"If specified, accompaniment sounds for performances are ignore, i.e. their assigned sounds are not considered");
+	parser.AddOption(ignorePerformanceAccSettingsOpt);
+
 	CommandLine::EnumArgument<ResourceType> typeArgument(u8"type", u8"The resource type of the set that should be cleaned");
+	typeArgument.AddMapping(u8"drumsamples", ResourceType::DrumSamples, u8"Remove unused drum samples");
 	typeArgument.AddMapping(u8"multisamples", ResourceType::MultiSamples, u8"Remove unused multisamples");
 	typeArgument.AddMapping(u8"samples", ResourceType::Samples, u8"Remove unused samples");
 	typeArgument.AddMapping(u8"sounds", ResourceType::Sounds, u8"Remove unused sounds");
@@ -73,17 +81,22 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 			   << idsCorrector.Errors().missingDrumSamplesCount << u8" drum samples (metadata) are missing." << endl;
 	}
 
+	bool showAll = result.IsActivated(allOpt);
+
 	SetCleaner setCleaner(set);
 	switch(typeArgument.Value(result))
 	{
+		case ResourceType::DrumSamples:
+			setCleaner.RemoveUnusedDrumSamples();
+			break;
 		case ResourceType::MultiSamples:
 			setCleaner.RemoveUnusedMultiSamples();
 			break;
 		case ResourceType::Samples:
-			setCleaner.RemoveUnusedSamples();
+			setCleaner.RemoveUnusedSamples(showAll);
 			break;
 		case ResourceType::Sounds:
-			setCleaner.RemoveUnusedSounds(result.IsActivated(ignoreSTSOpt));
+			setCleaner.RemoveUnusedSounds(result.IsActivated(ignorePerformanceAccSettingsOpt), result.IsActivated(ignoreSTSOpt), showAll);
 			break;
 	}
 

@@ -110,7 +110,7 @@ void MultiSamplesFormat1_0Reader::ReadKeyboardZones(uint16 nEntries, DataReader 
 
 		keyboardZone.sampleNumber = dataReader.ReadInt16();
 
-		ASSERT_EQUALS(1, dataReader.ReadByte());
+		keyboardZone.unknown1 = dataReader.ReadByte();
 
 		keyboardZone.to = dataReader.ReadByte();
 		keyboardZone.originalNote = dataReader.ReadByte();

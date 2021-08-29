@@ -24,6 +24,9 @@ using namespace libKORG;
 //Constructor
 MultiSamplesIndex::MultiSamplesIndex(const MultiSamples::MultiSamplesData &data) : data(data)
 {
+	for(uint32 i = 0; i < data.drumSampleEntries.GetNumberOfElements(); i++)
+		this->drumSampleIdMap.Insert(data.drumSampleEntries[i].id, i);
+
 	for(uint32 i = 0; i < data.multiSampleEntries.GetNumberOfElements(); i++)
 		this->multiSampleIdMap.Insert(data.multiSampleEntries[i].id, i);
 

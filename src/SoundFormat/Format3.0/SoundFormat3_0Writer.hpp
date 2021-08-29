@@ -37,7 +37,10 @@ private:
 	StdXX::DataWriter& dataWriter;
 
 	//Methods
+	void WriteDrumKitSoundData(const libKORG::Sound::DrumKitSoundData& drumKitSoundData);
 	void WriteEqualizerData(const libKORG::Sound::EqualizerData& equalizerData);
+	void WriteKeyTableEntry(const libKORG::Sound::KeyTableEntry& keyTableEntry);
+	void WriteLayerEntry(const libKORG::Sound::LayerEntry& layerEntry);
 	void WriteOscillatorData(const libKORG::Sound::OscillatorData& oscillatorData);
 	void WriteOscillatorMultiSamplesData(const libKORG::Sound::OSCMultiSampleSettings& oscMultiSampleSettings);
 };

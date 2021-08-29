@@ -29,9 +29,10 @@ public:
 	}
 
 	//Methods
+	void RemoveUnusedDrumSamples();
 	void RemoveUnusedMultiSamples();
-	void RemoveUnusedSamples();
-	void RemoveUnusedSounds(bool ignoreSTS);
+	void RemoveUnusedSamples(bool showAll);
+	void RemoveUnusedSounds(bool ignorePerformanceAccSettings, bool ignoreSTS, bool showAll);
 
 private:
 	//Members
@@ -39,18 +40,45 @@ private:
 	const SetIndex setIndex;
 	BinaryTreeSet<uint64> markedDrumSamples;
 	BinaryTreeSet<uint64> markedMultiSamples;
-	BinaryTreeSet<uint64> markedSamples;
-	BinaryTreeSet<ProgramChangeSequence> markedSounds;
+	BinaryTreeMap<uint64, uint32> markedSamples;
+	BinaryTreeMap<ProgramChangeSequence, uint32> markedSounds;
 
 	//Methods
 	void ProcessDrumSamples();
 	void ProcessMultiSamples();
 	void ProcessPads();
-	void ProcessPerformances();
+	void ProcessPerformances(bool ignorePerformanceAccSettings);
 	void ProcessSounds();
 	void ProcessSTS(bool ignoreSTS, const SingleTouchSettings& sts);
 	void ProcessStyle(const Style::StyleData& styleData);
 	void ProcessStyles(bool ignoreSTS);
 	void RemoveUnreferencedMultiSample(uint32 index);
 	void RemoveUnreferencedSample(uint32 index);
+
+	//Inline
+	inline void IncrementSampleReferenceCount(uint64 sampleId)
+	{
+		this->markedSamples[sampleId]++;
+	}
+
+	inline void IncrementSoundReferenceCount(const ProgramChangeSequence& soundProgramChangeSeq)
+	{
+		this->markedSounds[soundProgramChangeSeq]++;
+	}
+
+	template<typename STSData>
+	inline void ProcessSTSData(const STSData& data, bool ignoreSTS)
+	{
+		if(!ignoreSTS)
+		{
+			for (const auto &kbdSettings : data.keyboardSettings)
+			{
+				for (const auto &track : kbdSettings.trackSettings)
+					this->IncrementSoundReferenceCount(track.soundProgramChangeSeq);
+			}
+		}
+
+		for(const auto& track : data.accompanimentSettings.trackSettings)
+			this->IncrementSoundReferenceCount(track.soundProgramChangeSeq);
+	}
 };

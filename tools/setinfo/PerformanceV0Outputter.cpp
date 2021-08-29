@@ -34,7 +34,7 @@ void PerformanceV0Outputter::Output(const PerformanceData &performance)
 
 	for(uint8 i = 0; i < 8; i++)
 	{
-		this->Output(performance.unknownPart8[i]);
+		this->Output(performance.accompanimentSettings.trackSettings[i]);
 	}
 	this->Output(performance.keyboardSettings);
 
