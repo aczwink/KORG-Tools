@@ -335,5 +335,12 @@ namespace libKORG
 		{
 			return this->model.GetBankSetup().styleBanks.nStylesPerBank;
 		}
+
+		template<typename T = ObjectType>
+		inline StdXX::Type::EnableIf_t< StdXX::Type::IsSameType<T, StyleObject>::value, uint8>
+		GetNumberOfSlots() const
+		{
+			return 4 * 8; //4 pages and 8 pads per page
+		}
 	};
 }

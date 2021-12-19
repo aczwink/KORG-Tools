@@ -17,18 +17,15 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <StdXX.hpp>
-#include "libkorg/BankFormat/MultiSamplesObject.hpp"
-#include <libkorg/BankFormat/SoundObject.hpp>
-#include "libkorg/BankFormat/PerformanceObject.hpp"
-#include "FullStyle.hpp"
-#include "Model.hpp"
-#include <libkorg/BankFormat/SoundBankNumber.hpp>
-#include <libkorg/BankFormat/PerformanceBankNumber.hpp>
-#include <libkorg/BankFormat/StyleBankNumber.hpp>
-#include <libkorg/BankFormat/SampleBankNumber.hpp>
-#include <libkorg/BankFormat/BankCollection.hpp>
 #include <libkorg/BankFormat/PadBankNumber.hpp>
+#include <libkorg/BankFormat/PerformanceBankNumber.hpp>
+#include <libkorg/BankFormat/PerformanceObject.hpp>
+#include <libkorg/BankFormat/BankCollection.hpp>
+#include <libkorg/BankFormat/MultiSamplesObject.hpp>
+#include <libkorg/BankFormat/SampleBankNumber.hpp>
+#include <libkorg/BankFormat/SoundBankNumber.hpp>
+#include <libkorg/BankFormat/StyleBankNumber.hpp>
+#include "Model.hpp"
 
 namespace libKORG
 {
@@ -62,8 +59,13 @@ namespace libKORG
 			return *this->multiSamples;
 		}
 
+		inline const StdXX::FileSystem::Path& SetPath() const
+		{
+			return this->setPath;
+		}
+
 		//Methods
-		uint32 ComputeUsedSampleRAMSize();
+		uint32 ComputeUsedSampleRAMSize() const;
 		void Save();
 
 		//Functions

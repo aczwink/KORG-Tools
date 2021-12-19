@@ -18,6 +18,9 @@
  */
 #pragma once
 //Local
+#include <libkorg/BankFormat/BankSlot.hpp>
+#include <libkorg/BankFormat/SampleBankNumber.hpp>
+#include <libkorg/BankFormat/SoundBankNumber.hpp>
 #include <libkorg/Set.hpp>
 
 namespace libKORG

@@ -16,15 +16,26 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#pragma once
-#include <StdXX.hpp>
+#include "BankCollectionView.hpp"
 
-namespace libKORG
+class SetWindow : public MainAppWindow
 {
-	template<typename BankNumberType>
-	struct BankSlot
-	{
-		BankNumberType bankNumber;
-		uint8 pos;
-	};
-}
+public:
+    //Constructor
+    SetWindow(EventHandling::EventQueue& eventQueue, SetController& setController);
+
+private:
+    //Members
+    SetController& setController;
+
+    TabContainer* tabContainer;
+    BankCollectionView<PadBankNumber, StyleObject>* padBanksView;
+    BankCollectionView<PerformanceBankNumber, PerformanceObject>* performanceBanksView;
+    BankCollectionView<SampleBankNumber, AbstractSample>* sampleBanksView;
+    BankCollectionView<SoundBankNumber, SoundObject>* soundBanksView;
+    BankCollectionView<StyleBankNumber, FullStyle>* styleBanksView;
+    ProgressBar* sampleSizeBar;
+
+    //Methods
+    void CreateSampleRAMArea();
+};

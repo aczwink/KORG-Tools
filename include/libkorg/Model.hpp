@@ -33,6 +33,7 @@ namespace libKORG
 				StdXX::Optional<StdXX::Math::Range<uint8>> localBankIds;
 				StdXX::Math::Range<uint8> userBankIds;
 			} padBanks;
+
 			struct
 			{
 				StdXX::Math::Range<uint8> factoryBankIds;

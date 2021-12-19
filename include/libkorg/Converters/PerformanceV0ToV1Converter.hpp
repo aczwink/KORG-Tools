@@ -17,6 +17,9 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
+//Local
+#include <libkorg/Performance/Version1/Data.hpp>
+#include <libkorg/Performance/Version0/Data.hpp>
 
 namespace libKORG
 {

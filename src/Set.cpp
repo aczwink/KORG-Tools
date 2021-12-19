@@ -114,7 +114,7 @@ Set::Set(const Path &setPath, const Model& model) : setPath(setPath), model(mode
 }
 
 //Public methods
-uint32 Set::ComputeUsedSampleRAMSize()
+uint32 Set::ComputeUsedSampleRAMSize() const
 {
 	uint32 sum = 0;
 	for(const auto& bankEntry : this->sampleBanks.Entries())

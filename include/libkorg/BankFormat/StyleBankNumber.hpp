@@ -61,5 +61,10 @@ namespace libKORG
 			ASSERT(bankFileName.EndsWith(u8".STY"), u8"???");
 			return FromBankName(bankFileName.SubString(0, bankFileName.GetLength() - 4));
 		}
+
+		static StyleBankNumber FromId(uint8 id)
+		{
+			return {BankNumber::IdToNumber(id)};
+		}
 	};
 }

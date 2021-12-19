@@ -17,6 +17,9 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
+//Local
+#include <libkorg/BankFormat/SingleTouchSettings.hpp>
+#include <libkorg/BankFormat/Style.hpp>
 
 namespace libKORG
 {

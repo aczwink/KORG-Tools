@@ -16,15 +16,21 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#pragma once
-#include <StdXX.hpp>
+#include "SetWindow.hpp"
 
-namespace libKORG
+int32 Main(const String &programName, const FixedArray<String> &args)
 {
-	template<typename BankNumberType>
-	struct BankSlot
-	{
-		BankNumberType bankNumber;
-		uint8 pos;
-	};
+    EventHandling::StandardEventQueue eventQueue;
+
+    String setPath = u8"/home/amir/Desktop/korg-resources/Pa600/pa600qt-factory-set.SET";
+    Set set(setPath, *FindModel(u8"pa600qt"));
+
+    SetController controller(set);
+    SetWindow* setWindow = new SetWindow(eventQueue, controller);
+    setWindow->Maximize();
+    setWindow->Show();
+
+    eventQueue.ProcessEvents();
+
+    return EXIT_SUCCESS;
 }

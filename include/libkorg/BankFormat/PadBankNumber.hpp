@@ -24,6 +24,11 @@ namespace libKORG
 	class PadBankNumber : public BankNumber
 	{
 	public:
+		//Constructor
+		inline PadBankNumber(uint8 number) : BankNumber(number)
+		{
+		}
+
 		//Inline
 		inline StdXX::String ToString() const
 		{
@@ -55,13 +60,18 @@ namespace libKORG
 			else if(isUser)
 				bankNumber += 20;
 
-			return {bankNumber};
+			return {(uint8)bankNumber};
 		}
 
 		static PadBankNumber FromBankFileName(const StdXX::String& bankFileName)
 		{
 			ASSERT(bankFileName.EndsWith(u8".PAD"), u8"???");
 			return PadBankNumber::FromBankName(bankFileName.SubString(0, bankFileName.GetLength() - 4));
+		}
+
+		static PadBankNumber FromId(uint8 id)
+		{
+			return {BankNumber::IdToNumber(id)};
 		}
 	};
 }

@@ -17,14 +17,35 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
+#include <libkorg.hpp>
 #include <StdXX.hpp>
+using namespace libKORG;
+using namespace StdXX;
+using namespace StdXX::UI;
 
-namespace libKORG
+template <typename ObjectType>
+class BankObjectsController : public ListController
 {
-	template<typename BankNumberType>
-	struct BankSlot
-	{
-		BankNumberType bankNumber;
-		uint8 pos;
-	};
-}
+public:
+    //Constructor
+    inline BankObjectsController(const ObjectBank<ObjectType>& objectBank) : objectBank(objectBank)
+    {
+    }
+
+    //Methods
+    uint32 GetNumberOfItems() const override
+    {
+        return this->objectBank.NumberOfSlots();
+    }
+
+    String GetText(uint32 index) const override
+    {
+        if(this->objectBank.HasObject(index))
+            return this->objectBank.GetName(index);
+        return u8"---";
+    }
+
+private:
+    //Members
+    const ObjectBank<ObjectType>& objectBank;
+};

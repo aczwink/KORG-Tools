@@ -17,9 +17,13 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 //Local
+#include <libkorg.hpp>
 #include "BankSlot.hpp"
 #include "ObjectBank.hpp"
 #include "PadBankNumber.hpp"
+#include "SampleBankNumber.hpp"
+#include "SoundBankNumber.hpp"
+#include "StyleBankNumber.hpp"
 
 namespace libKORG
 {
@@ -97,6 +101,11 @@ namespace libKORG
 			return this->FindFreeSlot(startSlot.bankNumber, startSlot.pos);
 		}
 
+		inline StdXX::LinkedList<BankNumberType> GetAllBankNumbers() const
+		{
+			return this->template GetAllBankNumbersImpl();
+		}
+
 		inline bool HasBank(const BankNumberType& bankNumberType) const
 		{
 			return this->template HasBankImpl(bankNumberType);
@@ -108,6 +117,75 @@ namespace libKORG
 		mutable StdXX::BinaryTreeMap<BankNumberType, ObjectBank<ObjectType>> banks;
 
 		//Inline
+		inline void AddRangeEntries(StdXX::LinkedList<BankNumberType>& result, const StdXX::Math::Range<uint8>& bankIdRange) const
+        {
+			for(uint8 id = bankIdRange.start; id <= bankIdRange.end; id++)
+				result.InsertTail(BankNumberType::FromId(id));
+        }
+
+		inline void AddRangeEntries(StdXX::LinkedList<BankNumberType>& result, const StdXX::Optional<StdXX::Math::Range<uint8>>& bankIdRange) const
+		{
+			if(bankIdRange.HasValue())
+				this->AddRangeEntries(result, *bankIdRange);
+		}
+
+		template<typename T = BankNumberType>
+		inline StdXX::Type::EnableIf_t< StdXX::Type::IsSameType<T, PadBankNumber>::value, StdXX::LinkedList<BankNumberType>>
+		GetAllBankNumbersImpl() const
+		{
+			StdXX::LinkedList<BankNumberType> result;
+			const auto& banks = this->model.GetBankSetup().padBanks;
+			this->AddRangeEntries(result, banks.factoryBankIds);
+			this->AddRangeEntries(result, banks.localBankIds);
+			this->AddRangeEntries(result, banks.userBankIds);
+			return result;
+		}
+
+		template<typename T = BankNumberType>
+		inline StdXX::Type::EnableIf_t< StdXX::Type::IsSameType<T, PerformanceBankNumber>::value, StdXX::LinkedList<BankNumberType>>
+		GetAllBankNumbersImpl() const
+		{
+			StdXX::LinkedList<BankNumberType> result;
+			const auto& banks = this->model.GetBankSetup().performanceBanks;
+			this->AddRangeEntries(result, banks.factoryBankIds);
+			this->AddRangeEntries(result, banks.localBankIds);
+			this->AddRangeEntries(result, banks.userBankIds);
+			return result;
+		}
+
+		template<typename T = BankNumberType>
+		inline StdXX::Type::EnableIf_t< StdXX::Type::IsSameType<T, SampleBankNumber>::value, StdXX::LinkedList<BankNumberType>>
+		GetAllBankNumbersImpl() const
+		{
+			StdXX::LinkedList<BankNumberType> result;
+			this->AddRangeEntries(result, {1, 99});
+			return result;
+		}
+
+		template<typename T = BankNumberType>
+		inline StdXX::Type::EnableIf_t< StdXX::Type::IsSameType<T, SoundBankNumber>::value, StdXX::LinkedList<BankNumberType>>
+		GetAllBankNumbersImpl() const
+		{
+			StdXX::LinkedList<BankNumberType> result;
+			const auto& banks = this->model.GetBankSetup().soundBanks;
+			for(uint8 i = 0; i < banks.nUserBanks; i++)
+				result.InsertTail(9 + i);
+			return result;
+		}
+
+		template<typename T = BankNumberType>
+		inline StdXX::Type::EnableIf_t< StdXX::Type::IsSameType<T, StyleBankNumber>::value, StdXX::LinkedList<BankNumberType>>
+		GetAllBankNumbersImpl() const
+		{
+			StdXX::LinkedList<BankNumberType> result;
+			const auto& banks = this->model.GetBankSetup().styleBanks;
+			this->AddRangeEntries(result, banks.factoryBankIds);
+			this->AddRangeEntries(result, banks.favoriteBankIds);
+			this->AddRangeEntries(result, banks.localBankIds);
+			this->AddRangeEntries(result, banks.userBankIds);
+			return result;
+		}
+
 		template<typename T = BankNumberType>
 		inline StdXX::Type::EnableIf_t< StdXX::Type::IsSameType<T, PadBankNumber>::value, bool>
 			HasBankImpl(const BankNumberType& bankNumber) const

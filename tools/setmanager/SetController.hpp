@@ -16,15 +16,24 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#pragma once
-#include <StdXX.hpp>
+#include <libkorg.hpp>
+using namespace libKORG;
 
-namespace libKORG
+class SetController
 {
-	template<typename BankNumberType>
-	struct BankSlot
-	{
-		BankNumberType bankNumber;
-		uint8 pos;
-	};
-}
+public:
+    //Constructor
+    inline SetController(class Set& set) : set(set)
+    {
+    }
+
+    //Properties
+    inline const class Set& Set() const
+    {
+        return this->set;
+    }
+
+private:
+    //Members
+    class Set& set;
+};

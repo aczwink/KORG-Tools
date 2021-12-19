@@ -17,7 +17,8 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-
+//Local
+#include <libkorg/BankFormat/PerformanceObject.hpp>
 #include "PerformanceV0ToV1Converter.hpp"
 
 namespace libKORG
