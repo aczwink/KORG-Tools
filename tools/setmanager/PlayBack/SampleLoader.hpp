@@ -16,21 +16,17 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "UI/SetWindow.hpp"
+#include <libkorg.hpp>
+using namespace libKORG;
+using namespace StdXX;
 
-int32 Main(const String &programName, const FixedArray<String> &args)
+class SampleLoader
 {
-    EventHandling::StandardEventQueue eventQueue;
+public:
+    //Methods
+    UniquePointer<Multimedia::AudioFrame> LoadSignedPCM16Bit(const Sample::SampleData& sampleData, const MultiSamples::SampleEntry* multiSamplesSampleEntry);
 
-    String setPath = args[0];
-    Set set(setPath, *FindModel(u8"pa600qt"));
-
-    SetController controller(set);
-    SetWindow* setWindow = new SetWindow(eventQueue, controller);
-    setWindow->Maximize();
-    setWindow->Show();
-
-    eventQueue.ProcessEvents();
-
-    return EXIT_SUCCESS;
-}
+private:
+    //Methods
+    Multimedia::Frame* DecodeAudio(const DynamicByteBuffer& buffer, Multimedia::CodingFormatId sourceFormatId, const Multimedia::AudioSampleFormat& sampleFormat);
+};

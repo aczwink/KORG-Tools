@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2022 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -17,7 +17,6 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 //Local
-#include <libkorg.hpp>
 #include "BankSlot.hpp"
 #include "ObjectBank.hpp"
 #include "PadBankNumber.hpp"
@@ -170,6 +169,7 @@ namespace libKORG
 			const auto& banks = this->model.GetBankSetup().soundBanks;
 			for(uint8 i = 0; i < banks.nUserBanks; i++)
 				result.InsertTail(9 + i);
+			result.InsertTail(11); //USER DK
 			return result;
 		}
 

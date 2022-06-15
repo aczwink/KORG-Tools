@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2022 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -16,21 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "UI/SetWindow.hpp"
 
-int32 Main(const String &programName, const FixedArray<String> &args)
+class PlayBackFactory
 {
-    EventHandling::StandardEventQueue eventQueue;
-
-    String setPath = args[0];
-    Set set(setPath, *FindModel(u8"pa600qt"));
-
-    SetController controller(set);
-    SetWindow* setWindow = new SetWindow(eventQueue, controller);
-    setWindow->Maximize();
-    setWindow->Show();
-
-    eventQueue.ProcessEvents();
-
-    return EXIT_SUCCESS;
-}
+public:
+    //Abstract
+    virtual Audio::Source* CreateSource() = 0;
+    virtual Audio::Buffer* LoadSample(uint64 id) = 0;
+};

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2022 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -16,21 +16,17 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "UI/SetWindow.hpp"
+#include <libkorg.hpp>
+using namespace libKORG;
+using namespace StdXX;
 
-int32 Main(const String &programName, const FixedArray<String> &args)
+class StyleMIDILoader
 {
-    EventHandling::StandardEventQueue eventQueue;
+public:
+    //Methods
+    MIDI::Program LoadVariation(uint8 variation, uint8 chordVariation, const FullStyle& fullStyle) const;
 
-    String setPath = args[0];
-    Set set(setPath, *FindModel(u8"pa600qt"));
-
-    SetController controller(set);
-    SetWindow* setWindow = new SetWindow(eventQueue, controller);
-    setWindow->Maximize();
-    setWindow->Show();
-
-    eventQueue.ProcessEvents();
-
-    return EXIT_SUCCESS;
-}
+private:
+    //Methods
+    void LoadTrackEvents(AccompanimentTrackNumber accompanimentTrackNumber, const IChordVariationView& chordVariationView, MIDI::Program& program) const;
+};

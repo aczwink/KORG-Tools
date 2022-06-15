@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2022 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -18,9 +18,6 @@
  */
 #pragma once
 //Local
-#include <libkorg/BankFormat/BankSlot.hpp>
-#include <libkorg/BankFormat/SampleBankNumber.hpp>
-#include <libkorg/BankFormat/SoundBankNumber.hpp>
 #include <libkorg/Set.hpp>
 
 namespace libKORG

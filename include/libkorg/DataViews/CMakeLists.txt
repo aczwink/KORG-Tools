@@ -1,6 +1,7 @@
 set(SOURCE_FILES
 	${SOURCE_FILES}
 
+	${CMAKE_CURRENT_SOURCE_DIR}/DrumKitView.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/MultiSamplesIndex.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/RangedEventView.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/SetIndex.hpp

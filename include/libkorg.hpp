@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2022 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -22,16 +22,17 @@
 #include <libkorg/BankFormat/SampleObject.hpp>
 #include <libkorg/BankFormat/Writer.hpp>
 
-//#include <libkorg/Converters/IdsCorrector.hpp>
+#include <libkorg/Converters/IdsCorrector.hpp>
 #include <libkorg/Converters/PerformanceConverter.hpp>
 #include <libkorg/Converters/PerformanceV0ToV1Converter.hpp>
 #include <libkorg/Converters/PerformanceV2ToV1Converter.hpp>
 #include <libkorg/Converters/SampleRemover.hpp>
 #include <libkorg/Converters/SoundMapper.hpp>
 
+#include <libkorg/DataViews/DrumKitView.hpp>
 #include <libkorg/DataViews/MultiSamplesIndex.hpp>
 #include <libkorg/DataViews/RangedEventView.hpp>
-//#include <libkorg/DataViews/SetIndex.hpp>
+#include <libkorg/DataViews/SetIndex.hpp>
 #include <libkorg/DataViews/StyleView.hpp>
 
 #include <libkorg/Sample/Compression.hpp>

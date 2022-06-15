@@ -22,21 +22,6 @@ using namespace libKORG::Sample;
 using namespace StdXX;
 using namespace StdXX::Multimedia;
 
-Frame* DecodeAudio(const DynamicByteBuffer& buffer, CodingFormatId sourceFormatId, const AudioSampleFormat& sampleFormat)
-{
-	Packet sourcePacket;
-	sourcePacket.Allocate(buffer.Size());
-	buffer.CopyTo(sourcePacket.GetData(), 0, sourcePacket.GetSize());
-
-	UniquePointer<AudioStream> sourceStream = new AudioStream;
-	sourceStream->sampleFormat = sampleFormat;
-
-	UniquePointer<DecoderContext> decoderContext = CodingFormat::GetCodingFormatById(sourceFormatId)->GetBestMatchingDecoder()->CreateContext(*sourceStream.operator->());
-	decoderContext->Decode(sourcePacket);
-
-	return decoderContext->GetNextFrame();
-}
-
 Packet* EncodeAudio(Frame& audioFrame, CodingFormatId targetFormatId, Stream& stream)
 {
 	UniquePointer<EncoderContext> encoderContext = CodingFormat::GetCodingFormatById(targetFormatId)->GetBestMatchingEncoder()->CreateContext(stream);
@@ -60,19 +45,6 @@ void ExportWave(const FileSystem::Path& outPath, const SampleData& sampleData, c
 	targetStream->codingParameters.audio.sampleRate = sampleData.sampleRate;
 
 	UniquePointer<Frame> audioFrame;
-	switch(sampleData.sampleFormat)
-	{
-		case SampleFormat::Linear_PCM_S16BE:
-			audioFrame = DecodeAudio(sampleData.sampleBuffer, CodingFormatId::PCM_S16BE, *targetStream->sampleFormat);
-			break;
-		case SampleFormat::Compressed:
-		{
-			AudioBuffer* audioBuffer = new AudioBuffer(sampleData.nSamples, *targetStream->sampleFormat);
-			Sample::Decompress(sampleData.sampleBuffer.Data(), static_cast<int16 *>(audioBuffer->GetPlane(0)), sampleData.nSamples, multiSamplesSampleEntry->compressionCoefficients[0], multiSamplesSampleEntry->compressionCoefficients[1]);
-			audioFrame = new AudioFrame(audioBuffer);
-		}
-		break;
-	}
 
 	UniquePointer<Packet> packet = EncodeAudio(*audioFrame, targetStream->codingParameters.codingFormat->GetId(), *targetStream);
 

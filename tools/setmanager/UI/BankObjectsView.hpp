@@ -17,7 +17,7 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "BankObjectsController.hpp"
-#include "SetController.hpp"
+#include "../SetController.hpp"
 
 template <typename BankNumberType, typename ObjectType>
 class BankObjectsView : public ListView

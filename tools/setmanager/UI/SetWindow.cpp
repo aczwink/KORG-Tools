@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2022 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -45,6 +45,9 @@ SetWindow::SetWindow(EventHandling::EventQueue &eventQueue, SetController& setCo
     this->tabContainer->AddTab(u8"Styles", this->styleBanksView);
 
     this->CreateSampleRAMArea();
+
+    this->playBackView = new PlayBackView;
+    this->AddContentChild(this->playBackView);
 }
 
 //Private methods
