@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2023 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -191,11 +191,11 @@ namespace libKORG
 			HasBankImpl(const BankNumberType& bankNumber) const
 		{
 			const auto padBanks = this->model.GetBankSetup().padBanks;
-			if(padBanks.factoryBankIds.ContainsEndInclusive(bankNumber.Id()))
+			if(padBanks.factoryBankIds.Contains(bankNumber.Id()))
 				return true;
-			if(padBanks.localBankIds.HasValue() and padBanks.localBankIds->ContainsEndInclusive(bankNumber.Id()))
+			if(padBanks.localBankIds.HasValue() and padBanks.localBankIds->Contains(bankNumber.Id()))
 				return true;
-			if(padBanks.userBankIds.ContainsEndInclusive(bankNumber.Id()))
+			if(padBanks.userBankIds.Contains(bankNumber.Id()))
 				return true;
 			return false;
 		}
@@ -205,11 +205,11 @@ namespace libKORG
 		        HasBankImpl(const BankNumberType& bankNumber) const
 		{
 			const auto performanceBanks = this->model.GetBankSetup().performanceBanks;
-			if(performanceBanks.factoryBankIds.ContainsEndInclusive(bankNumber.Id()))
+			if(performanceBanks.factoryBankIds.Contains(bankNumber.Id()))
 				return true;
-			if(performanceBanks.localBankIds.HasValue() and performanceBanks.localBankIds->ContainsEndInclusive(bankNumber.Id()))
+			if(performanceBanks.localBankIds.HasValue() and performanceBanks.localBankIds->Contains(bankNumber.Id()))
 				return true;
-			if(performanceBanks.userBankIds.HasValue() and performanceBanks.userBankIds->ContainsEndInclusive(bankNumber.Id()))
+			if(performanceBanks.userBankIds.HasValue() and performanceBanks.userBankIds->Contains(bankNumber.Id()))
 				return true;
 			return false;
 		}
@@ -218,7 +218,7 @@ namespace libKORG
 		inline StdXX::Type::EnableIf_t< StdXX::Type::IsSameType<T, SampleBankNumber>::value, bool>
 		        HasBankImpl(const BankNumberType& bankNumber) const
 		{
-			return StdXX::Math::Range<int32>(1, 99).ContainsEndInclusive(bankNumber.Id());
+			return StdXX::Math::Interval<int32>(1, 99).Contains(bankNumber.Id());
 		}
 
 		template<typename T = BankNumberType>
@@ -233,13 +233,13 @@ namespace libKORG
 		HasBankImpl(const BankNumberType& bankNumber) const
 		{
 			const auto styleBanks = this->model.GetBankSetup().styleBanks;
-			if(styleBanks.factoryBankIds.ContainsEndInclusive(bankNumber.Id()))
+			if(styleBanks.factoryBankIds.Contains(bankNumber.Id()))
 				return true;
-			if(styleBanks.userBankIds.ContainsEndInclusive(bankNumber.Id()))
+			if(styleBanks.userBankIds.Contains(bankNumber.Id()))
 				return true;
-			if(styleBanks.favoriteBankIds.HasValue() and styleBanks.favoriteBankIds->ContainsEndInclusive(bankNumber.Id()))
+			if(styleBanks.favoriteBankIds.HasValue() and styleBanks.favoriteBankIds->Contains(bankNumber.Id()))
 				return true;
-			if(styleBanks.localBankIds.HasValue() and styleBanks.localBankIds->ContainsEndInclusive(bankNumber.Id()))
+			if(styleBanks.localBankIds.HasValue() and styleBanks.localBankIds->Contains(bankNumber.Id()))
 				return true;
 			return false;
 		}

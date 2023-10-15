@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2023 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -29,9 +29,9 @@ namespace libKORG
 		{
 			struct
 			{
-				StdXX::Math::Range<uint8> factoryBankIds;
-				StdXX::Optional<StdXX::Math::Range<uint8>> localBankIds;
-				StdXX::Math::Range<uint8> userBankIds;
+				StdXX::Math::Interval<uint8> factoryBankIds;
+				StdXX::Optional<StdXX::Math::Interval<uint8>> localBankIds;
+				StdXX::Math::Interval<uint8> userBankIds;
 			} padBanks;
 
 			struct
