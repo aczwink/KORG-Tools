@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -25,7 +25,11 @@ int32 Main(const String &programName, const FixedArray<String> &args)
     String setPath = args[0];
     Set set(setPath, *FindModel(u8"pa600qt"));
 
-    SetController controller(set);
+    IdsCorrector idsCorrector(set);
+    idsCorrector.Correct();
+
+    PlaybackManager playbackManager(set);
+    SetController controller(set, playbackManager);
     SetWindow* setWindow = new SetWindow(eventQueue, controller);
     setWindow->Maximize();
     setWindow->Show();

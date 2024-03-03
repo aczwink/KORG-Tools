@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2023 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -47,8 +47,8 @@ Frame* SampleLoader::DecodeAudio(const DynamicByteBuffer& buffer, CodingFormatId
     sourcePacket.Allocate(buffer.Size());
     buffer.CopyTo(sourcePacket.GetData(), 0, sourcePacket.GetSize());
 
-    UniquePointer<AudioStream> sourceStream = new AudioStream;
-    sourceStream->sampleFormat = sampleFormat;
+    UniquePointer<Stream> sourceStream = new Stream(DataType::Audio);
+    sourceStream->codingParameters.audio.sampleFormat = sampleFormat;
 
     UniquePointer<DecoderContext> decoderContext = FormatRegistry::Instance().GetCodingFormatById(sourceFormatId)->GetBestMatchingDecoder()->CreateContext(*sourceStream.operator->());
     decoderContext->Decode(sourcePacket);

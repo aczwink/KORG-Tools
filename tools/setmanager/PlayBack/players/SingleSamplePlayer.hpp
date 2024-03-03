@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -16,11 +16,32 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
+#pragma once
+#include <StdXX.hpp>
+using namespace StdXX;
+using namespace StdXX::Audio;
 
-class PlayBackFactory
+class SingleSamplePlayer
 {
 public:
-    //Abstract
-    virtual Audio::Source* CreateSource() = 0;
-    virtual Audio::Buffer* LoadSample(uint64 id) = 0;
+	//Constructor
+	inline SingleSamplePlayer(Audio::DeviceContext& deviceContext)
+	{
+		this->source = deviceContext.CreateSource();
+	}
+
+	//Inline
+	inline void PlayBuffer(Buffer* buffer)
+	{
+		if(this->source->IsPlaying())
+			this->source->Stop();
+		this->source->DequeueProcessedBuffers();
+
+		this->source->EnqueueBuffer(*buffer);
+		this->source->Play();
+	}
+
+private:
+	//State
+	UniquePointer<Source> source;
 };

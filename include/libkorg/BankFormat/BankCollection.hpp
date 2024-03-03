@@ -116,11 +116,23 @@ namespace libKORG
 		mutable StdXX::BinaryTreeMap<BankNumberType, ObjectBank<ObjectType>> banks;
 
 		//Inline
-		inline void AddRangeEntries(StdXX::LinkedList<BankNumberType>& result, const StdXX::Math::Range<uint8>& bankIdRange) const
+		inline void AddRangeEntries(StdXX::LinkedList<BankNumberType>& result, const StdXX::Math::Interval<uint8>& bankIdRange) const
         {
 			for(uint8 id = bankIdRange.start; id <= bankIdRange.end; id++)
 				result.InsertTail(BankNumberType::FromId(id));
         }
+
+		inline void AddRangeEntries(StdXX::LinkedList<BankNumberType>& result, const StdXX::Math::Range<uint8>& bankIdRange) const
+		{
+			for(uint8 id = bankIdRange.start; id <= bankIdRange.end; id++)
+				result.InsertTail(BankNumberType::FromId(id));
+		}
+
+		inline void AddRangeEntries(StdXX::LinkedList<BankNumberType>& result, const StdXX::Optional<StdXX::Math::Interval<uint8>>& bankIdRange) const
+		{
+			if(bankIdRange.HasValue())
+				this->AddRangeEntries(result, *bankIdRange);
+		}
 
 		inline void AddRangeEntries(StdXX::LinkedList<BankNumberType>& result, const StdXX::Optional<StdXX::Math::Range<uint8>>& bankIdRange) const
 		{
@@ -157,7 +169,8 @@ namespace libKORG
 		GetAllBankNumbersImpl() const
 		{
 			StdXX::LinkedList<BankNumberType> result;
-			this->AddRangeEntries(result, {1, 99});
+			auto range = StdXX::Math::Range<uint8>(1, 99);
+			this->AddRangeEntries(result, range);
 			return result;
 		}
 

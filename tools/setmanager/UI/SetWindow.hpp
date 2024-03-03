@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -18,6 +18,7 @@
  */
 #include "BankCollectionView.hpp"
 #include "PlayBackView.hpp"
+#include "KeyboardView.hpp"
 
 class SetWindow : public MainAppWindow
 {
@@ -37,6 +38,7 @@ private:
     BankCollectionView<StyleBankNumber, FullStyle>* styleBanksView;
     ProgressBar* sampleSizeBar;
     PlayBackView* playBackView;
+    KeyboardView* keyboardView;
 
     //Methods
     void CreateSampleRAMArea();

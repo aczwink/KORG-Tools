@@ -16,17 +16,12 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "TrackView.hpp"
+#pragma once
 
-class PlayBackView : public GroupBox
+class PlayBackFactory
 {
 public:
-    //Constructor
-    PlayBackView(SetController& setController);
-
-private:
-    //Members
-    PushButton* startStopButton;
-    TrackView* accompanimentTracks[8];
-    TrackView* realTimeTracks[4];
+    //Abstract
+    virtual Audio::Source* CreateSource() = 0;
+    virtual Audio::Buffer* LoadSample(uint64 id) = 0;
 };

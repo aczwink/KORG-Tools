@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2022-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
+#pragma once
 #include <libkorg.hpp>
 using namespace libKORG;
 using namespace StdXX;
@@ -32,6 +33,16 @@ public:
     inline const MultiSamples::DrumSampleEntry& GetDrumSample(uint64 id) const
     {
         return this->multiSamplesIndex.GetDrumSampleEntryById(id);
+    }
+
+    inline const MultiSamples::KeyboardZone& GetKeyboardZone(uint16 index) const
+    {
+        return this->set.MultiSamples().data.keyboardZones[index];
+    }
+
+    inline const MultiSamples::MultiSampleEntry& GetMultiSampleEntry(uint64 id) const
+    {
+        return this->multiSamplesIndex.GetMultiSampleEntryById(id);
     }
 
     inline const AbstractSample& GetSample(uint64 id) const

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -26,6 +26,7 @@ public:
     //Constructor
     inline BankObjectsView(class SetController& setController) : setController(setController)
     {
+        this->selectionChanged.Connect(this, &BankObjectsView::OnSelectedBankObjectChanged);
     }
 
     //Inline
@@ -76,6 +77,44 @@ private:
         return u8"style";
     }
 
+    template<typename T = BankNumberType>
+    inline Type::EnableIf_t< Type::IsSameType<T, PadBankNumber>::value, void>
+    OnSelectedBankObjectChanged()
+    {
+    }
+
+    template<typename T = BankNumberType>
+    inline Type::EnableIf_t< Type::IsSameType<T, PerformanceBankNumber>::value, void>
+    OnSelectedBankObjectChanged()
+    {
+    }
+
+    template<typename T = BankNumberType>
+    inline Type::EnableIf_t< Type::IsSameType<T, SampleBankNumber>::value, void>
+    OnSelectedBankObjectChanged()
+    {
+		auto indexes = this->SelectionController().GetSelectedIndexes();
+		if(indexes.IsEmpty())
+			return;
+		this->setController.PlaySample(*this->bankNumber, indexes.GetFront().GetRow());
+    }
+
+    template<typename T = BankNumberType>
+    inline Type::EnableIf_t< Type::IsSameType<T, SoundBankNumber>::value, void>
+    OnSelectedBankObjectChanged()
+    {
+        auto indexes = this->SelectionController().GetSelectedIndexes();
+        if(indexes.IsEmpty())
+            return;
+        this->setController.SelectSound(*this->bankNumber, indexes.GetFront().GetRow());
+    }
+
+    template<typename T = BankNumberType>
+    inline Type::EnableIf_t< Type::IsSameType<T, StyleBankNumber>::value, void>
+    OnSelectedBankObjectChanged()
+    {
+    }
+
     //Event handlers
     void OnCopyBankObject(uint8 pos)
     {
@@ -94,7 +133,10 @@ private:
     void OnMouseButtonPressed(MouseClickEvent &event) override
     {
         auto indexes = this->SelectionController().GetSelectedIndexes();
-        if(event.GetMouseButton() == MouseButton::Right and !indexes.IsEmpty())
+        if(indexes.IsEmpty())
+            return;
+
+        else if(event.GetMouseButton() == MouseButton::Right)
         {
             Menu* menu = new Menu(u8"Perske");
 

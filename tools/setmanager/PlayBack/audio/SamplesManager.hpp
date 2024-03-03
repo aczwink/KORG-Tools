@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2022-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -16,27 +16,31 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
+#pragma once
+#include <StdXX.hpp>
+using namespace StdXX;
 //Local
-#include "PlayBackSet.hpp"
 #include "PlayBackFactory.hpp"
+#include "../PlayBackSet.hpp"
 
-class PlayBackDrumKit
+class SamplesManager : public PlayBackFactory
 {
 public:
-    //Constructor
-    inline PlayBackDrumKit(const Sound::DrumKitSoundData& drumKitSoundData, const PlayBackSet& playBackSet, PlayBackFactory& playBackFactory)
-        : drumKitSoundData(drumKitSoundData), playBackSet(playBackSet), playBackFactory(playBackFactory)
-    {
-    }
+	//Constructor
+	inline SamplesManager(Audio::DeviceContext& deviceContext, const PlayBackSet& playBackSet) : deviceContext(deviceContext), playBackSet(playBackSet)
+	{
+	}
 
-    //Methods
-    void PlayNote(uint8 note, uint8 velocity);
-    void StopNote(uint8 note, uint8 velocity);
+	//Destructor
+	~SamplesManager();
+
+	//Methods
+	Audio::Source *CreateSource() override;
+	Audio::Buffer* LoadSample(uint64 id) override;
 
 private:
-    //Variables
-    const Sound::DrumKitSoundData& drumKitSoundData;
-    const PlayBackSet& playBackSet;
-    PlayBackFactory& playBackFactory;
-    UniquePointer<Audio::Source> keySources[128];
+	//State
+	Audio::DeviceContext& deviceContext;
+	const PlayBackSet& playBackSet;
+	BinaryTreeMap<uint64, Audio::Buffer*> sampleBuffers;
 };

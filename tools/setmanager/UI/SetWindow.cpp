@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -46,8 +46,11 @@ SetWindow::SetWindow(EventHandling::EventQueue &eventQueue, SetController& setCo
 
     this->CreateSampleRAMArea();
 
-    this->playBackView = new PlayBackView;
+    this->playBackView = new PlayBackView(setController);
     this->AddContentChild(this->playBackView);
+
+    this->keyboardView = new KeyboardView(setController);
+    this->AddContentChild(this->keyboardView);
 }
 
 //Private methods

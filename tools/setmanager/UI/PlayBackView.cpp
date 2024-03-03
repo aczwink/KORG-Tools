@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2022-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -20,9 +20,33 @@
 #include "PlayBackView.hpp"
 
 //Constructor
-PlayBackView::PlayBackView()
+PlayBackView::PlayBackView(SetController& setController)
 {
     this->SetTitle(u8"Playback");
+
+    CompositeWidget* row = new CompositeWidget;
+
+    GroupBox* accompany = new GroupBox;
+    accompany->SetTitle(u8"Accompaniment tracks");
+    row->AddChild(accompany);
+
+    for(uint8 i = 0; i < 8; i++)
+    {
+        this->accompanimentTracks[i] = new TrackView((AccompanimentTrackNumber)i, setController);
+        accompany->AddContentChild(this->accompanimentTracks[i]);
+    }
+
+    GroupBox* realTime = new GroupBox;
+    realTime->SetTitle(u8"Real-time tracks");
+    row->AddChild(realTime);
+
+    for(uint8 i = 0; i < 4; i++)
+    {
+        this->realTimeTracks[i] = new TrackView((KeyboardTrackNumber)i, setController);
+        realTime->AddContentChild(this->realTimeTracks[i]);
+    }
+
+    this->AddContentChild(row);
 
     this->startStopButton = new PushButton;
     this->startStopButton->SetText(u8"Start");
