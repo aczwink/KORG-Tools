@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -30,7 +30,7 @@ TEST_SUITE(AllValuesSetDrumKitTests)
 		FileSystem::Path setPath(u8"testdata/sounds/pa600/allvaluesset_dk.SET");
 		Set set(setPath);
 		const auto soundEntry = set.soundBanks.Entries().begin().operator*().bank.Objects().begin().operator*();
-		const auto& soundData = soundEntry.object->data;
+		const auto& soundData = soundEntry.Object().data;
 
 		ASSERT_EQUALS(true, soundData.drumKitData.HasValue());
 		const auto& dkData = *soundData.drumKitData;

@@ -87,6 +87,10 @@ private:
     inline Type::EnableIf_t< Type::IsSameType<T, PerformanceBankNumber>::value, void>
     OnSelectedBankObjectChanged()
     {
+        auto indexes = this->SelectionController().GetSelectedIndexes();
+        if(indexes.IsEmpty())
+            return;
+        this->setController.SelectPerformance(*this->bankNumber, indexes.GetFront().GetRow());
     }
 
     template<typename T = BankNumberType>
@@ -106,13 +110,17 @@ private:
         auto indexes = this->SelectionController().GetSelectedIndexes();
         if(indexes.IsEmpty())
             return;
-        this->setController.SelectSound(*this->bankNumber, indexes.GetFront().GetRow());
+        this->setController.SelectSound(KeyboardTrackNumber::Upper1, *this->bankNumber, indexes.GetFront().GetRow());
     }
 
     template<typename T = BankNumberType>
     inline Type::EnableIf_t< Type::IsSameType<T, StyleBankNumber>::value, void>
     OnSelectedBankObjectChanged()
     {
+        auto indexes = this->SelectionController().GetSelectedIndexes();
+        if(indexes.IsEmpty())
+            return;
+        this->setController.SelectStyle(*this->bankNumber, indexes.GetFront().GetRow());
     }
 
     //Event handlers

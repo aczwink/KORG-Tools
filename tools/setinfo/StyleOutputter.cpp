@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -224,13 +224,13 @@ void StyleOutputter::Output(uint32 index, const KORG_MIDI_Event &event)
 	{
 		case KORG_MIDI_EventType::NoteOff:
 			this->formattedOutputter.OutputProperty(u8"type", u8"note off");
-			this->formattedOutputter.OutputProperty(u8"pitch", PitchToString(Pitch(event.value1)));
+			this->formattedOutputter.OutputProperty(u8"pitch", Pitch(event.value1).ToString());
 			this->formattedOutputter.OutputProperty(u8"velocity", event.value2);
 			this->formattedOutputter.OutputProperty(u8"unknownAdditional", event.unknownAdditional.HasValue() ? String::Number(event.unknownAdditional.Value()) : u8"N/A");
 			break;
 		case KORG_MIDI_EventType::NoteOn:
 			this->formattedOutputter.OutputProperty(u8"type", u8"note on");
-			this->formattedOutputter.OutputProperty(u8"pitch", PitchToString(Pitch(event.value1)));
+			this->formattedOutputter.OutputProperty(u8"pitch", Pitch(event.value1).ToString());
 			this->formattedOutputter.OutputProperty(u8"velocity", event.value2);
 			this->formattedOutputter.OutputProperty(u8"unknownAdditional", event.unknownAdditional.HasValue() ? String::Number(event.unknownAdditional.Value()) : u8"N/A");
 			break;
@@ -251,12 +251,12 @@ void StyleOutputter::Output(uint32 index, const KORG_MIDI_Event &event)
 			break;
 		case KORG_MIDI_EventType::RXnoiseOff:
 			this->formattedOutputter.OutputProperty(u8"type", u8"rxnoise off");
-			this->formattedOutputter.OutputProperty(u8"pitch", PitchToString(Pitch(event.value1)));
+			this->formattedOutputter.OutputProperty(u8"pitch", Pitch(event.value1).ToString());
 			this->formattedOutputter.OutputProperty(u8"velocity", event.value2);
 			break;
 		case KORG_MIDI_EventType::RXnoiseOn:
 			this->formattedOutputter.OutputProperty(u8"type", u8"rxnoise on");
-			this->formattedOutputter.OutputProperty(u8"pitch", PitchToString(Pitch(event.value1)));
+			this->formattedOutputter.OutputProperty(u8"pitch", Pitch(event.value1).ToString());
 			this->formattedOutputter.OutputProperty(u8"velocity", event.value2);
 			break;
 		case KORG_MIDI_EventType::MetaEvent:

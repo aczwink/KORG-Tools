@@ -69,5 +69,5 @@ private:
 	bool CanOscillatorSound(const Pitch &pitch, const Sound::OSCMultiSampleSettings& osc) const;
 	void NoteOnDrumKit(const Pitch& pitch, uint8 velocity);
 	void NoteOnMultiSamples(const Pitch& pitch, uint8 velocity);
-	void NoteOnOscillator(uint8 encodedPitch, const Sound::OSCMultiSampleSettings& osc, UniquePointer<Audio::Source>& oscSource);
+	void NoteOnOscillator(const Pitch& pitch, float32 gain, const Sound::OSCMultiSampleSettings& osc, UniquePointer<Audio::Source>& oscSource);
 };

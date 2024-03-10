@@ -28,25 +28,59 @@ public:
 	//Constructor
 	inline KeyboardRealtimePlayer(const PlayBackSet& playBackSet, PlayBackFactory& playBackFactory) : playBackSet(playBackSet), playBackFactory(playBackFactory)
 	{
+		for (bool &i : this->muted)
+			i = false;
 	}
 
 	//Inline
 	inline bool CanKeySound(const Pitch& pitch) const
 	{
-		const auto& track = this->tracks[(uint8)KeyboardTrackNumber::Upper1];
-		if(track.IsNull())
-			return false;
-		return track->CanKeySound(pitch);
+		for(uint8 i = 0; i < 4; i++)
+		{
+			const auto& track = this->tracks[(uint8)i];
+			if(track.IsNull())
+				continue;
+			if(track->CanKeySound(pitch))
+				return true;
+		}
+		return false;
+	}
+
+	inline bool IsTrackMuted(KeyboardTrackNumber trackNumber) const
+	{
+		return this->muted[(uint8)trackNumber];
 	}
 
 	inline void KeyDown(const Pitch& pitch, uint8 velocity)
 	{
-		this->tracks[(uint8)KeyboardTrackNumber::Upper1]->NoteOn(pitch, velocity);
+		for(uint8 i = 0; i < 4; i++)
+		{
+			auto& track = this->tracks[(uint8)i];
+			if(track.IsNull())
+				continue;
+			if(this->muted[i])
+				continue;
+			track->NoteOn(pitch, velocity);
+		}
 	}
 
 	inline void KeyUp(const Pitch& pitch)
 	{
-		this->tracks[(uint8)KeyboardTrackNumber::Upper1]->NoteOff(pitch);
+		for(uint8 i = 0; i < 4; i++)
+		{
+			auto& track = this->tracks[(uint8)i];
+			if(track.IsNull())
+				continue;
+			if(this->muted[i])
+				continue;
+			track->NoteOff(pitch);
+		}
+	}
+
+	inline void MuteToggleTrack(KeyboardTrackNumber trackNumber)
+	{
+		uint8 idx = static_cast<uint8>(trackNumber);
+		this->muted[idx] = !this->muted[idx];
 	}
 
 	inline void SelectSound(KeyboardTrackNumber trackNumber, const Sound::SoundData& soundData)
@@ -58,5 +92,6 @@ private:
 	//State
 	const PlayBackSet& playBackSet;
 	PlayBackFactory& playBackFactory;
-	UniquePointer<VirtualInstrument> tracks[8];
+	UniquePointer<VirtualInstrument> tracks[4];
+	bool muted[4];
 };

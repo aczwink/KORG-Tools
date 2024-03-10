@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -51,7 +51,8 @@ namespace libKORG
 		StdXX::IndexedSlidingDictionary dictionary;
 
 		//Methods
-		uint32 ComputeEncodedSize(const QueuedBlock& block) const;
+		uint32 ComputeRequiredBytesForBackreference(uint16 distance, uint16 length) const;
+		uint8 ComputeRequiredBytesForStoringRawBytes(uint8 bytesCount) const;
 		void EmitBlock();
 		void EncodeBlock(const QueuedBlock& block, uint16 dataDistance);
 		void FindOptimalBlock(const QueuedBlock& block);

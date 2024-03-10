@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -16,26 +16,27 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <StdXXTest.hpp>
-#include <libkorg.hpp>
-#include "../EventComparison.hpp"
-#include "../../Shared.hpp"
-//Namespaces
-using namespace StdXX;
+#include <StdXX.hpp>
 
-TEST_SUITE(ChordTable2Tests)
+namespace libKORG
 {
-	TEST_CASE(Test)
+	struct OC31BlockHeader
 	{
-		FileSystem::Path setPath(u8"testdata/styles/pa600/chordtable2.SET");
-		Set set(setPath);
-		const auto& fullStyle = ExtractFirstStyle(set);
-		const auto& styleData = fullStyle.Style().data;
+		bool isBackreference;
+		uint16 length;
 
-		const auto& ct = styleData.variation[3].styleElementInfoData.chordTable;
-		ASSERT_EQUALS(5, ct.seven_sharp5CVIndex);
-		ASSERT_EQUALS(4, ct.M7sharp5CVIndex);
-		ASSERT_EQUALS(3, ct.onePlusFiveCVIndex);
-		ASSERT_EQUALS(2, ct.onePlusEightCVIndex);
-	}
+		//only valid for backreferences:
+		uint8 nExtraBytes;
+		uint16 distance;
+	};
+
+	struct OC31Block : public OC31BlockHeader
+	{
+		StdXX::UniquePointer<StdXX::FixedSizeBuffer> rawData;
+		uint8 extra[3];
+	};
+
+	uint32 OC31ComputeOptimalBlockSize(const OC31BlockHeader &block);
+	StdXX::DynamicArray<OC31Block> OC31ReadAllBlocks(StdXX::InputStream& inputStream);
+	void OC31ReadBlockHeader(StdXX::DataReader &dataReader, OC31BlockHeader &header);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -48,8 +48,7 @@ namespace libKORG
 
 		//Methods
 		void Backreference(uint16 offset, uint16 length, uint8 lastByte);
-		uint16 DecompressBackreference(uint8 flagByte);
-		uint16 DecompressDirect(uint8 flagByte);
+		void DecompressDirect(uint16 length);
 		void DecompressNextBlock();
 
 		//Inline

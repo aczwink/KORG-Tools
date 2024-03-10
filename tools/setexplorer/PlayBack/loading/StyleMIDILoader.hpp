@@ -16,17 +16,17 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "TrackView.hpp"
+#include <libkorg.hpp>
+using namespace libKORG;
+using namespace StdXX;
 
-class PlayBackView : public GroupBox
+class StyleMIDILoader
 {
 public:
-    //Constructor
-    PlayBackView(SetController& setController);
+    //Methods
+    MIDI::Program LoadVariation(uint8 variation, uint8 chordVariation, const Style::StyleData& data) const;
 
 private:
-    //Members
-    PushButton* startStopButton;
-    TrackView* accompanimentTracks[8];
-    TrackView* realTimeTracks[4];
+    //Methods
+    void LoadTrackEvents(AccompanimentTrackNumber accompanimentTrackNumber, const IChordVariationView& chordVariationView, MIDI::Program& program) const;
 };

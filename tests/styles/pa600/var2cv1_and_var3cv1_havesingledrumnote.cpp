@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -67,7 +67,7 @@ TEST_SUITE(Var2CV1AndVar3CV1HaveSingleDrumNoteTests)
 	{
 		FileSystem::Path setPath(u8"testdata/styles/pa600/var2cv1_and_var3cv1_havesingledrumnote.SET");
 		Set set(setPath);
-		const auto& fullStyle = set.styleBanks.Entries().begin().operator*().bank.Objects().begin().operator*().object.operator*();
+		const auto& fullStyle = set.styleBanks.Entries().begin().operator*().bank.Objects().begin().operator*().Object();
 		const auto& styleData = fullStyle.Style().data;
 		StyleView styleView(styleData);
 

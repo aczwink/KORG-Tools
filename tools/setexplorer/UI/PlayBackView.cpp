@@ -32,7 +32,7 @@ PlayBackView::PlayBackView(SetController& setController)
 
     for(uint8 i = 0; i < 8; i++)
     {
-        this->accompanimentTracks[i] = new TrackView((AccompanimentTrackNumber)i, setController);
+        this->accompanimentTracks[i] = new TrackSettingsView((AccompanimentTrackNumber)i, setController);
         accompany->AddContentChild(this->accompanimentTracks[i]);
     }
 
@@ -42,13 +42,16 @@ PlayBackView::PlayBackView(SetController& setController)
 
     for(uint8 i = 0; i < 4; i++)
     {
-        this->realTimeTracks[i] = new TrackView((KeyboardTrackNumber)i, setController);
+        this->realTimeTracks[i] = new TrackSettingsView((KeyboardTrackNumber)i, setController);
         realTime->AddContentChild(this->realTimeTracks[i]);
     }
 
     this->AddContentChild(row);
 
     this->startStopButton = new PushButton;
+    this->startStopButton->onActivatedHandler = [&setController](){
+        setController.ToggleStartStopStyle();
+    };
     this->startStopButton->SetText(u8"Start");
     this->AddContentChild(this->startStopButton);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -18,6 +18,8 @@
  */
 //Class header
 #include "OC31Compressor.hpp"
+//Local
+#include "OC31.hpp"
 //Namespaces
 using namespace libKORG;
 using namespace StdXX;
@@ -98,46 +100,28 @@ uint32 OC31Compressor::WriteBytes(const void *source, uint32 size)
 }
 
 //Private methods
-uint32 OC31Compressor::ComputeEncodedSize(const QueuedBlock &block) const
+uint32 OC31Compressor::ComputeRequiredBytesForBackreference(uint16 distance, uint16 length) const
 {
-	uint8 headerLen;
-	if(block.isBackreference)
+	OC31BlockHeader header;
+	header.isBackreference = true;
+	header.distance = distance;
+	header.length = length;
+	header.nExtraBytes = 0;
+
+	return OC31ComputeOptimalBlockSize(header);
+}
+
+uint8 OC31Compressor::ComputeRequiredBytesForStoringRawBytes(uint8 bytesCount) const
+{
+	if(this->nQueuedBlocks > 0)
 	{
-		if((block.length <= 8) && (block.distance <= 0x7FF))
-			headerLen = 2;
-		else if(block.distance < 0x4000)
-		{
-			if(block.length <= (0x1F + 2))
-				headerLen = 1;
-			else if( (block.length >= 0x22) and (block.length <= (Unsigned<uint8>::Max() + 0x22)) )
-				headerLen = 2;
-			else
-				headerLen = 3;
-
-			headerLen += 2;
-		}
-		else
-		{
-			if(block.length <= (7+2))
-				headerLen = 1;
-			else if( (block.length >= 0xA) and (block.length <= (Unsigned<uint8>::Max() + 0xA)) )
-				headerLen = 2;
-			else
-				headerLen = 3;
-
-			headerLen += 2;
-		}
-
-		return headerLen + block.nExtraBytes;
+		const auto& queuedBlock = this->queuedBlocks[this->nQueuedBlocks - 1];
+		if(queuedBlock.isBackreference and ( (queuedBlock.nExtraBytes + bytesCount) <= 3 ) )
+			return bytesCount;
+		else if(!queuedBlock.isBackreference)
+			return bytesCount;
 	}
-
-	if( (block.length >= 4) and (block.length <= 17) )
-		headerLen = 1;
-	else if( (block.length >= 0x12) and (block.length <= (0x12 + Unsigned<uint8>::Max())) )
-		headerLen = 2;
-	else
-		headerLen = 3;
-	return headerLen + block.length;
+	return bytesCount + 1_u8;
 }
 
 void OC31Compressor::EmitBlock()
@@ -154,9 +138,9 @@ void OC31Compressor::EmitBlock()
 	if(nextBlock.isBackreference and (nextBlock.length == 3) and (nextBlock.distance > 0x7FF))
 	{
 		nextBlock.isBackreference = false;
+		nextBlock.length = 1; //to allow searching backreferences at the next byte
 	}
-
-	if(!nextBlock.isBackreference)
+	else if(!nextBlock.isBackreference)
 		nextBlock.length = Math::Max(1_u16, nextBlock.length);
 
 	this->FindOptimalBlock(nextBlock);
@@ -169,53 +153,58 @@ void OC31Compressor::EncodeBlock(const QueuedBlock &block, uint16 dataDistance)
 		uint8 buffer[3];
 		this->dictionary.Read(buffer, dataDistance + block.nExtraBytes, block.nExtraBytes);
 		this->WriteBackreference(block.distance - 1, block.length, block.nExtraBytes, buffer);
-
-		/*BufferInputStream bufferInputStream(buffer, block.length);
-		TextReader textReader(bufferInputStream, TextCodecType::Latin1);
-		stdOut << u8"backref dist:" << block.distance << u8" len:" << block.length << u8" nExtra:" << block.nExtraBytes << u8" extra:" << textReader.ReadStringBySize(block.nExtraBytes) << u8" size:" << this->ComputeEncodedSize(block) << endl;*/
 	}
 	else
 	{
 		uint8 buffer[StdXX::Unsigned<uint16>::Max()];
 		this->dictionary.Read(buffer, dataDistance + block.length, block.length);
 		this->WriteUncompressedBlock(buffer, block.length);
-
-		/*stdOut << u8"direct len:" << block.length << u8" size:" << this->ComputeEncodedSize(block) << endl;
-		BufferInputStream bufferInputStream(buffer, block.length);
-		TextReader textReader(bufferInputStream, TextCodecType::Latin1);
-		stdOut << textReader.ReadStringBySize(block.length) << endl;*/
 	}
 }
 
 void OC31Compressor::FindOptimalBlock(const QueuedBlock& nextBlock)
 {
-	/*if(nextBlock.isBackreference)
+	if(nextBlock.isBackreference)
 	{
-		this->dictionary.IndexUpTo(this->nUnprocessedBytesInDictionary - 1);
+		uint32 backref1Count = this->ComputeRequiredBytesForBackreference(nextBlock.distance, nextBlock.length);
 
-		QueuedBlock bestBlock = nextBlock;
-		for(uint16 i = 1; i < Math::Min(uint16(nextBlock.length + 1), this->nUnprocessedBytesInDictionary); i++)
+		//try to find a longer match within that backreference. Only need to search to 5 (max length of a backreference) because beyond that a backreference always pays out
+		for(uint16 i = 1; i < Math::Min(nextBlock.length, 6_u16); i++)
 		{
-			this->dictionary.IndexUpTo(this->nUnprocessedBytesInDictionary - i - 1);
 			auto match = this->dictionary.FindLongestMatchAtSplitDistance(this->nUnprocessedBytesInDictionary - i);
 
-			if( (match.length > (nextBlock.length + 3)) and (nextBlock.distance != (match.distance - i)) )
+			//if((match.length - i) > nextBlock.length)
+			if((match.length) > nextBlock.length)
 			{
-				bestBlock.length = i;
-				bestBlock.isBackreference = bestBlock.length >= 3;
-				break;
+				//compute the "rest" of the matched longer reference, which can either be stored as another backreference or as extra bytes
+				uint16 notTakenLength = match.length - (nextBlock.length - i);
+				// well for total optimization it actually could matter how we choose them, since you could balance the two overlapping backreferences
+				//to achieve minimal encoding lengths, but this is not implemented here
+
+				uint32 notTakenRestEncoding = (notTakenLength >= 3) ? this->ComputeRequiredBytesForBackreference(match.distance, notTakenLength) : notTakenLength;
+				uint32 byteSizeIfMatchNotTaken = backref1Count + notTakenRestEncoding; //size to store the original backreference with the rest of the remaining one
+
+				uint8 extraByteCount = this->ComputeRequiredBytesForStoringRawBytes(i); //bytes for skipping over until "i"
+				uint32 backref2Count = this->ComputeRequiredBytesForBackreference(match.distance, match.length); //bytes to encode the longer backreference
+				uint32 byteSizeIfMatchTaken = extraByteCount + backref2Count;
+
+				if(byteSizeIfMatchNotTaken <= byteSizeIfMatchTaken)
+					continue;
+
+				//its better to shift some bytes in this case and take the longer backreference (in next call)
+				QueuedBlock rawBlock;
+				rawBlock.length = i;
+				rawBlock.isBackreference = false;
+
+				this->PutBlockInQueue(rawBlock);
+				this->nUnprocessedBytesInDictionary -= rawBlock.length;
+				this->dictionary.IndexUpTo(this->nUnprocessedBytesInDictionary);
+
+				return;
 			}
 		}
-
-		this->PutBlockInQueue(bestBlock);
-		this->nUnprocessedBytesInDictionary -= bestBlock.length;
 	}
-	else
-	{
-		this->PutBlockInQueue(nextBlock);
-		this->nUnprocessedBytesInDictionary -= nextBlock.length;
-		this->dictionary.IndexUpTo(this->nUnprocessedBytesInDictionary);
-	}*/
+
 	this->PutBlockInQueue(nextBlock);
 	this->nUnprocessedBytesInDictionary -= nextBlock.length;
 	this->dictionary.IndexUpTo(this->nUnprocessedBytesInDictionary);
@@ -268,6 +257,7 @@ void OC31Compressor::WriteBackreference(uint16 distance, uint16 length, uint8 nE
 
 	if((length <= 8) && (distance <= 0x7FF))
 	{
+		//pre-condition: length >= 3
 		uint8 flagByte = ((length - 1) << 5) | (distance >> 6);
 		this->WriteFlagByte(flagByte);
 
@@ -277,6 +267,8 @@ void OC31Compressor::WriteBackreference(uint16 distance, uint16 length, uint8 nE
 	}
 	else if(distance < 0x4000)
 	{
+		//length = 2 could theoretically be encoded using this, but that would require 3 bytes at least, which is the same as a raw block
+
 		if(length <= (0x1F + 2))
 			this->WriteFlagByte((length - 2) | 0x20);
 		else if( (length >= 0x22) and (length <= (Unsigned<uint8>::Max() + 0x22)) )

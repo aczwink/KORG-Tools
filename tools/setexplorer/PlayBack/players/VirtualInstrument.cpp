@@ -108,34 +108,34 @@ void VirtualInstrument::NoteOnDrumKit(const Pitch &pitch, uint8 velocity)
 	auto& source = oscSources.low[0];
 
 	source->EnqueueBuffer(*buffer);
+	source->SetPitch(1);
 	source->Play();
 }
 
 void VirtualInstrument::NoteOnMultiSamples(const Pitch &pitch, uint8 velocity)
 {
-	//TODO: velocity
+	float32 gain = velocity / 128.0f;
 
 	if(this->soundData.oscillators.GetNumberOfElements() > c_maxOscillatorsPerSound)
 		NOT_IMPLEMENTED_ERROR; //TODO: implement me
 
-	uint8 encodedPitch = pitch.Encode();
-	auto& oscSources = this->keySources[encodedPitch];
+	auto& oscSources = this->keySources[pitch.Encode()];
 
 	for(uint32 i = 0; i < this->soundData.oscillators.GetNumberOfElements(); i++)
 	{
 		const auto& osc = this->soundData.oscillators[i];
 
-		this->NoteOnOscillator(encodedPitch, osc.low, oscSources.low[i]);
-		this->NoteOnOscillator(encodedPitch, osc.high, oscSources.high[i]);
+		this->NoteOnOscillator(pitch, gain, osc.low, oscSources.low[i]);
+		this->NoteOnOscillator(pitch, gain, osc.high, oscSources.high[i]);
 	}
 }
 
-void VirtualInstrument::NoteOnOscillator(uint8 encodedPitch, const Sound::OSCMultiSampleSettings& osc, UniquePointer<Audio::Source>& oscSource)
+void VirtualInstrument::NoteOnOscillator(const Pitch& pitch, float32 gain, const Sound::OSCMultiSampleSettings& osc, UniquePointer<Audio::Source>& oscSource)
 {
 	if(osc.source == Sound::MultiSampleSource::RAM)
 	{
 		const auto& multiSampleEntry = this->playBackSet.GetMultiSampleEntry(osc.multiSampleId);
-		uint8 relativeKeyZoneIndex = multiSampleEntry.keyZoneIndex[encodedPitch];
+		uint8 relativeKeyZoneIndex = multiSampleEntry.keyZoneIndex[pitch.Encode()];
 		if(relativeKeyZoneIndex == Unsigned<uint8>::Max())
 			return;
 
@@ -143,11 +143,16 @@ void VirtualInstrument::NoteOnOscillator(uint8 encodedPitch, const Sound::OSCMul
 		const auto& keyBoardZone = this->playBackSet.GetKeyboardZone(keyboardZoneIndex);
 		const auto& sampleEntry = this->playBackSet.GetSampleEntryByIndex(keyBoardZone.sampleNumber);
 
+		int8 d = sampleEntry.originalNote.ComputeDistanceTo(pitch);
+		float32 pitchFactor = powf(2, (d / 12.0f));
+
 		Audio::Buffer* buffer = this->playBackFactory.LoadSample(sampleEntry.id);
 		if(oscSource.IsNull())
 			oscSource = this->playBackFactory.CreateSource();
 
 		oscSource->EnqueueBuffer(*buffer);
+		oscSource->SetPitch(pitchFactor);
+		oscSource->SetGain(gain);
 		oscSource->Play();
 	}
 }

@@ -56,9 +56,9 @@ public:
         return this->set.MultiSamples().data.sampleEntries[index];
     }
 
-    inline const Sound::SoundData& GetSound(const SoundBankNumber& soundBankNumber, uint8 pos) const
+    inline StdXX::Optional<BankSlot<SoundBankNumber>> GetSoundLocation(const ProgramChangeSequence& programChangeSequence) const
     {
-        return this->set.soundBanks[soundBankNumber].GetObject(pos).data;
+        return this->setIndex.GetSoundLocation(programChangeSequence);
     }
 
 private:

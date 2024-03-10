@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -18,6 +18,8 @@
  */
 //Class header
 #include "OC31Decompressor.hpp"
+//Local functions
+#include "OC31.hpp"
 //Namespaces
 using namespace StdXX;
 using namespace libKORG;
@@ -81,66 +83,8 @@ void OC31Decompressor::Backreference(uint16 offset, uint16 length, uint8 nExtraB
 	}
 }
 
-uint16 OC31Decompressor::DecompressBackreference(uint8 flagByte)
+void OC31Decompressor::DecompressDirect(uint16 length)
 {
-	uint8 nExtraBytes;
-	uint16 offset, length;
-
-	if(flagByte & 0xC0u)
-	{
-		uint8 packed = this->dataReader.ReadByte();
-
-		length = (flagByte >> 5u) + 1;
-		offset = (uint16(flagByte & 0x1F) << 6) | (packed >> 2);
-		nExtraBytes = packed & 3;
-	}
-	else if(flagByte & 0x20u)
-	{
-		uint8 indicator = flagByte & 0x1Fu;
-		if(indicator == 0)
-			length = this->dataReader.ReadByte() + 0x22_u16;
-		else if(indicator == 1)
-			length = this->dataReader.ReadUInt16();
-		else
-			length = indicator + 2_u16;
-
-		uint16 tmp = this->dataReader.ReadUInt16();
-		offset = tmp >> 2;
-		nExtraBytes = tmp & 3;
-	}
-	else
-	{
-		uint8 indicator = flagByte & 7;
-		if(indicator == 0)
-			length = this->dataReader.ReadByte() + 0xA_u16;
-		else if(indicator == 1)
-			length = this->dataReader.ReadUInt16();
-		else
-			length = indicator + 2_u16;
-
-		uint16 tmp = this->dataReader.ReadUInt16();
-		offset = tmp >> 2;
-		offset += 0x4000;
-		nExtraBytes = tmp & 3;
-
-		if(flagByte & 8)
-			offset += 0x4000;
-	}
-
-	this->Backreference(offset, length, nExtraBytes);
-	return length + nExtraBytes;
-}
-
-uint16 OC31Decompressor::DecompressDirect(uint8 flagByte)
-{
-	uint16 length;
-	if(flagByte == 0)
-		length = this->dataReader.ReadByte() + 0x12_u16;
-	else if(flagByte == 1)
-		length = this->dataReader.ReadUInt16();
-	else
-		length = flagByte + 2_u16;
-
 	uint16 leftLength = length;
 	while(leftLength)
 	{
@@ -150,18 +94,24 @@ uint16 OC31Decompressor::DecompressDirect(uint8 flagByte)
 
 		leftLength -= nBytesRead;
 	}
-
-	return length;
 }
 
 void OC31Decompressor::DecompressNextBlock()
 {
-	uint8 flagByte = this->dataReader.ReadByte();
+	OC31BlockHeader chunkHeader;
+	OC31ReadBlockHeader(this->dataReader, chunkHeader);
+
 	uint16 length;
-	if(flagByte & 0xF0)
-		length = this->DecompressBackreference(flagByte);
+	if(chunkHeader.isBackreference)
+	{
+		this->Backreference(chunkHeader.distance, chunkHeader.length, chunkHeader.nExtraBytes);
+		length = chunkHeader.length + chunkHeader.nExtraBytes;
+	}
 	else
-		length = this->DecompressDirect(flagByte);
+	{
+		this->DecompressDirect(chunkHeader.length);
+		length = chunkHeader.length;
+	}
 
 	ASSERT(this->leftUncompressedSize >= length, u8"TODO: HANDLE THIS CORRECTLY");
 	this->leftUncompressedSize -= length;
