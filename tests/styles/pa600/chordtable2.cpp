@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -32,7 +32,7 @@ TEST_SUITE(ChordTable2Tests)
 		const auto& fullStyle = ExtractFirstStyle(set);
 		const auto& styleData = fullStyle.Style().data;
 
-		const auto& ct = styleData.variation[3].chordTable;
+		const auto& ct = styleData.variation[3].styleElementInfoData.chordTable;
 		ASSERT_EQUALS(5, ct.seven_sharp5CVIndex);
 		ASSERT_EQUALS(4, ct.M7sharp5CVIndex);
 		ASSERT_EQUALS(3, ct.onePlusFiveCVIndex);

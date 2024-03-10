@@ -17,27 +17,59 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 //Class header
-#include "TrackView.hpp"
+#include "TrackSettingsView.hpp"
 
 //Private methods
-void TrackView::Init()
+void TrackSettingsView::Init()
 {
+	this->GetContentContainer()->SetLayout(new HorizontalLayout);
+
 	this->soundNameLabel = new Label;
 	this->AddContentChild(this->soundNameLabel);
 
-	this->setController.soundSelectionChanged.Connect(this, &TrackView::UpdateState);
+	this->muted = new CheckBox;
+	this->muted->SetHint(u8"Muted");
+	this->muted->toggled.Connect(this, &TrackSettingsView::OnMuteTrackToggled);
+	this->AddContentChild(this->muted);
+
+	this->setController.soundSelectionChanged.Connect(this, &TrackSettingsView::UpdateState);
+	this->UpdateState();
 }
 
-void TrackView::UpdateState()
+void TrackSettingsView::UpdateState()
 {
 	const auto& trackSel = this->isAccompanimentTrack ? this->setController.GetAccompanimentTrackSelection(this->accompanimentTrackNumber) : this->setController.GetRealTimeTrackSelection(this->keyboardTrackNumber);
 	if(trackSel.HasValue())
 	{
 		const String& name = this->setController.Set().soundBanks[trackSel.Value().bankNumber].GetName(trackSel.Value().pos);
 		this->soundNameLabel->SetText(name);
+
+		this->muted->SetEnabled(true);
+
+		if(this->isAccompanimentTrack)
+		{
+			//TODO
+		}
+		else
+		{
+			this->muted->Checked(this->setController.IsTrackMuted(this->keyboardTrackNumber));
+		}
 	}
 	else
 	{
 		this->soundNameLabel->SetText(u8"-");
+		this->muted->SetEnabled(false);
 	}
+}
+
+//Event handlers
+void TrackSettingsView::OnMuteTrackToggled()
+{
+	if(this->isAccompanimentTrack)
+	{
+		//TODO
+	}
+	else
+		this->setController.MuteToggleTrack(this->keyboardTrackNumber);
+	this->UpdateState();
 }

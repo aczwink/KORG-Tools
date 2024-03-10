@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -37,8 +37,9 @@ namespace libKORG
 		B = 11,
 	};
 
-	struct Pitch
+	class Pitch
 	{
+	public:
 		int8 octave;
 		OctavePitch pitchWithinOctave;
 
@@ -66,9 +67,19 @@ namespace libKORG
 			return this->Encode() == other.Encode();
 		}
 
+		//Inline
+		inline int8 ComputeDistanceTo(const Pitch& to) const
+		{
+			using namespace StdXX;
+			return (to.octave - this->octave) * 12_i8 + ((int8)to.pitchWithinOctave - (int8)this->pitchWithinOctave);
+		}
+
 		inline uint8 Encode() const
 		{
 			return (this->octave + 1) * 12 + (uint8)this->pitchWithinOctave;
 		}
+
+		//Methods
+		StdXX::String ToString() const;
 	};
 }

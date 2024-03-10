@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -16,17 +16,27 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <libkorg.hpp>
-using namespace libKORG;
-using namespace StdXX;
+#include <StdXX.hpp>
 
-class StyleMIDILoader
+namespace libKORG
 {
-public:
-    //Methods
-    MIDI::Program LoadVariation(uint8 variation, uint8 chordVariation, const FullStyle& fullStyle) const;
+	struct OC31BlockHeader
+	{
+		bool isBackreference;
+		uint16 length;
 
-private:
-    //Methods
-    void LoadTrackEvents(AccompanimentTrackNumber accompanimentTrackNumber, const IChordVariationView& chordVariationView, MIDI::Program& program) const;
-};
+		//only valid for backreferences:
+		uint8 nExtraBytes;
+		uint16 distance;
+	};
+
+	struct OC31Block : public OC31BlockHeader
+	{
+		StdXX::UniquePointer<StdXX::FixedSizeBuffer> rawData;
+		uint8 extra[3];
+	};
+
+	uint32 OC31ComputeOptimalBlockSize(const OC31BlockHeader &block);
+	StdXX::DynamicArray<OC31Block> OC31ReadAllBlocks(StdXX::InputStream& inputStream);
+	void OC31ReadBlockHeader(StdXX::DataReader &dataReader, OC31BlockHeader &header);
+}

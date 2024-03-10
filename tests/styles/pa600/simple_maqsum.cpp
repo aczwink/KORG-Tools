@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -23,34 +23,29 @@
 using namespace libKORG;
 using namespace StdXX;
 
-TEST_SUITE(EmptyStyleTests)
+TEST_SUITE(SimpleMaqsumTests)
 {
 	TEST_CASE(Test)
 	{
-		FileSystem::Path setPath(u8"testdata/styles/pa600/empty.SET");
+		FileSystem::Path setPath(u8"testdata/styles/pa600/simple_maqsum.SET");
 		Set set(setPath);
 		const auto& fullStyle = set.styleBanks.Entries().begin().operator*().bank.Objects().begin().operator*().Object();
-		const auto& stsData = fullStyle.STS().V1Data();
 		const auto& styleData = fullStyle.Style().data;
 
 		StyleView styleView(styleData);
-		OnlyVar1ShouldBeEnabled(styleView);
+		const auto& korfDrumTrack = styleView.GetVariation(0).GetChordVariation(0).GetTrack(AccompanimentTrackNumber::Drum);
 
-		ASSERT_EQUALS(120, stsData._0x04000108_data.metronomeTempo);
+		FileInputStream fileInputStream(String(u8"testdata/styles/pa600/simple_maqsum.SET/V1-CV1.MID"));
+		auto smfProgram = MIDI::Program::Load(fileInputStream);
+		const auto& smfDrumTrack = smfProgram.GetChannelTrack(9);
 
-		for(const auto& track : styleData.midiTracks)
-			ShouldHaveNoEvents(track.events);
+		ASSERT_EQUALS(2, smfProgram.MetaTrack().GetNumberOfElements());
+		ASSERT_EQUALS(30, smfDrumTrack.GetNumberOfElements());
 
-		for(const auto& styleElement : styleData.styleElements)
-		{
-			for(const auto& cv : styleElement.cv)
-				ShouldHaveNoEvents(cv.masterMidiTrack.events);
-		}
-
-		for(const auto& styleElement : styleData.variation)
-		{
-			for(const auto& cv : styleElement.cv)
-				ShouldHaveNoEvents(cv.masterMidiTrack.events);
-		}
+		//standard midi will have the following at the beginning of each chord variation:
+		//time signature
+		// control Change bundle #00-32 (Bank Select MSB/LSB)
+		// program Change
+		// control Change #11 (Expression)
 	}
 }

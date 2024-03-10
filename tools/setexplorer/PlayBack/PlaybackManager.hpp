@@ -21,6 +21,7 @@
 #include "audio/SamplesManager.hpp"
 #include "players/SingleSamplePlayer.hpp"
 #include "players/KeyboardRealtimePlayer.hpp"
+#include "players/StylePlayer.hpp"
 
 class PlaybackManager
 {
@@ -35,12 +36,23 @@ public:
 		this->samplesManager = new SamplesManager(*this->deviceContext, this->playBackSet);
 		this->singleSamplePlayer = new SingleSamplePlayer(*this->deviceContext);
 		this->keyboardRealtimePlayer = new KeyboardRealtimePlayer(this->playBackSet, *this->samplesManager);
+		this->stylePlayer = new StylePlayer(this->playBackSet, *this->samplesManager);
 	}
 
 	//Inline
 	inline bool CanKeySound(const Pitch& pitch) const
 	{
 		return this->keyboardRealtimePlayer->CanKeySound(pitch);
+	}
+
+	inline void LoadStyle(const Style::StyleData &data, uint8 bpm)
+	{
+		this->stylePlayer->LoadStyle(data, bpm);
+	}
+
+	inline bool IsTrackMuted(KeyboardTrackNumber trackNumber) const
+	{
+		return this->keyboardRealtimePlayer->IsTrackMuted(trackNumber);
 	}
 
 	inline void KeyDown(const Pitch& pitch, uint8 velocity)
@@ -53,6 +65,11 @@ public:
 		this->keyboardRealtimePlayer->KeyUp(pitch);
 	}
 
+	inline void MuteToggleTrack(KeyboardTrackNumber trackNumber)
+	{
+		this->keyboardRealtimePlayer->MuteToggleTrack(trackNumber);
+	}
+
 	inline void PlaySample(uint64 sampleId)
 	{
 		auto buffer = this->samplesManager->LoadSample(sampleId);
@@ -60,9 +77,19 @@ public:
 		this->singleSamplePlayer->PlayBuffer(buffer);
 	}
 
-	inline void SelectSound(const Sound::SoundData& soundData)
+	inline void SelectSound(AccompanimentTrackNumber keyboardTrackNumber, const Sound::SoundData& soundData)
 	{
-		this->keyboardRealtimePlayer->SelectSound(KeyboardTrackNumber::Upper1, soundData);
+		this->stylePlayer->SelectSound(keyboardTrackNumber, soundData);
+	}
+
+	inline void SelectSound(KeyboardTrackNumber keyboardTrackNumber, const Sound::SoundData& soundData)
+	{
+		this->keyboardRealtimePlayer->SelectSound(keyboardTrackNumber, soundData);
+	}
+
+	inline void ToggleStartStopStyle()
+	{
+		this->stylePlayer->ToggleStartStopStyle();
 	}
 
 private:
@@ -73,4 +100,5 @@ private:
 	UniquePointer<SamplesManager> samplesManager;
 	UniquePointer<SingleSamplePlayer> singleSamplePlayer;
 	UniquePointer<KeyboardRealtimePlayer> keyboardRealtimePlayer;
+	UniquePointer<StylePlayer> stylePlayer;
 };

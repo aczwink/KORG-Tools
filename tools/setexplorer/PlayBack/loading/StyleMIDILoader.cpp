@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2022-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -20,15 +20,16 @@
 #include "StyleMIDILoader.hpp"
 
 //Public methods
-MIDI::Program StyleMIDILoader::LoadVariation(uint8 variation, uint8 chordVariation, const FullStyle &fullStyle) const
+MIDI::Program StyleMIDILoader::LoadVariation(uint8 variation, uint8 chordVariation, const Style::StyleData& data) const
 {
     MIDI::Program program(384); //TODO: check for correct value
 
-    StyleView styleView(fullStyle.Style().data);
+    StyleView styleView(data);
     const IChordVariationView& chordVariationView = styleView.GetVariation(variation).GetChordVariation(chordVariation);
 
     this->LoadTrackEvents(AccompanimentTrackNumber::Drum, chordVariationView, program);
     this->LoadTrackEvents(AccompanimentTrackNumber::Percussion, chordVariationView, program);
+    //TODO: load all
 
     return program;
 }
@@ -48,7 +49,7 @@ void StyleMIDILoader::LoadTrackEvents(AccompanimentTrackNumber accompanimentTrac
                 program.AddChannelMessage(MIDI::ChannelMessageType::NoteOn, (uint8)accompanimentTrackNumber, t, event.value1, event.value2);
                 break;
             case Style::KORG_MIDI_EventType::ControlChange:
-                NOT_IMPLEMENTED_ERROR; //TODO: implement me
+                //ignore for now
                 break;
             case Style::KORG_MIDI_EventType::Aftertouch:
                 //ignore for now

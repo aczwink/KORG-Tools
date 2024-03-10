@@ -22,11 +22,11 @@ using namespace libKORG;
 using namespace StdXX::UI;
 #include "../SetController.hpp"
 
-class TrackView : public GroupBox
+class TrackSettingsView : public GroupBox
 {
 public:
 	//Constructors
-	inline TrackView(AccompanimentTrackNumber trackNumber, SetController& setController) : setController(setController)
+	inline TrackSettingsView(AccompanimentTrackNumber trackNumber, SetController& setController) : setController(setController)
 	{
 		this->isAccompanimentTrack = true;
 		this->accompanimentTrackNumber = trackNumber;
@@ -35,7 +35,7 @@ public:
 		this->Init();
 	}
 
-	inline TrackView(KeyboardTrackNumber trackNumber, SetController& setController) : setController(setController)
+	inline TrackSettingsView(KeyboardTrackNumber trackNumber, SetController& setController) : setController(setController)
 	{
 		this->isAccompanimentTrack = false;
 		this->keyboardTrackNumber = trackNumber;
@@ -52,8 +52,12 @@ private:
 	SetController& setController;
 
 	Label* soundNameLabel;
+	CheckBox* muted;
 
 	//Methods
 	void Init();
 	void UpdateState();
+
+	//Event handlers
+	void OnMuteTrackToggled();
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -16,14 +16,32 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#pragma once
-#include <StdXX.hpp>
-#include "libkorg/BankFormat/PerformanceObject.hpp"
-#include "libkorg/BankFormat/Style.hpp"
+//Class header
+#include "StylePlayer.hpp"
 
-namespace libKORG
+//Public methods
+void StylePlayer::Start()
 {
-	StdXX::String AccompanimentTrackNumberToAbbreviatedString(AccompanimentTrackNumber accompanimentTrackNumber);
-	StdXX::String BankPositionToString(uint8 bankPosition);
-	StdXX::String KeyboardTrackNumberToAbbreviatedString(KeyboardTrackNumber keyboardTrackNumber);
+	if(!this->loadedProgram.HasValue())
+		return;
+	this->Stop();
+
+	this->sequencerThread = new Thread([this](){
+		MIDI::EventScheduler scheduler(this->loadedProgram.Value(), *this);
+		scheduler.SetTempo(this->tempo);
+		while(this->looping)
+			scheduler.Schedule(this->looping);
+
+		return EXIT_SUCCESS;
+	});
+	this->looping = true;
+	this->sequencerThread->Start();
+}
+
+void StylePlayer::Stop()
+{
+	this->looping = false;
+	if(!this->sequencerThread.IsNull())
+		this->sequencerThread->Join();
+	this->sequencerThread = nullptr;
 }

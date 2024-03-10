@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -30,8 +30,9 @@ public:
 		{
 			uint8 trackMappingIndex = trackBaseIndex + i;
 			uint8 trackIndex = styleData.oneBasedMIDITrackMappingIndices[trackMappingIndex] - 1;
+			auto trackNumber = cv.trackMapping[i].trackNumber;
 
-			this->trackViews[(uint8)cv.trackMapping[i].trackNumber] = new TrackView(styleData, trackIndex);
+			this->trackViews[(uint8)trackNumber] = new TrackView(styleData, trackIndex);
 		}
 		for(uint8 i = 0; i < 8; i++)
 		{

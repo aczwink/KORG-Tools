@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -74,7 +74,7 @@ public:
 
 	inline void OutputProperty(const String& name, const libKORG::Pitch& value)
 	{
-		this->OutputProperty(name, PitchToString(value));
+		this->OutputProperty(name, value.ToString());
 	}
 
 	inline void OutputUnknownProperties(const DynamicByteBuffer& buffer)

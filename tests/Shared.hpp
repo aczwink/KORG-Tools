@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -21,20 +21,20 @@ using namespace libKORG;
 
 inline const PerformanceObject& ExtractFirstPerformance(const Set& set)
 {
-	return set.performanceBanks.Entries().begin().operator*().bank.Objects().begin().operator*().object.operator*();
+	return set.performanceBanks.Entries().begin().operator*().bank.Objects().begin().operator*().Object();
 }
 
 inline const SampleObject& ExtractFirstSample(const Set& set)
 {
-	return dynamic_cast<const SampleObject &>(set.sampleBanks.Entries().begin().operator*().bank.Objects().begin().operator*().object.operator*());
+	return dynamic_cast<const SampleObject &>(set.sampleBanks.Entries().begin().operator*().bank.Objects().begin().operator*().Object());
 }
 
 inline const SoundObject& ExtractFirstSound(const Set& set)
 {
-	return set.soundBanks.Entries().begin().operator*().bank.Objects().begin().operator*().object.operator*();
+	return set.soundBanks.Entries().begin().operator*().bank.Objects().begin().operator*().Object();
 }
 
 inline const FullStyle& ExtractFirstStyle(const Set& set)
 {
-	return set.styleBanks.Entries().begin().operator*().bank.Objects().begin().operator*().object.operator*();
+	return set.styleBanks.Entries().begin().operator*().bank.Objects().begin().operator*().Object();
 }

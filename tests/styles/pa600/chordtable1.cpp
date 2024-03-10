@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -33,28 +33,28 @@ TEST_SUITE(ChordTable1Tests)
 		const auto& styleData = fullStyle.Style().data;
 
 
-		const auto& ct1 = styleData.variation[0].chordTable;
+		const auto& ct1 = styleData.variation[0].styleElementInfoData.chordTable;
 		ASSERT_EQUALS(5, ct1.majorCVIndex);
 		ASSERT_EQUALS(4, ct1.sixCVIndex);
 		ASSERT_EQUALS(3, ct1.M7CVIndex);
 		ASSERT_EQUALS(2, ct1.b5CVIndex);
 		ASSERT_EQUALS(1, ct1.M7b5CVIndex);
 
-		const auto& ct2 = styleData.variation[1].chordTable;
+		const auto& ct2 = styleData.variation[1].styleElementInfoData.chordTable;
 		ASSERT_EQUALS(1, ct2.susCVIndex);
 		ASSERT_EQUALS(2, ct2.sus2CVIndex);
 		ASSERT_EQUALS(3, ct2.M7susCVIndex);
 		ASSERT_EQUALS(4, ct2.mCVIndex);
 		ASSERT_EQUALS(5, ct2.m6CVIndex);
 
-		const auto& ct3 = styleData.variation[2].chordTable;
+		const auto& ct3 = styleData.variation[2].styleElementInfoData.chordTable;
 		ASSERT_EQUALS(1, ct3.m7CVIndex);
 		ASSERT_EQUALS(2, ct3.m7b5CVIndex);
 		ASSERT_EQUALS(3, ct3.mM7CVIndex);
 		ASSERT_EQUALS(4, ct3.sevenCVIndex);
 		ASSERT_EQUALS(5, ct3.seven_b5CVIndex);
 
-		const auto& ct4 = styleData.variation[3].chordTable;
+		const auto& ct4 = styleData.variation[3].styleElementInfoData.chordTable;
 		ASSERT_EQUALS(1, ct4.seven_susCVIndex);
 		ASSERT_EQUALS(2, ct4.dimCVIndex);
 		ASSERT_EQUALS(3, ct4.dim7CVIndex);

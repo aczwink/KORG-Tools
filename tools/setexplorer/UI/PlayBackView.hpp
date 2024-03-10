@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2022-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -16,14 +16,17 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#pragma once
-#include <StdXX.hpp>
-#include "libkorg/BankFormat/PerformanceObject.hpp"
-#include "libkorg/BankFormat/Style.hpp"
+#include "TrackSettingsView.hpp"
 
-namespace libKORG
+class PlayBackView : public GroupBox
 {
-	StdXX::String AccompanimentTrackNumberToAbbreviatedString(AccompanimentTrackNumber accompanimentTrackNumber);
-	StdXX::String BankPositionToString(uint8 bankPosition);
-	StdXX::String KeyboardTrackNumberToAbbreviatedString(KeyboardTrackNumber keyboardTrackNumber);
-}
+public:
+    //Constructor
+    PlayBackView(SetController& setController);
+
+private:
+    //Members
+    PushButton* startStopButton;
+    TrackSettingsView* accompanimentTracks[8];
+    TrackSettingsView* realTimeTracks[4];
+};

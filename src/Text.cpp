@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -74,50 +74,4 @@ String libKORG::KeyboardTrackNumberToAbbreviatedString(KeyboardTrackNumber keybo
 	}
 
 	RAISE(ErrorHandling::IllegalCodePathError);
-}
-
-String libKORG::PitchToString(Pitch pitch)
-{
-	String result;
-	switch(pitch.pitchWithinOctave)
-	{
-		case OctavePitch::C:
-			result = u8"C";
-			break;
-		case OctavePitch::C_SHARP:
-			result = u8"C#";
-			break;
-		case OctavePitch::D:
-			result = u8"D";
-			break;
-		case OctavePitch::D_SHARP:
-			result = u8"D#";
-			break;
-		case OctavePitch::E:
-			result = u8"E";
-			break;
-		case OctavePitch::F:
-			result = u8"F";
-			break;
-		case OctavePitch::F_SHARP:
-			result = u8"F#";
-			break;
-		case OctavePitch::G:
-			result = u8"G";
-			break;
-		case OctavePitch::G_SHARP:
-			result = u8"G#";
-			break;
-		case OctavePitch::A:
-			result = u8"A";
-			break;
-		case OctavePitch::A_SHARP:
-			result = u8"A#";
-			break;
-		case OctavePitch::B:
-			result = u8"B";
-			break;
-	}
-
-	return result + String::Number(pitch.octave);
 }
