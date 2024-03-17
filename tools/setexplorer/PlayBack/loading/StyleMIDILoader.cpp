@@ -17,36 +17,43 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 //Class header
+#include <libkorg/Style/KORG_MIDI.hpp>
 #include "StyleMIDILoader.hpp"
 
 //Public methods
 MIDI::Program StyleMIDILoader::LoadVariation(uint8 variation, uint8 chordVariation, const Style::StyleData& data) const
 {
-    MIDI::Program program(384); //TODO: check for correct value
+    const uint16 ticksPerQuarter = 384; //as of PA600 manual
+    MIDI::Program program(ticksPerQuarter);
 
     StyleView styleView(data);
     const IChordVariationView& chordVariationView = styleView.GetVariation(variation).GetChordVariation(chordVariation);
 
-    this->LoadTrackEvents(AccompanimentTrackNumber::Drum, chordVariationView, program);
-    this->LoadTrackEvents(AccompanimentTrackNumber::Percussion, chordVariationView, program);
+    uint8 bestFPS = this->FindMostPreciseFrameRate(chordVariationView);
+    this->LoadTrackEvents(AccompanimentTrackNumber::Drum, chordVariationView, program, bestFPS);
+    this->LoadTrackEvents(AccompanimentTrackNumber::Percussion, chordVariationView, program, bestFPS);
     //TODO: load all
 
     return program;
 }
 
 //Private methods
-void StyleMIDILoader::LoadTrackEvents(AccompanimentTrackNumber accompanimentTrackNumber, const IChordVariationView& chordVariationView, MIDI::Program& program) const
+void StyleMIDILoader::LoadTrackEvents(AccompanimentTrackNumber accompanimentTrackNumber, const IChordVariationView& chordVariationView, MIDI::Program& program, uint8 targetFPS) const
 {
     uint64 t = 0;
-    for(const auto& event : chordVariationView.GetTrack(accompanimentTrackNumber).MIDI_Events().events)
+    const auto& track = chordVariationView.GetTrack(accompanimentTrackNumber).MIDI_Events();
+    Math::Rational<uint64> timeScale(targetFPS, track._0x2000008_data.unknown1);
+
+    for(const auto& event : track.events)
     {
+        auto scaledTime = (t * timeScale).DivideAndRoundDown();
         switch(event.type)
         {
             case Style::KORG_MIDI_EventType::NoteOff:
-                program.AddChannelMessage(MIDI::ChannelMessageType::NoteOff, (uint8)accompanimentTrackNumber, t, event.value1, event.value2);
+                program.AddChannelMessage(MIDI::ChannelMessageType::NoteOff, (uint8)accompanimentTrackNumber, scaledTime, event.value1, event.value2);
                 break;
             case Style::KORG_MIDI_EventType::NoteOn:
-                program.AddChannelMessage(MIDI::ChannelMessageType::NoteOn, (uint8)accompanimentTrackNumber, t, event.value1, event.value2);
+                program.AddChannelMessage(MIDI::ChannelMessageType::NoteOn, (uint8)accompanimentTrackNumber, scaledTime, event.value1, event.value2);
                 break;
             case Style::KORG_MIDI_EventType::ControlChange:
                 //ignore for now
@@ -62,7 +69,7 @@ void StyleMIDILoader::LoadTrackEvents(AccompanimentTrackNumber accompanimentTrac
                 DynamicByteBuffer dynamicByteBuffer;
                 dynamicByteBuffer.Resize(event.metaEvent.dataLength);
                 dynamicByteBuffer.CopyFrom(event.metaEvent.data, 0, dynamicByteBuffer.Size());
-                program.AddMetaEvent((MIDI::MetaEventType)event.metaEvent.type, t, dynamicByteBuffer);
+                program.AddMetaEvent((MIDI::MetaEventType)event.metaEvent.type, scaledTime, dynamicByteBuffer);
             }
             break;
             case Style::KORG_MIDI_EventType::RXnoiseOff:
@@ -76,4 +83,12 @@ void StyleMIDILoader::LoadTrackEvents(AccompanimentTrackNumber accompanimentTrac
                 break;
         }
     }
+}
+
+uint8 StyleMIDILoader::FindMostPreciseFrameRate(const IChordVariationView &chordVariationView) const
+{
+    uint8 fps1 = chordVariationView.GetTrack(AccompanimentTrackNumber::Drum).MIDI_Events()._0x2000008_data.unknown1;
+    uint8 fps2 = chordVariationView.GetTrack(AccompanimentTrackNumber::Percussion).MIDI_Events()._0x2000008_data.unknown1;
+
+    return Math::Max(fps1, fps2);
 }

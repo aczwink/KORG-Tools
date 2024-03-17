@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -27,9 +27,8 @@ class BanksController : public ListController
 {
 public:
     //Constructor
-    BanksController(const BankCollection<BankNumberType, ObjectType>& bankCollection)
+    inline BanksController(const LinkedList<BankNumberType>& bankNumbers) : bankNumbers(bankNumbers)
     {
-        this->bankNumbers = bankCollection.GetAllBankNumbers();
     }
 
     //Methods
@@ -41,11 +40,6 @@ public:
     String GetText(uint32 index) const override
     {
         return this->bankNumbers[index].ToString();
-    }
-
-    inline BankNumberType MapSelectedIndexToBankNumber(uint32 index) const
-    {
-        return this->bankNumbers[index];
     }
 
 private:

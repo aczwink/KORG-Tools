@@ -22,8 +22,11 @@
 const uint8 g_nWhiteKeysPerOctave = 7;
 
 //Constructor
-KeyboardView::KeyboardView(SetController &setController) : UI::PathRenderTargetWidget({}), setController(setController)
+KeyboardView::KeyboardView(SetController &setController) : setController(setController)
 {
+	this->sizingPolicy.SetHorizontalPolicy(UI::SizingPolicy::Policy::Expanding);
+	this->sizingPolicy.SetVerticalPolicy(UI::SizingPolicy::Policy::Expanding);
+
 	const uint8 nKeys = sizeof(this->keys)/sizeof(this->keys[0]);
 	for(uint8 key = 0; key < nKeys; key++)
 	{
@@ -37,38 +40,43 @@ KeyboardView::KeyboardView(SetController &setController) : UI::PathRenderTargetW
 }
 
 //Private methods
-void KeyboardView::DrawBlackKey(const KeyPitchEntry& entry, bool isSelected)
+void KeyboardView::DrawBlackKey(UI::Painter& painter, const KeyPitchEntry& entry, bool isSelected)
 {
 	if(!entry.isSelectable)
-		this->renderer->SetFillColor({0.1, 0.1, 0.1, 1});
+		painter.SetFillColor({0.1, 0.1, 0.1, 1});
 	else if(isSelected)
-		this->renderer->SetFillColor({0.25, 0.25, 0.25, 1});
+		painter.SetFillColor({0.25, 0.25, 0.25, 1});
 	else
-		this->renderer->SetFillColor({0, 0, 0, 1});
+		painter.SetFillColor({0, 0, 0, 1});
 
-	this->renderer->Rectangle(entry.rect);
-	this->renderer->Fill();
+	painter.Rectangle(entry.rect);
+	painter.Fill();
 }
 
-void KeyboardView::DrawWhiteKey(const KeyPitchEntry& entry, bool isSelected)
+void KeyboardView::DrawWhiteKey(UI::Painter& painter, const KeyPitchEntry& entry, bool isSelected)
 {
 	if(!entry.isSelectable)
-		this->renderer->SetFillColor({0.25, 0.25, 0.25, 1});
+		painter.SetFillColor({0.25, 0.25, 0.25, 1});
 	else if(isSelected)
-		this->renderer->SetFillColor({0.75, 0.75, 0.75, 1});
+		painter.SetFillColor({0.75, 0.75, 0.75, 1});
 	else
-		this->renderer->SetFillColor({1, 1, 1, 1});
-	this->renderer->SetStrokeColor({0, 0, 0, 1});
-	this->renderer->SetStrokeWidth(1);
+		painter.SetFillColor({1, 1, 1, 1});
+	painter.SetStrokeColor({0, 0, 0, 1});
+	painter.SetStrokeWidth(1);
 
-	this->renderer->Rectangle(entry.rect);
-	this->renderer->Fill();
-	this->renderer->Stroke();
+	painter.Rectangle(entry.rect);
+	painter.Fill();
+	painter.Stroke();
 
 	if(entry.pitch.pitchWithinOctave == OctavePitch::C)
 	{
-		//write C and octave number
-		//stdOut << entry.pitch.octave << endl;
+		auto size = painter.ComputeTextSize(entry.pitch.ToString());
+
+		Math::PointD point = entry.rect.origin;
+		point.x += entry.rect.width() / 2;
+		point.x -= size.width / 2;
+		point.y += entry.rect.height() * 0.15;
+		painter.DrawText(point, entry.pitch.ToString());
 	}
 }
 
@@ -173,7 +181,8 @@ void KeyboardView::OnMouseMoved(UI::MouseEvent &event)
 
 void KeyboardView::OnPaint(UI::PaintEvent& event)
 {
-	this->deviceContext->ClearColorBuffer({0, 0, 0, 1});
+	auto painter = this->CreatePainter(event.osHandle);
+
 	const uint8 nKeys = sizeof(this->keys)/sizeof(this->keys[0]);
 
 	int8 selectedKey = this->FindMouseHoverKey();
@@ -181,24 +190,20 @@ void KeyboardView::OnPaint(UI::PaintEvent& event)
 	{
 		const auto& entry = this->keys[key];
 		if(!entry.isBlack)
-			this->DrawWhiteKey(entry, selectedKey == key);
+			this->DrawWhiteKey(*painter, entry, selectedKey == key);
 	}
 	for(uint8 key = 0; key < nKeys; key++)
 	{
 		const auto& entry = this->keys[key];
 		if(entry.isBlack)
-			this->DrawBlackKey(entry, selectedKey == key);
+			this->DrawBlackKey(*painter, entry, selectedKey == key);
 	}
 
-	this->renderer->Sync();
-	this->deviceContext->SwapBuffers();
 	event.Accept();
 }
 
 void KeyboardView::OnResized()
 {
-	PathRenderTargetWidget::OnResized();
-
 	const uint8 nKeys = sizeof(this->keys)/sizeof(this->keys[0]);
 	const uint8 nWhiteKeys = 10 * 7 + 5; //C-1 - G9
 

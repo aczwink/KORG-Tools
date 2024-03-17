@@ -26,11 +26,14 @@ SetWindow::SetWindow(EventHandling::EventQueue &eventQueue, SetController& setCo
 
     this->SetTitle(set.SetPath().String() + u8" - " + set.model.GetName());
 
-    this->padBanksView = new BankCollectionView(setController, set.padBanks);
-    this->performanceBanksView = new BankCollectionView(setController, set.performanceBanks);
-    this->sampleBanksView = new BankCollectionView(setController, set.sampleBanks);
-    this->soundBanksView = new BankCollectionView(setController, set.soundBanks);
-    this->styleBanksView = new BankCollectionView(setController, set.styleBanks);
+    this->padBanksController = new GlobalBankObjectSelectionController(this->setController, set.padBanks);
+    this->padBanksView = new BankCollectionView(*this->padBanksController);
+    this->performanceBanksController = new GlobalBankObjectSelectionController(this->setController, set.performanceBanks);
+    this->performanceBanksView = new BankCollectionView(*this->performanceBanksController);
+    this->sampleBanksController = new GlobalBankObjectSelectionController(this->setController, set.sampleBanks);
+    this->sampleBanksView = new BankCollectionView(*this->sampleBanksController);
+    this->styleBanksController = new GlobalBankObjectSelectionController(this->setController, set.styleBanks);
+    this->styleBanksView = new BankCollectionView(*this->styleBanksController);
 
     this->GetContentContainer()->SetLayout(new VerticalLayout);
 
@@ -41,7 +44,6 @@ SetWindow::SetWindow(EventHandling::EventQueue &eventQueue, SetController& setCo
     this->tabContainer->AddTab(u8"Pads", this->padBanksView);
     this->tabContainer->AddTab(u8"Performances", this->performanceBanksView);
     this->tabContainer->AddTab(u8"Samples", this->sampleBanksView);
-    this->tabContainer->AddTab(u8"Sounds", this->soundBanksView);
     this->tabContainer->AddTab(u8"Styles", this->styleBanksView);
 
     this->CreateSampleRAMArea();

@@ -18,149 +18,28 @@
  */
 #include "BankObjectsController.hpp"
 #include "../SetController.hpp"
+#include "BankCollectionController.hpp"
 
-template <typename BankNumberType, typename ObjectType>
 class BankObjectsView : public ListView
 {
 public:
     //Constructor
-    inline BankObjectsView(class SetController& setController) : setController(setController)
+    inline BankObjectsView(BankCollectionController& controller) : controller(controller)
     {
         this->selectionChanged.Connect(this, &BankObjectsView::OnSelectedBankObjectChanged);
     }
 
-    //Inline
-    inline void ShowBank(const BankNumberType& bankNumber, const ObjectBank<ObjectType>& objectBank)
-    {
-        this->bankNumber = bankNumber;
-        this->SetController(new BankObjectsController(objectBank));
-    }
-
 private:
     //Members
-    class SetController& setController;
-    Optional<BankNumberType> bankNumber;
+	BankCollectionController& controller;
 
-    //Inline
-    template<typename T = BankNumberType>
-    inline Type::EnableIf_t< Type::IsSameType<T, PadBankNumber>::value, String>
-    BankNumberTypeToString() const
-    {
-        return u8"pad";
-    }
-
-    template<typename T = BankNumberType>
-    inline Type::EnableIf_t< Type::IsSameType<T, PerformanceBankNumber>::value, String>
-    BankNumberTypeToString() const
-    {
-        return u8"performance";
-    }
-
-    template<typename T = BankNumberType>
-    inline Type::EnableIf_t< Type::IsSameType<T, SampleBankNumber>::value, String>
-    BankNumberTypeToString() const
-    {
-        return u8"sample";
-    }
-
-    template<typename T = BankNumberType>
-    inline Type::EnableIf_t< Type::IsSameType<T, SoundBankNumber>::value, String>
-    BankNumberTypeToString() const
-    {
-        return u8"sound";
-    }
-
-    template<typename T = BankNumberType>
-    inline Type::EnableIf_t< Type::IsSameType<T, StyleBankNumber>::value, String>
-    BankNumberTypeToString() const
-    {
-        return u8"style";
-    }
-
-    template<typename T = BankNumberType>
-    inline Type::EnableIf_t< Type::IsSameType<T, PadBankNumber>::value, void>
-    OnSelectedBankObjectChanged()
-    {
-    }
-
-    template<typename T = BankNumberType>
-    inline Type::EnableIf_t< Type::IsSameType<T, PerformanceBankNumber>::value, void>
-    OnSelectedBankObjectChanged()
-    {
-        auto indexes = this->SelectionController().GetSelectedIndexes();
-        if(indexes.IsEmpty())
-            return;
-        this->setController.SelectPerformance(*this->bankNumber, indexes.GetFront().GetRow());
-    }
-
-    template<typename T = BankNumberType>
-    inline Type::EnableIf_t< Type::IsSameType<T, SampleBankNumber>::value, void>
-    OnSelectedBankObjectChanged()
-    {
+    //Private methods
+    void OnSelectedBankObjectChanged()
+	{
 		auto indexes = this->SelectionController().GetSelectedIndexes();
 		if(indexes.IsEmpty())
-			return;
-		this->setController.PlaySample(*this->bankNumber, indexes.GetFront().GetRow());
-    }
-
-    template<typename T = BankNumberType>
-    inline Type::EnableIf_t< Type::IsSameType<T, SoundBankNumber>::value, void>
-    OnSelectedBankObjectChanged()
-    {
-        auto indexes = this->SelectionController().GetSelectedIndexes();
-        if(indexes.IsEmpty())
-            return;
-        this->setController.SelectSound(KeyboardTrackNumber::Upper1, *this->bankNumber, indexes.GetFront().GetRow());
-    }
-
-    template<typename T = BankNumberType>
-    inline Type::EnableIf_t< Type::IsSameType<T, StyleBankNumber>::value, void>
-    OnSelectedBankObjectChanged()
-    {
-        auto indexes = this->SelectionController().GetSelectedIndexes();
-        if(indexes.IsEmpty())
-            return;
-        this->setController.SelectStyle(*this->bankNumber, indexes.GetFront().GetRow());
-    }
-
-    //Event handlers
-    void OnCopyBankObject(uint8 pos)
-    {
-        Clipboard clipboard;
-
-        CommonFileFormats::JsonValue data = CommonFileFormats::JsonValue::Object();
-
-        data[u8"setPath"] = setController.Set().SetPath().String();
-        data[u8"type"] = this->BankNumberTypeToString();
-        data[u8"bankNumber"] = this->bankNumber->Number();
-        data[u8"pos"] = pos;
-
-        clipboard.Store(data.Dump());
-    }
-
-    void OnMouseButtonPressed(MouseClickEvent &event) override
-    {
-        auto indexes = this->SelectionController().GetSelectedIndexes();
-        if(indexes.IsEmpty())
-            return;
-
-        else if(event.GetMouseButton() == MouseButton::Right)
-        {
-            Menu* menu = new Menu(u8"Perske");
-
-            if(indexes.GetNumberOfElements() == 1)
-            {
-                uint8 selectedPos = indexes[0].GetRow();
-                menu->AppendEntry(new Action(u8"Copy", [this, selectedPos]()
-                    {
-                        this->OnCopyBankObject(selectedPos);
-                    })
-                );
-            }
-
-            menu->ShowPopup();
-
-            event.Accept();
-        }
-    }
+			this->controller.ObjectSelectionChanged({});
+		else
+			this->controller.ObjectSelectionChanged(indexes.GetFront().GetRow());
+	}
 };

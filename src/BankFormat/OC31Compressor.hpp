@@ -28,7 +28,7 @@ namespace libKORG
 		uint8 nExtraBytes;
 	};
 
-	class OC31Compressor : public StdXX::Compressor
+	class OC31Compressor : public StdXX::RedundancyBasedCompressor
 	{
 	public:
 		//Constructor
@@ -36,7 +36,6 @@ namespace libKORG
 
 		//Methods
 		void Finalize() override;
-		void Flush() override;
 		uint32 WriteBytes(const void *source, uint32 size) override;
 
 	private:
@@ -44,16 +43,17 @@ namespace libKORG
 		uint8 checkValue;
 		uint32 uncompressedSize;
 		uint64 uncompressedSizeOffset;
-		uint16 nUnprocessedBytesInDictionary;
 		uint8 nQueuedBlocks;
 		QueuedBlock queuedBlocks[2];
 		StdXX::UniquePointer<StdXX::SeekableOutputStream> baseStream;
-		StdXX::IndexedSlidingDictionary dictionary;
 
 		//Methods
+		int32 CheckPrimaryBackreference(uint16 distance, uint16 length) override;
+		bool CheckSecondaryBackreference(uint16 d1, uint16 l1, uint16 d2, uint16 l2, uint16 distanceBetweenBackreferences) override;
 		uint32 ComputeRequiredBytesForBackreference(uint16 distance, uint16 length) const;
 		uint8 ComputeRequiredBytesForStoringRawBytes(uint8 bytesCount) const;
-		void EmitBlock();
+		void EmitBackreference(uint16 distance, uint16 length) override;
+		void EmitDirectByte() override;
 		void EncodeBlock(const QueuedBlock& block, uint16 dataDistance);
 		void FindOptimalBlock(const QueuedBlock& block);
 		void FlushTopMostBlock();

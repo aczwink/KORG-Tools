@@ -28,5 +28,6 @@ public:
 
 private:
     //Methods
-    void LoadTrackEvents(AccompanimentTrackNumber accompanimentTrackNumber, const IChordVariationView& chordVariationView, MIDI::Program& program) const;
+    void LoadTrackEvents(AccompanimentTrackNumber accompanimentTrackNumber, const IChordVariationView& chordVariationView, MIDI::Program& program, uint8 targetFPS) const;
+    uint8 FindMostPreciseFrameRate(const IChordVariationView& chordVariationView) const;
 };

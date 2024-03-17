@@ -51,7 +51,7 @@ private:
 	KeyboardTrackNumber keyboardTrackNumber;
 	SetController& setController;
 
-	Label* soundNameLabel;
+	PushButton* soundName;
 	CheckBox* muted;
 
 	//Methods
@@ -60,4 +60,5 @@ private:
 
 	//Event handlers
 	void OnMuteTrackToggled();
+	void OnSelectSound();
 };

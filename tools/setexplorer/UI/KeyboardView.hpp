@@ -18,7 +18,8 @@
  */
 #include "../SetController.hpp"
 
-class KeyboardView : public UI::PathRenderTargetWidget
+//class KeyboardView : public UI::PathRenderTargetWidget
+class KeyboardView : public UI::DrawableWidget
 {
 	struct KeyPitchEntry
 	{
@@ -38,8 +39,8 @@ private:
 	KeyPitchEntry keys[128]; //C-1 to G9
 
 	//Methods
-	void DrawBlackKey(const KeyPitchEntry& entry, bool isSelected);
-	void DrawWhiteKey(const KeyPitchEntry& entry, bool isSelected);
+	void DrawBlackKey(UI::Painter& painter, const KeyPitchEntry& entry, bool isSelected);
+	void DrawWhiteKey(UI::Painter& painter, const KeyPitchEntry& entry, bool isSelected);
 	int8 FindMouseHoverKey() const;
 	uint8 GetOctaveRelativeKeyPos(OctavePitch octavePitch) const;
 	bool IsBlackKey(OctavePitch octavePitch) const;

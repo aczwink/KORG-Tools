@@ -19,6 +19,7 @@
 #include "BankCollectionView.hpp"
 #include "PlayBackView.hpp"
 #include "KeyboardView.hpp"
+#include "GlobalBankObjectSelectionController.hpp"
 
 class SetWindow : public MainAppWindow
 {
@@ -29,13 +30,16 @@ public:
 private:
     //Members
     SetController& setController;
+    UniquePointer<GlobalBankObjectSelectionController<PadBankNumber, StyleObject>> padBanksController;
+    UniquePointer<GlobalBankObjectSelectionController<PerformanceBankNumber, PerformanceObject>> performanceBanksController;
+    UniquePointer<GlobalBankObjectSelectionController<SampleBankNumber, AbstractSample>> sampleBanksController;
+    UniquePointer<GlobalBankObjectSelectionController<StyleBankNumber, FullStyle>> styleBanksController;
 
     TabContainer* tabContainer;
-    BankCollectionView<PadBankNumber, StyleObject>* padBanksView;
-    BankCollectionView<PerformanceBankNumber, PerformanceObject>* performanceBanksView;
-    BankCollectionView<SampleBankNumber, AbstractSample>* sampleBanksView;
-    BankCollectionView<SoundBankNumber, SoundObject>* soundBanksView;
-    BankCollectionView<StyleBankNumber, FullStyle>* styleBanksView;
+    BankCollectionView* padBanksView;
+    BankCollectionView* performanceBanksView;
+    BankCollectionView* sampleBanksView;
+    BankCollectionView* styleBanksView;
     ProgressBar* sampleSizeBar;
     PlayBackView* playBackView;
     KeyboardView* keyboardView;

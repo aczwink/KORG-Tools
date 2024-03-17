@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -17,6 +17,7 @@
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
+#include <StdXX.hpp>
 
 namespace libKORG::Style
 {

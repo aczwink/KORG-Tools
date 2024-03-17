@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -16,45 +16,40 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "BanksController.hpp"
-#include "BankObjectsController.hpp"
+#include "BankCollectionController.hpp"
 #include "BankObjectsView.hpp"
 
-template <typename BankNumberType, typename ObjectType>
 class BankCollectionView : public CompositeWidget
 {
 public:
     //Constructor
-    BankCollectionView(SetController& setController, const BankCollection<BankNumberType, ObjectType>& bankCollection) : bankCollection(bankCollection)
+    BankCollectionView(BankCollectionController& controller) : controller(controller)
     {
         this->bankListView = new ListView;
         this->bankListView->selectionChanged.Connect(this, &BankCollectionView::OnSelectedBankChanged);
 
-        this->banksController = new BanksController(bankCollection);
-        this->bankListView->SetController(this->banksController);
+        this->bankListView->SetController(controller.CreateBanksController());
         this->AddChild(this->bankListView);
 
-        this->bankObjectsView = new BankObjectsView<BankNumberType, ObjectType>(setController);
+        this->bankObjectsView = new BankObjectsView(controller);
         this->AddChild(this->bankObjectsView);
     }
 
 private:
     //Members
-    const BankCollection<BankNumberType, ObjectType>& bankCollection;
+    BankCollectionController& controller;
     ListView* bankListView;
-    SharedPointer<BanksController<BankNumberType, ObjectType>> banksController;
-    BankObjectsView<BankNumberType, ObjectType>* bankObjectsView;
+    BankObjectsView* bankObjectsView;
 
     //Event handlers
     void OnSelectedBankChanged()
     {
         const auto& selection = this->bankListView->SelectionController().GetSelectedIndexes();
         if(selection.IsEmpty())
-            this->bankObjectsView->SetController(nullptr);
+            this->controller.BankSelectionChanged({});
         else
-        {
-            BankNumberType bankNumber = this->banksController->MapSelectedIndexToBankNumber(selection[0].GetRow());
-            this->bankObjectsView->ShowBank(bankNumber, this->bankCollection[bankNumber]);
-        }
+            this->controller.BankSelectionChanged(selection[0].GetRow());
+
+        this->bankObjectsView->SetController(this->controller.CreateObjectsController());
     }
 };

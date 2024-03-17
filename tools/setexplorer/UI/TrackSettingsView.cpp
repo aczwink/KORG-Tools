@@ -18,14 +18,17 @@
  */
 //Class header
 #include "TrackSettingsView.hpp"
+//Local
+#include "BankCollectionView.hpp"
 
 //Private methods
 void TrackSettingsView::Init()
 {
 	this->GetContentContainer()->SetLayout(new HorizontalLayout);
 
-	this->soundNameLabel = new Label;
-	this->AddContentChild(this->soundNameLabel);
+	this->soundName = new PushButton;
+	this->soundName->onActivatedHandler = Function<void()>(&TrackSettingsView::OnSelectSound, this);
+	this->AddContentChild(this->soundName);
 
 	this->muted = new CheckBox;
 	this->muted->SetHint(u8"Muted");
@@ -42,7 +45,7 @@ void TrackSettingsView::UpdateState()
 	if(trackSel.HasValue())
 	{
 		const String& name = this->setController.Set().soundBanks[trackSel.Value().bankNumber].GetName(trackSel.Value().pos);
-		this->soundNameLabel->SetText(name);
+		this->soundName->SetText(name);
 
 		this->muted->SetEnabled(true);
 
@@ -57,7 +60,7 @@ void TrackSettingsView::UpdateState()
 	}
 	else
 	{
-		this->soundNameLabel->SetText(u8"-");
+		this->soundName->SetText(u8"-");
 		this->muted->SetEnabled(false);
 	}
 }
@@ -72,4 +75,42 @@ void TrackSettingsView::OnMuteTrackToggled()
 	else
 		this->setController.MuteToggleTrack(this->keyboardTrackNumber);
 	this->UpdateState();
+}
+
+void TrackSettingsView::OnSelectSound()
+{
+	class SoundSelectionController : public TypedBankCollectionController<SoundBankNumber, SoundObject>
+	{
+	public:
+		//State
+		SoundBankNumber bankNumber;
+		uint8 pos;
+		Property<bool> isValid;
+
+		//Constructor
+		inline SoundSelectionController(const BankCollection<SoundBankNumber, SoundObject> &bankCollection) : TypedBankCollectionController(bankCollection), bankNumber(9), isValid(false)
+		{
+		}
+
+		void ObjectSelectionChanged(const SoundBankNumber &bankNumber, uint8 pos) override
+		{
+			this->bankNumber = bankNumber;
+			this->pos = pos;
+			this->isValid.Set(true);
+		}
+	};
+
+	SoundSelectionController soundSelectionController(this->setController.Set().soundBanks);
+	Dialog* dialog = new Dialog;
+	dialog->SetTitle(u8"Select sound");
+	dialog->AddContentChild(new BankCollectionView(soundSelectionController));
+	bool success = dialog->Run(this->GetWindow(), soundSelectionController.isValid);
+
+	if(success)
+	{
+		if(this->isAccompanimentTrack)
+			this->setController.SelectSound(this->accompanimentTrackNumber, soundSelectionController.bankNumber, soundSelectionController.pos);
+		else
+			this->setController.SelectSound(this->keyboardTrackNumber, soundSelectionController.bankNumber, soundSelectionController.pos);
+	}
 }
