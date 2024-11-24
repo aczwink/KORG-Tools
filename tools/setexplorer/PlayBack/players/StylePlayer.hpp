@@ -18,7 +18,6 @@
  */
 #pragma once
 #include "VirtualInstrument.hpp"
-#include "../loading/StyleMIDILoader.hpp"
 
 class StylePlayer : private MIDI::OutputSequencer
 {
@@ -40,7 +39,7 @@ public:
 		if(!this->sequencerThread.IsNull())
 			this->Stop();
 
-		StyleMIDILoader loader;
+		StandardMIDIFormatConverter loader(bpm);
 		this->loadedProgram = loader.LoadVariation(0, 0, data);
 		this->tempo = bpm;
 	}

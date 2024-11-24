@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -23,19 +23,19 @@ using namespace libKORG::Sample;
 using namespace StdXX::Multimedia;
 
 //Public methods
-UniquePointer<AudioFrame> SampleLoader::LoadSignedPCM16Bit(const SampleData& sampleData, const MultiSamples::SampleEntry* multiSamplesSampleEntry)
+UniquePointer<Frame> SampleLoader::LoadSignedPCM16Bit(const SampleData& sampleData, const MultiSamples::SampleEntry* multiSamplesSampleEntry)
 {
     AudioSampleFormat sampleFormat(1, AudioSampleType::S16, false);
 
     switch(sampleData.sampleFormat)
     {
         case SampleFormat::Linear_PCM_S16BE:
-            return (AudioFrame*)this->DecodeAudio(sampleData.sampleBuffer, CodingFormatId::PCM_S16BE, sampleFormat);
+            return this->DecodeAudio(sampleData.sampleBuffer, CodingFormatId::PCM_S16BE, sampleFormat);
         case SampleFormat::Compressed:
         {
             AudioBuffer* audioBuffer = new AudioBuffer(sampleData.nSamples, sampleFormat);
             Sample::Decompress(sampleData.sampleBuffer.Data(), static_cast<int16 *>(audioBuffer->GetPlane(0)), sampleData.nSamples, multiSamplesSampleEntry->compressionCoefficients[0], multiSamplesSampleEntry->compressionCoefficients[1]);
-            return new AudioFrame(audioBuffer);
+            return new Frame(audioBuffer);
         }
     }
 }
@@ -50,7 +50,7 @@ Frame* SampleLoader::DecodeAudio(const DynamicByteBuffer& buffer, CodingFormatId
     UniquePointer<Stream> sourceStream = new Stream(DataType::Audio);
     sourceStream->codingParameters.audio.sampleFormat = sampleFormat;
 
-    UniquePointer<DecoderContext> decoderContext = FormatRegistry::Instance().GetCodingFormatById(sourceFormatId)->GetBestMatchingDecoder()->CreateContext(*sourceStream.operator->());
+    UniquePointer<DecoderContext> decoderContext = FormatRegistry::Instance().GetCodingFormatById(sourceFormatId)->GetBestMatchingDecoder()->CreateContext(sourceStream->codingParameters);
     decoderContext->Decode(sourcePacket);
 
     return decoderContext->GetNextFrame();

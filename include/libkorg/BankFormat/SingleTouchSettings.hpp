@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -52,6 +52,19 @@ namespace libKORG
 		}
 
 		//Properties
+		inline uint8 MetronomeTempo() const
+		{
+			switch(this->version)
+			{
+				case 0:
+					return 100; //TODO: unknown metronome speed for version 0
+				case 1:
+					return this->v1data->_0x04000108_data.metronomeTempo;
+				case 2:
+					return this->v2data->_0x04020008_data.metronomeTempo;
+			}
+		}
+
 		inline const Performance::V0::STSData& V0Data() const
 		{
 			ASSERT_EQUALS(0, this->version);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -31,14 +31,14 @@ void StyleView::GenerateStyleElementViews(const StyleData &styleData)
 
 	for(uint8 i = 0; i < 4; i++)
 	{
-		this->variationViews[i] = new StyleElementView<6>(styleData, styleData.variation[i].cv, trackIndex);
+		this->variationViews[i] = new StyleElementView<6>(styleData, styleData.variation[i].styleTrackData, styleData.variation[i].cv, trackIndex);
 		for(const auto & cv : styleData.variation[i].cv)
 			trackIndex += cv.trackMapping.GetNumberOfElements();
 	}
 
 	for(uint8 i = 0; i < 11; i++)
 	{
-		this->styleElementViews[i] = new StyleElementView<2>(styleData, styleData.styleElements[i].cv, trackIndex);
+		this->styleElementViews[i] = new StyleElementView<2>(styleData, styleData.styleElements[i].styleTrackData, styleData.styleElements[i].cv, trackIndex);
 		for(const auto & cv : styleData.styleElements[i].cv)
 			trackIndex += cv.trackMapping.GetNumberOfElements();
 	}

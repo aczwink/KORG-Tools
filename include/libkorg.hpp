@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -28,6 +28,7 @@
 #include <libkorg/Converters/PerformanceV2ToV1Converter.hpp>
 #include <libkorg/Converters/SampleRemover.hpp>
 #include <libkorg/Converters/SoundMapper.hpp>
+#include <libkorg/Converters/StandardMIDIFormatConverter.hpp>
 
 #include <libkorg/DataViews/DrumKitView.hpp>
 #include <libkorg/DataViews/MultiSamplesIndex.hpp>

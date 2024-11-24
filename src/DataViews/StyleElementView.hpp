@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -24,13 +24,14 @@ class StyleElementView : public libKORG::IStyleElementView
 {
 public:
 	//Constructor
-	inline StyleElementView(const libKORG::Style::StyleData &styleData, const libKORG::Style::ChordVariationData* cv, uint8 trackBaseIndex)
+	inline StyleElementView(const libKORG::Style::StyleData &styleData, const libKORG::Style::StyleTrackData* styleTrackData, const libKORG::Style::ChordVariationData* cv, uint8 trackBaseIndex)
 	{
+		this->styleTrackData = styleTrackData;
 		for(uint8 i = 0; i < nCV; i++)
 			this->cvViews[i] = new ChordVariationView(styleData, cv[i], trackBaseIndex);
 	}
 
-	const libKORG::IChordVariationView &GetChordVariation(uint8 index) const override
+	const libKORG::IChordVariationView& GetChordVariation(uint8 index) const override
 	{
 		return *this->cvViews[index];
 	}
@@ -40,7 +41,13 @@ public:
 		return nCV;
 	}
 
+	const libKORG::Style::StyleTrackData& GetStyleTrackMetaData(libKORG::AccompanimentTrackNumber trackNumber) const override
+	{
+		return this->styleTrackData[(uint8)trackNumber];
+	}
+
 private:
 	//Members
 	StdXX::StaticArray<StdXX::UniquePointer<libKORG::IChordVariationView>, nCV> cvViews;
+	const libKORG::Style::StyleTrackData* styleTrackData;
 };

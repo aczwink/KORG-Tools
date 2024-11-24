@@ -27,25 +27,26 @@ TEST_SUITE(SimpleMaqsumTests)
 {
 	TEST_CASE(Test)
 	{
+		const uint8 general_midi_percussionChannelZeroBased = 10 - 1;
+
 		FileSystem::Path setPath(u8"testdata/styles/pa600/simple_maqsum.SET");
 		Set set(setPath);
 		const auto& fullStyle = set.styleBanks.Entries().begin().operator*().bank.Objects().begin().operator*().Object();
+		uint8 bpm = fullStyle.STS().MetronomeTempo();
 		const auto& styleData = fullStyle.Style().data;
 
 		StyleView styleView(styleData);
 		const auto& korfDrumTrack = styleView.GetVariation(0).GetChordVariation(0).GetTrack(AccompanimentTrackNumber::Drum);
 
+		StandardMIDIFormatConverter converter(bpm);
+		auto convertedSmfProgram = converter.LoadVariation(0, 0, styleData);
+		const auto& convertedSmfDrumTrack = convertedSmfProgram.GetChannelTrack(general_midi_percussionChannelZeroBased);
+
 		FileInputStream fileInputStream(String(u8"testdata/styles/pa600/simple_maqsum.SET/V1-CV1.MID"));
 		auto smfProgram = MIDI::Program::Load(fileInputStream);
-		const auto& smfDrumTrack = smfProgram.GetChannelTrack(9);
+		const auto& smfDrumTrack = smfProgram.GetChannelTrack(general_midi_percussionChannelZeroBased);
 
-		ASSERT_EQUALS(2, smfProgram.MetaTrack().GetNumberOfElements());
-		ASSERT_EQUALS(30, smfDrumTrack.GetNumberOfElements());
-
-		//standard midi will have the following at the beginning of each chord variation:
-		//time signature
-		// control Change bundle #00-32 (Bank Select MSB/LSB)
-		// program Change
-		// control Change #11 (Expression)
+		ASSERT_EQUALS(smfProgram.MetaTrack(), convertedSmfProgram.MetaTrack());
+		ASSERT_EQUALS(smfDrumTrack, convertedSmfDrumTrack);
 	}
 }

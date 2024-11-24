@@ -48,7 +48,7 @@ Audio::Buffer* SamplesManager::LoadSample(uint64 id)
 	if(sampleObject)
 	{
 		SampleLoader sampleLoader;
-		UniquePointer<Multimedia::AudioFrame> frame = sampleLoader.LoadSignedPCM16Bit(sampleObject->data, nullptr);
+		UniquePointer<Multimedia::Frame> frame = sampleLoader.LoadSignedPCM16Bit(sampleObject->data, nullptr);
 		const Multimedia::AudioBuffer* audioBuffer = frame->GetAudioBuffer();
 
 		Audio::Buffer* buffer = this->deviceContext.CreateBuffer();

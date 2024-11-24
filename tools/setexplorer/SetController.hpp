@@ -159,15 +159,13 @@ public:
                     this->SelectSound((KeyboardTrackNumber)i, object.STS().V0Data().keyboardSettings[stsNumber].trackSettings[i].soundProgramChangeSeq);
                 for(uint8 i = 0; i < 8; i++)
                     this->SelectSound((AccompanimentTrackNumber)i, object.STS().V0Data().accompanimentSettings.trackSettings[i].soundProgramChangeSeq);
-
-                return 100; //TODO: unknown metronome speed for version 0
+                break;
             case 1:
                 NOT_IMPLEMENTED_ERROR; //TODO: implement me
-                return object.STS().V1Data()._0x04000108_data.metronomeTempo;
             case 2:
                 NOT_IMPLEMENTED_ERROR; //TODO: implement me
-                return object.STS().V2Data()._0x04020008_data.metronomeTempo;
         }
+        return object.STS().MetronomeTempo();
 	}
 
 	inline void SelectStyle(const StyleBankNumber& bankNumber, uint8 pos)

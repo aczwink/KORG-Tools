@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -24,7 +24,7 @@ class SampleLoader
 {
 public:
     //Methods
-    UniquePointer<Multimedia::AudioFrame> LoadSignedPCM16Bit(const Sample::SampleData& sampleData, const MultiSamples::SampleEntry* multiSamplesSampleEntry);
+    UniquePointer<Multimedia::Frame> LoadSignedPCM16Bit(const Sample::SampleData& sampleData, const MultiSamples::SampleEntry* multiSamplesSampleEntry);
 
 private:
     //Methods

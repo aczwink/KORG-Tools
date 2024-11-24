@@ -19,6 +19,7 @@ add_subdirectory(tools/setconv)
 add_subdirectory(tools/setinfo)
 add_subdirectory(tools/setexplorer)
 add_subdirectory(tools/sndmap)
+add_subdirectory(tools/sty2midi)
 add_subdirectory(tools/styconv)
 add_subdirectory(tools/wavextract)
 

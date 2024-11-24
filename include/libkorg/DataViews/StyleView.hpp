@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -53,6 +53,7 @@ namespace libKORG
 		//Abstract
 		virtual const IChordVariationView& GetChordVariation(uint8 index) const = 0;
 		virtual uint8 GetNumberOfChordVariations() const = 0;
+		virtual const Style::StyleTrackData& GetStyleTrackMetaData(AccompanimentTrackNumber trackNumber) const = 0;
 	};
 
 	class StyleView
