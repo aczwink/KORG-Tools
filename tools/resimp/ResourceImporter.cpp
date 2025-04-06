@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2025 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -216,7 +216,7 @@ bool ResourceImporter::ImportSample(uint64 id)
 		return true;
 
 	const auto& sampleEntry = this->sourceMultiSamplesIndex.GetSampleEntryById(id);
-	stdOut << u8"---Importing sample: " << sampleEntry.name << u8" (" << PitchToString(sampleEntry.originalNote) << u8")" << endl;
+	stdOut << u8"---Importing sample: " << sampleEntry.name << u8" (" << sampleEntry.originalNote.ToString() << u8")" << endl;
 	auto sourceLocation = this->sourceSetIndex.GetSampleLocation(id);
 	const auto slot = this->targetSet.sampleBanks.FindFreeSlot(sourceLocation);
 	if(!slot.HasValue())

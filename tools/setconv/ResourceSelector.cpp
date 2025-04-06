@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2025 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -32,7 +32,7 @@ void ResourceSelector::PrintResults()
 		for(const auto& objectEntry : bankEntry.bank.Objects())
 		{
 			nEntries++;
-			if(!this->selection.performances.Contains(objectEntry.object.operator->()))
+			if(!this->selection.performances.Contains(&objectEntry.Object()))
 				nMissingEntries++;
 		}
 
@@ -147,7 +147,7 @@ void ResourceSelector::SelectPerformances()
 	{
 		for(const auto& objectEntry : bankEntry.bank.Objects())
 		{
-			this->SelectPerformance(*objectEntry.object);
+			this->SelectPerformance(objectEntry.Object());
 		}
 	}
 }
@@ -183,7 +183,7 @@ bool ResourceSelector::SelectSound(const ProgramChangeSequence &programChangeSeq
 		return false;
 
 	const auto& entry = this->sourceSet.soundBanks[location->bankNumber][location->pos];
-	const auto& soundData = entry.object->data;
+	const auto& soundData = entry.Object().data;
 
 	ASSERT_EQUALS(false, soundData.drumKitData.HasValue()); //TODO: implement integrating drum samples and drum kit data
 
@@ -202,7 +202,7 @@ bool ResourceSelector::SelectSound(const ProgramChangeSequence &programChangeSeq
 uint32 ResourceSelector::ComputeTargetSampleSize(uint64 sampleId) const
 {
 	auto location = this->setIndex.GetSampleLocation(sampleId);
-	uint32 sampleSize = this->sourceSet.sampleBanks[location.bankNumber][location.pos].object->GetSize();
+	uint32 sampleSize = this->sourceSet.sampleBanks[location.bankNumber][location.pos].Object().GetSize();
 	if((this->multiSamplesIndex.GetSampleEntryById(sampleId).packedData.SampleType() == libKORG::MultiSamples::SampleType::Compressed) and !this->targetSet.model.IsSampleCompressionSupported())
 		sampleSize *= 2;
 	return sampleSize;

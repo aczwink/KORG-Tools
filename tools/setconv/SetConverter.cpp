@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2025 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -59,7 +59,7 @@ Sample::SampleData SetConverter::ConvertSampleIfRequired(const Sample::SampleDat
 
 		Multimedia::AudioBuffer* audioBuffer = new Multimedia::AudioBuffer(sampleData.nSamples, Multimedia::AudioSampleFormat(1, Multimedia::AudioSampleType::S16, false));
 		Sample::Decompress(sampleData.sampleBuffer.Data(), static_cast<int16 *>(audioBuffer->GetPlane(0)), sampleData.nSamples, entry.compressionCoefficients[0], entry.compressionCoefficients[1]);
-		Multimedia::AudioFrame frame(audioBuffer);
+		Multimedia::Frame frame(audioBuffer);
 		UniquePointer<Multimedia::Packet> packet = this->EncodeAudio(frame, Multimedia::CodingFormatId::PCM_S16BE, sampleData.sampleRate);
 
 		convertedData.sampleBuffer.Resize(packet->GetSize());
@@ -73,12 +73,12 @@ Sample::SampleData SetConverter::ConvertSampleIfRequired(const Sample::SampleDat
 
 Multimedia::Packet* SetConverter::EncodeAudio(const Multimedia::Frame& audioFrame, Multimedia::CodingFormatId targetFormatId, uint32 sampleRate) const
 {
-	UniquePointer<Multimedia::AudioStream> targetStream = new Multimedia::AudioStream;
+	UniquePointer<Multimedia::Stream> targetStream = new Multimedia::Stream(Multimedia::DataType::Audio);
 	targetStream->SetCodingFormat(targetFormatId);
-	targetStream->sampleFormat = Multimedia::AudioSampleFormat(1, Multimedia::AudioSampleType::S16, false);
+	targetStream->codingParameters.audio.sampleFormat = Multimedia::AudioSampleFormat(1, Multimedia::AudioSampleType::S16, false);
 	targetStream->codingParameters.audio.sampleRate = sampleRate;
 
-	UniquePointer<Multimedia::EncoderContext> encoderContext = Multimedia::CodingFormat::GetCodingFormatById(targetFormatId)->GetBestMatchingEncoder()->CreateContext(*targetStream);
+	UniquePointer<Multimedia::EncoderContext> encoderContext = Multimedia::FormatRegistry::Instance().GetCodingFormatById(targetFormatId)->GetBestMatchingEncoder()->CreateContext(targetStream->codingParameters);
 	encoderContext->Encode(audioFrame);
 
 	return encoderContext->GetNextPacket();
@@ -167,10 +167,10 @@ void SetConverter::IntegratePCM(const BinaryTreeSet<uint64>& selectedSampleIds)
 	{
 		for(const auto& objectEntry : bankEntry.bank.Objects())
 		{
-			if(!selectedSampleIds.Contains(objectEntry.object->GetId()))
+			if(!selectedSampleIds.Contains(objectEntry.Object().GetId()))
 				continue;
 
-			const AbstractSample& sample = *objectEntry.object;
+			const AbstractSample& sample = objectEntry.Object();
 			const auto& sampleObject = dynamic_cast<const SampleObject&>(sample);
 
 			auto entry = this->multiSamplesIndex.GetSampleEntryById(sampleObject.data.id);
@@ -185,12 +185,12 @@ bool SetConverter::IntegratePCMSample(const MultiSamples::SampleEntry& sampleEnt
 
 	const auto& entry = this->sourceSet.sampleBanks[location.bankNumber][location.pos];
 
-	const AbstractSample& sample = *entry.object;
+	const AbstractSample& sample = entry.Object();
 	const auto& sampleObject = dynamic_cast<const SampleObject&>(sample);
 
 	Sample::SampleData convertedSampleData = this->ConvertSampleIfRequired(sampleObject.data);
 
-	this->targetSet.sampleBanks[location.bankNumber].SetObject(entry.name, location.pos,
+	this->targetSet.sampleBanks[location.bankNumber].SetObject(entry.Name(), location.pos,
 																new SampleObject(Move(convertedSampleData)));
 
 	MultiSamples::SampleEntry mappedSample = sampleEntry;
@@ -212,7 +212,7 @@ void SetConverter::IntegrateSounds(const BinaryTreeMap<ProgramChangeSequence, Tu
 	for(const auto& kv : soundAllocation)
 	{
 		auto slot = this->setIndex.GetSoundLocation(kv.key);
-		const auto& soundObject = *this->sourceSet.soundBanks[slot->bankNumber][slot->pos].object;
+		const auto& soundObject = this->sourceSet.soundBanks[slot->bankNumber][slot->pos].Object();
 
 		Sound::SoundData newSound = soundObject.data;
 

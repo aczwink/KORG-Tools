@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2025 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -24,7 +24,7 @@ static DynamicArray<Tuple<String, String, ProgramChangeSequence>> ReadXMLSoundMa
 {
 	FileInputStream fileInputStream(path);
 	BufferedInputStream bufferedInputStream(fileInputStream);
-	Serialization::XmlDeserializer deserializer(bufferedInputStream);
+	Serialization::XMLDeserializer deserializer(bufferedInputStream);
 
 	DynamicArray<Tuple<String, String, ProgramChangeSequence>> result;
 
@@ -112,7 +112,7 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 		{
 			String bankName = u8"User";
 			bankName += bankEntry.bankNumber.IsDrumKit() ? u8" DK" : u8"";
-			soundMap.Push({ bankName, soundEntry.name, Set::CreateRAMSoundProgramChangeSequence(bankEntry.bankNumber, soundEntry.pos) });
+			soundMap.Push({ bankName, soundEntry.Name(), Set::CreateRAMSoundProgramChangeSequence(bankEntry.bankNumber, soundEntry.pos) });
 		}
 	}
 

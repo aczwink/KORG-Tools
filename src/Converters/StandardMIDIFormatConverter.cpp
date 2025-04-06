@@ -69,7 +69,7 @@ void StandardMIDIFormatConverter::LoadTrackEvents(AccompanimentTrackNumber accom
 	const auto& trackMetaData = styleElementView.GetStyleTrackMetaData(accompanimentTrackNumber);
 	uint8 gmChannel = this->MapTrackNumberToGeneralMIDIChannel(accompanimentTrackNumber);
 
-	//from manual somewhere: standard midi will have the following at the beginning of each chord variation:
+	//from PA600 manual p.148 Exporting a Style as an SMF separated by Markers: standard midi will have the following at the beginning of each chord variation:
 	program.AddControlChangeMessage(gmChannel, 0, MIDI::ControlChangeMessageType::Expression, trackMetaData.expression);
 	program.AddControlChangeMessage(gmChannel, 0, MIDI::ControlChangeMessageType::BankSelect, trackMetaData.soundProgramChangeSeq.BankSelectMSB());
 	program.AddChannelMessage(MIDI::ChannelMessageType::ControlChange, gmChannel, 0, 32, trackMetaData.soundProgramChangeSeq.BankSelectLSB());

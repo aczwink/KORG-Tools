@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2025 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -34,11 +34,11 @@ void BankAllocator::LayoutPerformances(const BinaryTreeSet<const PerformanceObje
 	{
 		for(const auto& objectEntry : bankEntry.bank.Objects())
 		{
-			if(performances.Contains(objectEntry.object.operator->()))
+			if(performances.Contains(&objectEntry.Object()))
 			{
 				if(this->targetSet.performanceBanks.HasBank(bankEntry.bankNumber))
 				{
-					this->PlacePerformance(objectEntry.object.operator->(), bankEntry.bankNumber, objectEntry.pos, objectEntry.name);
+					this->PlacePerformance(&objectEntry.Object(), bankEntry.bankNumber, objectEntry.pos, objectEntry.Name());
 				}
 			}
 		}
@@ -51,7 +51,7 @@ void BankAllocator::LayoutPerformances(const BinaryTreeSet<const PerformanceObje
 	{
 		for(const auto& objectEntry : bankEntry.bank.Objects())
 		{
-			if(performances.Contains(objectEntry.object.operator->()) and !this->bankAllocation.performanceAllocation.Contains(objectEntry.object.operator->()))
+			if(performances.Contains(&objectEntry.Object()) and !this->bankAllocation.performanceAllocation.Contains(&objectEntry.Object()))
 			{
 				while(this->occupiedPerformancePositions.Contains({bankNumber, pos}))
 				{
@@ -63,7 +63,7 @@ void BankAllocator::LayoutPerformances(const BinaryTreeSet<const PerformanceObje
 					}
 				}
 
-				this->PlacePerformance(objectEntry.object.operator->(), bankNumber, pos, objectEntry.name);
+				this->PlacePerformance(&objectEntry.Object(), bankNumber, pos, objectEntry.Name());
 			}
 		}
 	}
@@ -81,7 +81,7 @@ void BankAllocator::LayoutSounds(const BinaryTreeSet<ProgramChangeSequence> &sou
 			{
 				if(this->targetSet.soundBanks.HasBank(bankEntry.bankNumber))
 				{
-					this->PlaceSound(programChangeSequence, bankEntry.bankNumber, objectEntry.pos, objectEntry.name);
+					this->PlaceSound(programChangeSequence, bankEntry.bankNumber, objectEntry.pos, objectEntry.Name());
 				}
 			}
 		}
@@ -107,7 +107,7 @@ void BankAllocator::LayoutSounds(const BinaryTreeSet<ProgramChangeSequence> &sou
 					}
 				}
 
-				this->PlaceSound(programChangeSequence, bankNumber, pos, objectEntry.name);
+				this->PlaceSound(programChangeSequence, bankNumber, pos, objectEntry.Name());
 			}
 		}
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2025 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -24,7 +24,7 @@ using namespace StdXX::Multimedia;
 
 Packet* EncodeAudio(Frame& audioFrame, CodingFormatId targetFormatId, Stream& stream)
 {
-	UniquePointer<EncoderContext> encoderContext = CodingFormat::GetCodingFormatById(targetFormatId)->GetBestMatchingEncoder()->CreateContext(stream);
+	UniquePointer<EncoderContext> encoderContext = FormatRegistry::Instance().GetCodingFormatById(targetFormatId)->GetBestMatchingEncoder()->CreateContext(stream.codingParameters);
 	encoderContext->Encode(audioFrame);
 
 	return encoderContext->GetNextPacket();
@@ -34,14 +34,14 @@ void ExportWave(const FileSystem::Path& outPath, const SampleData& sampleData, c
 {
 	FileOutputStream file(outPath.String() + u8".wav");
 
-	const Format* format = Format::FindByExtension(u8"wav");
+	const ContainerFormat* format = FormatRegistry::Instance().FindFormatByFileExtension(u8"wav");
 	UniquePointer<Muxer> muxer = format->CreateMuxer(file);
 
-	AudioStream* targetStream = new AudioStream;
+	Stream* targetStream = new Stream(DataType::Audio);
 	muxer->AddStream(targetStream);
 
 	targetStream->SetCodingFormat(CodingFormatId::PCM_S16LE);
-	targetStream->sampleFormat = AudioSampleFormat(1, AudioSampleType::S16, false);
+	targetStream->codingParameters.audio.sampleFormat = AudioSampleFormat(1, AudioSampleType::S16, false);
 	targetStream->codingParameters.audio.sampleRate = sampleData.sampleRate;
 
 	UniquePointer<Frame> audioFrame;
@@ -86,8 +86,8 @@ int32 Main(const String &programName, const FixedArray<String> &args)
 		uint32 i = 0;
 		for(const auto& objectEntry : bankEntry.bank.Objects())
 		{
-			const String& sampleName = objectEntry.name;
-			const AbstractSample& sample = *objectEntry.object;
+			const String& sampleName = objectEntry.Name();
+			const AbstractSample& sample = objectEntry.Object();
 
 			if(IS_INSTANCE_OF(&sample, EncryptedSample))
 			{
