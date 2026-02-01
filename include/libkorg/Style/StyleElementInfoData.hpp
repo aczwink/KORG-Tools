@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2026 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -58,7 +58,7 @@ namespace libKORG::Style
 	struct StyleElementInfoData
 	{
 		uint8 chordVariationsWithData;
-		uint8 unknown2;
+		uint8 encodedTimeSignature;
 		ChordTable chordTable;
 		CueMode cueMode;
 		uint8 unknown4[3] = {0, 0, 0};
@@ -67,6 +67,17 @@ namespace libKORG::Style
 
 		//Constructor
 		StyleElementInfoData() = default;
+
+		//Properties
+		inline uint8 TimeSignatureDenominator() const
+		{
+			return static_cast<uint8>(1 << (this->encodedTimeSignature & 7));
+		}
+
+		inline uint8 TimeSignatureNumerator() const
+		{
+			return this->encodedTimeSignature >> 3;
+		}
 
 		//Inline
 		inline bool IsChordVariationDataAvailable(uint8 cvIndex) const

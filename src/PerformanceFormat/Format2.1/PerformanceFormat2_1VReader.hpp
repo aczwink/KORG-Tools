@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2026 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -19,6 +19,7 @@
 //Local
 #include "../Format2.0/PerformanceFormat2_0VReader.hpp"
 #include "UnknownAdditionalReaderV2_1.hpp"
+#include "Unknown04ChunkReader.hpp"
 
 class PerformanceFormat2_1VReader : public PerformanceFormat2_0VReader
 {
@@ -34,4 +35,5 @@ protected:
 private:
 	//Members
 	UnknownAdditionalReaderV2_1 unknownAdditionalReader;
+	Unknown04ChunkReader unknown04ChunkReader;
 };

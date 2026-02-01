@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2026 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -27,6 +27,7 @@ namespace libKORG::Style
 		DrumOrPerc = 0,
 		Bass = 1,
 		Accompany = 2,
+		Guitar = 3,
 	};
 
 	struct ChordVariationTrackMapping

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2026 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -31,6 +31,7 @@ namespace libKORG
 		virtual ~ITrackView() = default;
 
 		//Abstract
+		virtual bool IsEmpty() const = 0;
 		virtual const Style::MIDI_Track& MIDI_Events() const = 0;
 	};
 
@@ -41,6 +42,7 @@ namespace libKORG
 		virtual ~IChordVariationView() = default;
 
 		//Abstract
+		virtual bool DoesHaveAnyData() const = 0;
 		virtual const ITrackView& GetTrack(AccompanimentTrackNumber trackNumber) const = 0;
 	};
 
@@ -63,6 +65,13 @@ namespace libKORG
 		inline StyleView(const Style::StyleData& styleData) : styleData(styleData)
 		{
 			this->GenerateStyleElementViews(styleData);
+		}
+
+		//Properties
+		inline StdXX::Math::Rational<uint8> TimeSignature() const
+		{
+			const auto& data = this->styleData.variation[0].styleElementInfoData;
+			return {data.TimeSignatureNumerator(), data.TimeSignatureDenominator()};
 		}
 
 		//Inline

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2022-2026 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -29,14 +29,14 @@ MIDI::Program StandardMIDIFormatConverter::LoadVariation(uint8 variation, uint8 
     const uint16 ticksPerQuarter = 384; //as of PA600 manual
     MIDI::Program program(ticksPerQuarter);
 
+	StyleView styleView(data);
+	const IStyleElementView& variationView = styleView.GetVariation(variation);
+	const IChordVariationView& chordVariationView = variationView.GetChordVariation(chordVariation);
+	uint8 bestFPS = this->FindMostPreciseFrameRate(chordVariationView);
+
     this->AddTempoMessage(this->beatsPerMinute, program);
-    this->AddTimeSignatureMessage(program);
+    this->AddTimeSignatureMessage(program, bestFPS);
 
-    StyleView styleView(data);
-    const IStyleElementView& variationView = styleView.GetVariation(variation);
-    const IChordVariationView& chordVariationView = variationView.GetChordVariation(chordVariation);
-
-    uint8 bestFPS = this->FindMostPreciseFrameRate(chordVariationView);
     for(const auto trackNumber : AccompanimentTrackNumbers)
     {
         this->LoadTrackEvents(trackNumber, variationView, chordVariation, program, bestFPS);
@@ -74,19 +74,21 @@ void StandardMIDIFormatConverter::LoadTrackEvents(AccompanimentTrackNumber accom
 	program.AddControlChangeMessage(gmChannel, 0, MIDI::ControlChangeMessageType::BankSelect, trackMetaData.soundProgramChangeSeq.BankSelectMSB());
 	program.AddChannelMessage(MIDI::ChannelMessageType::ControlChange, gmChannel, 0, 32, trackMetaData.soundProgramChangeSeq.BankSelectLSB());
 	program.AddChannelMessage(MIDI::ChannelMessageType::ProgramChange, gmChannel, 0, trackMetaData.soundProgramChangeSeq.ProgramChange(), 0);
-	//TODO: need tests for correct values
-	program.AddChannelMessage(MIDI::ChannelMessageType::ControlChange, gmChannel, 0, 114, 21); //something non-standard :S
-	program.AddChannelMessage(MIDI::ChannelMessageType::ControlChange, gmChannel, 0, 115, 108); //something non-standard :S
-	program.AddChannelMessage(MIDI::ChannelMessageType::ControlChange, gmChannel, 0, 116, 0); //something non-standard :S
-	program.AddChannelMessage(MIDI::ChannelMessageType::ControlChange, gmChannel, 0, 117, 0); //something non-standard :S
-	program.AddChannelMessage(MIDI::ChannelMessageType::ControlChange, gmChannel, 0, 118, 0); //something non-standard :S
-	program.AddChannelMessage(MIDI::ChannelMessageType::ControlChange, gmChannel, 0, 119, 1); //something non-standard :S
+
+	if(this->addNonStandardControlChangeMessages)
+	{
+		//TODO: need tests for correct values. What is this?!
+		program.AddChannelMessage(MIDI::ChannelMessageType::ControlChange, gmChannel, 0, 114, 21); //something non-standard :S
+		program.AddChannelMessage(MIDI::ChannelMessageType::ControlChange, gmChannel, 0, 115, 108); //something non-standard :S
+		program.AddChannelMessage(MIDI::ChannelMessageType::ControlChange, gmChannel, 0, 116, 0); //something non-standard :S
+		program.AddChannelMessage(MIDI::ChannelMessageType::ControlChange, gmChannel, 0, 117, 0); //something non-standard :S
+		program.AddChannelMessage(MIDI::ChannelMessageType::ControlChange, gmChannel, 0, 118, 0); //something non-standard :S
+		program.AddChannelMessage(MIDI::ChannelMessageType::ControlChange, gmChannel, 0, 119, 1); //something non-standard :S
+	}
 
 	const IChordVariationView& chordVariationView = styleElementView.GetChordVariation(chordVariation);
     const auto& track = chordVariationView.GetTrack(accompanimentTrackNumber).MIDI_Events();
-    Math::Rational<uint64> timeScale(targetFPS, track._0x2000008_data.unknown1);
-    if(track._0x2000008_data.unknown1 == 0)
-        return;
+    Math::Rational<uint64> timeScale(targetFPS, track.timeScale);
 
 	uint64 t = 0;
     for(const auto& event : track.events)
@@ -94,30 +96,29 @@ void StandardMIDIFormatConverter::LoadTrackEvents(AccompanimentTrackNumber accom
         auto scaledTime = (t * timeScale).DivideAndRoundDown();
         switch(event.type)
         {
+			case Style::KORG_MIDI_EventType::RXnoiseOff: //RX noises are mapped to standard notes
             case Style::KORG_MIDI_EventType::NoteOff:
                 program.AddChannelMessage(MIDI::ChannelMessageType::NoteOff, gmChannel, scaledTime, event.value1, event.value2);
                 break;
+			case Style::KORG_MIDI_EventType::RXnoiseOn: //RX noises are mapped to standard notes
             case Style::KORG_MIDI_EventType::NoteOn:
                 program.AddChannelMessage(MIDI::ChannelMessageType::NoteOn, gmChannel, scaledTime, event.value1, event.value2);
                 break;
             case Style::KORG_MIDI_EventType::ControlChange:
-				NOT_IMPLEMENTED_ERROR; //TODO: implement me
+            	program.AddControlChangeMessage(gmChannel, scaledTime, static_cast<MIDI::ControlChangeMessageType>(event.value1), event.value2);
                 break;
             case Style::KORG_MIDI_EventType::Aftertouch:
-				NOT_IMPLEMENTED_ERROR; //TODO: implement me
+            	program.AddChannelMessage(MIDI::ChannelMessageType::ChannelPressure, gmChannel, scaledTime, event.value1);
                 break;
             case Style::KORG_MIDI_EventType::Bend:
-                NOT_IMPLEMENTED_ERROR; //TODO: implement me
-                break;
+			{
+				int32 pitch = event.value1 + 8192;
+				program.AddChannelMessage(MIDI::ChannelMessageType::Pitch, gmChannel, scaledTime, static_cast<uint16>(pitch));
+			}
+			break;
             case Style::KORG_MIDI_EventType::MetaEvent:
             	this->AddMetaEvent(event, scaledTime, program);
             break;
-            case Style::KORG_MIDI_EventType::RXnoiseOff:
-                NOT_IMPLEMENTED_ERROR; //TODO: implement me
-                break;
-            case Style::KORG_MIDI_EventType::RXnoiseOn:
-                NOT_IMPLEMENTED_ERROR; //TODO: implement me
-                break;
             case Style::KORG_MIDI_EventType::DeltaTime:
                 t += event.value1;
                 break;
@@ -137,16 +138,27 @@ void StandardMIDIFormatConverter::AddTempoMessage(uint16 bpm, MIDI::Program &pro
 	program.AddMetaEvent(MIDI::MetaEventType::SetTempo, 0, payload);
 }
 
-void StandardMIDIFormatConverter::AddTimeSignatureMessage(MIDI::Program &program) const
+void StandardMIDIFormatConverter::AddTimeSignatureMessage(MIDI::Program &program, uint8 midiClocksPerMetronomeClick) const
 {
 	DynamicByteBuffer payload;
 	payload.Resize(4);
 
-	//TODO: implement this correctly but need tests on where this is stored
-	payload[0] = 4;
-	payload[1] = 2;
-	payload[2] = 24;
-	payload[3] = 8;
+	payload[0] = this->timeSignature.numerator;
+
+	switch(this->timeSignature.denominator)
+	{
+		case 4:
+			payload[1] = 2;
+			break;
+		case 8:
+			payload[1] = 3;
+			break;
+		case 16:
+			payload[1] = 4;
+			break;
+	}
+	payload[2] = midiClocksPerMetronomeClick;
+	payload[3] = 8; //8x 1/32 note per quarter
 
 	program.AddMetaEvent(MIDI::MetaEventType::TimeSignature, 0, payload);
 }
@@ -156,7 +168,7 @@ uint8 StandardMIDIFormatConverter::FindMostPreciseFrameRate(const IChordVariatio
 	uint8 maxFPS = 0;
 	for(const auto trackNumber : AccompanimentTrackNumbers)
 	{
-		uint8 fps = chordVariationView.GetTrack(trackNumber).MIDI_Events()._0x2000008_data.unknown1;
+		uint8 fps = chordVariationView.GetTrack(trackNumber).MIDI_Events().timeScale;
 
 		maxFPS = Math::Max(fps, maxFPS);
 	}

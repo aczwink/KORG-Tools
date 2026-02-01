@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2024-2026 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -20,12 +20,16 @@
 using namespace libKORG;
 using namespace StdXX;
 
-static void ExportVariation(uint8 bpm, uint8 variation, uint8 chordVariationsCount, const Style::StyleData& styleData)
+static void ExportVariation(uint8 bpm, const Math::Rational<uint8>& timeSig, uint8 variation, const IStyleElementView& variationView, const Style::StyleData& styleData)
 {
-	StandardMIDIFormatConverter converter(bpm);
+	StandardMIDIFormatConverter converter(bpm, timeSig, false);
 
+	uint8 chordVariationsCount = variationView.GetNumberOfChordVariations();
 	for(uint8 i = 0; i < chordVariationsCount; i++)
 	{
+		if(!variationView.GetChordVariation(i).DoesHaveAnyData())
+			continue;
+
 		auto program = converter.LoadVariation(variation, i, styleData);
 
 		FileOutputStream fileOutputStream(u8"V" + String::Number(variation+1) + u8"-CV" + String::Number(i+1) + u8".mid");
@@ -42,12 +46,14 @@ static void ExportToMIDI(const FileSystem::Path &setPath, const StyleBankNumber 
 	uint8 bpm = fullStyle.STS().MetronomeTempo();
 
 	StyleView styleView(styleData);
+	auto timeSig = styleView.TimeSignature();
 
 	for(uint8 i = 0; i < 4; i++)
 	{
-		if(!styleView.IsVariationDataAvailable(i))
+		if(!styleView.IsVariationDataAvailable(i) || !styleView.IsVariationEnabled(i))
 			continue;
-		ExportVariation(bpm, i, styleView.GetVariation(i).GetNumberOfChordVariations(), styleData);
+
+		ExportVariation(bpm, timeSig, i, styleView.GetVariation(i), styleData);
 	}
 	//TODO: other style elements
 }

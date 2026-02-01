@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2024 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2026 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -132,7 +132,7 @@ void StyleOutputter::Output(const StyleElementInfoData& styleElementInfoData)
 	Section chunkSection(u8"StyleElementInfoData", this->formattedOutputter);
 
 	this->formattedOutputter.OutputProperty(u8"chordVariationsWithData", styleElementInfoData.chordVariationsWithData);
-	this->formattedOutputter.OutputProperty(u8"unknown2", styleElementInfoData.unknown2);
+	this->formattedOutputter.OutputProperty(u8"unknown2", styleElementInfoData.encodedTimeSignature);
 	this->Output(styleElementInfoData.chordTable);
 	this->formattedOutputter.OutputProperty(u8"cueMode", (uint8)styleElementInfoData.cueMode);
 	this->formattedOutputter.OutputUnknownProperties(styleElementInfoData.unknown4, sizeof(styleElementInfoData.unknown4));
@@ -181,30 +181,27 @@ void StyleOutputter::Output(const MasterMIDI_Track &midiTrack)
 void StyleOutputter::Output(const MIDI_Track& midiTrack)
 {
 	this->formattedOutputter.OutputProperty(u8"chunkId", String::HexNumber(midiTrack.chunkType));
+	this->formattedOutputter.OutputProperty(u8"timeScale", midiTrack.timeScale);
 	switch(midiTrack.chunkType)
 	{
-		case MIDI_Track::CHUNK_0x2000008:
-			this->formattedOutputter.OutputProperty(u8"unknown1", midiTrack._0x2000008_data.unknown1);
-			this->formattedOutputter.OutputProperty(u8"unknown2", midiTrack._0x2000008_data.unknown2);
+		case MIDI_Track::DrumOrPerc:
+			this->formattedOutputter.OutputProperty(u8"unknown2", midiTrack.drumOrPercData.unknown2);
 			break;
-		case MIDI_Track::CHUNK_0x3000008:
-			this->formattedOutputter.OutputProperty(u8"unknown1", midiTrack._0x3000008_data.unknown1);
-			this->formattedOutputter.OutputProperty(u8"unknown2", midiTrack._0x3000008_data.unknown2);
-			this->formattedOutputter.OutputProperty(u8"unknown3", midiTrack._0x3000008_data.unknown3);
-			this->formattedOutputter.OutputProperty(u8"unknown4", midiTrack._0x3000008_data.unknown4);
-			this->formattedOutputter.OutputProperty(u8"unknown5", midiTrack._0x3000008_data.unknown5);
+		case MIDI_Track::Bass:
+			this->formattedOutputter.OutputProperty(u8"unknown2", midiTrack.bassData.unknown2);
+			this->formattedOutputter.OutputProperty(u8"unknown3", midiTrack.bassData.unknown3);
+			this->formattedOutputter.OutputProperty(u8"unknown4", midiTrack.bassData.unknown4);
+			this->formattedOutputter.OutputProperty(u8"unknown5", midiTrack.bassData.unknown5);
 			break;
-		case MIDI_Track::CHUNK_0x4000008:
-			this->formattedOutputter.OutputProperty(u8"unknown1", midiTrack._0x4000008_data.unknown1);
-			this->formattedOutputter.OutputProperty(u8"unknown2", midiTrack._0x4000008_data.unknown2);
-			this->formattedOutputter.OutputProperty(u8"unknown3", midiTrack._0x4000008_data.unknown3);
-			this->formattedOutputter.OutputProperty(u8"unknown4", midiTrack._0x4000008_data.unknown4);
+		case MIDI_Track::Accompaniment:
+			this->formattedOutputter.OutputProperty(u8"unknown2", midiTrack.accompanimentData.unknown2);
+			this->formattedOutputter.OutputProperty(u8"unknown3", midiTrack.accompanimentData.unknown3);
+			this->formattedOutputter.OutputProperty(u8"unknown4", midiTrack.accompanimentData.unknown4);
 			break;
-		case MIDI_Track::CHUNK_0x5010008:
-			this->formattedOutputter.OutputProperty(u8"unknown1", midiTrack._0x5010008_data.unknown1);
-			this->formattedOutputter.OutputProperty(u8"unknown2", midiTrack._0x5010008_data.unknown2);
-			this->formattedOutputter.OutputProperty(u8"unknown3", midiTrack._0x5010008_data.unknown3);
-			this->formattedOutputter.OutputProperty(u8"unknown4", midiTrack._0x5010008_data.unknown4);
+		case MIDI_Track::Guitar:
+			this->formattedOutputter.OutputProperty(u8"unknown2", midiTrack.guitarData.unknown2);
+			this->formattedOutputter.OutputProperty(u8"unknown3", midiTrack.guitarData.unknown3);
+			this->formattedOutputter.OutputProperty(u8"unknown4", midiTrack.guitarData.unknown4);
 			break;
 		default:
 			NOT_IMPLEMENTED_ERROR;
@@ -340,6 +337,8 @@ String StyleOutputter::ToString(ChordVariationTrackType trackType) const
 			return u8"BASS";
 		case ChordVariationTrackType::Accompany:
 			return u8"ACC";
+		case ChordVariationTrackType::Guitar:
+			return u8"Gtr";
 	}
 
 	RAISE(ErrorHandling::IllegalCodePathError);

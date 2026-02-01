@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2026 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -33,6 +33,8 @@ libKORG::ChunkReader* AccompanimentSettingsV1_0Reader::OnEnteringChunk(const lib
 {
 	switch(chunkHeader.id)
 	{
+		case 0x08000100:
+			return &this->unknown08ChunkReader;
 		case 0x1F000000:
 			return &this->unknownAdditionalAccompanimentSettingsReader;
 	}

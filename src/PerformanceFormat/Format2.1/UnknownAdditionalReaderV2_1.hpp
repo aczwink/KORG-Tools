@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2026 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -18,6 +18,8 @@
  */
 //Local
 #include "../Format2.0/UnknownAdditionalReaderV2.hpp"
+#include "Unknown1BChunkReader.hpp"
+#include "Unknown21ChunkReader.hpp"
 
 class UnknownAdditionalReaderV2_1 : public UnknownAdditionalReaderV2
 {
@@ -28,5 +30,11 @@ public:
 	}
 
 protected:
+	//Methods
+	ChunkReader *OnEnteringChunk(const libKORG::ChunkHeader &chunkHeader) override;
 	void ReadDataChunk(const libKORG::ChunkHeader &chunkHeader, StdXX::DataReader &dataReader) override;
+
+private:
+	Unknown1BChunkReader unknown1BChunkReader;
+	Unknown21ChunkReader unknown21ChunkReader;
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2026 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -26,6 +26,8 @@ libKORG::ChunkReader *PerformanceFormat2_1VReader::OnEnteringChunk(const libKORG
 {
 	switch (chunkHeader.id)
 	{
+		case 0x04020200:
+			return &this->unknown04ChunkReader;
 		case 0x1C010000:
 			return &this->unknownAdditionalReader;
 	}

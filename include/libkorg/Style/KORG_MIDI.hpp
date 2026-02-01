@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2024 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2026 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -59,42 +59,40 @@ namespace libKORG::Style
 	{
 		enum
 		{
-			CHUNK_0x2000008 = 0x2000008,
-			CHUNK_0x3000008 = 0x3000008,
-			CHUNK_0x4000008 = 0x4000008,
-			CHUNK_0x5010008 = 0x5010008,
+			DrumOrPerc = 0x2000008,
+			Bass = 0x3000008,
+			Accompaniment = 0x4000008,
+			Guitar = 0x5010008,
 		} chunkType;
 
-		struct
-		{
-			uint8 unknown1;
-			uint8 unknown2;
-		} _0x2000008_data;
+		uint8 timeScale;
 
 		struct
 		{
-			uint8 unknown1;
+			uint8 unknown2;
+		} drumOrPercData;
+
+		struct
+		{
 			uint8 unknown2;
 			uint8 unknown3;
 			uint8 unknown4;
 			uint8 unknown5;
-		} _0x3000008_data;
+		} bassData;
 
 		struct
 		{
-			uint8 unknown1;
 			uint8 unknown2;
 			uint8 unknown3;
 			uint8 unknown4;
-		} _0x4000008_data;
+		} accompanimentData;
 
 		struct
 		{
-			uint8 unknown1;
 			uint8 unknown2;
 			uint8 unknown3;
 			uint8 unknown4;
-		} _0x5010008_data;
+		} guitarData;
 
 		StdXX::DynamicArray<KORG_MIDI_Event> events;
 	};

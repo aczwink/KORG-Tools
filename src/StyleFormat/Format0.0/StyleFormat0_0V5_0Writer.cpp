@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2026 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -254,34 +254,34 @@ void StyleFormat0_0V5_0Writer::WriteMIDITrack(const MIDI_Track &midiTrack)
 {
 	switch (midiTrack.chunkType)
 	{
-		case MIDI_Track::CHUNK_0x2000008:
+		case MIDI_Track::DrumOrPerc:
 			this->BeginChunk(2, 0, 0, ChunkHeaderFlags::Leaf);
 			this->dataWriter.WriteUInt16(0);
-			this->dataWriter.WriteByte(midiTrack._0x2000008_data.unknown1);
-			this->dataWriter.WriteByte(midiTrack._0x2000008_data.unknown2);
+			this->dataWriter.WriteByte(midiTrack.timeScale);
+			this->dataWriter.WriteByte(midiTrack.drumOrPercData.unknown2);
 			this->dataWriter.WriteUInt16(0);
 			break;
-		case MIDI_Track::CHUNK_0x3000008:
+		case MIDI_Track::Bass:
 			this->BeginChunk(3, 0, 0, ChunkHeaderFlags::Leaf);
 			this->dataWriter.WriteUInt16(0);
-			this->dataWriter.WriteByte(midiTrack._0x3000008_data.unknown1);
-			this->dataWriter.WriteByte(midiTrack._0x3000008_data.unknown2);
-			this->dataWriter.WriteByte(midiTrack._0x3000008_data.unknown3);
+			this->dataWriter.WriteByte(midiTrack.timeScale);
+			this->dataWriter.WriteByte(midiTrack.bassData.unknown2);
+			this->dataWriter.WriteByte(midiTrack.bassData.unknown3);
 			this->dataWriter.WriteByte(0);
 			break;
-		case MIDI_Track::CHUNK_0x4000008:
+		case MIDI_Track::Accompaniment:
 			this->BeginChunk(4, 0, 0, ChunkHeaderFlags::Leaf);
 			this->dataWriter.WriteUInt16(0);
-			this->dataWriter.WriteByte(midiTrack._0x4000008_data.unknown1);
-			this->dataWriter.WriteByte(midiTrack._0x4000008_data.unknown2);
+			this->dataWriter.WriteByte(midiTrack.timeScale);
+			this->dataWriter.WriteByte(midiTrack.accompanimentData.unknown2);
 			this->dataWriter.WriteByte(0);
 			this->dataWriter.WriteByte(0);
 			break;
-		case MIDI_Track::CHUNK_0x5010008:
+		case MIDI_Track::Guitar:
 			this->BeginChunk(5, 1, 0, ChunkHeaderFlags::Leaf);
 			this->dataWriter.WriteUInt16(0);
-			this->dataWriter.WriteByte(midiTrack._0x5010008_data.unknown1);
-			this->dataWriter.WriteByte(midiTrack._0x5010008_data.unknown2);
+			this->dataWriter.WriteByte(midiTrack.timeScale);
+			this->dataWriter.WriteByte(midiTrack.guitarData.unknown2);
 			this->dataWriter.WriteByte(0);
 			this->dataWriter.WriteByte(0);
 			break;
@@ -296,17 +296,17 @@ void StyleFormat0_0V5_0Writer::WriteMIDITrack(const MIDI_Track &midiTrack)
 
 	switch(midiTrack.chunkType)
 	{
-		case MIDI_Track::CHUNK_0x3000008:
-			this->dataWriter.WriteByte(midiTrack._0x3000008_data.unknown4);
-			this->dataWriter.WriteByte(midiTrack._0x3000008_data.unknown5);
+		case MIDI_Track::Bass:
+			this->dataWriter.WriteByte(midiTrack.bassData.unknown4);
+			this->dataWriter.WriteByte(midiTrack.bassData.unknown5);
 			break;
-		case MIDI_Track::CHUNK_0x4000008:
-			this->dataWriter.WriteByte(midiTrack._0x4000008_data.unknown3);
-			this->dataWriter.WriteByte(midiTrack._0x4000008_data.unknown4);
+		case MIDI_Track::Accompaniment:
+			this->dataWriter.WriteByte(midiTrack.accompanimentData.unknown3);
+			this->dataWriter.WriteByte(midiTrack.accompanimentData.unknown4);
 			break;
-		case MIDI_Track::CHUNK_0x5010008:
-			this->dataWriter.WriteByte(midiTrack._0x5010008_data.unknown3);
-			this->dataWriter.WriteByte(midiTrack._0x5010008_data.unknown4);
+		case MIDI_Track::Guitar:
+			this->dataWriter.WriteByte(midiTrack.guitarData.unknown3);
+			this->dataWriter.WriteByte(midiTrack.guitarData.unknown4);
 			break;
 	}
 
@@ -352,7 +352,7 @@ void StyleFormat0_0V5_0Writer::WriteStyleElementInfoData(const StyleElementInfoD
 	this->BeginChunk(1, 1, 3, ChunkHeaderFlags::Leaf);
 
 	this->dataWriter.WriteByte(styleElementInfoData.chordVariationsWithData);
-	this->dataWriter.WriteByte(styleElementInfoData.unknown2);
+	this->dataWriter.WriteByte(styleElementInfoData.encodedTimeSignature);
 
 	this->WriteChordTable(styleElementInfoData.chordTable);
 

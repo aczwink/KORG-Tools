@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2026 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -40,10 +40,10 @@ private:
 	libKORG::Style::StyleData& data;
 
 	//Methods
-	void Read0x2000008Chunk(StdXX::DataReader& dataReader);
-	void Read0x3000008Chunk(StdXX::DataReader& dataReader);
-	void Read0x4000008Chunk(StdXX::DataReader& dataReader);
-	void Read0x5010008Chunk(StdXX::DataReader& dataReader);
+	void ReadAccompanymentTrackChunk(StdXX::DataReader &dataReader);
+	void ReadBassTrackChunk(StdXX::DataReader &dataReader);
+	void ReadDrumOrPercTrackChunk(StdXX::DataReader &dataReader);
+	void ReadGuitarTrackChunk(StdXX::DataReader &dataReader);
 	void ReadKORG_MIDIEvents(uint16 dataLength, StdXX::DynamicArray<libKORG::Style::KORG_MIDI_Event>& midiEvents, StdXX::DataReader& dataReader);
 	void ReadMIDITrackMapping(StdXX::DataReader& dataReader);
 

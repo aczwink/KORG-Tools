@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2026 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -20,6 +20,18 @@
 #include "UnknownAdditionalReaderV2_1.hpp"
 
 //Protected methods
+libKORG::ChunkReader *UnknownAdditionalReaderV2_1::OnEnteringChunk(const libKORG::ChunkHeader &chunkHeader)
+{
+	switch(chunkHeader.id)
+	{
+		case 0x1B000100:
+			return &this->unknown1BChunkReader;
+		case 0x21000100:
+			return &this->unknown21ChunkReader;
+	}
+	return nullptr;
+}
+
 void UnknownAdditionalReaderV2_1::ReadDataChunk(const libKORG::ChunkHeader &chunkHeader, StdXX::DataReader &dataReader)
 {
 	switch(chunkHeader.id)

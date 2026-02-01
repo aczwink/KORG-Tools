@@ -37,6 +37,10 @@ set(SOURCE_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/Format2.0/PerformanceFormat2_0VReader.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Format2.0/PerformanceFormat2_0VReader.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Format2.0/TrackSettingsV2Reader.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Format2.0/Unknown08ChunkReader.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Format2.0/Unknown08ChunkReader.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Format2.0/Unknown23ChunkReader.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Format2.0/Unknown23ChunkReader.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Format2.0/UnknownAdditionalAccompanimentSettingsReader.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Format2.0/UnknownAdditionalAccompanimentSettingsReader.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Format2.0/UnknownAdditionalReaderV2.cpp
@@ -44,6 +48,12 @@ set(SOURCE_FILES
 
 	${CMAKE_CURRENT_SOURCE_DIR}/Format2.1/PerformanceFormat2_1VReader.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Format2.1/PerformanceFormat2_1VReader.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Format2.1/Unknown1BChunkReader.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Format2.1/Unknown1BChunkReader.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Format2.1/Unknown04ChunkReader.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Format2.1/Unknown04ChunkReader.hpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Format2.1/Unknown21ChunkReader.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Format2.1/Unknown21ChunkReader.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Format2.1/UnknownAdditionalReaderV2_1.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Format2.1/UnknownAdditionalReaderV2_1.hpp
 

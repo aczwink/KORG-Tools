@@ -145,7 +145,7 @@ void StyleElementReader::ReadStyleElementInfoData(const ChunkVersion &chunkVersi
 			styleTrackData.ntt = ntt;
 	}
 
-	styleElementInfoData.unknown2 = dataReader.ReadByte();
+	styleElementInfoData.encodedTimeSignature = dataReader.ReadByte();
 	this->ReadChordTable(styleElementInfoData.chordTable, dataReader);
 
 	if(chunkVersion.AsUInt16() > 0)

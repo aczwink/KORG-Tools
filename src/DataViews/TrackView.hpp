@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2026 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <libkorg/Style/KORG_MIDI.hpp>
 
 class TrackView : public libKORG::ITrackView
 {
@@ -26,6 +27,26 @@ public:
 	}
 
 	//Methods
+	bool IsEmpty() const override
+	{
+		for(const auto& event : this->styleData.midiTracks[this->trackIndex].events)
+		{
+			switch(event.type)
+			{
+				case libKORG::Style::KORG_MIDI_EventType::DeltaTime:
+					break;
+				case libKORG::Style::KORG_MIDI_EventType::MetaEvent:
+					if(event.metaEvent.type == libKORG::Style::KORG_MIDI_MetaEventType::EndOfTrack)
+						return true;
+				case libKORG::Style::KORG_MIDI_EventType::NoteOn:
+					return false;
+				default:
+					NOT_IMPLEMENTED_ERROR;
+			}
+		}
+		return true;
+	}
+
 	const libKORG::Style::MIDI_Track &MIDI_Events() const override
 	{
 		return this->styleData.midiTracks[this->trackIndex];
@@ -33,6 +54,6 @@ public:
 
 private:
 	//Members
-	const libKORG::Style::StyleData &styleData;
+	const libKORG::Style::StyleData& styleData;
 	uint8 trackIndex;
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2026 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -28,7 +28,10 @@ public:
 	{
 		this->styleTrackData = styleTrackData;
 		for(uint8 i = 0; i < nCV; i++)
+		{
 			this->cvViews[i] = new ChordVariationView(styleData, cv[i], trackBaseIndex);
+			trackBaseIndex += cv[i].trackMapping.GetNumberOfElements();
+		}
 	}
 
 	const libKORG::IChordVariationView& GetChordVariation(uint8 index) const override

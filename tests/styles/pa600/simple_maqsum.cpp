@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2024-2026 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -38,7 +38,7 @@ TEST_SUITE(SimpleMaqsumTests)
 		StyleView styleView(styleData);
 		const auto& korfDrumTrack = styleView.GetVariation(0).GetChordVariation(0).GetTrack(AccompanimentTrackNumber::Drum);
 
-		StandardMIDIFormatConverter converter(bpm);
+		StandardMIDIFormatConverter converter(bpm, styleView.TimeSignature(), true);
 		auto convertedSmfProgram = converter.LoadVariation(0, 0, styleData);
 		const auto& convertedSmfDrumTrack = convertedSmfProgram.GetChannelTrack(general_midi_percussionChannelZeroBased);
 

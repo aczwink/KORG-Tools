@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2026 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -26,6 +26,8 @@ public:
 	//Constructor
 	inline ChordVariationView(const libKORG::Style::StyleData &styleData, const libKORG::Style::ChordVariationData& cv, uint8 trackBaseIndex)
 	{
+		//TODO: accompaniment tracks can actually have multiple midi tracks assigned. apparently the midi master track coordinates when which track is played.
+		//TODO: the current implementation of this class can not satisfy this. it will always just take the last midi track assigned to a accompaniment track
 		for(uint8 i = 0; i < cv.trackMapping.GetNumberOfElements(); i++)
 		{
 			uint8 trackMappingIndex = trackBaseIndex + i;
@@ -34,20 +36,31 @@ public:
 
 			this->trackViews[(uint8)trackNumber] = new TrackView(styleData, trackIndex);
 		}
-		for(uint8 i = 0; i < 8; i++)
+		for(const auto& trackNumber : libKORG::AccompanimentTrackNumbers)
 		{
-			if(this->trackViews[i].IsNull())
-				this->trackViews[i] = new EmptyTrackView();
+			uint8 index = (uint8) trackNumber;
+			if(this->trackViews[index].IsNull())
+				this->trackViews[index] = new EmptyTrackView();
 		}
 	}
 
 	//Public methods
+	bool DoesHaveAnyData() const override
+	{
+		for(const auto& track : this->trackViews)
+		{
+			if(!track->IsEmpty())
+				return true;
+		}
+		return false;
+	}
+
 	const libKORG::ITrackView &GetTrack(libKORG::AccompanimentTrackNumber trackNumber) const override
 	{
 		return *this->trackViews[static_cast<uint32>(trackNumber)];
 	}
 
 private:
-	//Members
+	//State
 	StdXX::StaticArray<StdXX::UniquePointer<libKORG::ITrackView>, 8> trackViews;
 };

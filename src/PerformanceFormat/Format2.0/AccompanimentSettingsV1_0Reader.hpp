@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2026 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -19,6 +19,7 @@
 #include <libkorg/ChunkFormat/ChunkReader.hpp>
 #include <libkorg/BankFormat/PerformanceObject.hpp>
 #include "UnknownAdditionalAccompanimentSettingsReader.hpp"
+#include "Unknown08ChunkReader.hpp"
 
 class AccompanimentSettingsV1_0Reader : public libKORG::ChunkReader
 {
@@ -36,5 +37,6 @@ protected:
 private:
 	//Members
 	libKORG::Performance::V2::AccompanimentSettings& accompanimentSettings;
+	Unknown08ChunkReader unknown08ChunkReader;
 	UnknownAdditionalAccompanimentSettingsReader unknownAdditionalAccompanimentSettingsReader;
 };

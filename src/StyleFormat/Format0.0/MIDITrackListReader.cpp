@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2020-2026 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -33,31 +33,71 @@ void MIDITrackListReader::ReadDataChunk(const libKORG::ChunkHeader &chunkHeader,
 			this->ReadMIDITrackMapping(dataReader);
 			break;
 		case 0x02000008:
-			this->Read0x2000008Chunk(dataReader);
+			this->ReadDrumOrPercTrackChunk(dataReader);
 			break;
 		case 0x03000008:
-			this->Read0x3000008Chunk(dataReader);
+			this->ReadBassTrackChunk(dataReader);
 			break;
 		case 0x4000008:
-			this->Read0x4000008Chunk(dataReader);
+			this->ReadAccompanymentTrackChunk(dataReader);
 			break;
 		case 0x05000108:
 		case 0x05010008:
-			this->Read0x5010008Chunk(dataReader);
+			this->ReadGuitarTrackChunk(dataReader);
 			break;
 	}
 }
 
 //Private methods
-void MIDITrackListReader::Read0x2000008Chunk(DataReader &dataReader)
+void MIDITrackListReader::ReadAccompanymentTrackChunk(DataReader &dataReader)
 {
 	ASSERT_EQUALS(0, dataReader.ReadUInt16());
 
 	auto& midiTrack = this->GetNextMIDITrack();
-	midiTrack.chunkType = MIDI_Track::CHUNK_0x2000008;
+	midiTrack.chunkType = MIDI_Track::Accompaniment;
 
-	midiTrack._0x2000008_data.unknown1 = dataReader.ReadByte();
-	midiTrack._0x2000008_data.unknown2 = dataReader.ReadByte();
+	midiTrack.timeScale = dataReader.ReadByte();
+	midiTrack.accompanimentData.unknown2 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+
+	uint16 dataLength = dataReader.ReadUInt16();
+	this->ReadKORG_MIDIEvents(dataLength, midiTrack.events, dataReader);
+
+	midiTrack.accompanimentData.unknown3 = dataReader.ReadByte();
+	midiTrack.accompanimentData.unknown4 = dataReader.ReadByte();
+}
+
+void MIDITrackListReader::ReadBassTrackChunk(DataReader &dataReader)
+{
+	ASSERT_EQUALS(0, dataReader.ReadUInt16());
+
+	auto& midiTrack = this->GetNextMIDITrack();
+	midiTrack.chunkType = MIDI_Track::Bass;
+
+	midiTrack.timeScale = dataReader.ReadByte();
+	midiTrack.bassData.unknown2 = dataReader.ReadByte();
+	midiTrack.bassData.unknown3 = dataReader.ReadByte();
+
+	ASSERT_EQUALS(0, dataReader.ReadByte());
+
+	uint16 dataLength = dataReader.ReadUInt16();
+	this->ReadKORG_MIDIEvents(dataLength, midiTrack.events, dataReader);
+
+	midiTrack.bassData.unknown4 = dataReader.ReadByte();
+	midiTrack.bassData.unknown5 = dataReader.ReadByte();
+}
+
+void MIDITrackListReader::ReadDrumOrPercTrackChunk(DataReader &dataReader)
+{
+	ASSERT_EQUALS(0, dataReader.ReadUInt16());
+
+	auto& midiTrack = this->GetNextMIDITrack();
+	midiTrack.chunkType = MIDI_Track::DrumOrPerc;
+
+	midiTrack.timeScale = dataReader.ReadByte();
+	midiTrack.drumOrPercData.unknown2 = dataReader.ReadByte();
 
 	ASSERT_EQUALS(0, dataReader.ReadUInt16());
 
@@ -65,35 +105,15 @@ void MIDITrackListReader::Read0x2000008Chunk(DataReader &dataReader)
 	this->ReadKORG_MIDIEvents(dataLength, midiTrack.events, dataReader);
 }
 
-void MIDITrackListReader::Read0x3000008Chunk(DataReader &dataReader)
+void MIDITrackListReader::ReadGuitarTrackChunk(DataReader &dataReader)
 {
+	auto& midiTrack = this->GetNextMIDITrack();
+	midiTrack.chunkType = MIDI_Track::Guitar;
+
 	ASSERT_EQUALS(0, dataReader.ReadUInt16());
 
-	auto& midiTrack = this->GetNextMIDITrack();
-	midiTrack.chunkType = MIDI_Track::CHUNK_0x3000008;
-
-	midiTrack._0x3000008_data.unknown1 = dataReader.ReadByte();
-	midiTrack._0x3000008_data.unknown2 = dataReader.ReadByte();
-	midiTrack._0x3000008_data.unknown3 = dataReader.ReadByte();
-
-	ASSERT_EQUALS(0, dataReader.ReadByte());
-
-	uint16 dataLength = dataReader.ReadUInt16();
-	this->ReadKORG_MIDIEvents(dataLength, midiTrack.events, dataReader);
-
-	midiTrack._0x3000008_data.unknown4 = dataReader.ReadByte();
-	midiTrack._0x3000008_data.unknown5 = dataReader.ReadByte();
-}
-
-void MIDITrackListReader::Read0x4000008Chunk(DataReader &dataReader)
-{
-	ASSERT_EQUALS(0, dataReader.ReadUInt16());
-
-	auto& midiTrack = this->GetNextMIDITrack();
-	midiTrack.chunkType = MIDI_Track::CHUNK_0x4000008;
-
-	midiTrack._0x4000008_data.unknown1 = dataReader.ReadByte();
-	midiTrack._0x4000008_data.unknown2 = dataReader.ReadByte();
+	midiTrack.timeScale = dataReader.ReadByte();
+	midiTrack.guitarData.unknown2 = dataReader.ReadByte();
 
 	ASSERT_EQUALS(0, dataReader.ReadByte());
 	ASSERT_EQUALS(0, dataReader.ReadByte());
@@ -101,28 +121,8 @@ void MIDITrackListReader::Read0x4000008Chunk(DataReader &dataReader)
 	uint16 dataLength = dataReader.ReadUInt16();
 	this->ReadKORG_MIDIEvents(dataLength, midiTrack.events, dataReader);
 
-	midiTrack._0x4000008_data.unknown3 = dataReader.ReadByte();
-	midiTrack._0x4000008_data.unknown4 = dataReader.ReadByte();
-}
-
-void MIDITrackListReader::Read0x5010008Chunk(DataReader &dataReader)
-{
-	auto& midiTrack = this->GetNextMIDITrack();
-	midiTrack.chunkType = MIDI_Track::CHUNK_0x5010008;
-
-	ASSERT_EQUALS(0, dataReader.ReadUInt16());
-
-	midiTrack._0x5010008_data.unknown1 = dataReader.ReadByte();
-	midiTrack._0x5010008_data.unknown2 = dataReader.ReadByte();
-
-	ASSERT_EQUALS(0, dataReader.ReadByte());
-	ASSERT_EQUALS(0, dataReader.ReadByte());
-
-	uint16 dataLength = dataReader.ReadUInt16();
-	this->ReadKORG_MIDIEvents(dataLength, midiTrack.events, dataReader);
-
-	midiTrack._0x5010008_data.unknown3 = dataReader.ReadByte();
-	midiTrack._0x5010008_data.unknown4 = dataReader.ReadByte();
+	midiTrack.guitarData.unknown3 = dataReader.ReadByte();
+	midiTrack.guitarData.unknown4 = dataReader.ReadByte();
 }
 
 void MIDITrackListReader::ReadKORG_MIDIEvents(uint16 dataLength, DynamicArray<libKORG::Style::KORG_MIDI_Event> &midiEvents, DataReader &dataReader)

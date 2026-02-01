@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2022-2026 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -27,10 +27,11 @@ namespace libKORG
 	{
 	public:
 		//Constructor
-		inline StandardMIDIFormatConverter(uint16 beatsPerMinute)
+		inline StandardMIDIFormatConverter(uint16 beatsPerMinute, const StdXX::Math::Rational<uint8>& timeSignature, bool addNonStandardControlChangeMessages) : timeSignature(timeSignature)
 		{
 			this->beatsPerMinute = beatsPerMinute;
 			this->endTime = 0;
+			this->addNonStandardControlChangeMessages = addNonStandardControlChangeMessages;
 		}
 
 		//Methods
@@ -39,12 +40,14 @@ namespace libKORG
 	private:
 		//State
 		uint16 beatsPerMinute;
+		StdXX::Math::Rational<uint8> timeSignature;
 		uint64 endTime;
+		bool addNonStandardControlChangeMessages;
 
 		//Methods
 		void AddMetaEvent(const Style::KORG_MIDI_Event& event, uint64 scaledTime, StdXX::MIDI::Program& program);
 		void AddTempoMessage(uint16 bpm, StdXX::MIDI::Program& program) const;
-		void AddTimeSignatureMessage(StdXX::MIDI::Program& program) const;
+		void AddTimeSignatureMessage(StdXX::MIDI::Program& program, uint8 midiClocksPerMetronomeClick) const;
 		uint8 FindMostPreciseFrameRate(const IChordVariationView& chordVariationView) const;
 		void LoadTrackEvents(AccompanimentTrackNumber accompanimentTrackNumber, const IStyleElementView& styleElementView, uint8 chordVariation, StdXX::MIDI::Program& program, uint8 targetFPS);
 		uint8 MapTrackNumberToGeneralMIDIChannel(AccompanimentTrackNumber accompanimentTrackNumber) const;
