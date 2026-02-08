@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2026 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -37,4 +37,19 @@ inline const SoundObject& ExtractFirstSound(const Set& set)
 inline const FullStyle& ExtractFirstStyle(const Set& set)
 {
 	return set.styleBanks.Entries().begin().operator*().bank.Objects().begin().operator*().Object();
+}
+
+inline const ITrackView& FindSingleTrackForAccompaniment(const IChordVariationView& chordVariationView, AccompanimentTrackNumber accompanimentTrackNumber)
+{
+	int16 best = -1;
+	for(uint8 i = 0; i < chordVariationView.GetTrackCount(); i++)
+	{
+		if(chordVariationView.GetTrack(i).GetTrackType() == accompanimentTrackNumber)
+		{
+			ASSERT_EQUALS(-1, best);
+			best = i;
+		}
+	}
+
+	return chordVariationView.GetTrack(best);
 }

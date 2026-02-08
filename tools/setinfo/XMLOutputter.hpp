@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2026 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with KORG-Tools.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <Std++/Serialization/XmlSerializer.hpp>
 #include "FormattedOutputter.hpp"
 
 class XMLOutputter : public FormattedOutputter
@@ -48,7 +47,7 @@ public:
 	}
 
 private:
-	Serialization::XmlSerializer xmlSerializer;
+	Serialization::XMLSerializer xmlSerializer;
 
 	//Inline
 	inline String CreateValidName(const String& name)

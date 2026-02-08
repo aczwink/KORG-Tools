@@ -2,7 +2,6 @@ set(SOURCE_FILES
 	${SOURCE_FILES}
 
 	${CMAKE_CURRENT_SOURCE_DIR}/ChordVariationView.hpp
-	${CMAKE_CURRENT_SOURCE_DIR}/EmptyTrackView.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/MultiSamplesIndex.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/SetIndex.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/StyleElementView.hpp

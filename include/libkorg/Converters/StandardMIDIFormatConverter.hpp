@@ -49,7 +49,8 @@ namespace libKORG
 		void AddTempoMessage(uint16 bpm, StdXX::MIDI::Program& program) const;
 		void AddTimeSignatureMessage(StdXX::MIDI::Program& program, uint8 midiClocksPerMetronomeClick) const;
 		uint8 FindMostPreciseFrameRate(const IChordVariationView& chordVariationView) const;
-		void LoadTrackEvents(AccompanimentTrackNumber accompanimentTrackNumber, const IStyleElementView& styleElementView, uint8 chordVariation, StdXX::MIDI::Program& program, uint8 targetFPS);
+		void LoadTrackEvents(uint64 startTime, uint8 trackIndex, const IStyleElementView& styleElementView, uint8 chordVariation, StdXX::MIDI::Program& program, uint8 targetFPS);
 		uint8 MapTrackNumberToGeneralMIDIChannel(AccompanimentTrackNumber accompanimentTrackNumber) const;
+		void WalkMasterTrack(const Style::MasterMIDI_Track& masterTrack, const IStyleElementView& variationView, uint8 chordVariation, StdXX::MIDI::Program& program, uint8 targetFPS);
 	};
 }

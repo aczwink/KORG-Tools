@@ -22,7 +22,7 @@ class TrackView : public libKORG::ITrackView
 {
 public:
 	//Constructor
-	inline TrackView(const libKORG::Style::StyleData &styleData, uint8 trackIndex) : styleData(styleData), trackIndex(trackIndex)
+	inline TrackView(const libKORG::Style::StyleData &styleData, libKORG::AccompanimentTrackNumber trackNumber, uint8 trackIndex) : styleData(styleData), trackIndex(trackIndex), trackNumber(trackNumber)
 	{
 	}
 
@@ -52,8 +52,14 @@ public:
 		return this->styleData.midiTracks[this->trackIndex];
 	}
 
+	libKORG::AccompanimentTrackNumber GetTrackType() const override
+	{
+		return this->trackNumber;
+	}
+
 private:
 	//Members
 	const libKORG::Style::StyleData& styleData;
 	uint8 trackIndex;
+	libKORG::AccompanimentTrackNumber trackNumber;
 };

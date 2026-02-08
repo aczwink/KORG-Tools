@@ -18,29 +18,20 @@
  */
 //Local
 #include "TrackView.hpp"
-#include "EmptyTrackView.hpp"
 
 class ChordVariationView : public libKORG::IChordVariationView
 {
 public:
 	//Constructor
-	inline ChordVariationView(const libKORG::Style::StyleData &styleData, const libKORG::Style::ChordVariationData& cv, uint8 trackBaseIndex)
+	inline ChordVariationView(const libKORG::Style::StyleData &styleData, const libKORG::Style::ChordVariationData& cv, uint8 trackBaseIndex) : masterMidiTrack(cv.masterMidiTrack), trackViews(cv.trackMapping.GetNumberOfElements())
 	{
-		//TODO: accompaniment tracks can actually have multiple midi tracks assigned. apparently the midi master track coordinates when which track is played.
-		//TODO: the current implementation of this class can not satisfy this. it will always just take the last midi track assigned to a accompaniment track
 		for(uint8 i = 0; i < cv.trackMapping.GetNumberOfElements(); i++)
 		{
 			uint8 trackMappingIndex = trackBaseIndex + i;
 			uint8 trackIndex = styleData.oneBasedMIDITrackMappingIndices[trackMappingIndex] - 1;
-			auto trackNumber = cv.trackMapping[i].trackNumber;
+			libKORG::AccompanimentTrackNumber trackNumber = cv.trackMapping[i].trackNumber;
 
-			this->trackViews[(uint8)trackNumber] = new TrackView(styleData, trackIndex);
-		}
-		for(const auto& trackNumber : libKORG::AccompanimentTrackNumbers)
-		{
-			uint8 index = (uint8) trackNumber;
-			if(this->trackViews[index].IsNull())
-				this->trackViews[index] = new EmptyTrackView();
+			this->trackViews[i] = new TrackView(styleData, trackNumber, trackIndex);
 		}
 	}
 
@@ -55,12 +46,23 @@ public:
 		return false;
 	}
 
-	const libKORG::ITrackView &GetTrack(libKORG::AccompanimentTrackNumber trackNumber) const override
+	const libKORG::Style::MasterMIDI_Track& GetMasterMIDITrack() const override
 	{
-		return *this->trackViews[static_cast<uint32>(trackNumber)];
+		return this->masterMidiTrack;
+	}
+
+	const libKORG::ITrackView &GetTrack(uint8 trackIndex) const override
+	{
+		return *this->trackViews[trackIndex];
+	}
+
+	uint8 GetTrackCount() const override
+	{
+		return this->trackViews.GetNumberOfElements();
 	}
 
 private:
 	//State
-	StdXX::StaticArray<StdXX::UniquePointer<libKORG::ITrackView>, 8> trackViews;
+	const libKORG::Style::MasterMIDI_Track& masterMidiTrack;
+	StdXX::FixedArray<StdXX::UniquePointer<libKORG::ITrackView>> trackViews;
 };

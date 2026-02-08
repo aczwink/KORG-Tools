@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2021-2026 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -27,6 +27,15 @@ using namespace StdXX;
 
 TEST_SUITE(SingleDrumNoteForEachStyleElementTests)
 {
+	void NoTrackShouldExist(const IChordVariationView& chordVariationView, AccompanimentTrackNumber trackNumber)
+	{
+		for(uint8 i = 0; i < chordVariationView.GetTrackCount(); i++)
+		{
+			if(chordVariationView.GetTrack(i).GetTrackType() == trackNumber)
+				NOT_IMPLEMENTED_ERROR;
+		}
+	}
+
 	void ShouldHaveSingleNoteEvent(const DynamicArray<KORG_MIDI_Event>& events, const Pitch& expectedPitch)
 	{
 		RangedEventView eventRangeFinder(events);
@@ -44,27 +53,47 @@ TEST_SUITE(SingleDrumNoteForEachStyleElementTests)
 
 	void AllTracksShouldBeEmpty(const IChordVariationView& chordVariationView)
 	{
-		ShouldHaveNoEvents(chordVariationView.GetTrack(AccompanimentTrackNumber::Drum).MIDI_Events().events);
-		ShouldHaveNoEvents(chordVariationView.GetTrack(AccompanimentTrackNumber::Percussion).MIDI_Events().events);
-		ShouldHaveNoEvents(chordVariationView.GetTrack(AccompanimentTrackNumber::Bass).MIDI_Events().events);
-		ShouldHaveNoEvents(chordVariationView.GetTrack(AccompanimentTrackNumber::Accompaniment1).MIDI_Events().events);
-		ShouldHaveNoEvents(chordVariationView.GetTrack(AccompanimentTrackNumber::Accompaniment2).MIDI_Events().events);
-		ShouldHaveNoEvents(chordVariationView.GetTrack(AccompanimentTrackNumber::Accompaniment3).MIDI_Events().events);
-		ShouldHaveNoEvents(chordVariationView.GetTrack(AccompanimentTrackNumber::Accompaniment4).MIDI_Events().events);
-		ShouldHaveNoEvents(chordVariationView.GetTrack(AccompanimentTrackNumber::Accompaniment5).MIDI_Events().events);
+		NoTrackShouldExist(chordVariationView, AccompanimentTrackNumber::Drum);
+		NoTrackShouldExist(chordVariationView, AccompanimentTrackNumber::Percussion);
+		NoTrackShouldExist(chordVariationView, AccompanimentTrackNumber::Bass);
+		NoTrackShouldExist(chordVariationView, AccompanimentTrackNumber::Accompaniment1);
+		NoTrackShouldExist(chordVariationView, AccompanimentTrackNumber::Accompaniment2);
+		NoTrackShouldExist(chordVariationView, AccompanimentTrackNumber::Accompaniment3);
+		NoTrackShouldExist(chordVariationView, AccompanimentTrackNumber::Accompaniment4);
+		NoTrackShouldExist(chordVariationView, AccompanimentTrackNumber::Accompaniment5);
 	}
 
 	void DrumTrackShouldContainSingleNote_OthersShouldBeEmpty(const IStyleElementView& styleElementView, const Pitch& expectedPitch)
 	{
-		ShouldHaveSingleNoteEvent(styleElementView.GetChordVariation(0).GetTrack(AccompanimentTrackNumber::Drum).MIDI_Events().events, expectedPitch);
+		const auto& cv = styleElementView.GetChordVariation(0);
+		
+		ShouldHaveSingleNoteEvent(FindSingleTrackForAccompaniment(cv, AccompanimentTrackNumber::Drum).MIDI_Events().events, expectedPitch);
 
-		ShouldHaveNoEvents(styleElementView.GetChordVariation(0).GetTrack(AccompanimentTrackNumber::Percussion).MIDI_Events().events);
-		ShouldHaveNoEvents(styleElementView.GetChordVariation(0).GetTrack(AccompanimentTrackNumber::Bass).MIDI_Events().events);
-		ShouldHaveNoEvents(styleElementView.GetChordVariation(0).GetTrack(AccompanimentTrackNumber::Accompaniment1).MIDI_Events().events);
-		ShouldHaveNoEvents(styleElementView.GetChordVariation(0).GetTrack(AccompanimentTrackNumber::Accompaniment2).MIDI_Events().events);
-		ShouldHaveNoEvents(styleElementView.GetChordVariation(0).GetTrack(AccompanimentTrackNumber::Accompaniment3).MIDI_Events().events);
-		ShouldHaveNoEvents(styleElementView.GetChordVariation(0).GetTrack(AccompanimentTrackNumber::Accompaniment4).MIDI_Events().events);
-		ShouldHaveNoEvents(styleElementView.GetChordVariation(0).GetTrack(AccompanimentTrackNumber::Accompaniment5).MIDI_Events().events);
+		ShouldHaveNoEvents(FindSingleTrackForAccompaniment(cv, AccompanimentTrackNumber::Percussion).MIDI_Events().events);
+		ShouldHaveNoEvents(FindSingleTrackForAccompaniment(cv, AccompanimentTrackNumber::Bass).MIDI_Events().events);
+		ShouldHaveNoEvents(FindSingleTrackForAccompaniment(cv, AccompanimentTrackNumber::Accompaniment1).MIDI_Events().events);
+		ShouldHaveNoEvents(FindSingleTrackForAccompaniment(cv, AccompanimentTrackNumber::Accompaniment2).MIDI_Events().events);
+		ShouldHaveNoEvents(FindSingleTrackForAccompaniment(cv, AccompanimentTrackNumber::Accompaniment3).MIDI_Events().events);
+		ShouldHaveNoEvents(FindSingleTrackForAccompaniment(cv, AccompanimentTrackNumber::Accompaniment4).MIDI_Events().events);
+		ShouldHaveNoEvents(FindSingleTrackForAccompaniment(cv, AccompanimentTrackNumber::Accompaniment5).MIDI_Events().events);
+
+		for(uint8 i = 1; i < styleElementView.GetNumberOfChordVariations(); i++)
+			AllTracksShouldBeEmpty(styleElementView.GetChordVariation(i));
+	}
+
+	void DrumTrackShouldContainSingleNote_OthersShouldNotExist(const IStyleElementView& styleElementView, const Pitch& expectedPitch)
+	{
+		const auto& chordVariationView = styleElementView.GetChordVariation(0);
+
+		ShouldHaveSingleNoteEvent(FindSingleTrackForAccompaniment(chordVariationView, AccompanimentTrackNumber::Drum).MIDI_Events().events, expectedPitch);
+
+		NoTrackShouldExist(chordVariationView, AccompanimentTrackNumber::Percussion);
+		NoTrackShouldExist(chordVariationView, AccompanimentTrackNumber::Bass);
+		NoTrackShouldExist(chordVariationView, AccompanimentTrackNumber::Accompaniment1);
+		NoTrackShouldExist(chordVariationView, AccompanimentTrackNumber::Accompaniment2);
+		NoTrackShouldExist(chordVariationView, AccompanimentTrackNumber::Accompaniment3);
+		NoTrackShouldExist(chordVariationView, AccompanimentTrackNumber::Accompaniment4);
+		NoTrackShouldExist(chordVariationView, AccompanimentTrackNumber::Accompaniment5);
 
 		for(uint8 i = 1; i < styleElementView.GetNumberOfChordVariations(); i++)
 			AllTracksShouldBeEmpty(styleElementView.GetChordVariation(i));
@@ -104,21 +133,21 @@ TEST_SUITE(SingleDrumNoteForEachStyleElementTests)
 		AllStyleElementsShouldBeEnabled(styleView);
 
 		DrumTrackShouldContainSingleNote_OthersShouldBeEmpty(styleView.GetVariation(0), Pitch(OctavePitch::C, 4));
-		DrumTrackShouldContainSingleNote_OthersShouldBeEmpty(styleView.GetVariation(1), Pitch(OctavePitch::C_SHARP, 4));
-		DrumTrackShouldContainSingleNote_OthersShouldBeEmpty(styleView.GetVariation(2), Pitch(OctavePitch::D, 4));
-		DrumTrackShouldContainSingleNote_OthersShouldBeEmpty(styleView.GetVariation(3), Pitch(OctavePitch::D_SHARP, 4));
+		DrumTrackShouldContainSingleNote_OthersShouldNotExist(styleView.GetVariation(1), Pitch(OctavePitch::C_SHARP, 4));
+		DrumTrackShouldContainSingleNote_OthersShouldNotExist(styleView.GetVariation(2), Pitch(OctavePitch::D, 4));
+		DrumTrackShouldContainSingleNote_OthersShouldNotExist(styleView.GetVariation(3), Pitch(OctavePitch::D_SHARP, 4));
 
-		DrumTrackShouldContainSingleNote_OthersShouldBeEmpty(styleView.GetStyleElement(StyleElementNumber::Intro1), Pitch(OctavePitch::E, 4));
-		DrumTrackShouldContainSingleNote_OthersShouldBeEmpty(styleView.GetStyleElement(StyleElementNumber::Intro2), Pitch(OctavePitch::F, 4));
-		DrumTrackShouldContainSingleNote_OthersShouldBeEmpty(styleView.GetStyleElement(StyleElementNumber::Intro3), Pitch(OctavePitch::F_SHARP, 4));
-		DrumTrackShouldContainSingleNote_OthersShouldBeEmpty(styleView.GetStyleElement(StyleElementNumber::Fill1), Pitch(OctavePitch::G, 4));
-		DrumTrackShouldContainSingleNote_OthersShouldBeEmpty(styleView.GetStyleElement(StyleElementNumber::Fill2), Pitch(OctavePitch::G_SHARP, 4));
-		DrumTrackShouldContainSingleNote_OthersShouldBeEmpty(styleView.GetStyleElement(StyleElementNumber::Fill3), Pitch(OctavePitch::A, 4));
-		DrumTrackShouldContainSingleNote_OthersShouldBeEmpty(styleView.GetStyleElement(StyleElementNumber::Fill4), Pitch(OctavePitch::A_SHARP, 4));
+		DrumTrackShouldContainSingleNote_OthersShouldNotExist(styleView.GetStyleElement(StyleElementNumber::Intro1), Pitch(OctavePitch::E, 4));
+		DrumTrackShouldContainSingleNote_OthersShouldNotExist(styleView.GetStyleElement(StyleElementNumber::Intro2), Pitch(OctavePitch::F, 4));
+		DrumTrackShouldContainSingleNote_OthersShouldNotExist(styleView.GetStyleElement(StyleElementNumber::Intro3), Pitch(OctavePitch::F_SHARP, 4));
+		DrumTrackShouldContainSingleNote_OthersShouldNotExist(styleView.GetStyleElement(StyleElementNumber::Fill1), Pitch(OctavePitch::G, 4));
+		DrumTrackShouldContainSingleNote_OthersShouldNotExist(styleView.GetStyleElement(StyleElementNumber::Fill2), Pitch(OctavePitch::G_SHARP, 4));
+		DrumTrackShouldContainSingleNote_OthersShouldNotExist(styleView.GetStyleElement(StyleElementNumber::Fill3), Pitch(OctavePitch::A, 4));
+		DrumTrackShouldContainSingleNote_OthersShouldNotExist(styleView.GetStyleElement(StyleElementNumber::Fill4), Pitch(OctavePitch::A_SHARP, 4));
 
-		DrumTrackShouldContainSingleNote_OthersShouldBeEmpty(styleView.GetStyleElement(StyleElementNumber::Break), Pitch(OctavePitch::B, 4));
-		DrumTrackShouldContainSingleNote_OthersShouldBeEmpty(styleView.GetStyleElement(StyleElementNumber::Ending1), Pitch(OctavePitch::C, 5));
-		DrumTrackShouldContainSingleNote_OthersShouldBeEmpty(styleView.GetStyleElement(StyleElementNumber::Ending2), Pitch(OctavePitch::C_SHARP, 5));
-		DrumTrackShouldContainSingleNote_OthersShouldBeEmpty(styleView.GetStyleElement(StyleElementNumber::Ending3), Pitch(OctavePitch::D, 5));
+		DrumTrackShouldContainSingleNote_OthersShouldNotExist(styleView.GetStyleElement(StyleElementNumber::Break), Pitch(OctavePitch::B, 4));
+		DrumTrackShouldContainSingleNote_OthersShouldNotExist(styleView.GetStyleElement(StyleElementNumber::Ending1), Pitch(OctavePitch::C, 5));
+		DrumTrackShouldContainSingleNote_OthersShouldNotExist(styleView.GetStyleElement(StyleElementNumber::Ending2), Pitch(OctavePitch::C_SHARP, 5));
+		DrumTrackShouldContainSingleNote_OthersShouldNotExist(styleView.GetStyleElement(StyleElementNumber::Ending3), Pitch(OctavePitch::D, 5));
 	}
 }

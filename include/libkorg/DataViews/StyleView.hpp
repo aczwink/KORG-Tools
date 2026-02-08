@@ -31,6 +31,7 @@ namespace libKORG
 		virtual ~ITrackView() = default;
 
 		//Abstract
+		virtual AccompanimentTrackNumber GetTrackType() const = 0;
 		virtual bool IsEmpty() const = 0;
 		virtual const Style::MIDI_Track& MIDI_Events() const = 0;
 	};
@@ -43,7 +44,9 @@ namespace libKORG
 
 		//Abstract
 		virtual bool DoesHaveAnyData() const = 0;
-		virtual const ITrackView& GetTrack(AccompanimentTrackNumber trackNumber) const = 0;
+		virtual const Style::MasterMIDI_Track& GetMasterMIDITrack() const = 0;
+		virtual const ITrackView& GetTrack(uint8 trackIndex) const = 0;
+		virtual uint8 GetTrackCount() const = 0;
 	};
 
 	class IStyleElementView

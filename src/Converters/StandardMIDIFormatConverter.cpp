@@ -37,10 +37,7 @@ MIDI::Program StandardMIDIFormatConverter::LoadVariation(uint8 variation, uint8 
     this->AddTempoMessage(this->beatsPerMinute, program);
     this->AddTimeSignatureMessage(program, bestFPS);
 
-    for(const auto trackNumber : AccompanimentTrackNumbers)
-    {
-        this->LoadTrackEvents(trackNumber, variationView, chordVariation, program, bestFPS);
-    }
+	this->WalkMasterTrack(chordVariationView.GetMasterMIDITrack(), variationView, chordVariation, program, bestFPS);
 
     program.AddMetaEvent(MIDI::MetaEventType::EndOfTrack, this->endTime, {});
 
@@ -62,68 +59,6 @@ void StandardMIDIFormatConverter::AddMetaEvent(const Style::KORG_MIDI_Event& eve
 	dynamicByteBuffer.CopyFrom(event.metaEvent.data, 0, dynamicByteBuffer.Size());
 
 	program.AddMetaEvent((MIDI::MetaEventType)event.metaEvent.type, scaledTime, dynamicByteBuffer);
-}
-
-void StandardMIDIFormatConverter::LoadTrackEvents(AccompanimentTrackNumber accompanimentTrackNumber, const IStyleElementView& styleElementView, uint8 chordVariation, MIDI::Program& program, uint8 targetFPS)
-{
-	const auto& trackMetaData = styleElementView.GetStyleTrackMetaData(accompanimentTrackNumber);
-	uint8 gmChannel = this->MapTrackNumberToGeneralMIDIChannel(accompanimentTrackNumber);
-
-	//from PA600 manual p.148 Exporting a Style as an SMF separated by Markers: standard midi will have the following at the beginning of each chord variation:
-	program.AddControlChangeMessage(gmChannel, 0, MIDI::ControlChangeMessageType::Expression, trackMetaData.expression);
-	program.AddControlChangeMessage(gmChannel, 0, MIDI::ControlChangeMessageType::BankSelect, trackMetaData.soundProgramChangeSeq.BankSelectMSB());
-	program.AddChannelMessage(MIDI::ChannelMessageType::ControlChange, gmChannel, 0, 32, trackMetaData.soundProgramChangeSeq.BankSelectLSB());
-	program.AddChannelMessage(MIDI::ChannelMessageType::ProgramChange, gmChannel, 0, trackMetaData.soundProgramChangeSeq.ProgramChange(), 0);
-
-	if(this->addNonStandardControlChangeMessages)
-	{
-		//TODO: need tests for correct values. What is this?!
-		program.AddChannelMessage(MIDI::ChannelMessageType::ControlChange, gmChannel, 0, 114, 21); //something non-standard :S
-		program.AddChannelMessage(MIDI::ChannelMessageType::ControlChange, gmChannel, 0, 115, 108); //something non-standard :S
-		program.AddChannelMessage(MIDI::ChannelMessageType::ControlChange, gmChannel, 0, 116, 0); //something non-standard :S
-		program.AddChannelMessage(MIDI::ChannelMessageType::ControlChange, gmChannel, 0, 117, 0); //something non-standard :S
-		program.AddChannelMessage(MIDI::ChannelMessageType::ControlChange, gmChannel, 0, 118, 0); //something non-standard :S
-		program.AddChannelMessage(MIDI::ChannelMessageType::ControlChange, gmChannel, 0, 119, 1); //something non-standard :S
-	}
-
-	const IChordVariationView& chordVariationView = styleElementView.GetChordVariation(chordVariation);
-    const auto& track = chordVariationView.GetTrack(accompanimentTrackNumber).MIDI_Events();
-    Math::Rational<uint64> timeScale(targetFPS, track.timeScale);
-
-	uint64 t = 0;
-    for(const auto& event : track.events)
-    {
-        auto scaledTime = (t * timeScale).DivideAndRoundDown();
-        switch(event.type)
-        {
-			case Style::KORG_MIDI_EventType::RXnoiseOff: //RX noises are mapped to standard notes
-            case Style::KORG_MIDI_EventType::NoteOff:
-                program.AddChannelMessage(MIDI::ChannelMessageType::NoteOff, gmChannel, scaledTime, event.value1, event.value2);
-                break;
-			case Style::KORG_MIDI_EventType::RXnoiseOn: //RX noises are mapped to standard notes
-            case Style::KORG_MIDI_EventType::NoteOn:
-                program.AddChannelMessage(MIDI::ChannelMessageType::NoteOn, gmChannel, scaledTime, event.value1, event.value2);
-                break;
-            case Style::KORG_MIDI_EventType::ControlChange:
-            	program.AddControlChangeMessage(gmChannel, scaledTime, static_cast<MIDI::ControlChangeMessageType>(event.value1), event.value2);
-                break;
-            case Style::KORG_MIDI_EventType::Aftertouch:
-            	program.AddChannelMessage(MIDI::ChannelMessageType::ChannelPressure, gmChannel, scaledTime, event.value1);
-                break;
-            case Style::KORG_MIDI_EventType::Bend:
-			{
-				int32 pitch = event.value1 + 8192;
-				program.AddChannelMessage(MIDI::ChannelMessageType::Pitch, gmChannel, scaledTime, static_cast<uint16>(pitch));
-			}
-			break;
-            case Style::KORG_MIDI_EventType::MetaEvent:
-            	this->AddMetaEvent(event, scaledTime, program);
-            break;
-            case Style::KORG_MIDI_EventType::DeltaTime:
-                t += event.value1;
-                break;
-        }
-    }
 }
 
 void StandardMIDIFormatConverter::AddTempoMessage(uint16 bpm, MIDI::Program &program) const
@@ -149,31 +84,98 @@ void StandardMIDIFormatConverter::AddTimeSignatureMessage(MIDI::Program &program
 	{
 		case 4:
 			payload[1] = 2;
+			payload[2] = 24;
 			break;
 		case 8:
 			payload[1] = 3;
+			payload[2] = 12;
 			break;
 		case 16:
 			payload[1] = 4;
+			payload[2] = 6;
 			break;
 	}
-	payload[2] = midiClocksPerMetronomeClick;
 	payload[3] = 8; //8x 1/32 note per quarter
 
 	program.AddMetaEvent(MIDI::MetaEventType::TimeSignature, 0, payload);
 }
 
-uint8 StandardMIDIFormatConverter::FindMostPreciseFrameRate(const IChordVariationView &chordVariationView) const
+uint8 StandardMIDIFormatConverter::FindMostPreciseFrameRate(const IChordVariationView& chordVariationView) const
 {
 	uint8 maxFPS = 0;
-	for(const auto trackNumber : AccompanimentTrackNumbers)
+	for(uint8 i = 0; i < chordVariationView.GetTrackCount(); i++)
 	{
-		uint8 fps = chordVariationView.GetTrack(trackNumber).MIDI_Events().timeScale;
+		uint8 fps = chordVariationView.GetTrack(i).MIDI_Events().timeScale;
 
 		maxFPS = Math::Max(fps, maxFPS);
 	}
 
-	return maxFPS;
+	return Math::Max(maxFPS, chordVariationView.GetMasterMIDITrack().timeScale);
+}
+
+void StandardMIDIFormatConverter::LoadTrackEvents(uint64 startTime, uint8 trackIndex, const IStyleElementView& styleElementView, uint8 chordVariation, MIDI::Program& program, uint8 targetFPS)
+{
+	const IChordVariationView& chordVariationView = styleElementView.GetChordVariation(chordVariation);
+	const auto& trackView = chordVariationView.GetTrack(trackIndex);
+	AccompanimentTrackNumber accompanimentTrackNumber = trackView.GetTrackType();
+	const auto& trackMetaData = styleElementView.GetStyleTrackMetaData(accompanimentTrackNumber);
+	uint8 gmChannel = this->MapTrackNumberToGeneralMIDIChannel(accompanimentTrackNumber);
+
+	if(startTime == 0)
+	{
+		//from PA600 manual p.148 Exporting a Style as an SMF separated by Markers: standard midi will have the following at the beginning of each chord variation:
+		program.AddControlChangeMessage(gmChannel, startTime, MIDI::ControlChangeMessageType::Expression, trackMetaData.expression);
+		program.AddControlChangeMessage(gmChannel, startTime, MIDI::ControlChangeMessageType::BankSelect, trackMetaData.soundProgramChangeSeq.BankSelectMSB());
+		program.AddChannelMessage(MIDI::ChannelMessageType::ControlChange, gmChannel, startTime, 32, trackMetaData.soundProgramChangeSeq.BankSelectLSB());
+		program.AddChannelMessage(MIDI::ChannelMessageType::ProgramChange, gmChannel, startTime, trackMetaData.soundProgramChangeSeq.ProgramChange(), 0);
+
+		if(this->addNonStandardControlChangeMessages)
+		{
+			//TODO: need tests for correct values. What is this?!
+			program.AddChannelMessage(MIDI::ChannelMessageType::ControlChange, gmChannel, startTime, 114, 21); //something non-standard :S
+			program.AddChannelMessage(MIDI::ChannelMessageType::ControlChange, gmChannel, startTime, 115, 108); //something non-standard :S
+			program.AddChannelMessage(MIDI::ChannelMessageType::ControlChange, gmChannel, startTime, 116, 0); //something non-standard :S
+			program.AddChannelMessage(MIDI::ChannelMessageType::ControlChange, gmChannel, startTime, 117, 0); //something non-standard :S
+			program.AddChannelMessage(MIDI::ChannelMessageType::ControlChange, gmChannel, startTime, 118, 0); //something non-standard :S
+			program.AddChannelMessage(MIDI::ChannelMessageType::ControlChange, gmChannel, startTime, 119, 1); //something non-standard :S
+		}
+	}
+
+	const auto& track = trackView.MIDI_Events();
+	uint64 t = startTime;
+	for(const auto& event : track.events)
+	{
+		auto scaledTime = t;
+		switch(event.type)
+		{
+			case Style::KORG_MIDI_EventType::RXnoiseOff: //RX noises are mapped to standard notes
+			case Style::KORG_MIDI_EventType::NoteOff:
+				program.AddChannelMessage(MIDI::ChannelMessageType::NoteOff, gmChannel, scaledTime, event.value1, event.value2);
+				break;
+			case Style::KORG_MIDI_EventType::RXnoiseOn: //RX noises are mapped to standard notes
+			case Style::KORG_MIDI_EventType::NoteOn:
+				program.AddChannelMessage(MIDI::ChannelMessageType::NoteOn, gmChannel, scaledTime, event.value1, event.value2);
+				break;
+			case Style::KORG_MIDI_EventType::ControlChange:
+				program.AddControlChangeMessage(gmChannel, scaledTime, static_cast<MIDI::ControlChangeMessageType>(event.value1), event.value2);
+				break;
+			case Style::KORG_MIDI_EventType::Aftertouch:
+				program.AddChannelMessage(MIDI::ChannelMessageType::ChannelPressure, gmChannel, scaledTime, event.value1);
+				break;
+			case Style::KORG_MIDI_EventType::Bend:
+			{
+				int32 pitch = event.value1 + 8192;
+				program.AddChannelMessage(MIDI::ChannelMessageType::Pitch, gmChannel, scaledTime, static_cast<uint16>(pitch));
+			}
+				break;
+			case Style::KORG_MIDI_EventType::MetaEvent:
+				this->AddMetaEvent(event, scaledTime, program);
+				break;
+			case Style::KORG_MIDI_EventType::DeltaTime:
+				t += event.value1;
+				break;
+		}
+	}
 }
 
 uint8 StandardMIDIFormatConverter::MapTrackNumberToGeneralMIDIChannel(AccompanimentTrackNumber accompanimentTrackNumber) const
@@ -197,4 +199,51 @@ uint8 StandardMIDIFormatConverter::MapTrackNumberToGeneralMIDIChannel(Accompanim
 		case AccompanimentTrackNumber::Accompaniment5:
 			return 15;
     }
+}
+
+void StandardMIDIFormatConverter::WalkMasterTrack(const Style::MasterMIDI_Track& masterTrack, const IStyleElementView& variationView, uint8 chordVariation, MIDI::Program& program, uint8 targetFPS)
+{
+	const auto& cv = variationView.GetChordVariation(chordVariation);
+	uint64 t = 0;
+
+	for(const auto& event : masterTrack.events)
+	{
+		switch(event.type)
+		{
+			case Style::KORG_MIDI_EventType::DeltaTime:
+				t += event.value1;
+				break;
+			case Style::KORG_MIDI_EventType::MetaEvent:
+			{
+				switch(event.metaEvent.type)
+				{
+					case Style::KORG_MIDI_MetaEventType::EndOfTrack:
+						return;
+					case Style::KORG_MIDI_MetaEventType::UnknownMaster:
+					{
+						switch(event.metaEvent.data[0])
+						{
+							case 3: //play track
+							{
+								uint8 trackIndex = event.metaEvent.data[1];
+								this->LoadTrackEvents(t, trackIndex, variationView, chordVariation, program, targetFPS);
+							}
+							break;
+							case 4: //stop track
+							{
+								uint8 trackIndex = event.metaEvent.data[1];
+							}
+							break;
+							default:
+								NOT_IMPLEMENTED_ERROR;
+						}
+					}
+					break;
+				}
+			}
+			break;
+			default:
+				NOT_IMPLEMENTED_ERROR;
+		}
+	}
 }

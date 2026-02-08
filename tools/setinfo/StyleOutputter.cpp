@@ -168,7 +168,7 @@ void StyleOutputter::Output(const MasterMIDI_Track &midiTrack)
 {
 	Section section(u8"Master MIDI track", this->formattedOutputter);
 
-	this->formattedOutputter.OutputProperty(u8"unknown1", midiTrack.unknown1);
+	this->formattedOutputter.OutputProperty(u8"unknown1", midiTrack.timeScale);
 	this->formattedOutputter.OutputProperty(u8"unknown2", midiTrack.unknown2);
 	this->formattedOutputter.OutputProperty(u8"unknown3", midiTrack.unknown3);
 

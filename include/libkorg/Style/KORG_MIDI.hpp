@@ -99,7 +99,7 @@ namespace libKORG::Style
 
 	struct MasterMIDI_Track
 	{
-		uint8 unknown1;
+		uint8 timeScale;
 		uint8 unknown2;
 		uint8 unknown3;
 

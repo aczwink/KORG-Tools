@@ -111,7 +111,7 @@ void StyleElementReader::ReadMasterMIDITrack(DataReader &dataReader)
 
 	auto& midiTrack = this->GetCurrentStyleElementTrack();
 
-	midiTrack.unknown1 = dataReader.ReadByte();
+	midiTrack.timeScale = dataReader.ReadByte();
 	midiTrack.unknown2 = dataReader.ReadByte();
 	midiTrack.unknown3 = dataReader.ReadByte();
 

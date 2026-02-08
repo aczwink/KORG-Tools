@@ -162,7 +162,7 @@ void StyleFormat0_0V5_0Writer::WriteChordVariationData(const ChordVariationData 
 	this->BeginChunk(3, 0, 0, ChunkHeaderFlags::Leaf);
 
 	this->dataWriter.WriteUInt16(0);
-	this->dataWriter.WriteByte(cv.masterMidiTrack.unknown1);
+	this->dataWriter.WriteByte(cv.masterMidiTrack.timeScale);
 	this->dataWriter.WriteByte(cv.masterMidiTrack.unknown2);
 	this->dataWriter.WriteByte(cv.masterMidiTrack.unknown3);
 	this->dataWriter.WriteByte(0);

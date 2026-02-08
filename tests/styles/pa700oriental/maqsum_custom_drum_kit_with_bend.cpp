@@ -19,6 +19,7 @@
 #include <StdXXTest.hpp>
 #include <libkorg.hpp>
 #include "../EventComparison.hpp"
+#include "../../Shared.hpp"
 //Namespaces
 using namespace libKORG;
 using namespace StdXX;
@@ -36,7 +37,7 @@ TEST_SUITE(MaqsumWithCustomDrumKitAndBend)
 		const auto& styleData = fullStyle.Style().data;
 
 		StyleView styleView(styleData);
-		const auto& korfDrumTrack = styleView.GetVariation(0).GetChordVariation(0).GetTrack(AccompanimentTrackNumber::Drum);
+		const auto& korfDrumTrack = FindSingleTrackForAccompaniment(styleView.GetVariation(0).GetChordVariation(0), AccompanimentTrackNumber::Drum);
 
 		StandardMIDIFormatConverter converter(bpm, styleView.TimeSignature(), false);
 		auto convertedSmfProgram = converter.LoadVariation(0, 0, styleData);

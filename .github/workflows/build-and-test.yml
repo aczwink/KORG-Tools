@@ -1,4 +1,4 @@
-name: Build Linux x86-64
+name: Build Linux x86-64 and execute tests
 
 on:
   push:
@@ -62,3 +62,22 @@ jobs:
 
     - name: Build KORG-Tools
       run: cmake --build ${{github.workspace}}/korgtools/_build --config ${{env.BUILD_TYPE}}
+
+    #execute tests
+    - name: Execute tests
+      run: ./_build/tests/tests 1>results.json 2>results-stderr.log
+      working-directory: ${{github.workspace}}/korgtools
+
+    - name: Archive test results
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-result-report
+        path: ${{github.workspace}}/korgtools/results*
+
+    - name: Test Report
+      uses: dorny/test-reporter@v1
+      if: success() || failure()
+      with:
+        name: Tests
+        path: ${{github.workspace}}/korgtools/results.json
+        reporter: mocha-json
