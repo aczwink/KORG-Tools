@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Amir Czwink (amir130@hotmail.de)
+ * Copyright (c) 2024-2026 Amir Czwink (amir130@hotmail.de)
  *
  * This file is part of KORG-Tools.
  *
@@ -39,7 +39,8 @@ public:
 		if(!this->sequencerThread.IsNull())
 			this->Stop();
 
-		StandardMIDIFormatConverter loader(bpm);
+		const auto& seid = data.variation[0].styleElementInfoData;
+		StandardMIDIFormatConverter loader(bpm, {seid.TimeSignatureNumerator(), seid.TimeSignatureDenominator()}, false);
 		this->loadedProgram = loader.LoadVariation(0, 0, data);
 		this->tempo = bpm;
 	}

@@ -1,5 +1,5 @@
 # KORG-Tools
-[![Build Linux x86-64](https://github.com/aczwink/KORG-Tools/actions/workflows/build.yml/badge.svg)](https://github.com/aczwink/KORG-Tools/actions/workflows/build.yml)
+[![Build Linux x86-64 and execute tests](https://github.com/aczwink/KORG-Tools/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/aczwink/KORG-Tools/actions/workflows/build-and-test.yml)
 
 libkorg is the first open source library that can read various file formats of SETs that are used by KORG.
 It is able to decompress OC31 data - an LZSS variant developed by KORG.
