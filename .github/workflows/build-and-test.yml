@@ -81,3 +81,4 @@ jobs:
         name: Tests
         path: ${{github.workspace}}/korgtools/results.json
         reporter: mocha-json
+        working-directory: ${{github.workspace}}/korgtools
