@@ -65,7 +65,7 @@ jobs:
 
     #execute tests
     - name: Execute tests
-      run: ./_build/tests/tests 1>results.json 2>results-stderr.log
+      run: ./_build/tests/tests --mocha-json 1>results.json 2>results-stderr.log
       working-directory: ${{github.workspace}}/korgtools
 
     - name: Archive test results
